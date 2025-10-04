@@ -11,7 +11,7 @@
 
 - http方法：POST / OPTIONS
 
-- URL：http://localhost:8080/blog/api/auto/create/{table}
+- URL：http://localhost:8080/api/auto/create/{table}
 
 - 请求头：
   ```
@@ -75,7 +75,7 @@
 
 - http方法：DELETE / OPTIONS
 
-- URL：http://localhost:8080/blog/api/auto/delete/{table}
+- URL：http://localhost:8080/api/auto/delete/{table}
 
 - 请求头：
 
@@ -144,7 +144,7 @@
 
 - http方法：PUT / OPTIONS
 
-- URL：http://localhost:8080/blog/api/auto/update/{table}
+- URL：http://localhost:8080/api/auto/update/{table}
 
 - 请求头：
 
@@ -224,7 +224,7 @@
 
 - http方法：GET / OPTIONS
 
-- URL：http://localhost:8080/blog/api/auto/view/{table}
+- URL：http://localhost:8080/api/auto/view/{table}
 
 - 请求头：
 
