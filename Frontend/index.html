@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>little_Base</title>
+    <script src="./src/tailwind.js"></script> 
+</head>
+<body class="text-gray-200 h-screen overflow-hidden">
+    <div class="flex h-full">
+        <div class="w-[4%] bg-[#121414] flex flex-col items-center py-4 justify-between z-10">
+            <div >
+                <div class="w-10 h-10 bg-[#2B2F31] rounded-lg flex items-center justify-center text-white font-bold">
+                    Logo
+                </div>
+            </div>
+            
+            <div class="flex flex-col space-y-4">
+                <button class="w-12 h-12 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg flex items-center justify-center transition-colors">
+                    <span class="text-sm">设置</span>
+                </button>
+                <button class="w-12 h-12 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg flex items-center justify-center transition-colors">
+                    <span class="text-sm">记录</span>
+                </button>
+                <button class="w-12 h-12 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg flex items-center justify-center transition-colors">
+                    <span class="text-sm">文件夹</span>
+                </button>
+                <button class="w-12 h-12 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg flex items-center justify-center transition-colors">
+                    <span class="text-sm">数据库</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 flex">
+            <div class="w-64 bg-[#181A1B] p-4 flex flex-col">
+                <button class="w-full mb-3 px-4 py-3 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-left transition-colors">
+                    Create DB
+                </button>
+                <button class="w-full px-4 py-3 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg text-left transition-colors">
+                    Permissions
+                </button>
+            </div>
+
+            <div class="flex-1 flex flex-col bg-[#1B1E1F]">
+                <div id="editor-area" class="h-[60%] p-6 relative">
+                    <textarea 
+                        class="w-full h-full bg-[#15151D] border border-[#2B2F31] rounded-lg p-4 text-gray-200 placeholder-gray-500 resize-none focus:outline-none focus:border-[#4a4f52]"
+                        placeholder="这里显示生成的表格"
+                    ></textarea>
+
+                    <button id="toggle-right-sidebar-btn" class="absolute right-8 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg flex items-center justify-center transition-colors z-20">
+                        <span class="text-sm">&lt;</span>
+                    </button>
+                </div>
+
+                <div class="h-[40%] bg-[#121414] p-6 relative flex items-center justify-center">
+                    <div class="w-[80%] h-[80%] border-2 border-dashed border-[#2B2F31] rounded-lg flex items-center justify-center">
+                        <span class="text-gray-500">请输入SQL...</span>
+                    </div>
+                    <button id="ai-generate-btn" class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-sm transition-colors ml-4 whitespace-nowrap">
+                        AI-Generated
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="right-sidebar" class="fixed right-0 top-0 h-full w-1/4 bg-[#181A1B] shadow-xl transform translate-x-full transition-transform duration-300 z-30">
+            <div class="p-6 text-white">
+                <h3 class="text-lg font-semibold mb-4">通用侧边栏</h3>
+                <p>这里是折叠的右侧栏内容</p>
+            </div>
+        </div>
+        
+        <div id="ai-sidebar" class="fixed right-0 top-0 h-full w-[25%] bg-[#1B1E1F] shadow-xl transform translate-x-full transition-transform duration-300 z-40 p-2">
+            <div class="h-10 bg-[#1B1E1F] flex items-center justify-between px-4 border-1 border-white rounded">
+                <span class="text-sm font-mono">DEEPSEEK R1-v2233322325</span>
+                <button class="text-sm bg-[#2B2F31] hover:bg-[#3a3f41] px-2 py-1 transition-colors">设置</button>
+            </div>
+            
+            <div class="p-4 flex flex-col h-[calc(100%-10rem)] overflow-y-auto">
+                <h3 class="text-base font-semibold mb-2">AI对话部分</h3>
+            </div>
+
+            <div class="flex w-full p-4 bg-[#2B2E31] h-40 border-t border-[#2B2F31] items-center space-x-2 rounded">
+                <textarea class="w-full h-full bg-[#2B2E31]  rounded-lg p-2 text-gray-200 resize-none focus:outline-none text-sm rounded" placeholder="输入你的AI指令..."></textarea>
+                <button class="h-[40%] px-2 py-1 hover:bg-gray-700 rounded-lg text-sm transition-colors whitespace-nowrap">发送</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./src/main.ts"></script>
+</body>
+</html>
