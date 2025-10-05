@@ -224,7 +224,7 @@
 
 - http方法：GET / OPTIONS
 
-- URL：http://localhost:8080/api/auto/view/{table}
+- URL：http://localhost:8080/api/auto/view/{table}?page=x&perpage=y
 
 - 请求头：
 
@@ -305,5 +305,54 @@
   }
   ```
 
+## 
+
+## 二、 用户建表API
+
+### 1. 建表
+
+- http方法：POST / OPTIONS
+
+- URL：http://localhost:8080/api/create-table/create/
+
+- 请求头：
+
+  ```
+  Content-Type: application/json
+  ```
+
+- 请求体：
+
+  ```json
+  {
+      "SQL": "value"
+  }
+  ```
+
+- 预期返回：
+
+  http状态码：201
+
+  返回体：
+
+  ```json
+  {
+      "SQL": "value"
+  }
+  ```
+
+  http状态码：400
+
+  返回体：
+
+  ```json
+  {
+    "status": 400,
+    "message": "Failed to create table.",
+    "data": {}
+  }
+  ```
+
   
 
+  
