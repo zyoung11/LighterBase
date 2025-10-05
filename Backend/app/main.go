@@ -364,27 +364,57 @@ func authenticateUser(c *fiber.Ctx) (int64, error) {
 	return userID, nil
 }
 
-// combineWhereClauses 安全地拼接两个 WHERE 子句
-func combineWhereClauses(userClause, securityClause string) string {
-	if userClause == "" && securityClause == "" {
-		return ""
-	}
-	if userClause == "" {
-		return securityClause
-	}
-	if securityClause == "" {
-		return userClause
-	}
-	// 确保两个子句都被括号包围，以避免逻辑错误
-	// 如果用户已经提供了括号，则不再添加
-	if !strings.HasPrefix(strings.TrimSpace(userClause), "(") {
-		userClause = fmt.Sprintf("(%s)", userClause)
-	}
-	if !strings.HasPrefix(strings.TrimSpace(securityClause), "(") {
-		securityClause = fmt.Sprintf("(%s)", securityClause)
+func checkPermission(operation, tableName string, userID int64) (bool, error) {
+	policy, err := getSecurityByTable(tableName)
+	if err != nil {
+		return false, fmt.Errorf("failed to retrieve security policy: %w", err)
 	}
 
-	return fmt.Sprintf("%s AND %s", userClause, securityClause)
+	// 如果没有策略，则默认允许
+	if policy == nil {
+		return true, nil
+	}
+
+	var whereClause string
+	switch operation {
+	case "create":
+		if !policy.CreateWhere.Valid || policy.CreateWhere.String == "" {
+			return true, nil // 没有策略则允许
+		}
+		whereClause = policy.CreateWhere.String
+	case "delete":
+		if !policy.DeleteWhere.Valid || policy.DeleteWhere.String == "" {
+			return true, nil
+		}
+		whereClause = policy.DeleteWhere.String
+	case "update":
+		if !policy.UpdateWhere.Valid || policy.UpdateWhere.String == "" {
+			return true, nil
+		}
+		whereClause = policy.UpdateWhere.String
+	case "view":
+		if !policy.ViewWhere.Valid || policy.ViewWhere.String == "" {
+			return true, nil
+		}
+		whereClause = policy.ViewWhere.String
+	default:
+		return false, fmt.Errorf("unknown operation: %s", operation)
+	}
+
+	// 将 @uid 替换为实际的 userID
+	finalWhereClause := strings.ReplaceAll(whereClause, "@uid", fmt.Sprintf("%d", userID))
+
+	// 构建 SELECT EXISTS 查询
+	// 注意：这里的查询目标是用户要操作的表本身
+	checkQuery := fmt.Sprintf("SELECT EXISTS (SELECT 1 FROM \"%s\" WHERE %s) AS permission_granted", tableName, finalWhereClause)
+
+	var permissionGranted bool
+	err = dataDB.QueryRow(checkQuery).Scan(&permissionGranted)
+	if err != nil {
+		return false, fmt.Errorf("failed to execute permission check query: %w", err)
+	}
+
+	return permissionGranted, nil
 }
 
 //------------------------------------------------------------------------------
@@ -438,25 +468,32 @@ func createTable(c *fiber.Ctx) error {
 // createRecord 动态向指定表插入数据
 func createRecord(c *fiber.Ctx) error {
 	tableName := c.Params("table")
-	if tableName == "" {
-		return sendError(c, 400, "Table name is required.", nil)
+
+	// 1. 认证并获取 userID
+	userID, err := authenticateUser(c)
+	if err != nil {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 
-	if tableName != "users" {
-		if _, err := authenticateUser(c); err != nil {
-			return sendError(c, 403, "You are not allowed to perform this request.", nil)
-		}
+	// 2. 权限检查
+	canCreate, err := checkPermission("create", tableName, userID)
+	if err != nil {
+		return sendError(c, 500, "An error occurred during permission check.", fiber.Map{"database_error": err.Error()})
+	}
+	if !canCreate {
+		return sendError(c, 403, "You do not have permission to create records in this table.", nil)
 	}
 
+	// 3. 解析请求体
 	body := make(map[string]interface{})
 	if err := c.BodyParser(&body); err != nil {
 		return sendError(c, 400, "Invalid JSON body.", nil)
 	}
-
 	if len(body) == 0 {
 		return sendError(c, 400, "Failed to create record.", fiber.Map{"body": "Request body cannot be empty."})
 	}
 
+	// 4. 处理 users 表的密码哈希
 	if tableName == "users" {
 		if plainPassword, ok := body["password_hash"].(string); ok && plainPassword != "" {
 			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(plainPassword), bcrypt.DefaultCost)
@@ -467,13 +504,13 @@ func createRecord(c *fiber.Ctx) error {
 		}
 	}
 
-	// 动态构建 INSERT 语句
+	// 5. 执行插入
 	columns := make([]string, 0, len(body))
 	placeholders := make([]string, 0, len(body))
 	values := make([]interface{}, 0, len(body))
 
 	for col, val := range body {
-		columns = append(columns, fmt.Sprintf(`"%s"`, col)) // 给列名加上引号
+		columns = append(columns, fmt.Sprintf(`"%s"`, col))
 		placeholders = append(placeholders, "?")
 		values = append(values, val)
 	}
@@ -496,36 +533,34 @@ func deleteRecord(c *fiber.Ctx) error {
 		return sendError(c, 400, "Table name is required.", nil)
 	}
 
-	if _, err := authenticateUser(c); err != nil {
+	// 1. 认证并获取 userID
+	userID, err := authenticateUser(c)
+	if err != nil {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 
+	// 2. 权限检查
+	canDelete, err := checkPermission("delete", tableName, userID)
+	if err != nil {
+		return sendError(c, 500, "An error occurred during permission check.", fiber.Map{"database_error": err.Error()})
+	}
+	if !canDelete {
+		return sendError(c, 403, "You do not have permission to delete records from this table.", nil)
+	}
+
+	// 3. 解析请求体中的 WHERE
 	type Body struct {
 		WHERE string `json:"WHERE"`
 	}
 	var body Body
 	c.BodyParser(&body)
 
-	// --- 获取并应用安全策略 ---
-	policy, err := getSecurityByTable(tableName)
-	if err != nil {
-		return sendError(c, 500, "Failed to retrieve security policy.", fiber.Map{"database_error": err.Error()})
+	if body.WHERE == "" {
+		return sendError(c, 400, "Failed to delete record.", fiber.Map{"WHERE": "WHERE clause is required to prevent accidental full table deletion."})
 	}
 
-	userWhereClause := body.WHERE
-	var securityWhereClause string
-	if policy != nil && policy.DeleteWhere.Valid {
-		securityWhereClause = policy.DeleteWhere.String
-	}
-
-	// --- 拼接最终的 WHERE 子句 ---
-	finalWhereClause := combineWhereClauses(userWhereClause, securityWhereClause)
-	if finalWhereClause == "" {
-		return sendError(c, 400, "Failed to delete record.", fiber.Map{"WHERE": "A WHERE clause is required to prevent accidental full table deletion."})
-	}
-
-	query := fmt.Sprintf("DELETE FROM \"%s\" WHERE %s", tableName, finalWhereClause)
-
+	// 4. 执行删除
+	query := fmt.Sprintf("DELETE FROM \"%s\" WHERE %s", tableName, body.WHERE)
 	res, err := dataDB.Exec(query)
 	if err != nil {
 		return sendError(c, 400, "Failed to delete record.", fiber.Map{"database_error": err.Error()})
@@ -546,10 +581,22 @@ func updateRecord(c *fiber.Ctx) error {
 		return sendError(c, 400, "Table name is required.", nil)
 	}
 
-	if _, err := authenticateUser(c); err != nil {
+	// 1. 认证并获取 userID
+	userID, err := authenticateUser(c)
+	if err != nil {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 
+	// 2. 权限检查
+	canUpdate, err := checkPermission("update", tableName, userID)
+	if err != nil {
+		return sendError(c, 500, "An error occurred during permission check.", fiber.Map{"database_error": err.Error()})
+	}
+	if !canUpdate {
+		return sendError(c, 403, "You do not have permission to update records in this table.", nil)
+	}
+
+	// 3. 解析请求体
 	type Body struct {
 		Set   map[string]interface{} `json:"set"`
 		WHERE string                 `json:"WHERE"`
@@ -561,26 +608,11 @@ func updateRecord(c *fiber.Ctx) error {
 	if len(body.Set) == 0 {
 		return sendError(c, 400, "Failed to update record.", fiber.Map{"set": "Set field cannot be empty."})
 	}
-
-	// --- 获取并应用安全策略 ---
-	policy, err := getSecurityByTable(tableName)
-	if err != nil {
-		return sendError(c, 500, "Failed to retrieve security policy.", fiber.Map{"database_error": err.Error()})
+	if body.WHERE == "" {
+		return sendError(c, 400, "Failed to update record.", fiber.Map{"WHERE": "WHERE clause is required."})
 	}
 
-	userWhereClause := body.WHERE
-	var securityWhereClause string
-	if policy != nil && policy.UpdateWhere.Valid {
-		securityWhereClause = policy.UpdateWhere.String
-	}
-
-	// --- 拼接最终的 WHERE 子句 ---
-	finalWhereClause := combineWhereClauses(userWhereClause, securityWhereClause)
-	if finalWhereClause == "" {
-		return sendError(c, 400, "Failed to update record.", fiber.Map{"WHERE": "A WHERE clause is required."})
-	}
-
-	// 动态构建 SET 子句
+	// 4. 执行更新
 	setClauses := make([]string, 0, len(body.Set))
 	values := make([]interface{}, 0, len(body.Set))
 	for col, val := range body.Set {
@@ -588,7 +620,7 @@ func updateRecord(c *fiber.Ctx) error {
 		values = append(values, val)
 	}
 
-	query := fmt.Sprintf("UPDATE \"%s\" SET %s WHERE %s", tableName, strings.Join(setClauses, ", "), finalWhereClause)
+	query := fmt.Sprintf("UPDATE \"%s\" SET %s WHERE %s", tableName, strings.Join(setClauses, ", "), body.WHERE)
 
 	res, err := dataDB.Exec(query, values...)
 	if err != nil {
@@ -603,29 +635,35 @@ func updateRecord(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"id": "updated"})
 }
 
-// viewRecords 动态查询指定表的数据，支持分页
+// viewRecords 动态查询指定表的数据
 func viewRecords(c *fiber.Ctx) error {
 	tableName := c.Params("table")
 	if tableName == "" {
 		return sendError(c, 400, "Table name is required.", nil)
 	}
 
-	// 认证
-	if _, err := authenticateUser(c); err != nil {
+	// 1. 认证并获取 userID
+	userID, err := authenticateUser(c)
+	if err != nil {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 
-	// --- 1. 解析分页参数 ---
-	page := c.QueryInt("page", 1)
-	if page < 1 {
-		return sendError(c, 400, "Invalid 'page' parameter.", nil)
+	// 2. 权限检查
+	canView, err := checkPermission("view", tableName, userID)
+	if err != nil {
+		return sendError(c, 500, "An error occurred during permission check.", fiber.Map{"database_error": err.Error()})
 	}
-	perPage := c.QueryInt("perpage", 30)
-	if perPage < 1 || perPage > 100 {
-		return sendError(c, 400, "Invalid 'perpage' parameter.", nil)
+	if !canView {
+		return sendError(c, 403, "You do not have permission to view records in this table.", nil)
 	}
 
-	// --- 2. 解析请求体中的 SELECT 和 WHERE ---
+	// 3. 解析分页和查询参数
+	page := c.QueryInt("page", 1)
+	perPage := c.QueryInt("perpage", 30)
+	if page < 1 || perPage < 1 || perPage > 100 {
+		return sendError(c, 400, "Invalid pagination parameters.", nil)
+	}
+
 	type Body struct {
 		SELECT []string `json:"SELECT"`
 		WHERE  string   `json:"WHERE"`
@@ -643,49 +681,28 @@ func viewRecords(c *fiber.Ctx) error {
 		selectClause = strings.Join(body.SELECT, ", ")
 	}
 
-	// --- 获取并应用安全策略 ---
-	policy, err := getSecurityByTable(tableName)
-	if err != nil {
-		return sendError(c, 500, "Failed to retrieve security policy.", fiber.Map{"database_error": err.Error()})
+	// 4. 构建并执行查询
+	whereClause := ""
+	var args []interface{}
+	if body.WHERE != "" {
+		whereClause = "WHERE " + body.WHERE
 	}
 
-	userWhereClause := body.WHERE
-	var securityWhereClause string
-	if policy != nil && policy.ViewWhere.Valid {
-		securityWhereClause = policy.ViewWhere.String
-	}
-
-	// --- 拼接最终的 WHERE 子句 ---
-	finalWhereClause := combineWhereClauses(userWhereClause, securityWhereClause)
-
-	// --- 3. 查询总记录数 ---
-	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM \"%s\"", tableName)
-	var countArgs []interface{}
-	if finalWhereClause != "" {
-		countQuery += " WHERE " + finalWhereClause
-	}
-
+	// 查询总记录数
+	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM \"%s\" %s", tableName, whereClause)
 	var totalItems int64
-	err = dataDB.QueryRow(countQuery, countArgs...).Scan(&totalItems)
+	err = dataDB.QueryRow(countQuery, args...).Scan(&totalItems)
 	if err != nil {
-		if strings.Contains(err.Error(), "no such table") {
-			return sendError(c, 404, "The requested resource wasn't found.", nil)
-		}
 		return sendError(c, 500, "Failed to count items.", fiber.Map{"database_error": err.Error()})
 	}
 
-	// --- 4. 计算分页信息 ---
+	// 计算分页
 	totalPages := int((totalItems + int64(perPage) - 1) / int64(perPage))
 	offset := (page - 1) * perPage
 
-	// --- 5. 查询当前页的数据 ---
-	dataQuery := fmt.Sprintf("SELECT %s FROM \"%s\"", selectClause, tableName)
-	var queryArgs []interface{}
-	if finalWhereClause != "" {
-		dataQuery += " WHERE " + finalWhereClause
-	}
-	dataQuery += " LIMIT ? OFFSET ?"
-	queryArgs = append(queryArgs, perPage, offset)
+	// 查询数据
+	dataQuery := fmt.Sprintf("SELECT %s FROM \"%s\" %s LIMIT ? OFFSET ?", selectClause, tableName, whereClause)
+	queryArgs := append(args, perPage, offset)
 
 	rows, err := dataDB.Query(dataQuery, queryArgs...)
 	if err != nil {
@@ -693,7 +710,7 @@ func viewRecords(c *fiber.Ctx) error {
 	}
 	defer rows.Close()
 
-	// --- 6. 扫描数据到 map ---
+	// ... (扫描数据的部分保持不变) ...
 	columns, _ := rows.Columns()
 	values := make([]interface{}, len(columns))
 	scanArgs := make([]interface{}, len(columns))
@@ -718,11 +735,6 @@ func viewRecords(c *fiber.Ctx) error {
 		items = append(items, rowMap)
 	}
 
-	if err = rows.Err(); err != nil {
-		return sendError(c, 500, "Error during rows iteration.", fiber.Map{"database_error": err.Error()})
-	}
-
-	// --- 7. 返回分页结果 ---
 	return c.JSON(fiber.Map{
 		"page":       page,
 		"perPage":    perPage,
