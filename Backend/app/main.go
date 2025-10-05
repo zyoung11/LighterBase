@@ -364,6 +364,29 @@ func authenticateUser(c *fiber.Ctx) (int64, error) {
 	return userID, nil
 }
 
+// combineWhereClauses 安全地拼接两个 WHERE 子句
+func combineWhereClauses(userClause, securityClause string) string {
+	if userClause == "" && securityClause == "" {
+		return ""
+	}
+	if userClause == "" {
+		return securityClause
+	}
+	if securityClause == "" {
+		return userClause
+	}
+	// 确保两个子句都被括号包围，以避免逻辑错误
+	// 如果用户已经提供了括号，则不再添加
+	if !strings.HasPrefix(strings.TrimSpace(userClause), "(") {
+		userClause = fmt.Sprintf("(%s)", userClause)
+	}
+	if !strings.HasPrefix(strings.TrimSpace(securityClause), "(") {
+		securityClause = fmt.Sprintf("(%s)", securityClause)
+	}
+
+	return fmt.Sprintf("%s AND %s", userClause, securityClause)
+}
+
 //------------------------------------------------------------------------------
 
 func main() {
@@ -468,34 +491,42 @@ func createRecord(c *fiber.Ctx) error {
 
 // deleteRecord 动态删除指定表的数据
 func deleteRecord(c *fiber.Ctx) error {
-	if _, err := authenticateUser(c); err != nil {
-		return sendError(c, 403, "You are not allowed to perform this request.", nil)
-	}
-
 	tableName := c.Params("table")
 	if tableName == "" {
 		return sendError(c, 400, "Table name is required.", nil)
+	}
+
+	if _, err := authenticateUser(c); err != nil {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 
 	type Body struct {
 		WHERE string `json:"WHERE"`
 	}
 	var body Body
-	c.BodyParser(&body) // WHERE 是可选的，所以忽略解析错误
+	c.BodyParser(&body)
 
-	query := fmt.Sprintf("DELETE FROM \"%s\"", tableName)
-	var args []interface{}
-
-	if body.WHERE != "" {
-		query += " WHERE " + body.WHERE
+	// --- 获取并应用安全策略 ---
+	policy, err := getSecurityByTable(tableName)
+	if err != nil {
+		return sendError(c, 500, "Failed to retrieve security policy.", fiber.Map{"database_error": err.Error()})
 	}
 
-	// 如果没有 WHERE 子句，为了安全，可以阻止删除全表
-	if body.WHERE == "" {
-		return sendError(c, 400, "Failed to delete record.", fiber.Map{"WHERE": "WHERE clause is required to prevent accidental full table deletion."})
+	userWhereClause := body.WHERE
+	var securityWhereClause string
+	if policy != nil && policy.DeleteWhere.Valid {
+		securityWhereClause = policy.DeleteWhere.String
 	}
 
-	res, err := dataDB.Exec(query, args...)
+	// --- 拼接最终的 WHERE 子句 ---
+	finalWhereClause := combineWhereClauses(userWhereClause, securityWhereClause)
+	if finalWhereClause == "" {
+		return sendError(c, 400, "Failed to delete record.", fiber.Map{"WHERE": "A WHERE clause is required to prevent accidental full table deletion."})
+	}
+
+	query := fmt.Sprintf("DELETE FROM \"%s\" WHERE %s", tableName, finalWhereClause)
+
+	res, err := dataDB.Exec(query)
 	if err != nil {
 		return sendError(c, 400, "Failed to delete record.", fiber.Map{"database_error": err.Error()})
 	}
@@ -505,18 +536,18 @@ func deleteRecord(c *fiber.Ctx) error {
 		return sendError(c, 404, "The requested resource wasn't found.", nil)
 	}
 
-	return c.Status(204).Send(nil) // 204 No Content
+	return c.Status(204).Send(nil)
 }
 
 // updateRecord 动态更新指定表的数据
 func updateRecord(c *fiber.Ctx) error {
-	if _, err := authenticateUser(c); err != nil {
-		return sendError(c, 403, "You are not allowed to perform this request.", nil)
-	}
-
 	tableName := c.Params("table")
 	if tableName == "" {
 		return sendError(c, 400, "Table name is required.", nil)
+	}
+
+	if _, err := authenticateUser(c); err != nil {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 
 	type Body struct {
@@ -530,8 +561,23 @@ func updateRecord(c *fiber.Ctx) error {
 	if len(body.Set) == 0 {
 		return sendError(c, 400, "Failed to update record.", fiber.Map{"set": "Set field cannot be empty."})
 	}
-	if body.WHERE == "" {
-		return sendError(c, 400, "Failed to update record.", fiber.Map{"WHERE": "WHERE clause is required."})
+
+	// --- 获取并应用安全策略 ---
+	policy, err := getSecurityByTable(tableName)
+	if err != nil {
+		return sendError(c, 500, "Failed to retrieve security policy.", fiber.Map{"database_error": err.Error()})
+	}
+
+	userWhereClause := body.WHERE
+	var securityWhereClause string
+	if policy != nil && policy.UpdateWhere.Valid {
+		securityWhereClause = policy.UpdateWhere.String
+	}
+
+	// --- 拼接最终的 WHERE 子句 ---
+	finalWhereClause := combineWhereClauses(userWhereClause, securityWhereClause)
+	if finalWhereClause == "" {
+		return sendError(c, 400, "Failed to update record.", fiber.Map{"WHERE": "A WHERE clause is required."})
 	}
 
 	// 动态构建 SET 子句
@@ -542,7 +588,7 @@ func updateRecord(c *fiber.Ctx) error {
 		values = append(values, val)
 	}
 
-	query := fmt.Sprintf("UPDATE \"%s\" SET %s WHERE %s", tableName, strings.Join(setClauses, ", "), body.WHERE)
+	query := fmt.Sprintf("UPDATE \"%s\" SET %s WHERE %s", tableName, strings.Join(setClauses, ", "), finalWhereClause)
 
 	res, err := dataDB.Exec(query, values...)
 	if err != nil {
@@ -554,29 +600,29 @@ func updateRecord(c *fiber.Ctx) error {
 		return sendError(c, 404, "The requested resource wasn't found.", nil)
 	}
 
-	return c.SendStatus(204)
+	return c.Status(200).JSON(fiber.Map{"id": "updated"})
 }
 
 // viewRecords 动态查询指定表的数据，支持分页
 func viewRecords(c *fiber.Ctx) error {
-	if _, err := authenticateUser(c); err != nil {
-		return sendError(c, 403, "You are not allowed to perform this request.", nil)
-	}
-
 	tableName := c.Params("table")
 	if tableName == "" {
 		return sendError(c, 400, "Table name is required.", nil)
 	}
 
-	// --- 1. 解析分页参数 ---
-	page := c.QueryInt("page", 1) // 默认为第 1 页
-	if page < 1 {
-		return sendError(c, 400, "Invalid 'page' parameter. It must be a positive integer.", nil)
+	// 认证
+	if _, err := authenticateUser(c); err != nil {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 
-	perPage := c.QueryInt("perpage", 30) // 默认每页 30 条
-	if perPage < 1 || perPage > 100 {    // 限制最大每页数量
-		return sendError(c, 400, "Invalid 'perpage' parameter. It must be between 1 and 100.", nil)
+	// --- 1. 解析分页参数 ---
+	page := c.QueryInt("page", 1)
+	if page < 1 {
+		return sendError(c, 400, "Invalid 'page' parameter.", nil)
+	}
+	perPage := c.QueryInt("perpage", 30)
+	if perPage < 1 || perPage > 100 {
+		return sendError(c, 400, "Invalid 'perpage' parameter.", nil)
 	}
 
 	// --- 2. 解析请求体中的 SELECT 和 WHERE ---
@@ -585,31 +631,42 @@ func viewRecords(c *fiber.Ctx) error {
 		WHERE  string   `json:"WHERE"`
 	}
 	var body Body
-	c.BodyParser(&body) // 查询参数是可选的，忽略解析错误
+	c.BodyParser(&body)
 
-	// 构建 SELECT 部分
 	selectClause := "*"
 	if len(body.SELECT) > 0 {
-		// 防止 SQL 注入，检查列名是否合法
 		for _, col := range body.SELECT {
 			if !isValidIdentifier(col) {
-				return sendError(c, 400, "Something went wrong while processing your request. Invalid filter.", fiber.Map{"SELECT": fmt.Sprintf("Invalid column name: %s", col)})
+				return sendError(c, 400, "Invalid filter.", fiber.Map{"SELECT": fmt.Sprintf("Invalid column name: %s", col)})
 			}
 		}
 		selectClause = strings.Join(body.SELECT, ", ")
 	}
 
-	// 构建 WHERE 子句
-	whereClause := ""
-	var args []interface{}
-	if body.WHERE != "" {
-		whereClause = "WHERE " + body.WHERE
+	// --- 获取并应用安全策略 ---
+	policy, err := getSecurityByTable(tableName)
+	if err != nil {
+		return sendError(c, 500, "Failed to retrieve security policy.", fiber.Map{"database_error": err.Error()})
 	}
 
+	userWhereClause := body.WHERE
+	var securityWhereClause string
+	if policy != nil && policy.ViewWhere.Valid {
+		securityWhereClause = policy.ViewWhere.String
+	}
+
+	// --- 拼接最终的 WHERE 子句 ---
+	finalWhereClause := combineWhereClauses(userWhereClause, securityWhereClause)
+
 	// --- 3. 查询总记录数 ---
-	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM \"%s\" %s", tableName, whereClause)
+	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM \"%s\"", tableName)
+	var countArgs []interface{}
+	if finalWhereClause != "" {
+		countQuery += " WHERE " + finalWhereClause
+	}
+
 	var totalItems int64
-	err := dataDB.QueryRow(countQuery, args...).Scan(&totalItems)
+	err = dataDB.QueryRow(countQuery, countArgs...).Scan(&totalItems)
 	if err != nil {
 		if strings.Contains(err.Error(), "no such table") {
 			return sendError(c, 404, "The requested resource wasn't found.", nil)
@@ -618,15 +675,17 @@ func viewRecords(c *fiber.Ctx) error {
 	}
 
 	// --- 4. 计算分页信息 ---
-	totalPages := int((totalItems + int64(perPage) - 1) / int64(perPage)) // 向上取整
+	totalPages := int((totalItems + int64(perPage) - 1) / int64(perPage))
 	offset := (page - 1) * perPage
 
 	// --- 5. 查询当前页的数据 ---
-	dataQuery := fmt.Sprintf("SELECT %s FROM \"%s\" %s LIMIT ? OFFSET ?", selectClause, tableName, whereClause)
-
-	//  LIMIT 和 OFFSET 的参数也加入 args 切片
-	// 注意：SQLite 的参数是按顺序匹配的
-	queryArgs := append(args, perPage, offset)
+	dataQuery := fmt.Sprintf("SELECT %s FROM \"%s\"", selectClause, tableName)
+	var queryArgs []interface{}
+	if finalWhereClause != "" {
+		dataQuery += " WHERE " + finalWhereClause
+	}
+	dataQuery += " LIMIT ? OFFSET ?"
+	queryArgs = append(queryArgs, perPage, offset)
 
 	rows, err := dataDB.Query(dataQuery, queryArgs...)
 	if err != nil {
@@ -647,7 +706,6 @@ func viewRecords(c *fiber.Ctx) error {
 		if err := rows.Scan(scanArgs...); err != nil {
 			return sendError(c, 500, "Failed to scan row.", fiber.Map{"database_error": err.Error()})
 		}
-
 		rowMap := make(map[string]interface{})
 		for i, colName := range columns {
 			val := values[i]
@@ -660,7 +718,6 @@ func viewRecords(c *fiber.Ctx) error {
 		items = append(items, rowMap)
 	}
 
-	// 检查迭代过程中是否有错误
 	if err = rows.Err(); err != nil {
 		return sendError(c, 500, "Error during rows iteration.", fiber.Map{"database_error": err.Error()})
 	}
