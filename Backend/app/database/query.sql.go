@@ -44,12 +44,52 @@ func (q *Queries) CreateSql(ctx context.Context, argSql string) error {
 }
 
 const deleteSecurity = `-- name: DeleteSecurity :exec
-DELETE FROM _security_ WHERE id = ?
+DELETE FROM _security_ WHERE table_name = ?
 `
 
-func (q *Queries) DeleteSecurity(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteSecurity, id)
+func (q *Queries) DeleteSecurity(ctx context.Context, tableName string) error {
+	_, err := q.db.ExecContext(ctx, deleteSecurity, tableName)
 	return err
+}
+
+const deleteSql = `-- name: DeleteSql :exec
+DELETE FROM _sqls_ WHERE id = ?
+`
+
+func (q *Queries) DeleteSql(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteSql, id)
+	return err
+}
+
+const getLatestSql = `-- name: GetLatestSql :one
+SELECT id, sql FROM _sqls_ ORDER BY id DESC LIMIT 1
+`
+
+func (q *Queries) GetLatestSql(ctx context.Context) (Sqls, error) {
+	row := q.db.QueryRowContext(ctx, getLatestSql)
+	var i Sqls
+	err := row.Scan(&i.ID, &i.Sql)
+	return i, err
+}
+
+const getSecurityByTable = `-- name: GetSecurityByTable :one
+SELECT id, table_name, create_where, delete_where, update_where, view_where
+FROM _security_
+WHERE table_name = ?
+`
+
+func (q *Queries) GetSecurityByTable(ctx context.Context, tableName string) (Security, error) {
+	row := q.db.QueryRowContext(ctx, getSecurityByTable, tableName)
+	var i Security
+	err := row.Scan(
+		&i.ID,
+		&i.TableName,
+		&i.CreateWhere,
+		&i.DeleteWhere,
+		&i.UpdateWhere,
+		&i.ViewWhere,
+	)
+	return i, err
 }
 
 const listSecurities = `-- name: ListSecurities :many
@@ -115,32 +155,41 @@ func (q *Queries) ListSqls(ctx context.Context) ([]Sqls, error) {
 
 const updateSecurity = `-- name: UpdateSecurity :exec
 UPDATE _security_
-SET
-  table_name = ?,
-  create_where = ?,
-  delete_where = ?,
-  update_where = ?,
-  view_where = ?
-WHERE id = ?
+SET create_where = ?, delete_where = ?, update_where = ?, view_where = ?
+WHERE table_name = ?
 `
 
 type UpdateSecurityParams struct {
-	TableName   string
 	CreateWhere sql.NullString
 	DeleteWhere sql.NullString
 	UpdateWhere sql.NullString
 	ViewWhere   sql.NullString
-	ID          int64
+	TableName   string
 }
 
 func (q *Queries) UpdateSecurity(ctx context.Context, arg UpdateSecurityParams) error {
 	_, err := q.db.ExecContext(ctx, updateSecurity,
-		arg.TableName,
 		arg.CreateWhere,
 		arg.DeleteWhere,
 		arg.UpdateWhere,
 		arg.ViewWhere,
-		arg.ID,
+		arg.TableName,
 	)
+	return err
+}
+
+const updateSql = `-- name: UpdateSql :exec
+UPDATE _sqls_
+SET sql = ?
+WHERE id = ?
+`
+
+type UpdateSqlParams struct {
+	Sql string
+	ID  int64
+}
+
+func (q *Queries) UpdateSql(ctx context.Context, arg UpdateSqlParams) error {
+	_, err := q.db.ExecContext(ctx, updateSql, arg.Sql, arg.ID)
 	return err
 }

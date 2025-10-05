@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -19,6 +20,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/golang-jwt/jwt/v5"
 	_ "github.com/mattn/go-sqlite3"
+	"golang.org/x/crypto/bcrypt"
 )
 
 //go:embed SQL/schema.sql
@@ -30,7 +32,6 @@ var dataDB *sql.DB
 
 var routes = []Route{
 	{Method: "GET", Path: "/health", Handler: health},
-	{Method: "GET", Path: "/api/web/security", Handler: getAllSecurity},
 
 	// --- JWT 认证 API ---
 	{Method: "POST", Path: "/api/auth/login", Handler: login},
@@ -44,6 +45,18 @@ var routes = []Route{
 	{Method: "DELETE", Path: "/api/auto/delete/:table", Handler: deleteRecord},
 	{Method: "PUT", Path: "/api/auto/update/:table", Handler: updateRecord},
 	{Method: "GET", Path: "/api/auto/view/:table", Handler: viewRecords},
+
+	// --- _sqls_ 表管理 API ---
+	{Method: "GET", Path: "/api/sqls/latest", Handler: getLatestSqlRecord},
+	{Method: "POST", Path: "/api/sqls/", Handler: createSqlRecord},
+	// {Method: "DELETE", Path: "/api/sqls/:id", Handler: deleteSqlRecord},
+	// {Method: "PUT", Path: "/api/sqls/:id", Handler: updateSqlRecord},
+
+	// --- _security_ 表管理 API (需要 JWT) ---
+	{Method: "GET", Path: "/api/security", Handler: getAllSecurity},
+	{Method: "POST", Path: "/api/security/", Handler: createSecurityPolicy},
+	{Method: "DELETE", Path: "/api/security/:table_name", Handler: deleteSecurityPolicy},
+	{Method: "PUT", Path: "/api/security/:table_name", Handler: updateSecurityPolicy},
 }
 
 type Route struct {
@@ -341,7 +354,7 @@ func authenticateUser(c *fiber.Ctx) (int64, error) {
 	if len(authHeader) <= 7 || authHeader[:7] != "Bearer " {
 		return 0, errors.New("invalid authorization header format")
 	}
-	
+
 	tokenString := authHeader[7:]
 	userID, err := ParseJWT(tokenString)
 	if err != nil {
@@ -361,14 +374,6 @@ func main() {
 
 func health(c *fiber.Ctx) error {
 	return c.SendStatus(200)
-}
-
-func getAllSecurity(c *fiber.Ctx) error {
-	securities, err := queries.ListSecurities(context.Background())
-	if err != nil {
-		return c.Status(500).SendString(err.Error())
-	}
-	return c.JSON(securities)
 }
 
 // createTable 执行用户提供的 CREATE TABLE SQL
@@ -395,6 +400,11 @@ func createTable(c *fiber.Ctx) error {
 	_, err := dataDB.Exec(body.SQL)
 	if err != nil {
 		return sendError(c, 400, "Failed to create table.", fiber.Map{"database_error": err.Error()})
+	}
+
+	err = queries.CreateSql(context.Background(), body.SQL)
+	if err != nil {
+		log.Printf("WARNING: Table created successfully, but failed to log SQL to meta database: %v", err)
 	}
 
 	return c.Status(201).JSON(fiber.Map{"SQL": body.SQL})
@@ -424,6 +434,16 @@ func createRecord(c *fiber.Ctx) error {
 		return sendError(c, 400, "Failed to create record.", fiber.Map{"body": "Request body cannot be empty."})
 	}
 
+	if tableName == "users" {
+		if plainPassword, ok := body["password_hash"].(string); ok && plainPassword != "" {
+			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(plainPassword), bcrypt.DefaultCost)
+			if err != nil {
+				return sendError(c, 500, "Failed to hash password.", nil)
+			}
+			body["password_hash"] = string(hashedPassword)
+		}
+	}
+
 	// 动态构建 INSERT 语句
 	columns := make([]string, 0, len(body))
 	placeholders := make([]string, 0, len(body))
@@ -448,7 +468,6 @@ func createRecord(c *fiber.Ctx) error {
 
 // deleteRecord 动态删除指定表的数据
 func deleteRecord(c *fiber.Ctx) error {
-
 	if _, err := authenticateUser(c); err != nil {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
@@ -491,7 +510,6 @@ func deleteRecord(c *fiber.Ctx) error {
 
 // updateRecord 动态更新指定表的数据
 func updateRecord(c *fiber.Ctx) error {
-
 	if _, err := authenticateUser(c); err != nil {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
@@ -541,7 +559,6 @@ func updateRecord(c *fiber.Ctx) error {
 
 // viewRecords 动态查询指定表的数据，支持分页
 func viewRecords(c *fiber.Ctx) error {
-
 	if _, err := authenticateUser(c); err != nil {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
@@ -686,10 +703,13 @@ func login(c *fiber.Ctx) error {
 		})
 	}
 
-	// 在真实应用中，这里应该使用 bcrypt.CompareHashAndPassword
-	// 这里为了简化，我们直接比较哈希
 	storedHash, ok := userRecord["password_hash"].(string)
-	if !ok || storedHash != body.PasswordHash {
+	if !ok {
+		return sendError(c, 500, "Invalid password format in database.", nil)
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(storedHash), []byte(body.PasswordHash))
+	if err != nil {
 		return sendError(c, 400, "Failed to authenticate.", fiber.Map{
 			"identity": fiber.Map{"code": "validation_failed", "message": "Invalid name or password."},
 		})
@@ -724,7 +744,6 @@ func refreshToken(c *fiber.Ctx) error {
 		return sendError(c, 401, "The request requires valid record authorization token to be set.", nil)
 	}
 
-	// 从数据库重新获取用户信息
 	userRecord, err := findUserByID(userID)
 	if err != nil {
 		return sendError(c, 500, "Database error.", nil)
@@ -751,4 +770,231 @@ func refreshToken(c *fiber.Ctx) error {
 		"expire": expire.Format(time.RFC3339),
 		"record": record,
 	})
+}
+
+// createSqlRecord 向 _sqls_ 表写入一条新记录
+func createSqlRecord(c *fiber.Ctx) error {
+	// 认证
+	if _, err := authenticateUser(c); err != nil {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
+	type Body struct {
+		SQL string `json:"SQL"`
+	}
+	var body Body
+	if err := c.BodyParser(&body); err != nil {
+		return sendError(c, 400, "Invalid JSON body.", nil)
+	}
+	if body.SQL == "" {
+		return sendError(c, 400, "Failed to create SQL record.", fiber.Map{"SQL": "SQL field is required."})
+	}
+
+	err := queries.CreateSql(context.Background(), body.SQL)
+	if err != nil {
+		return sendError(c, 500, "Failed to create SQL record.", fiber.Map{"database_error": err.Error()})
+	}
+
+	return c.Status(201).JSON(fiber.Map{"message": "SQL record created successfully.", "SQL": body.SQL})
+}
+
+// 根据 ID 删除 _sqls_ 表中的一条记录
+func deleteSqlRecord(c *fiber.Ctx) error {
+	if _, err := authenticateUser(c); err != nil {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
+	idStr := c.Params("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		return sendError(c, 400, "Invalid ID format.", nil)
+	}
+
+	err = queries.DeleteSql(context.Background(), id)
+	if err != nil {
+		// 检查是否是因为记录不存在导致的错误
+		if strings.Contains(err.Error(), "no rows in result set") {
+			return sendError(c, 404, "The requested resource wasn't found.", nil)
+		}
+		return sendError(c, 500, "Failed to delete SQL record.", fiber.Map{"database_error": err.Error()})
+	}
+
+	return c.Status(204).Send(nil)
+}
+
+// 根据 ID 更新 _sqls_ 表中的一条记录
+func updateSqlRecord(c *fiber.Ctx) error {
+	if _, err := authenticateUser(c); err != nil {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
+	idStr := c.Params("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		return sendError(c, 400, "Invalid ID format.", nil)
+	}
+
+	type Body struct {
+		SQL string `json:"SQL"`
+	}
+	var body Body
+	if err := c.BodyParser(&body); err != nil {
+		return sendError(c, 400, "Invalid JSON body.", nil)
+	}
+	if body.SQL == "" {
+		return sendError(c, 400, "Failed to update SQL record.", fiber.Map{"SQL": "SQL field is required."})
+	}
+
+	err = queries.UpdateSql(context.Background(), database.UpdateSqlParams{
+		Sql: body.SQL,
+		ID:  id,
+	})
+	if err != nil {
+		// 检查是否是因为记录不存在导致的错误
+		if strings.Contains(err.Error(), "no rows in result set") {
+			return sendError(c, 404, "The requested resource wasn't found.", nil)
+		}
+		return sendError(c, 500, "Failed to update SQL record.", fiber.Map{"database_error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{"message": "SQL record updated successfully.", "id": id, "SQL": body.SQL})
+}
+
+// 获取 _sqls_ 表中最新的一条记录
+func getLatestSqlRecord(c *fiber.Ctx) error {
+	if _, err := authenticateUser(c); err != nil {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
+	record, err := queries.GetLatestSql(context.Background())
+	if err != nil {
+		// 如果记录不存在，sqlc 会返回 sql.ErrNoRows
+		if err == sql.ErrNoRows {
+			return sendError(c, 404, "No SQL records found.", nil)
+		}
+		return sendError(c, 500, "Failed to fetch latest SQL record.", fiber.Map{"database_error": err.Error()})
+	}
+
+	return c.JSON(record)
+}
+
+func getAllSecurity(c *fiber.Ctx) error {
+	if _, err := authenticateUser(c); err != nil {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
+	securities, err := queries.ListSecurities(context.Background())
+	if err != nil {
+		return c.Status(500).SendString(err.Error())
+	}
+	return c.JSON(securities)
+}
+
+// 为表创建安全策略
+func createSecurityPolicy(c *fiber.Ctx) error {
+	if _, err := authenticateUser(c); err != nil {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
+	type Body struct {
+		TableName   string `json:"table_name"`
+		CreateWhere string `json:"create_where"`
+		DeleteWhere string `json:"delete_where"`
+		UpdateWhere string `json:"update_where"`
+		ViewWhere   string `json:"view_where"`
+	}
+	var body Body
+	if err := c.BodyParser(&body); err != nil {
+		return sendError(c, 400, "Invalid JSON body.", nil)
+	}
+	if body.TableName == "" {
+		return sendError(c, 400, "Failed to create security policy.", fiber.Map{"table_name": "table_name is required."})
+	}
+
+	// 使用 sqlc 生成的函数
+	err := queries.CreateSecurity(context.Background(), database.CreateSecurityParams{
+		TableName:   body.TableName,
+		CreateWhere: sql.NullString{String: body.CreateWhere, Valid: body.CreateWhere != ""},
+		DeleteWhere: sql.NullString{String: body.DeleteWhere, Valid: body.DeleteWhere != ""},
+		UpdateWhere: sql.NullString{String: body.UpdateWhere, Valid: body.UpdateWhere != ""},
+		ViewWhere:   sql.NullString{String: body.ViewWhere, Valid: body.ViewWhere != ""},
+	})
+	if err != nil {
+		// 检查唯一性约束冲突
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			return sendError(c, 409, "A security policy for this table already exists.", nil) // 409 Conflict
+		}
+		return sendError(c, 500, "Failed to create security policy.", fiber.Map{"database_error": err.Error()})
+	}
+
+	return c.Status(201).JSON(fiber.Map{"message": "Security policy created successfully.", "table_name": body.TableName})
+}
+
+// 删除表的安全策略
+func deleteSecurityPolicy(c *fiber.Ctx) error {
+	if _, err := authenticateUser(c); err != nil {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
+	tableName := c.Params("table_name")
+	if tableName == "" {
+		return sendError(c, 400, "Table name is required.", nil)
+	}
+
+	err := queries.DeleteSecurity(context.Background(), tableName)
+	if err != nil {
+		// sqlc 对于 DELETE 不存在的记录不会返回 sql.ErrNoRows，而是返回一个错误
+		// 我们可以检查 RowsAffected
+		return sendError(c, 500, "Failed to delete security policy.", fiber.Map{"database_error": err.Error()})
+	}
+
+	return c.Status(204).Send(nil) // 204 No Content
+}
+
+// 更新表的安全策略
+func updateSecurityPolicy(c *fiber.Ctx) error {
+	if _, err := authenticateUser(c); err != nil {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
+	tableName := c.Params("table_name")
+	if tableName == "" {
+		return sendError(c, 400, "Table name is required.", nil)
+	}
+
+	type Body struct {
+		CreateWhere string `json:"create_where"`
+		DeleteWhere string `json:"delete_where"`
+		UpdateWhere string `json:"update_where"`
+		ViewWhere   string `json:"view_where"`
+	}
+	var body Body
+	if err := c.BodyParser(&body); err != nil {
+		return sendError(c, 400, "Invalid JSON body.", nil)
+	}
+
+	err := queries.UpdateSecurity(context.Background(), database.UpdateSecurityParams{
+		CreateWhere: sql.NullString{String: body.CreateWhere, Valid: body.CreateWhere != ""},
+		DeleteWhere: sql.NullString{String: body.DeleteWhere, Valid: body.DeleteWhere != ""},
+		UpdateWhere: sql.NullString{String: body.UpdateWhere, Valid: body.UpdateWhere != ""},
+		ViewWhere:   sql.NullString{String: body.ViewWhere, Valid: body.ViewWhere != ""},
+		TableName:   tableName,
+	})
+	if err != nil {
+		return sendError(c, 500, "Failed to update security policy.", fiber.Map{"database_error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{"message": "Security policy updated successfully.", "table_name": tableName})
+}
+
+// (内部函数) 根据表名获取安全策略
+func getSecurityByTable(tableName string) (*database.Security, error) {
+	policy, err := queries.GetSecurityByTable(context.Background(), tableName)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil // 策略不存在，返回 nil 而不是错误
+		}
+		return nil, err
+	}
+	return &policy, nil
 }
