@@ -4,17 +4,20 @@ import (
 	"context"
 	"database/sql"
 	"embed"
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"LighterBase/database"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/golang-jwt/jwt/v5"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -29,14 +32,18 @@ var routes = []Route{
 	{Method: "GET", Path: "/health", Handler: health},
 	{Method: "GET", Path: "/api/web/security", Handler: getAllSecurity},
 
+	// --- JWT 认证 API ---
+	{Method: "POST", Path: "/api/auth/login", Handler: login},
+	{Method: "POST", Path: "/api/auth/refresh", Handler: refreshToken},
+
+	// --- BaaS 建表 API ---
+	{Method: "POST", Path: "/api/create-table/create/", Handler: createTable},
+
 	// --- BaaS 通用 CRUD API ---
 	{Method: "POST", Path: "/api/auto/create/:table", Handler: createRecord},
 	{Method: "DELETE", Path: "/api/auto/delete/:table", Handler: deleteRecord},
 	{Method: "PUT", Path: "/api/auto/update/:table", Handler: updateRecord},
 	{Method: "GET", Path: "/api/auto/view/:table", Handler: viewRecords},
-
-	// --- BaaS 建表 API ---
-	{Method: "POST", Path: "/api/create-table/create/", Handler: createTable},
 }
 
 type Route struct {
@@ -44,6 +51,59 @@ type Route struct {
 	Path    string
 	Handler fiber.Handler
 }
+
+//------------------------------------JWT---------------------------------------
+
+type MyCustomClaims struct {
+	UserID int64 `json:"user_id"`
+	jwt.RegisteredClaims
+}
+
+var jwtSecret = []byte("my_super_super_super_secret_key_that_is_very_long_and_not_that_random")
+
+// GenerateJWT 为给定用户 ID 生成一个新的 JWT
+func GenerateJWT(userID int64) (string, time.Time, error) {
+	expirationTime := time.Now().Add(48 * time.Hour)
+
+	claims := &MyCustomClaims{
+		UserID: userID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(jwtSecret)
+	if err != nil {
+		return "", time.Time{}, err
+	}
+
+	return tokenString, expirationTime, nil
+}
+
+// ParseJWT 解析并验证 JWT，返回用户 ID
+func ParseJWT(tokenString string) (int64, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &MyCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return jwtSecret, nil
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	if claims, ok := token.Claims.(*MyCustomClaims); ok && token.Valid {
+		return claims.UserID, nil
+	}
+
+	return 0, errors.New("invalid token")
+}
+
+//------------------------------------------------------------------------------
+
+//------------------------------------init--------------------------------------
 
 func init() {
 	if err := initMetaDatabase(); err != nil {
@@ -61,7 +121,6 @@ func NewApp(name string, routes []Route) *fiber.App {
 	app := fiber.New(fiber.Config{AppName: name})
 
 	app.Use(cors.New())
-
 	app.Use(logger.New())
 
 	for _, r := range routes {
@@ -140,12 +199,17 @@ func createUsersTable(db *sql.DB) error {
 		name TEXT NOT NULL,
 		password_hash TEXT NOT NULL,
 		email TEXT NOT NULL UNIQUE,
-		"create" TEXT NOT NULL,
-		"update" TEXT NOT NULL
+		avatar BLOB,
+		create_at TEXT NOT NULL,
+		update_at TEXT NOT NULL
 	);`
 	_, err := db.Exec(createTableSQL)
 	return err
 }
+
+//------------------------------------------------------------------------------
+
+//--------------------------------helper-func-----------------------------------
 
 // getTableColumns 获取一个表的所有列名
 func getTableColumns(db *sql.DB, tableName string) ([]string, error) {
@@ -243,9 +307,57 @@ func isValidIdentifier(s string) bool {
 	return true
 }
 
+// findUserByName 根据用户名查找用户
+func findUserByName(name string) (map[string]interface{}, error) {
+	data, err := queryTableAsMap(dataDB, "users", "WHERE name = ?", name)
+	if err != nil {
+		return nil, err
+	}
+	if len(data) == 0 {
+		return nil, nil
+	}
+	return data[0], nil
+}
+
+// findUserByID 根据 ID 查找用户
+func findUserByID(id int64) (map[string]interface{}, error) {
+	data, err := queryTableAsMap(dataDB, "users", "WHERE id = ?", id)
+	if err != nil {
+		return nil, err
+	}
+	if len(data) == 0 {
+		return nil, nil
+	}
+	return data[0], nil
+}
+
+// 从请求中解析 JWT 并返回用户 ID
+func authenticateUser(c *fiber.Ctx) (int64, error) {
+	authHeader := c.Get("Authorization")
+	if authHeader == "" {
+		return 0, errors.New("authorization header is required")
+	}
+
+	if len(authHeader) <= 7 || authHeader[:7] != "Bearer " {
+		return 0, errors.New("invalid authorization header format")
+	}
+	
+	tokenString := authHeader[7:]
+	userID, err := ParseJWT(tokenString)
+	if err != nil {
+		return 0, errors.New("invalid or expired token")
+	}
+
+	return userID, nil
+}
+
+//------------------------------------------------------------------------------
+
 func main() {
 	Run("LighterBase", 8080, routes)
 }
+
+//----------------------------------routing--------------------------------------
 
 func health(c *fiber.Ctx) error {
 	return c.SendStatus(200)
@@ -261,6 +373,9 @@ func getAllSecurity(c *fiber.Ctx) error {
 
 // createTable 执行用户提供的 CREATE TABLE SQL
 func createTable(c *fiber.Ctx) error {
+	if _, err := authenticateUser(c); err != nil {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
 	type Body struct {
 		SQL string `json:"SQL"`
 	}
@@ -292,6 +407,12 @@ func createRecord(c *fiber.Ctx) error {
 	tableName := c.Params("table")
 	if tableName == "" {
 		return sendError(c, 400, "Table name is required.", nil)
+	}
+
+	if tableName != "users" {
+		if _, err := authenticateUser(c); err != nil {
+			return sendError(c, 403, "You are not allowed to perform this request.", nil)
+		}
 	}
 
 	body := make(map[string]interface{})
@@ -327,6 +448,11 @@ func createRecord(c *fiber.Ctx) error {
 
 // deleteRecord 动态删除指定表的数据
 func deleteRecord(c *fiber.Ctx) error {
+
+	if _, err := authenticateUser(c); err != nil {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
 	tableName := c.Params("table")
 	if tableName == "" {
 		return sendError(c, 400, "Table name is required.", nil)
@@ -342,9 +468,6 @@ func deleteRecord(c *fiber.Ctx) error {
 	var args []interface{}
 
 	if body.WHERE != "" {
-		// 注意：直接拼接 WHERE 子句有 SQL 注入风险！
-		// 在生产环境中，你需要一个更安全的 WHERE 解析器。
-		// 这里按你的文档实现。
 		query += " WHERE " + body.WHERE
 	}
 
@@ -368,6 +491,11 @@ func deleteRecord(c *fiber.Ctx) error {
 
 // updateRecord 动态更新指定表的数据
 func updateRecord(c *fiber.Ctx) error {
+
+	if _, err := authenticateUser(c); err != nil {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
 	tableName := c.Params("table")
 	if tableName == "" {
 		return sendError(c, 400, "Table name is required.", nil)
@@ -408,24 +536,29 @@ func updateRecord(c *fiber.Ctx) error {
 		return sendError(c, 404, "The requested resource wasn't found.", nil)
 	}
 
-	return c.Status(200).JSON(fiber.Map{"id": "updated"}) // 文档要求返回 id，但 UPDATE 通常不返回新ID，这里返回一个标识
+	return c.SendStatus(204)
 }
 
 // viewRecords 动态查询指定表的数据，支持分页
 func viewRecords(c *fiber.Ctx) error {
+
+	if _, err := authenticateUser(c); err != nil {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
 	tableName := c.Params("table")
 	if tableName == "" {
 		return sendError(c, 400, "Table name is required.", nil)
 	}
 
 	// --- 1. 解析分页参数 ---
-	page, err := c.QueryInt("page", 1) // 默认为第 1 页
-	if err != nil || page < 1 {
+	page := c.QueryInt("page", 1) // 默认为第 1 页
+	if page < 1 {
 		return sendError(c, 400, "Invalid 'page' parameter. It must be a positive integer.", nil)
 	}
 
-	perPage, err := c.QueryInt("perpage", 30) // 默认每页 30 条
-	if err != nil || perPage < 1 || perPage > 100 { // 限制最大每页数量
+	perPage := c.QueryInt("perpage", 30) // 默认每页 30 条
+	if perPage < 1 || perPage > 100 {    // 限制最大每页数量
 		return sendError(c, 400, "Invalid 'perpage' parameter. It must be between 1 and 100.", nil)
 	}
 
@@ -459,7 +592,7 @@ func viewRecords(c *fiber.Ctx) error {
 	// --- 3. 查询总记录数 ---
 	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM \"%s\" %s", tableName, whereClause)
 	var totalItems int64
-	err = dataDB.QueryRow(countQuery, args...).Scan(&totalItems)
+	err := dataDB.QueryRow(countQuery, args...).Scan(&totalItems)
 	if err != nil {
 		if strings.Contains(err.Error(), "no such table") {
 			return sendError(c, 404, "The requested resource wasn't found.", nil)
@@ -473,7 +606,7 @@ func viewRecords(c *fiber.Ctx) error {
 
 	// --- 5. 查询当前页的数据 ---
 	dataQuery := fmt.Sprintf("SELECT %s FROM \"%s\" %s LIMIT ? OFFSET ?", selectClause, tableName, whereClause)
-	
+
 	//  LIMIT 和 OFFSET 的参数也加入 args 切片
 	// 注意：SQLite 的参数是按顺序匹配的
 	queryArgs := append(args, perPage, offset)
@@ -522,5 +655,100 @@ func viewRecords(c *fiber.Ctx) error {
 		"totalPages": totalPages,
 		"totalItems": totalItems,
 		"items":      items,
+	})
+}
+
+// login 用户登录
+func login(c *fiber.Ctx) error {
+	type Body struct {
+		Name         string `json:"name"`
+		PasswordHash string `json:"password_hash"`
+	}
+	var body Body
+	if err := c.BodyParser(&body); err != nil {
+		return sendError(c, 400, "Invalid JSON body.", nil)
+	}
+
+	if body.Name == "" || body.PasswordHash == "" {
+		return sendError(c, 400, "Failed to authenticate.", fiber.Map{
+			"identity": fiber.Map{"code": "validation_required", "message": "Missing required value."},
+		})
+	}
+
+	// 查找用户
+	userRecord, err := findUserByName(body.Name)
+	if err != nil {
+		return sendError(c, 500, "Database error.", nil)
+	}
+	if userRecord == nil {
+		return sendError(c, 400, "Failed to authenticate.", fiber.Map{
+			"identity": fiber.Map{"code": "validation_failed", "message": "Invalid name or password."},
+		})
+	}
+
+	// 在真实应用中，这里应该使用 bcrypt.CompareHashAndPassword
+	// 这里为了简化，我们直接比较哈希
+	storedHash, ok := userRecord["password_hash"].(string)
+	if !ok || storedHash != body.PasswordHash {
+		return sendError(c, 400, "Failed to authenticate.", fiber.Map{
+			"identity": fiber.Map{"code": "validation_failed", "message": "Invalid name or password."},
+		})
+	}
+
+	// 用户验证通过，生成 JWT
+	userID := int64(userRecord["id"].(int64))
+	token, expire, err := GenerateJWT(userID)
+	if err != nil {
+		return sendError(c, 500, "Failed to generate token.", nil)
+	}
+
+	// 准备返回的用户信息
+	record := fiber.Map{
+		"id":      userRecord["id"],
+		"email":   userRecord["email"],
+		"name":    userRecord["name"],
+		"created": userRecord["create"],
+		"updated": userRecord["update"],
+	}
+
+	return c.JSON(fiber.Map{
+		"token":  token,
+		"expire": expire.Format(time.RFC3339),
+		"record": record,
+	})
+}
+
+func refreshToken(c *fiber.Ctx) error {
+	userID, err := authenticateUser(c)
+	if err != nil {
+		return sendError(c, 401, "The request requires valid record authorization token to be set.", nil)
+	}
+
+	// 从数据库重新获取用户信息
+	userRecord, err := findUserByID(userID)
+	if err != nil {
+		return sendError(c, 500, "Database error.", nil)
+	}
+	if userRecord == nil {
+		return sendError(c, 403, "The authorized record model is not allowed to perform this action.", nil)
+	}
+
+	token, expire, err := GenerateJWT(userID)
+	if err != nil {
+		return sendError(c, 500, "Failed to generate token.", nil)
+	}
+
+	record := fiber.Map{
+		"id":      userRecord["id"],
+		"email":   userRecord["email"],
+		"name":    userRecord["name"],
+		"created": userRecord["create"],
+		"updated": userRecord["update"],
+	}
+
+	return c.JSON(fiber.Map{
+		"token":  token,
+		"expire": expire.Format(time.RFC3339),
+		"record": record,
 	})
 }

@@ -16,7 +16,12 @@
 - 请求头：
   ```
   Content-Type: application/json
+  Authorization: Bearer <jwt_token>
   ```
+  
+  > [!NOTE]
+  >
+  > 当{table}为users时，无需Authorization: Bearer <jwt_token>。
   
 - 请求体：
 
@@ -68,8 +73,6 @@
     "data": {}
   }
   ```
-  
-  
 
 ### 2. 删
 
@@ -81,6 +84,7 @@
 
   ```
   Content-Type: application/json
+  Authorization: Bearer <jwt_token>
   ```
 
 - 请求体：
@@ -138,8 +142,6 @@
   }
   ```
 
-  
-
 ### 3. 改
 
 - http方法：PUT / OPTIONS
@@ -150,6 +152,7 @@
 
   ```
   Content-Type: application/json
+  Authorization: Bearer <jwt_token>
   ```
 
 - 请求体：
@@ -167,14 +170,12 @@
 
 - 预期返回：
 
-  http状态码：200
+  http状态码：204
 
   返回体：
 
   ```json
-  {
-      "id": "id"
-  }
+  null
   ```
 
   http状态码：400
@@ -218,8 +219,6 @@
   }
   ```
 
-  
-
 ### 4. 查
 
 - http方法：GET / OPTIONS
@@ -230,6 +229,7 @@
 
   ```
   Content-Type: application/json
+  Authorization: Bearer <jwt_token>
   ```
 
 - 请求体：
@@ -305,7 +305,7 @@
   }
   ```
 
-## 
+##
 
 ## 二、 用户建表API
 
@@ -319,6 +319,7 @@
 
   ```
   Content-Type: application/json
+  Authorization: Bearer <jwt_token>
   ```
 
 - 请求体：
@@ -353,6 +354,135 @@
   }
   ```
 
-  
+
+
+## 三、 JWT
+
+### 1. 登录
+
+- http方法：POST / OPTIONS
+
+- URL：http://localhost:8080/api/auth/login
+
+- 请求头：
+
+  ```
+  Content-Type: application/json
+  ```
+
+- 请求体：
+
+  ```json
+  {
+      "name": "value1",
+      "password_hash": "value2"
+  }
+  ```
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  {
+    "token": "JWT_TOKEN",
+    "expire": "value1",
+    "record": {
+      "id": "value2",
+      "email": "value3",
+      "name": "value4",
+      "created": "value5",
+      "updated": "value6"
+    }
+  }
+  ```
+
+  http状态码：400
+
+  返回体：
+
+  ```json
+  {
+    "status": 400,
+    "message": "Failed to authenticate.",
+    "data": {
+      "identity": {
+        "code": "validation_required",
+        "message": "Missing required value."
+      }
+    }
+  }
+  ```
+
+### 2. 更新token
+
+- http方法：POST / OPTIONS
+
+- URL：http://localhost:8080/api/auth/refresh
+
+- 请求头：
+
+  ```
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  {
+    "token": "JWT_TOKEN",
+    "expire": "value1",
+    "record": {
+      "id": "value2",
+      "email": "value3",
+      "name": "value4",
+      "created": "value5",
+      "updated": "value6"
+    }
+  }
+  ```
+
+  http状态码：401
+
+  返回体：
+
+  ```json
+  {
+    "status": 401,
+    "message": "The request requires valid record authorization token to be set.",
+    "data": {}
+  }
+  ```
+
+  http状态码：403
+
+  返回体：
+
+  ```json
+  {
+    "status": 403,
+    "message": "The authorized record model is not allowed to perform this action.",
+    "data": {}
+  }
+  ```
+
+  http状态码：404
+
+  返回体：
+
+  ```json
+  {
+    "status": 404,
+    "message": "Missing auth record context.",
+    "data": {}
+  }
+  ```
 
   
+
