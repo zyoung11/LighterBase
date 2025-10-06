@@ -570,9 +570,18 @@ func deleteRecord(c *fiber.Ctx) error {
 		return sendError(c, 400, "Failed to delete record.", fiber.Map{"WHERE": "WHERE clause is required to prevent accidental full table deletion."})
 	}
 
-	// 4. 执行删除
-	query := fmt.Sprintf("DELETE FROM \"%s\" WHERE %s", tableName, body.WHERE)
-	res, err := dataDB.Exec(query)
+	// 4. 处理 @uid 占位符
+	whereClause := body.WHERE
+	var args []interface{}
+	if strings.Contains(body.WHERE, "@uid") {
+		uid, _ := authenticateUser(c)
+		whereClause = strings.ReplaceAll(body.WHERE, "@uid", "?")
+		args = append(args, uid)
+	}
+
+	// 5. 执行删除
+	query := fmt.Sprintf("DELETE FROM \"%s\" WHERE %s", tableName, whereClause)
+	res, err := dataDB.Exec(query, args...)
 	if err != nil {
 		return sendError(c, 400, "Failed to delete record.", fiber.Map{"database_error": err.Error()})
 	}
