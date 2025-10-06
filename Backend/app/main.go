@@ -417,6 +417,12 @@ func checkPermission(operation, tableName string, userID int64) (bool, error) {
 	return permissionGranted, nil
 }
 
+func autoFillTimeFields(table string, body map[string]interface{}) {
+	now := time.Now().Format(time.RFC3339)
+	body["create_at"] = now
+	body["update_at"] = now
+}
+
 //------------------------------------------------------------------------------
 
 func main() {
@@ -496,10 +502,6 @@ func createRecord(c *fiber.Ctx) error {
 		return sendError(c, 400, "Failed to create record.", fiber.Map{"body": "Request body cannot be empty."})
 	}
 
-	now := time.Now().Format(time.RFC3339)
-	body["create_at"] = now
-	body["update_at"] = now
-
 	// 4. 处理 users 表的密码哈希
 	if tableName == "users" {
 		if plainPassword, ok := body["password_hash"].(string); ok && plainPassword != "" {
@@ -509,6 +511,8 @@ func createRecord(c *fiber.Ctx) error {
 			}
 			body["password_hash"] = string(hashedPassword)
 		}
+
+		autoFillTimeFields(tableName, body)
 	}
 
 	// 5. 执行插入
