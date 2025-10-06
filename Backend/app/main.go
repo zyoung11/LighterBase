@@ -213,8 +213,8 @@ func createUsersTable(db *sql.DB) error {
 		password_hash TEXT NOT NULL,
 		email TEXT NOT NULL UNIQUE,
 		avatar BLOB,
-		create_at TEXT NOT NULL,
-		update_at TEXT NOT NULL
+		create_at TEXT,
+		update_at TEXT
 	);`
 	_, err := db.Exec(createTableSQL)
 	return err
@@ -469,10 +469,13 @@ func createTable(c *fiber.Ctx) error {
 func createRecord(c *fiber.Ctx) error {
 	tableName := c.Params("table")
 
-	// 1. 认证并获取 userID
-	userID, err := authenticateUser(c)
-	if err != nil {
-		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	var userID int64
+	var err error
+	if tableName != "users" {
+		userID, err = authenticateUser(c)
+		if err != nil {
+			return sendError(c, 403, "You are not allowed to perform this request.", nil)
+		}
 	}
 
 	// 2. 权限检查
@@ -492,6 +495,10 @@ func createRecord(c *fiber.Ctx) error {
 	if len(body) == 0 {
 		return sendError(c, 400, "Failed to create record.", fiber.Map{"body": "Request body cannot be empty."})
 	}
+
+	now := time.Now().Format(time.RFC3339)
+	body["create_at"] = now
+	body["update_at"] = now
 
 	// 4. 处理 users 表的密码哈希
 	if tableName == "users" {
