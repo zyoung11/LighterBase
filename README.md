@@ -22,7 +22,7 @@
 
 ### 1. 增
 
-- http方法：POST / OPTIONS
+- http方法：POST
 
 - URL：http://localhost:8080/api/auto/create/{table}
 
@@ -93,7 +93,7 @@
 >
 > 禁止删除 **users表**  **id=1** 的记录
 
-- http方法：DELETE / OPTIONS
+- http方法：DELETE
 
 - URL：http://localhost:8080/api/auto/delete/{table}
 
@@ -166,7 +166,7 @@
 > 1. 禁止修改  **users表**  **id=1** 的记录
 > 2. 禁止修改 **users表 默认列**
 
-- http方法：PUT / OPTIONS
+- http方法：PUT
 
 - URL：http://localhost:8080/api/auto/update/{table}
 
@@ -243,7 +243,7 @@
 
 ### 4. 查
 
-- http方法：GET / OPTIONS
+- http方法：GET
 
 - URL：http://localhost:8080/api/auto/view/{table}?page={x}&perpage={y}
 
@@ -329,15 +329,15 @@
 
 
 
-## 二、 用户建表API
+## 二、 用户表操作 API
 
-### 1. 建表
+### 1. SQL 操作
 
 > [!IMPORTANT]
 >
-> 只有管理员可以执行这个API
+> 只有**管理员**可以执行这个API
 
-- http方法：POST / OPTIONS
+- http方法：POST
 
 - URL：http://localhost:8080/api/create-table/create
 
@@ -386,7 +386,7 @@
 
 ### 1. 登录
 
-- http方法：POST / OPTIONS
+- http方法：POST
 
 - URL：http://localhost:8080/api/auth/login
 
@@ -444,7 +444,7 @@
 
 ### 2. 更新token
 
-- http方法：POST / OPTIONS
+- http方法：POST
 
 - URL：http://localhost:8080/api/auth/refresh
 
@@ -516,7 +516,7 @@
 
 ### 1. 获取所有权限
 
-- http方法：GET / OPTIONS
+- http方法：GET
 
 - URL：http://localhost:8080/api/permission
 
@@ -565,7 +565,7 @@
 
 ### 2. 更新token
 
-- http方法：POST / OPTIONS
+- http方法：POST
 
 - URL：http://localhost:8080/api/auth/refresh
 

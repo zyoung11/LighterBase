@@ -37,8 +37,8 @@ var routes = []Route{
 	{Method: "POST", Path: "/api/auth/login", Handler: login},
 	{Method: "POST", Path: "/api/auth/refresh", Handler: refreshToken},
 
-	// --- BaaS 建表 API ---
-	{Method: "POST", Path: "/api/create-table/create/", Handler: createTable},
+	// --- BaaS SQL API ---
+	{Method: "POST", Path: "/api/create-table/create/", Handler: execSQL},
 
 	// --- BaaS 通用 CRUD API ---
 	{Method: "POST", Path: "/api/auto/create/:table", Handler: createRecord},
@@ -452,13 +452,15 @@ func health(c *fiber.Ctx) error {
 	return c.SendStatus(200)
 }
 
-// createTable 执行用户提供的 CREATE TABLE SQL
-func createTable(c *fiber.Ctx) error {
+// execSQL 执行用户提供的 SQL（root 专属，事务级保护，users 表只读）
+func execSQL(c *fiber.Ctx) error {
+	// 1.  root 专属
 	userID, err := authenticateUser(c)
 	if err != nil || userID != 1 {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 
+	// 2. 取 SQL
 	type Body struct {
 		SQL string `json:"SQL"`
 	}
@@ -467,22 +469,90 @@ func createTable(c *fiber.Ctx) error {
 		return sendError(c, 400, "Invalid JSON body.", nil)
 	}
 	if body.SQL == "" {
-		return sendError(c, 400, "Failed to create table.", fiber.Map{"SQL": "SQL field is required."})
+		return sendError(c, 400, "Failed to exec SQL.", fiber.Map{"SQL": "SQL field is required."})
 	}
 
-	// 安全检查：只允许 CREATE TABLE 开头的语句
-	// if !strings.HasPrefix(strings.ToUpper(strings.TrimSpace(body.SQL)), "CREATE TABLE") {
-	// 	return sendError(c, 403, "You are not allowed to perform this request.", fiber.Map{"SQL": "Only CREATE TABLE statements are allowed."})
-	// }
-
-	_, err = dataDB.Exec(body.SQL)
+	// 3. 启动事务
+	tx, err := dataDB.Begin()
 	if err != nil {
-		return sendError(c, 400, "Failed to create table.", fiber.Map{"database_error": err.Error()})
+		return sendError(c, 500, "Failed to begin transaction.", fiber.Map{"database_error": err.Error()})
+	}
+	// 任何错误都回滚
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+		}
+	}()
+
+	// 4. 安全审查（仅在事务内做，失败即回滚）
+	sqlUpper := strings.ToUpper(strings.TrimSpace(body.SQL))
+	words := strings.Fields(sqlUpper)
+
+	// 4.1 如果是 ALTER TABLE users
+	if len(words) >= 3 && words[0] == "ALTER" && words[1] == "TABLE" &&
+		strings.Contains(sqlUpper, "USERS") {
+
+		// 必须是 ADD COLUMN
+		if !strings.Contains(sqlUpper, "ADD COLUMN") {
+			err = fmt.Errorf("only ADD COLUMN is allowed on users table")
+			return sendError(c, 403, err.Error(), nil)
+		}
+
+		// 提取新列名
+		var newCol string
+		for i, w := range words {
+			if w == "COLUMN" && i+1 < len(words) {
+				newCol = strings.Trim(words[i+1], `"`)
+				break
+			}
+		}
+		if newCol == "" {
+			err = fmt.Errorf("can not parse new column name")
+			return sendError(c, 400, err.Error(), nil)
+		}
+
+		// 不能与系统列重名
+		systemCols := map[string]bool{
+			"ID": true, "NAME": true, "PASSWORD_HASH": true, "EMAIL": true,
+			"AVATAR": true, "CREATE_AT": true, "UPDATE_AT": true,
+		}
+		if systemCols[strings.ToUpper(newCol)] {
+			err = fmt.Errorf("column %s already exists and is read-only", newCol)
+			return sendError(c, 403, err.Error(), nil)
+		}
+
+		// 禁止其他 ALTER 子句
+		forbidden := []string{"DROP COLUMN", "RENAME COLUMN", "ALTER COLUMN"}
+		for _, f := range forbidden {
+			if strings.Contains(sqlUpper, f) {
+				err = fmt.Errorf("%s is forbidden on users table", f)
+				return sendError(c, 403, err.Error(), nil)
+			}
+		}
 	}
 
-	err = queries.CreateSql(context.Background(), body.SQL)
-	if err != nil {
-		log.Printf("WARNING: Table created successfully, but failed to log SQL to meta database: %v", err)
+	// 4.2 禁止任何对 users 表的 DROP/TRUNCATE/DELETE/UPDATE
+	badVerbs := []string{"DROP", "TRUNCATE", "DELETE", "UPDATE"}
+	for _, v := range badVerbs {
+		if strings.HasPrefix(sqlUpper, v) && strings.Contains(sqlUpper, "USERS") {
+			err = fmt.Errorf("users table is read-only, %s is forbidden", v)
+			return sendError(c, 403, err.Error(), nil)
+		}
+	}
+
+	// 5. 执行用户 SQL（事务内）
+	if _, err = tx.Exec(body.SQL); err != nil {
+		return sendError(c, 400, "Failed to exec SQL.", fiber.Map{"database_error": err.Error()})
+	}
+
+	// 6. 写审计日志（事务内）
+	if _, err = tx.Exec("INSERT INTO _sqls_ (sql) VALUES (?)", body.SQL); err != nil {
+		return sendError(c, 500, "Failed to log SQL.", fiber.Map{"database_error": err.Error()})
+	}
+
+	// 7. 全部成功 -> 提交
+	if err = tx.Commit(); err != nil {
+		return sendError(c, 500, "Failed to commit transaction.", fiber.Map{"database_error": err.Error()})
 	}
 
 	return c.Status(201).JSON(fiber.Map{"SQL": body.SQL})
