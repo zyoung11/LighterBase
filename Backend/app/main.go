@@ -215,7 +215,8 @@ func createUsersTable(db *sql.DB) error {
 		avatar BLOB,
 		create_at TEXT,
 		update_at TEXT
-	);`
+	);
+	`
 	_, err := db.Exec(createTableSQL)
 	return err
 }
@@ -417,10 +418,26 @@ func checkPermission(operation, tableName string, userID int64) (bool, error) {
 	return permissionGranted, nil
 }
 
+// 增加创建时间和更新时间
 func autoFillTimeFields(table string, body map[string]interface{}) {
 	now := time.Now().Format(time.RFC3339)
 	body["create_at"] = now
 	body["update_at"] = now
+}
+
+// 是否为系统保留列（内置用户已有的列）
+func isSystemColumn(col string) bool {
+	switch col {
+	case "id", "name", "password_hash", "email", "avatar", "create_at", "update_at":
+		return true
+	}
+	return false
+}
+
+// 是否尝试动 id=1 的记录
+func touchingRootUser(where string, args []interface{}) bool {
+	return strings.Contains(where, "id=1") ||
+		(strings.Contains(where, "id=@uid") && len(args) > 0 && args[0] == int64(1))
 }
 
 //------------------------------------------------------------------------------
@@ -437,9 +454,11 @@ func health(c *fiber.Ctx) error {
 
 // createTable 执行用户提供的 CREATE TABLE SQL
 func createTable(c *fiber.Ctx) error {
-	if _, err := authenticateUser(c); err != nil {
+	userID, err := authenticateUser(c)
+	if err != nil || userID != 1 {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
+
 	type Body struct {
 		SQL string `json:"SQL"`
 	}
@@ -456,7 +475,7 @@ func createTable(c *fiber.Ctx) error {
 	// 	return sendError(c, 403, "You are not allowed to perform this request.", fiber.Map{"SQL": "Only CREATE TABLE statements are allowed."})
 	// }
 
-	_, err := dataDB.Exec(body.SQL)
+	_, err = dataDB.Exec(body.SQL)
 	if err != nil {
 		return sendError(c, 400, "Failed to create table.", fiber.Map{"database_error": err.Error()})
 	}
@@ -569,6 +588,10 @@ func deleteRecord(c *fiber.Ctx) error {
 	if body.WHERE == "" {
 		return sendError(c, 400, "Failed to delete record.", fiber.Map{"WHERE": "WHERE clause is required to prevent accidental full table deletion."})
 	}
+	// 禁止删除 users表 id=1 的记录
+	if tableName == "users" && touchingRootUser(body.WHERE, nil) {
+		return sendError(c, 403, "System user (id=1) cannot be deleted.", nil)
+	}
 
 	// 4. 处理 @uid 占位符
 	whereClause := body.WHERE
@@ -630,6 +653,19 @@ func updateRecord(c *fiber.Ctx) error {
 	}
 	if body.WHERE == "" {
 		return sendError(c, 400, "Failed to update record.", fiber.Map{"WHERE": "WHERE clause is required."})
+	}
+
+	if tableName == "users" {
+		// 禁止改 users表 id=1 的记录
+		if touchingRootUser(body.WHERE, nil) {
+			return sendError(c, 403, "System user (id=1) is read-only.", nil)
+		}
+		// 禁止改 users表 系统保留列
+		for col := range body.Set {
+			if isSystemColumn(col) {
+				return sendError(c, 403, fmt.Sprintf("Column %s is read-only.", col), nil)
+			}
+		}
 	}
 
 	// 4. 执行更新

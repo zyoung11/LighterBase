@@ -5,7 +5,8 @@
 > 1. BaseURL：http://localhost:8080
 > 2. 时间编码： **RFC3339 格式**
 > 3. 密码哈希：**均由后端进行哈希操作**
-> 4. 自动创建的 **users** 表：
+> 4. 管理员账号：**id = 1，不能改 id ，不能删除**
+> 5. 自动创建的 **users** 表：
 >
 > |     列名      |               约束                |
 > | :-----------: | :-------------------------------: |
@@ -155,6 +156,11 @@
   ```
 
 ### 3. 改
+
+> [!IMPORTANT]
+>
+> 1. 禁止改  **users表**  **id=1** 的记录
+> 2. 禁止改 **users表 默认列**
 
 - http方法：PUT / OPTIONS
 
@@ -323,9 +329,13 @@
 
 ### 1. 建表
 
+> [!IMPORTANT]
+>
+> 只有管理员可以执行这个API
+
 - http方法：POST / OPTIONS
 
-- URL：http://localhost:8080/api/create-table/create/
+- URL：http://localhost:8080/api/create-table/create
 
 - 请求头：
 
