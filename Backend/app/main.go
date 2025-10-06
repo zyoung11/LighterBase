@@ -1085,7 +1085,8 @@ func getLatestSqlRecord(c *fiber.Ctx) error {
 }
 
 func getAllSecurity(c *fiber.Ctx) error {
-	if _, err := authenticateUser(c); err != nil {
+	userID, err := authenticateUser(c)
+	if err != nil || userID != 1 {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 
@@ -1098,7 +1099,8 @@ func getAllSecurity(c *fiber.Ctx) error {
 
 // 为表创建安全策略
 func createSecurityPolicy(c *fiber.Ctx) error {
-	if _, err := authenticateUser(c); err != nil {
+	userID, err := authenticateUser(c)
+	if err != nil || userID != 1 {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 
@@ -1122,7 +1124,7 @@ func createSecurityPolicy(c *fiber.Ctx) error {
 	}
 
 	// 使用 sqlc 生成的函数
-	err := queries.CreateSecurity(context.Background(), database.CreateSecurityParams{
+	err = queries.CreateSecurity(context.Background(), database.CreateSecurityParams{
 		TableName:   tableName,
 		CreateWhere: sql.NullString{String: body.CreateWhere, Valid: body.CreateWhere != ""},
 		DeleteWhere: sql.NullString{String: body.DeleteWhere, Valid: body.DeleteWhere != ""},
@@ -1142,7 +1144,8 @@ func createSecurityPolicy(c *fiber.Ctx) error {
 
 // 删除表的安全策略
 func deleteSecurityPolicy(c *fiber.Ctx) error {
-	if _, err := authenticateUser(c); err != nil {
+	userID, err := authenticateUser(c)
+	if err != nil || userID != 1 {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 
@@ -1151,7 +1154,7 @@ func deleteSecurityPolicy(c *fiber.Ctx) error {
 		return sendError(c, 400, "Table name is required.", nil)
 	}
 
-	err := queries.DeleteSecurity(context.Background(), tableName)
+	err = queries.DeleteSecurity(context.Background(), tableName)
 	if err != nil {
 		// sqlc 对于 DELETE 不存在的记录不会返回 sql.ErrNoRows，而是返回一个错误
 		// 我们可以检查 RowsAffected
@@ -1163,7 +1166,8 @@ func deleteSecurityPolicy(c *fiber.Ctx) error {
 
 // 更新表的安全策略
 func updateSecurityPolicy(c *fiber.Ctx) error {
-	if _, err := authenticateUser(c); err != nil {
+	userID, err := authenticateUser(c)
+	if err != nil || userID != 1 {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 
@@ -1183,7 +1187,7 @@ func updateSecurityPolicy(c *fiber.Ctx) error {
 		return sendError(c, 400, "Invalid JSON body.", nil)
 	}
 
-	err := queries.UpdateSecurity(context.Background(), database.UpdateSecurityParams{
+	err = queries.UpdateSecurity(context.Background(), database.UpdateSecurityParams{
 		CreateWhere: sql.NullString{String: body.CreateWhere, Valid: body.CreateWhere != ""},
 		DeleteWhere: sql.NullString{String: body.DeleteWhere, Valid: body.DeleteWhere != ""},
 		UpdateWhere: sql.NullString{String: body.UpdateWhere, Valid: body.UpdateWhere != ""},
