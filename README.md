@@ -2,8 +2,19 @@
 
 > [!NOTE]
 >
-> BaseURL：http://localhost:8080
+> 1. BaseURL：http://localhost:8080
+> 2. 时间编码： **RFC3339 格式**
+> 3. 密码哈希：**均由后端进行哈希操作**
+> 4. 自动创建的 **users** 表：
 >
+> | id            | INTEGER PRIMARY KEY AUTOINCREMENT |
+> | ------------- | --------------------------------- |
+> | name          | TEXT NOT NULL                     |
+> | password_hash | TEXT NOT NULL                     |
+> | email         | TEXT NOT NULL UNIQUE              |
+> | avatar        | BLOB                              |
+> | create_at     | TEXT NOT NULL                     |
+> | update_at     | TEXT NOT NULL                     |
 
 ## 一、 自动生成模块
 
