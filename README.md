@@ -7,14 +7,15 @@
 > 3. 密码哈希：**均由后端进行哈希操作**
 > 4. 自动创建的 **users** 表：
 >
-> | id            | INTEGER PRIMARY KEY AUTOINCREMENT |
-> | ------------- | --------------------------------- |
-> | name          | TEXT NOT NULL                     |
-> | password_hash | TEXT NOT NULL                     |
-> | email         | TEXT NOT NULL UNIQUE              |
-> | avatar        | BLOB                              |
-> | create_at     | TEXT NOT NULL                     |
-> | update_at     | TEXT NOT NULL                     |
+> |     列名      |               约束                |
+> | :-----------: | :-------------------------------: |
+> |      id       | INTEGER PRIMARY KEY AUTOINCREMENT |
+> |     name      |           TEXT NOT NULL           |
+> | password_hash |           TEXT NOT NULL           |
+> |     email     |       TEXT NOT NULL UNIQUE        |
+> |    avatar     |               BLOB                |
+> |   create_at   |           TEXT NOT NULL           |
+> |   update_at   |           TEXT NOT NULL           |
 
 ## 一、 自动生成模块
 
