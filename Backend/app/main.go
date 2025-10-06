@@ -631,6 +631,13 @@ func updateRecord(c *fiber.Ctx) error {
 		values = append(values, val)
 	}
 
+	// 5. 处理 WHERE 中的 @uid
+	if strings.Contains(body.WHERE, "@uid") {
+		uid, _ := authenticateUser(c)
+		body.WHERE = strings.ReplaceAll(body.WHERE, "@uid", "?")
+		values = append(values, uid)
+	}
+
 	query := fmt.Sprintf("UPDATE \"%s\" SET %s WHERE %s", tableName, strings.Join(setClauses, ", "), body.WHERE)
 
 	res, err := dataDB.Exec(query, values...)
@@ -643,7 +650,7 @@ func updateRecord(c *fiber.Ctx) error {
 		return sendError(c, 404, "The requested resource wasn't found.", nil)
 	}
 
-	return c.Status(200).JSON(fiber.Map{"id": "updated"})
+	return c.SendStatus(204)
 }
 
 // viewRecords 动态查询指定表的数据
@@ -696,7 +703,12 @@ func viewRecords(c *fiber.Ctx) error {
 	whereClause := ""
 	var args []interface{}
 	if body.WHERE != "" {
-		whereClause = "WHERE " + body.WHERE
+		finalWhere := strings.ReplaceAll(body.WHERE, "@uid", "?")
+		whereClause = "WHERE " + finalWhere
+		if strings.Contains(body.WHERE, "@uid") {
+			uid, _ := authenticateUser(c)
+			args = append(args, uid)
+		}
 	}
 
 	// 查询总记录数
@@ -721,7 +733,6 @@ func viewRecords(c *fiber.Ctx) error {
 	}
 	defer rows.Close()
 
-	// ... (扫描数据的部分保持不变) ...
 	columns, _ := rows.Columns()
 	values := make([]interface{}, len(columns))
 	scanArgs := make([]interface{}, len(columns))

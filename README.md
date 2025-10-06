@@ -235,7 +235,7 @@
 
 - http方法：GET / OPTIONS
 
-- URL：http://localhost:8080/api/auto/view/{table}?page=x&perpage=y
+- URL：http://localhost:8080/api/auto/view/{table}?page={x}&perpage={y}
 
 - 请求头：
 
