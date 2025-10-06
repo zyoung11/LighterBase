@@ -514,11 +514,11 @@
 
 ## 四、权限管理API
 
-### 1. 获取所有权限
+### 1. 获取所有权限记录
 
 - http方法：GET
 
-- URL：http://localhost:8080/api/permission
+- URL：http://localhost:8080/api/security
 
 - 请求头：
 
@@ -563,11 +563,48 @@
   }
   ```
 
-### 2. 更新token
+### 2. 创建权限规则
 
 - http方法：POST
 
-- URL：http://localhost:8080/api/auth/refresh
+- URL：http://localhost:8080/api/security/{table}
+
+- 请求头：
+
+  ```
+  Content-Type: application/json
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 请求体：
+
+  ```json
+  {
+      "create_where": "value1",
+      "delete_where": "value2",
+      "update_where": "value3",
+      "view_where":　"value4"
+  }
+  ```
+
+- 预期返回：
+
+  http状态码：201
+
+  返回体：
+
+  ```json
+  {
+    "message": "Security policy created successfully."
+  }
+  ```
+
+
+### 3. 删除权限规则
+
+- http方法：DELETE
+
+- URL：http://localhost:8080/api/security/{table}
 
 - 请求头：
 
@@ -577,59 +614,35 @@
 
 - 预期返回：
 
-  http状态码：200
+  http状态码：204
 
   返回体：
 
   ```json
-  {
-    "token": "JWT_TOKEN",
-    "expire": "value1",
-    "record": {
-      "id": "value2",
-      "email": "value3",
-      "name": "value4",
-      "created": "value5",
-      "updated": "value6"
-    }
-  }
+  null
   ```
 
-  http状态码：401
+
+### 4. 更新权限规则
+
+- http方法：PUT
+
+- URL：http://localhost:8080/api/security/{table}
+
+- 请求头：
+
+  ```
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 预期返回：
+
+  http状态码：204
 
   返回体：
 
   ```json
-  {
-    "status": 401,
-    "message": "The request requires valid record authorization token to be set.",
-    "data": {}
-  }
+  null
   ```
 
-  http状态码：403
-
-  返回体：
-
-  ```json
-  {
-    "status": 403,
-    "message": "The authorized record model is not allowed to perform this action.",
-    "data": {}
-  }
-  ```
-
-  http状态码：404
-
-  返回体：
-
-  ```json
-  {
-    "status": 404,
-    "message": "Missing auth record context.",
-    "data": {}
-  }
-  ```
-
-
-
+  

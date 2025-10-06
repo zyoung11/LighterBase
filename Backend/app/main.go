@@ -54,7 +54,7 @@ var routes = []Route{
 
 	// --- _security_ 表管理 API (需要 JWT) ---
 	{Method: "GET", Path: "/api/security", Handler: getAllSecurity},
-	{Method: "POST", Path: "/api/security/", Handler: createSecurityPolicy},
+	{Method: "POST", Path: "/api/security/:table_name", Handler: createSecurityPolicy},
 	{Method: "DELETE", Path: "/api/security/:table_name", Handler: deleteSecurityPolicy},
 	{Method: "PUT", Path: "/api/security/:table_name", Handler: updateSecurityPolicy},
 }
@@ -1102,8 +1102,12 @@ func createSecurityPolicy(c *fiber.Ctx) error {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 
+	tableName := c.Params("table_name")
+	if tableName == "" {
+		return sendError(c, 400, "Table name is required.", nil)
+	}
+
 	type Body struct {
-		TableName   string `json:"table_name"`
 		CreateWhere string `json:"create_where"`
 		DeleteWhere string `json:"delete_where"`
 		UpdateWhere string `json:"update_where"`
@@ -1113,13 +1117,13 @@ func createSecurityPolicy(c *fiber.Ctx) error {
 	if err := c.BodyParser(&body); err != nil {
 		return sendError(c, 400, "Invalid JSON body.", nil)
 	}
-	if body.TableName == "" {
+	if tableName == "" {
 		return sendError(c, 400, "Failed to create security policy.", fiber.Map{"table_name": "table_name is required."})
 	}
 
 	// 使用 sqlc 生成的函数
 	err := queries.CreateSecurity(context.Background(), database.CreateSecurityParams{
-		TableName:   body.TableName,
+		TableName:   tableName,
 		CreateWhere: sql.NullString{String: body.CreateWhere, Valid: body.CreateWhere != ""},
 		DeleteWhere: sql.NullString{String: body.DeleteWhere, Valid: body.DeleteWhere != ""},
 		UpdateWhere: sql.NullString{String: body.UpdateWhere, Valid: body.UpdateWhere != ""},
@@ -1133,7 +1137,7 @@ func createSecurityPolicy(c *fiber.Ctx) error {
 		return sendError(c, 500, "Failed to create security policy.", fiber.Map{"database_error": err.Error()})
 	}
 
-	return c.Status(201).JSON(fiber.Map{"message": "Security policy created successfully.", "table_name": body.TableName})
+	return c.Status(201).JSON(fiber.Map{"message": "Security policy created successfully."})
 }
 
 // 删除表的安全策略
@@ -1154,7 +1158,7 @@ func deleteSecurityPolicy(c *fiber.Ctx) error {
 		return sendError(c, 500, "Failed to delete security policy.", fiber.Map{"database_error": err.Error()})
 	}
 
-	return c.Status(204).Send(nil) // 204 No Content
+	return c.SendStatus(204) // 204 No Content
 }
 
 // 更新表的安全策略
@@ -1190,7 +1194,7 @@ func updateSecurityPolicy(c *fiber.Ctx) error {
 		return sendError(c, 500, "Failed to update security policy.", fiber.Map{"database_error": err.Error()})
 	}
 
-	return c.JSON(fiber.Map{"message": "Security policy updated successfully.", "table_name": tableName})
+	return c.SendStatus(204)
 }
 
 // (内部函数) 根据表名获取安全策略
