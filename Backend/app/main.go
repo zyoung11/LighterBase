@@ -804,11 +804,11 @@ func login(c *fiber.Ctx) error {
 
 	// 准备返回的用户信息
 	record := fiber.Map{
-		"id":      userRecord["id"],
-		"email":   userRecord["email"],
-		"name":    userRecord["name"],
-		"created": userRecord["create"],
-		"updated": userRecord["update"],
+		"id":        userRecord["id"],
+		"email":     userRecord["email"],
+		"name":      userRecord["name"],
+		"create_at": userRecord["create_at"],
+		"update_at": userRecord["update_at"],
 	}
 
 	return c.JSON(fiber.Map{
@@ -838,11 +838,11 @@ func refreshToken(c *fiber.Ctx) error {
 	}
 
 	record := fiber.Map{
-		"id":      userRecord["id"],
-		"email":   userRecord["email"],
-		"name":    userRecord["name"],
-		"created": userRecord["create"],
-		"updated": userRecord["update"],
+		"id":        userRecord["id"],
+		"email":     userRecord["email"],
+		"name":      userRecord["name"],
+		"create_at": userRecord["create_at"],
+		"update_at": userRecord["update_at"],
 	}
 
 	return c.JSON(fiber.Map{
