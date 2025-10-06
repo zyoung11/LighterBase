@@ -89,6 +89,10 @@
 
 ### 2. 删
 
+> [!IMPORTANT]
+>
+> 禁止删除 **users表**  **id=1** 的记录
+
 - http方法：DELETE / OPTIONS
 
 - URL：http://localhost:8080/api/auto/delete/{table}
@@ -159,8 +163,8 @@
 
 > [!IMPORTANT]
 >
-> 1. 禁止改  **users表**  **id=1** 的记录
-> 2. 禁止改 **users表 默认列**
+> 1. 禁止修改  **users表**  **id=1** 的记录
+> 2. 禁止修改 **users表 默认列**
 
 - http方法：PUT / OPTIONS
 
