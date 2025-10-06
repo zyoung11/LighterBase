@@ -44,7 +44,7 @@ var routes = []Route{
 	{Method: "POST", Path: "/api/auto/create/:table", Handler: createRecord},
 	{Method: "DELETE", Path: "/api/auto/delete/:table", Handler: deleteRecord},
 	{Method: "PUT", Path: "/api/auto/update/:table", Handler: updateRecord},
-	{Method: "GET", Path: "/api/auto/view/:table", Handler: viewRecords},
+	{Method: "POST", Path: "/api/auto/view/:table", Handler: viewRecords},
 
 	// --- _sqls_ 表管理 API ---
 	{Method: "GET", Path: "/api/sqls/latest", Handler: getLatestSqlRecord},

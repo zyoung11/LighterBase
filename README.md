@@ -243,7 +243,7 @@
 
 ### 4. 查
 
-- http方法：GET
+- http方法：POST
 
 - URL：http://localhost:8080/api/auto/view/{table}?page={x}&perpage={y}
 
@@ -587,7 +587,7 @@
       "create_where": "value1",
       "delete_where": "value2",
       "update_where": "value3",
-      "view_where":　"value4"
+      "view_where": "value4"
   }
   ```
 
@@ -636,7 +636,19 @@
 - 请求头：
 
   ```
+  Content-Type: application/json
   Authorization: Bearer <jwt_token>
+  ```
+
+- 请求体：
+
+  ```json
+  {
+      "create_where": "value1",
+      "delete_where": "value2",
+      "update_where": "value3",
+      "view_where": "value4"
+  }
   ```
 
 - 预期返回：
