@@ -7,7 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -442,7 +444,43 @@ func touchingRootUser(where string, args []interface{}) bool {
 
 //------------------------------------------------------------------------------
 
+//------------------------------------web---------------------------------------
+
+func web() {
+	buildPath := "./build"
+
+	if _, err := os.Stat(buildPath); os.IsNotExist(err) {
+		fmt.Printf("Directory %s does not exist", buildPath)
+		return
+	}
+
+	fileServer := http.FileServer(http.Dir(buildPath))
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		requestedPath := path.Join(buildPath, path.Clean(r.URL.Path))
+		if _, err := os.Stat(requestedPath); os.IsNotExist(err) {
+			r.URL.Path = "/"
+		}
+		fileServer.ServeHTTP(w, r)
+	})
+
+	port := "8090"
+	if envPort := os.Getenv("PORT"); envPort != "" {
+		port = envPort
+	}
+
+	log.Printf("Server starting on port %s...", port)
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
+		log.Fatal("Server failed:", err)
+	}
+}
+
+//------------------------------------------------------------------------------
+
 func main() {
+	go func() {
+		web()
+	}()
 	Run("LighterBase", 8080, routes)
 }
 

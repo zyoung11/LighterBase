@@ -17,6 +17,12 @@
 > |    avatar     |               BLOB                |
 > |   create_at   |           TEXT NOT NULL           |
 > |   update_at   |           TEXT NOT NULL           |
+>
+> 6. 驱动前端：
+>    1. 创建 `./build` 文件夹
+>    2. 将所有前端静态文件放入`./build` 文件夹中
+>    3. 确保存在`./build/index.html`
+>    4. 前端代码改动无需重启应用，刷新网页即可
 
 ## 一、 自动生成模块
 
