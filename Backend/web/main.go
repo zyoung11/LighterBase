@@ -5,14 +5,14 @@ import (
 	"embed"
 	"errors"
 	"fmt"
-	"io/fs"
+	// "io/fs"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
 	"os/user"
 	"path"
-	"path/filepath"
+	// "path/filepath"
 	"runtime"
 	"strings"
 	"time"
@@ -24,7 +24,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/golang-jwt/jwt/v5"
 	_ "github.com/mattn/go-sqlite3"
-	"golang.org/x/crypto/bcrypt"
+	// "golang.org/x/crypto/bcrypt"
 )
 
 //go:embed SQL/schema.sql
@@ -95,18 +95,6 @@ func ParseJWT(tokenString string) (int64, error) {
 
 //------------------------------------init--------------------------------------
 
-func init() {
-	if err := initMetaDatabase(); err != nil {
-		log.Fatalf("Failed to initialize meta database: %v", err)
-	}
-	log.Println("Meta database initialized successfully!")
-
-	if err := initDataDatabase(); err != nil {
-		log.Fatalf("Failed to initialize data database: %v", err)
-	}
-	log.Println("Data database initialized successfully!")
-}
-
 func NewApp(name string, routes []Route) *fiber.App {
 	app := fiber.New(fiber.Config{AppName: name})
 
@@ -123,31 +111,6 @@ func NewApp(name string, routes []Route) *fiber.App {
 func Run(name string, port int, routes []Route) {
 	app := NewApp(name, routes)
 	log.Fatal(app.Listen(fmt.Sprintf(":%d", port)))
-}
-
-func initMetaDatabase() error {
-	dbPath := "./LighterBaseDate/metaDate.db"
-	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
-		return fmt.Errorf("could not create database directory: %w", err)
-	}
-	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
-		log.Printf("Meta database file not found. Initializing...")
-		db, err := sql.Open("sqlite3", dbPath)
-		if err != nil {
-			return fmt.Errorf("could not open meta database: %w", err)
-		}
-		defer db.Close()
-		if err := runSchema(db); err != nil {
-			return fmt.Errorf("could not run meta database schema: %w", err)
-		}
-		log.Println("Meta database schema executed.")
-	}
-	db, err := sql.Open("sqlite3", dbPath)
-	if err != nil {
-		return fmt.Errorf("could not open meta database for queries: %w", err)
-	}
-	queries = database.New(db)
-	return nil
 }
 
 //------------------------------------web---------------------------------------
@@ -186,40 +149,40 @@ func web() {
 	}
 }
 
-//go:embed build/*
-var embeddedFiles embed.FS
+// //go:embed build/*
+// var embeddedFiles embed.FS
 
-func webEmbed() {
-	buildFS, err := fs.Sub(embeddedFiles, "build")
-	if err != nil {
-		log.Fatal("Failed to create sub filesystem:", err)
-	}
+// func webEmbed() {
+// 	buildFS, err := fs.Sub(embeddedFiles, "build")
+// 	if err != nil {
+// 		log.Fatal("Failed to create sub filesystem:", err)
+// 	}
 
-	fileServer := http.FileServer(http.FS(buildFS))
+// 	fileServer := http.FileServer(http.FS(buildFS))
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		_, err := buildFS.Open(path.Clean(r.URL.Path))
-		if os.IsNotExist(err) {
-			r.URL.Path = "/"
-		}
-		fileServer.ServeHTTP(w, r)
-	})
+// 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+// 		_, err := buildFS.Open(path.Clean(r.URL.Path))
+// 		if os.IsNotExist(err) {
+// 			r.URL.Path = "/"
+// 		}
+// 		fileServer.ServeHTTP(w, r)
+// 	})
 
-	port := "8070"
-	if envPort := os.Getenv("PORT"); envPort != "" {
-		port = envPort
-	}
+// 	port := "8070"
+// 	if envPort := os.Getenv("PORT"); envPort != "" {
+// 		port = envPort
+// 	}
 
-	go func() {
-		time.Sleep(500 * time.Millisecond)
-		openBrowser("http://localhost:8070")
-	}()
+// 	go func() {
+// 		time.Sleep(500 * time.Millisecond)
+// 		openBrowser("http://localhost:8070")
+// 	}()
 
-	log.Printf("Server starting on port %s...", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
-		log.Fatal("Server failed:", err)
-	}
-}
+// 	log.Printf("Server starting on port %s...", port)
+// 	if err := http.ListenAndServe(":"+port, nil); err != nil {
+// 		log.Fatal("Server failed:", err)
+// 	}
+// }
 
 func openBrowser(url string) error {
 	var cmd string
@@ -267,9 +230,9 @@ func main() {
 		web()
 	}()
 
-	go func() {
-		webEmbed()
-	}()
+	// go func() {
+	// 	webEmbed()
+	// }()
 
 	Run("LighterBase", 8080, routes)
 }
