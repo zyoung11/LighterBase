@@ -10,6 +10,45 @@ import (
 	"database/sql"
 )
 
+const createProject = `-- name: CreateProject :one
+INSERT INTO projects (
+    user_id, project_name, project_avatar, project_description, project_size, create_at, update_at
+) VALUES (
+    ?, ?, ?, ?, ?, datetime('now'), datetime('now')
+)
+RETURNING project_id, user_id, project_name, project_avatar, project_description, project_size, create_at, update_at
+`
+
+type CreateProjectParams struct {
+	UserID             int64
+	ProjectName        string
+	ProjectAvatar      sql.NullString
+	ProjectDescription sql.NullString
+	ProjectSize        sql.NullInt64
+}
+
+func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error) {
+	row := q.db.QueryRowContext(ctx, createProject,
+		arg.UserID,
+		arg.ProjectName,
+		arg.ProjectAvatar,
+		arg.ProjectDescription,
+		arg.ProjectSize,
+	)
+	var i Project
+	err := row.Scan(
+		&i.ProjectID,
+		&i.UserID,
+		&i.ProjectName,
+		&i.ProjectAvatar,
+		&i.ProjectDescription,
+		&i.ProjectSize,
+		&i.CreateAt,
+		&i.UpdateAt,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
     user_name, password_hash, email, user_avatar,
@@ -48,6 +87,15 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const deleteProject = `-- name: DeleteProject :exec
+DELETE FROM projects WHERE project_id = ?
+`
+
+func (q *Queries) DeleteProject(ctx context.Context, projectID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteProject, projectID)
+	return err
+}
+
 const deleteUser = `-- name: DeleteUser :exec
 DELETE FROM users WHERE user_id = ?
 `
@@ -55,6 +103,26 @@ DELETE FROM users WHERE user_id = ?
 func (q *Queries) DeleteUser(ctx context.Context, userID int64) error {
 	_, err := q.db.ExecContext(ctx, deleteUser, userID)
 	return err
+}
+
+const getProjectByID = `-- name: GetProjectByID :one
+SELECT project_id, user_id, project_name, project_avatar, project_description, project_size, create_at, update_at FROM projects WHERE project_id = ? LIMIT 1
+`
+
+func (q *Queries) GetProjectByID(ctx context.Context, projectID int64) (Project, error) {
+	row := q.db.QueryRowContext(ctx, getProjectByID, projectID)
+	var i Project
+	err := row.Scan(
+		&i.ProjectID,
+		&i.UserID,
+		&i.ProjectName,
+		&i.ProjectAvatar,
+		&i.ProjectDescription,
+		&i.ProjectSize,
+		&i.CreateAt,
+		&i.UpdateAt,
+	)
+	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
@@ -150,6 +218,84 @@ func (q *Queries) ListAllUsers(ctx context.Context) ([]User, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const listProjectsByUserID = `-- name: ListProjectsByUserID :many
+SELECT project_id, user_id, project_name, project_avatar, project_description, project_size, create_at, update_at FROM projects WHERE user_id = ? ORDER BY create_at DESC
+`
+
+func (q *Queries) ListProjectsByUserID(ctx context.Context, userID int64) ([]Project, error) {
+	rows, err := q.db.QueryContext(ctx, listProjectsByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Project
+	for rows.Next() {
+		var i Project
+		if err := rows.Scan(
+			&i.ProjectID,
+			&i.UserID,
+			&i.ProjectName,
+			&i.ProjectAvatar,
+			&i.ProjectDescription,
+			&i.ProjectSize,
+			&i.CreateAt,
+			&i.UpdateAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateProject = `-- name: UpdateProject :one
+UPDATE projects
+SET
+    project_name = COALESCE(?, project_name),
+    project_avatar = COALESCE(?, project_avatar),
+    project_description = COALESCE(?, project_description),
+    project_size = COALESCE(?, project_size),
+    update_at = datetime('now')
+WHERE project_id = ?
+RETURNING project_id, user_id, project_name, project_avatar, project_description, project_size, create_at, update_at
+`
+
+type UpdateProjectParams struct {
+	ProjectName        string
+	ProjectAvatar      sql.NullString
+	ProjectDescription sql.NullString
+	ProjectSize        sql.NullInt64
+	ProjectID          int64
+}
+
+func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (Project, error) {
+	row := q.db.QueryRowContext(ctx, updateProject,
+		arg.ProjectName,
+		arg.ProjectAvatar,
+		arg.ProjectDescription,
+		arg.ProjectSize,
+		arg.ProjectID,
+	)
+	var i Project
+	err := row.Scan(
+		&i.ProjectID,
+		&i.UserID,
+		&i.ProjectName,
+		&i.ProjectAvatar,
+		&i.ProjectDescription,
+		&i.ProjectSize,
+		&i.CreateAt,
+		&i.UpdateAt,
+	)
+	return i, err
 }
 
 const updateUser = `-- name: UpdateUser :one

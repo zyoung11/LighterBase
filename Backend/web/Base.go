@@ -30,9 +30,7 @@ import (
 //go:embed SQL/schema.sql
 var schemaFS embed.FS
 
-var (
-	queries *database.Queries
-)
+var queries *database.Queries
 
 type Route struct {
 	Method  string

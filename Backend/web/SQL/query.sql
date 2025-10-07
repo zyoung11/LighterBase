@@ -36,3 +36,32 @@ RETURNING *;
 -- name: DeleteUser :exec
 DELETE FROM users WHERE user_id = ?;
 
+
+
+-- name: CreateProject :one
+INSERT INTO projects (
+    user_id, project_name, project_avatar, project_description, project_size, create_at, update_at
+) VALUES (
+    ?, ?, ?, ?, ?, datetime('now'), datetime('now')
+)
+RETURNING *;
+
+-- name: GetProjectByID :one
+SELECT * FROM projects WHERE project_id = ? LIMIT 1;
+
+-- name: ListProjectsByUserID :many
+SELECT * FROM projects WHERE user_id = ? ORDER BY create_at DESC;
+
+-- name: UpdateProject :one
+UPDATE projects
+SET
+    project_name = COALESCE(?, project_name),
+    project_avatar = COALESCE(?, project_avatar),
+    project_description = COALESCE(?, project_description),
+    project_size = COALESCE(?, project_size),
+    update_at = datetime('now')
+WHERE project_id = ?
+RETURNING *;
+
+-- name: DeleteProject :exec
+DELETE FROM projects WHERE project_id = ?;
