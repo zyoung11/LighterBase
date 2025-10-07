@@ -218,7 +218,7 @@ func createUsersTable(db *sql.DB) error {
 		name TEXT NOT NULL,
 		password_hash TEXT NOT NULL,
 		email TEXT NOT NULL UNIQUE,
-		avatar BLOB,
+		avatar TEXT,
 		create_at TEXT,
 		update_at TEXT
 	);
