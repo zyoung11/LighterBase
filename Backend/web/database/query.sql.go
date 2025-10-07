@@ -10,44 +10,6 @@ import (
 	"database/sql"
 )
 
-const createProject = `-- name: CreateProject :one
-INSERT INTO projects (
-    user_id, project_name, project_avatar, project_description,
-    create_at, update_at
-) VALUES (
-    ?, ?, ?, ?,
-    datetime('now'), datetime('now')
-)
-RETURNING pid, user_id, project_name, project_avatar, project_description, create_at, update_at
-`
-
-type CreateProjectParams struct {
-	UserID             int64
-	ProjectName        string
-	ProjectAvatar      sql.NullString
-	ProjectDescription sql.NullString
-}
-
-func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error) {
-	row := q.db.QueryRowContext(ctx, createProject,
-		arg.UserID,
-		arg.ProjectName,
-		arg.ProjectAvatar,
-		arg.ProjectDescription,
-	)
-	var i Project
-	err := row.Scan(
-		&i.Pid,
-		&i.UserID,
-		&i.ProjectName,
-		&i.ProjectAvatar,
-		&i.ProjectDescription,
-		&i.CreateAt,
-		&i.UpdateAt,
-	)
-	return i, err
-}
-
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
     user_name, password_hash, email, user_avatar,
@@ -86,21 +48,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
-const deleteProject = `-- name: DeleteProject :exec
-DELETE FROM projects
-WHERE pid = ? AND user_id = ?
-`
-
-type DeleteProjectParams struct {
-	Pid    int64
-	UserID int64
-}
-
-func (q *Queries) DeleteProject(ctx context.Context, arg DeleteProjectParams) error {
-	_, err := q.db.ExecContext(ctx, deleteProject, arg.Pid, arg.UserID)
-	return err
-}
-
 const deleteUser = `-- name: DeleteUser :exec
 DELETE FROM users WHERE user_id = ?
 `
@@ -108,32 +55,6 @@ DELETE FROM users WHERE user_id = ?
 func (q *Queries) DeleteUser(ctx context.Context, userID int64) error {
 	_, err := q.db.ExecContext(ctx, deleteUser, userID)
 	return err
-}
-
-const getProject = `-- name: GetProject :one
-SELECT pid, user_id, project_name, project_avatar, project_description, create_at, update_at FROM projects
-WHERE pid = ? AND user_id = ?
-LIMIT 1
-`
-
-type GetProjectParams struct {
-	Pid    int64
-	UserID int64
-}
-
-func (q *Queries) GetProject(ctx context.Context, arg GetProjectParams) (Project, error) {
-	row := q.db.QueryRowContext(ctx, getProject, arg.Pid, arg.UserID)
-	var i Project
-	err := row.Scan(
-		&i.Pid,
-		&i.UserID,
-		&i.ProjectName,
-		&i.ProjectAvatar,
-		&i.ProjectDescription,
-		&i.CreateAt,
-		&i.UpdateAt,
-	)
-	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
@@ -176,27 +97,45 @@ func (q *Queries) GetUserByID(ctx context.Context, userID int64) (User, error) {
 	return i, err
 }
 
-const listProjectsByUser = `-- name: ListProjectsByUser :many
-SELECT pid, user_id, project_name, project_avatar, project_description, create_at, update_at FROM projects
-WHERE user_id = ?
-ORDER BY create_at DESC
+const getUserByName = `-- name: GetUserByName :one
+SELECT user_id, user_name, password_hash, email, user_avatar, create_at, update_at FROM users
+WHERE user_name = ? LIMIT 1
 `
 
-func (q *Queries) ListProjectsByUser(ctx context.Context, userID int64) ([]Project, error) {
-	rows, err := q.db.QueryContext(ctx, listProjectsByUser, userID)
+func (q *Queries) GetUserByName(ctx context.Context, userName string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByName, userName)
+	var i User
+	err := row.Scan(
+		&i.UserID,
+		&i.UserName,
+		&i.PasswordHash,
+		&i.Email,
+		&i.UserAvatar,
+		&i.CreateAt,
+		&i.UpdateAt,
+	)
+	return i, err
+}
+
+const listAllUsers = `-- name: ListAllUsers :many
+SELECT user_id, user_name, password_hash, email, user_avatar, create_at, update_at FROM users
+`
+
+func (q *Queries) ListAllUsers(ctx context.Context) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, listAllUsers)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Project
+	var items []User
 	for rows.Next() {
-		var i Project
+		var i User
 		if err := rows.Scan(
-			&i.Pid,
 			&i.UserID,
-			&i.ProjectName,
-			&i.ProjectAvatar,
-			&i.ProjectDescription,
+			&i.UserName,
+			&i.PasswordHash,
+			&i.Email,
+			&i.UserAvatar,
 			&i.CreateAt,
 			&i.UpdateAt,
 		); err != nil {
@@ -211,46 +150,6 @@ func (q *Queries) ListProjectsByUser(ctx context.Context, userID int64) ([]Proje
 		return nil, err
 	}
 	return items, nil
-}
-
-const updateProject = `-- name: UpdateProject :one
-UPDATE projects
-SET
-    project_name = COALESCE(?, project_name),
-    project_avatar = COALESCE(?, project_avatar),
-    project_description = COALESCE(?, project_description),
-    update_at = datetime('now')
-WHERE pid = ? AND user_id = ?
-RETURNING pid, user_id, project_name, project_avatar, project_description, create_at, update_at
-`
-
-type UpdateProjectParams struct {
-	ProjectName        string
-	ProjectAvatar      sql.NullString
-	ProjectDescription sql.NullString
-	Pid                int64
-	UserID             int64
-}
-
-func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (Project, error) {
-	row := q.db.QueryRowContext(ctx, updateProject,
-		arg.ProjectName,
-		arg.ProjectAvatar,
-		arg.ProjectDescription,
-		arg.Pid,
-		arg.UserID,
-	)
-	var i Project
-	err := row.Scan(
-		&i.Pid,
-		&i.UserID,
-		&i.ProjectName,
-		&i.ProjectAvatar,
-		&i.ProjectDescription,
-		&i.CreateAt,
-		&i.UpdateAt,
-	)
-	return i, err
 }
 
 const updateUser = `-- name: UpdateUser :one
