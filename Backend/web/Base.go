@@ -10,8 +10,10 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"path"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -81,7 +83,7 @@ func GenerateJWT(userID int64) (string, time.Time, error) {
 
 // ParseJWT 解析并验证 JWT，返回用户 ID
 func ParseJWT(tokenString string) (int64, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &MyCustomClaims{}, func(token *token.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &MyCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -175,15 +177,7 @@ func initDB(projectName string) {
 
 //------------------------------------web---------------------------------------
 
-func web(buildPath string, port int, embed bool) {
-	if embed {
-		webEmbed(buildPath, port)
-	} else {
-		webLive(buildPath, port)
-	}
-}
-
-func webLive(buildPath string, port int) {
+func web(buildPath string, port int) {
 	if _, err := os.Stat(buildPath); os.IsNotExist(err) {
 		fmt.Printf("Directory %s does not exist", buildPath)
 		return
@@ -192,7 +186,7 @@ func webLive(buildPath string, port int) {
 	fileServer := http.FileServer(http.Dir(buildPath))
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		requestedPath := filepath.Join(buildPath, filepath.Clean(r.URL.Path))
+		requestedPath := path.Join(buildPath, path.Clean(r.URL.Path))
 		if _, err := os.Stat(requestedPath); os.IsNotExist(err) {
 			r.URL.Path = "/"
 		}
@@ -200,50 +194,15 @@ func webLive(buildPath string, port int) {
 	})
 
 	if envPort := os.Getenv("PORT"); envPort != "" {
-		port = envPort
-	}
-
-	go func() {
-		time.Sleep(500 * time.Millisecond)
-		openBrowser("http://localhost:" + port)
-	}()
-
-	log.Printf("Server starting on port %s...", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
-		log.Fatal("Server failed:", err)
-	}
-}
-
-func webEmbed(buildPath string, port int) {
-	//go:embed build/*
-	var embeddedFiles embed.FS
-
-	buildFS, err := fs.Sub(embeddedFiles, "buildPath")
-	if err != nil {
-		log.Fatal("Failed to create sub filesystem:", err)
-	}
-
-	fileServer := http.FileServer(http.FS(buildFS))
-
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		_, err := buildFS.Open(path.Clean(r.URL.Path))
-		if os.IsNotExist(err) {
-			r.URL.Path = "/"
+		if p, err := strconv.Atoi(envPort); err == nil {
+			port = p
+		} else {
+			log.Printf("Invalid PORT environment variable: %s, using default %d", envPort, port)
 		}
-		fileServer.ServeHTTP(w, r)
-	})
-
-	if envPort := os.Getenv("PORT"); envPort != "" {
-		port = envPort
 	}
 
-	go func() {
-		time.Sleep(500 * time.Millisecond)
-		openBrowser("http://localhost:" + port)
-	}()
-
-	log.Printf("Server starting on port %s...", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	log.Printf("Server starting on port %d...", port)
+	if err := http.ListenAndServe(":"+strconv.Itoa(port), nil); err != nil {
 		log.Fatal("Server failed:", err)
 	}
 }
@@ -289,11 +248,11 @@ func openBrowser(url string) error {
 
 //------------------------------------------------------------------------------
 
-func initBackend(projectName string, frontendDir string, backendPort int, frontendPort int, embed bool) {
+func initBackend(projectName string, frontendDir string, backendPort int, frontendPort int) {
 	initDB(projectName)
 
 	go func() {
-		web(frontendDir, frontendPort, embed)
+		web(frontendDir, frontendPort)
 	}()
 
 	Run(projectName, backendPort, routes)
@@ -453,25 +412,19 @@ func updateUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
 	}
 
-	// 处理密码更新
-	var hashedPassword sql.NullString
+	var hashedPassword string
 	if req.Password != "" {
 		hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to hash password"})
 		}
-		hashedPassword = sql.NullString{String: string(hash), Valid: true}
+		hashedPassword = string(hash)
 	}
 
-	// 处理头像更新
-	var avatar sql.NullString
-	if req.UserAvatar != "" {
-		avatar = sql.NullString{String: req.UserAvatar, Valid: true}
-	}
+	avatar := sql.NullString{String: req.UserAvatar, Valid: req.UserAvatar != ""}
 
-	// 更新用户
 	user, err := queries.UpdateUser(c.Context(), database.UpdateUserParams{
-		UserName:     sql.NullString{String: req.UserName, Valid: req.UserName != ""},
+		UserName:     req.UserName,
 		PasswordHash: hashedPassword,
 		UserAvatar:   avatar,
 		UserID:       int64(id),
