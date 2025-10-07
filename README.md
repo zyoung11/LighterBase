@@ -283,6 +283,204 @@
 
 
 
+## 二、项目API
+
+### 1. 创建项目
+
+- http方法：POST  
+- URL：http://localhost:8080/api/projects  
+
+- 请求头：
+  ```
+  Content-Type: application/json
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 请求体：
+  ```json
+  {
+    "project_name": "string",
+    "project_avatar": "string",
+    "project_description": "string"
+  }
+  ```
+  
+- 预期返回： 
+  http状态码：201 
+  返回体：
+  
+  ```json
+  {
+    "project_id": 1,
+    "user_id": 1,
+    "project_name": "string",
+    "project_avatar": "string",
+    "project_description": "string",
+    "project_size": 0,
+    "create_at": "2023-01-01 00:00:00",
+    "update_at": "2023-01-01 00:00:00"
+  }
+  ```
+  
+  http状态码：400, 401, 500 
+  返回体：
+  
+  ```json
+  {
+    "error": "error_message"
+  }
+  ```
+
+### 2. 获取当前用户的所有项目
+
+- http方法：GET  
+- URL：http://localhost:8080/api/projects  
+
+- 请求头：
+  ```
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 预期返回： 
+  http状态码：200 
+  返回体：
+  
+  ```json
+  [
+    {
+      "project_id": 1,
+      "user_id": 1,
+      "project_name": "string",
+      "project_avatar": "string",
+      "project_description": "string",
+      "project_size": 0,
+      "create_at": "2023-01-01 00:00:00",
+      "update_at": "2023-01-01 00:00:00"
+    }
+  ]
+  ```
+  
+  http状态码：401, 500 
+  返回体：
+  
+  ```json
+  {
+    "error": "error_message"
+  }
+  ```
+
+### 3. 获取单个项目
+
+- http方法：GET  
+- URL：http://localhost:8080/api/projects/{id}  
+
+- 请求头：
+  ```
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 预期返回： 
+  http状态码：200 
+  返回体：
+  
+  ```json
+  {
+    "project_id": 1,
+    "user_id": 1,
+    "project_name": "string",
+    "project_avatar": "string",
+    "project_description": "string",
+    "project_size": 0,
+    "create_at": "2023-01-01 00:00:00",
+    "update_at": "2023-01-01 00:00:00"
+  }
+  ```
+  
+  http状态码：400, 401, 403, 404, 500 
+  返回体：
+  
+  ```json
+  {
+    "error": "error_message"
+  }
+  ```
+
+### 4. 更新项目
+
+- http方法：PUT  
+- URL：http://localhost:8080/api/projects/{id}  
+
+- 请求头：
+  ```
+  Content-Type: application/json
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 请求体：
+  ```json
+  {
+    "project_name": "string",
+    "project_avatar": "string",
+    "project_description": "string",
+    "project_size": 0
+  }
+  ```
+
+- 预期返回： 
+  http状态码：200 
+  返回体：
+  
+  ```json
+  {
+    "project_id": 1,
+    "user_id": 1,
+    "project_name": "string",
+    "project_avatar": "string",
+    "project_description": "string",
+    "project_size": 0,
+    "create_at": "2023-01-01 00:00:00",
+    "update_at": "2023-01-01 00:00:00"
+  }
+  ```
+  
+  http状态码：400, 401, 403, 500 
+  返回体：
+  
+  ```json
+  {
+    "error": "error_message"
+  }
+  ```
+
+### 5. 删除项目
+
+- http方法：DELETE  
+- URL：http://localhost:8080/api/projects/{id}  
+
+- 请求头：
+  ```
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 预期返回： 
+  http状态码：204 
+  返回体：
+  
+  ```json
+  null
+  ```
+  
+  http状态码：400, 401, 403, 500 
+  返回体：
+  
+  ```json
+  {
+    "error": "error_message"
+  }
+  ```
+
+
+
 
 
 ------
