@@ -112,6 +112,10 @@
 
 ### 3. 获取所有用户
 
+> [!IMPORTANT]
+>
+> 只有**管理员**可以使用这个API
+
 - http方法：GET
 
 - URL：http://localhost:8080/api/users

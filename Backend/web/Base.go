@@ -354,11 +354,6 @@ func login(c *fiber.Ctx) error {
 
 // 获取所有用户
 func listUsers(c *fiber.Ctx) error {
-	id, err := c.ParamsInt("id")
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid user ID"})
-	}
-
 	// 获取当前用户ID
 	currentUserID, ok := c.Locals("userID").(int64)
 	if !ok {
@@ -366,7 +361,7 @@ func listUsers(c *fiber.Ctx) error {
 	}
 
 	// 检查是否是当前用户或管理员
-	if currentUserID != int64(id) || currentUserID == 1 {
+	if currentUserID == 1 {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Forbidden"})
 	}
 
