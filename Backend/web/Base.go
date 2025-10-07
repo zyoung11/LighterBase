@@ -32,18 +32,7 @@ var schemaFS embed.FS
 
 var (
 	queries *database.Queries
-	dataDB  *sql.DB
 )
-
-var routes = []Route{
-	{Method: "GET", Path: "/health", Handler: health},
-	{Method: "POST", Path: "/api/register", Handler: register},
-	{Method: "POST", Path: "/api/login", Handler: login},
-	{Method: "GET", Path: "/api/users", Handler: listUsers},
-	{Method: "GET", Path: "/api/users/:id", Handler: getUser},
-	{Method: "PUT", Path: "/api/users/:id", Handler: updateUser},
-	{Method: "DELETE", Path: "/api/users/:id", Handler: deleteUser},
-}
 
 type Route struct {
 	Method  string
@@ -172,7 +161,6 @@ func initDB(projectName string) {
 
 	// 初始化sqlc查询
 	queries = database.New(db)
-	dataDB = db
 }
 
 //------------------------------------web---------------------------------------
@@ -200,6 +188,11 @@ func web(buildPath string, port int) {
 			log.Printf("Invalid PORT environment variable: %s, using default %d", envPort, port)
 		}
 	}
+
+	go func() {
+		time.Sleep(500 * time.Millisecond)
+		openBrowser(fmt.Sprintf("http://localhost:%v", port))
+	}()
 
 	log.Printf("Server starting on port %d...", port)
 	if err := http.ListenAndServe(":"+strconv.Itoa(port), nil); err != nil {
@@ -273,7 +266,7 @@ type RegisterRequest struct {
 
 // 登录请求结构
 type LoginRequest struct {
-	Email    string `json:"email"`
+	UserName string `json:"user_name"`
 	Password string `json:"password"`
 }
 
@@ -337,7 +330,7 @@ func login(c *fiber.Ctx) error {
 	}
 
 	// 获取用户
-	user, err := queries.GetUserByEmail(c.Context(), req.Email)
+	user, err := queries.GetUserByName(c.Context(), req.UserName)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid credentials"})
 	}
@@ -361,6 +354,22 @@ func login(c *fiber.Ctx) error {
 
 // 获取所有用户
 func listUsers(c *fiber.Ctx) error {
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid user ID"})
+	}
+
+	// 获取当前用户ID
+	currentUserID, ok := c.Locals("userID").(int64)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	// 检查是否是当前用户或管理员
+	if currentUserID != int64(id) || currentUserID == 1 {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Forbidden"})
+	}
+
 	users, err := queries.ListAllUsers(c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch users"})
@@ -374,6 +383,17 @@ func getUser(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid user ID"})
+	}
+
+	// 获取当前用户ID
+	currentUserID, ok := c.Locals("userID").(int64)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	// 检查是否是当前用户或管理员
+	if currentUserID != int64(id) || currentUserID == 1 {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Forbidden"})
 	}
 
 	user, err := queries.GetUserByID(c.Context(), int64(id))
@@ -398,7 +418,7 @@ func updateUser(c *fiber.Ctx) error {
 	}
 
 	// 检查是否是当前用户或管理员
-	if currentUserID != int64(id) {
+	if currentUserID != int64(id) || currentUserID == 1 {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Forbidden"})
 	}
 
@@ -450,7 +470,7 @@ func deleteUser(c *fiber.Ctx) error {
 	}
 
 	// 检查是否是当前用户或管理员
-	if currentUserID != int64(id) {
+	if currentUserID != int64(id) || currentUserID == 1 {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Forbidden"})
 	}
 

@@ -1,6 +1,285 @@
 # LighterBaseHub API 文档
 
- 
+
+
+## 一、用户API
+
+### 1. 用户注册
+
+- http方法：POST
+
+- URL：http://localhost:8080/api/users/register
+
+- 请求头：
+
+  ```
+  Content-Type: application/json
+  ```
+
+- 请求体：
+
+  ```json
+  {
+    "user_name": "string",
+    "password": "string",
+    "email": "string"
+  }
+  ```
+
+- 预期返回：
+
+  http状态码：201
+
+  返回体：
+
+  ```json
+  {
+    "user": {
+      "user_id": 1,
+      "user_name": "string",
+      "password_hash": "string",
+      "email": "string",
+      "user_avatar": null,
+      "create_at": "2023-01-01 00:00:00",
+      "update_at": "2023-01-01 00:00:00"
+    },
+    "token": "jwt_token_string"
+  }
+  ```
+
+  http状态码：400, 409, 500
+
+  返回体：
+
+  ```json
+  {
+    "error": "error_message"
+  }
+  ```
+
+
+### 2. 用户登录
+
+- http方法：POST
+
+- URL：http://localhost:8080/api/users/login
+
+- 请求头：
+
+  ```
+  Content-Type: application/json
+  ```
+
+- 请求体：
+
+  ```json
+  {
+    "user_name": "string",
+    "password": "string"
+  }
+  ```
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  {
+    "user": {
+      "user_id": 1,
+      "user_name": "string",
+      "password_hash": "string",
+      "email": "string",
+      "user_avatar": null,
+      "create_at": "2023-01-01 00:00:00",
+      "update_at": "2023-01-01 00:00:00"
+    },
+    "token": "jwt_token_string"
+  }
+  ```
+
+  http状态码：400, 401, 500
+
+  返回体：
+
+  ```json
+  {
+    "error": "error_message"
+  }
+  ```
+
+### 3. 获取所有用户
+
+- http方法：GET
+
+- URL：http://localhost:8080/api/users
+
+- 请求头：
+
+  ```
+  Content-Type: application/json
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  [
+    {
+      "user_id": 1,
+      "user_name": "string",
+      "password_hash": "string",
+      "email": "string",
+      "user_avatar": null,
+      "create_at": "2023-01-01 00:00:00",
+      "update_at": "2023-01-01 00:00:00"
+    },
+    ...
+  ]
+  ```
+
+  http状态码：401, 403, 500
+
+  返回体：
+
+  ```json
+  {
+    "error": "error_message"
+  }
+  ```
+
+### 4. 获取单个用户
+
+- http方法：GET
+
+- URL：http://localhost:8080/api/users/{id}
+
+- 请求头：
+
+  ```
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  {
+    "user_id": 1,
+    "user_name": "string",
+    "password_hash": "string",
+    "email": "string",
+    "user_avatar": null,
+    "create_at": "2023-01-01 00:00:00",
+    "update_at": "2023-01-01 00:00:00"
+  }
+  ```
+
+  http状态码：400, 401, 403, 404, 500
+
+  返回体：
+
+  ```json
+  {
+    "error": "error_message"
+  }
+  ```
+
+### 5. 更新用户
+
+- http方法：PUT
+
+- URL：http://localhost:8080/api/users/{id}
+
+- 请求头：
+
+  ```
+  Content-Type: application/json
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 请求体：
+
+  ```json
+  {
+    "user_name": "string",
+    "password": "string",
+    "user_avatar": "string"
+  }
+  ```
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  {
+    "user_id": 1,
+    "user_name": "string",
+    "password_hash": "string",
+    "email": "string",
+    "user_avatar": "string",
+    "create_at": "2023-01-01 00:00:00",
+    "update_at": "2023-01-01 00:00:00"
+  }
+  ```
+
+  http状态码：400, 401, 403, 500
+
+  返回体：
+
+  ```json
+  {
+    "error": "error_message"
+  }
+  ```
+
+### 6. 删除用户
+
+- http方法：DELETE
+
+- URL：http://localhost:8080/api/users/{id}
+
+- 请求头：
+
+  ```
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 预期返回：
+
+  http状态码：204
+
+  返回体：
+
+  ```json
+  null
+  ```
+
+  http状态码：400, 401, 403, 500
+
+  返回体：
+
+  ```json
+  {
+    "error": "error_message"
+  }
+  ```
+
+
+
+
 
 ------
 
