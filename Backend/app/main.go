@@ -15,7 +15,6 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
-	"strconv"
 	"strings"
 	"time"
 
@@ -103,7 +102,7 @@ func GenerateJWT(userID int64) (string, time.Time, error) {
 
 // ParseJWT 解析并验证 JWT，返回用户 ID
 func ParseJWT(tokenString string) (int64, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &MyCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &MyCustomClaims{}, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -245,7 +244,7 @@ func getTableColumns(db *sql.DB, tableName string) ([]string, error) {
 		var cid int
 		var name, dataType string
 		var notNull, pk int
-		var defaultValue interface{}
+		var defaultValue any
 		if err := rows.Scan(&cid, &name, &dataType, &notNull, &defaultValue, &pk); err != nil {
 			return nil, fmt.Errorf("failed to scan column info: %w", err)
 		}
@@ -254,14 +253,14 @@ func getTableColumns(db *sql.DB, tableName string) ([]string, error) {
 	return columns, nil
 }
 
-// queryTableAsMap 通用查询函数，返回 []map[string]interface{}
-func queryTableAsMap(db *sql.DB, tableName string, whereClause string, args ...interface{}) ([]map[string]interface{}, error) {
+// queryTableAsMap 通用查询函数，返回 []map[string]any
+func queryTableAsMap(db *sql.DB, tableName string, whereClause string, args ...any) ([]map[string]any, error) {
 	columns, err := getTableColumns(db, tableName)
 	if err != nil {
 		return nil, err
 	}
 	if len(columns) == 0 {
-		return []map[string]interface{}{}, nil
+		return []map[string]any{}, nil
 	}
 
 	query := fmt.Sprintf("SELECT * FROM %s", tableName)
@@ -275,19 +274,19 @@ func queryTableAsMap(db *sql.DB, tableName string, whereClause string, args ...i
 	}
 	defer rows.Close()
 
-	values := make([]interface{}, len(columns))
-	scanArgs := make([]interface{}, len(columns))
+	values := make([]any, len(columns))
+	scanArgs := make([]any, len(columns))
 	for i := range values {
 		scanArgs[i] = &values[i]
 	}
 
-	var results []map[string]interface{}
+	var results []map[string]any
 	for rows.Next() {
 		if err := rows.Scan(scanArgs...); err != nil {
 			return nil, fmt.Errorf("failed to scan row: %w", err)
 		}
 
-		rowMap := make(map[string]interface{})
+		rowMap := make(map[string]any)
 		for i, colName := range columns {
 			val := values[i]
 			b, ok := val.([]byte)
@@ -307,7 +306,7 @@ func queryTableAsMap(db *sql.DB, tableName string, whereClause string, args ...i
 	return results, nil
 }
 
-func sendError(c *fiber.Ctx, status int, message string, data interface{}) error {
+func sendError(c *fiber.Ctx, status int, message string, data any) error {
 	return c.Status(status).JSON(fiber.Map{
 		"status":  status,
 		"message": message,
@@ -328,7 +327,7 @@ func isValidIdentifier(s string) bool {
 }
 
 // findUserByName 根据用户名查找用户
-func findUserByName(name string) (map[string]interface{}, error) {
+func findUserByName(name string) (map[string]any, error) {
 	data, err := queryTableAsMap(dataDB, "users", "WHERE name = ?", name)
 	if err != nil {
 		return nil, err
@@ -340,7 +339,7 @@ func findUserByName(name string) (map[string]interface{}, error) {
 }
 
 // findUserByID 根据 ID 查找用户
-func findUserByID(id int64) (map[string]interface{}, error) {
+func findUserByID(id int64) (map[string]any, error) {
 	data, err := queryTableAsMap(dataDB, "users", "WHERE id = ?", id)
 	if err != nil {
 		return nil, err
@@ -425,7 +424,7 @@ func checkPermission(operation, tableName string, userID int64) (bool, error) {
 }
 
 // 增加创建时间和更新时间
-func autoFillTimeFields(table string, body map[string]interface{}) {
+func autoFillTimeFields(table string, body map[string]any) {
 	now := time.Now().Format(time.RFC3339)
 	body["create_at"] = now
 	body["update_at"] = now
@@ -441,7 +440,7 @@ func isSystemColumn(col string) bool {
 }
 
 // 是否尝试动 id=1 的记录
-func touchingRootUser(where string, args []interface{}) bool {
+func touchingRootUser(where string, args []any) bool {
 	return strings.Contains(where, "id=1") ||
 		(strings.Contains(where, "id=@uid") && len(args) > 0 && args[0] == int64(1))
 }
@@ -709,7 +708,7 @@ func createRecord(c *fiber.Ctx) error {
 	}
 
 	// 3. 解析请求体
-	body := make(map[string]interface{})
+	body := make(map[string]any)
 	if err := c.BodyParser(&body); err != nil {
 		return sendError(c, 400, "Invalid JSON body.", nil)
 	}
@@ -733,7 +732,7 @@ func createRecord(c *fiber.Ctx) error {
 	// 5. 执行插入
 	columns := make([]string, 0, len(body))
 	placeholders := make([]string, 0, len(body))
-	values := make([]interface{}, 0, len(body))
+	values := make([]any, 0, len(body))
 
 	for col, val := range body {
 		columns = append(columns, fmt.Sprintf(`"%s"`, col))
@@ -791,7 +790,7 @@ func deleteRecord(c *fiber.Ctx) error {
 
 	// 4. 处理 @uid 占位符
 	whereClause := body.WHERE
-	var args []interface{}
+	var args []any
 	if strings.Contains(body.WHERE, "@uid") {
 		uid, _ := authenticateUser(c)
 		whereClause = strings.ReplaceAll(body.WHERE, "@uid", "?")
@@ -837,8 +836,8 @@ func updateRecord(c *fiber.Ctx) error {
 
 	// 3. 解析请求体
 	type Body struct {
-		Set   map[string]interface{} `json:"set"`
-		WHERE string                 `json:"WHERE"`
+		Set   map[string]any `json:"set"`
+		WHERE string         `json:"WHERE"`
 	}
 	var body Body
 	if err := c.BodyParser(&body); err != nil {
@@ -866,7 +865,7 @@ func updateRecord(c *fiber.Ctx) error {
 
 	// 4. 执行更新
 	setClauses := make([]string, 0, len(body.Set))
-	values := make([]interface{}, 0, len(body.Set))
+	values := make([]any, 0, len(body.Set))
 	for col, val := range body.Set {
 		setClauses = append(setClauses, fmt.Sprintf(`"%s" = ?`, col))
 		values = append(values, val)
@@ -942,7 +941,7 @@ func viewRecords(c *fiber.Ctx) error {
 
 	// 4. 构建并执行查询
 	whereClause := ""
-	var args []interface{}
+	var args []any
 	if body.WHERE != "" {
 		finalWhere := strings.ReplaceAll(body.WHERE, "@uid", "?")
 		whereClause = "WHERE " + finalWhere
@@ -975,18 +974,18 @@ func viewRecords(c *fiber.Ctx) error {
 	defer rows.Close()
 
 	columns, _ := rows.Columns()
-	values := make([]interface{}, len(columns))
-	scanArgs := make([]interface{}, len(columns))
+	values := make([]any, len(columns))
+	scanArgs := make([]any, len(columns))
 	for i := range values {
 		scanArgs[i] = &values[i]
 	}
 
-	var items []map[string]interface{}
+	var items []map[string]any
 	for rows.Next() {
 		if err := rows.Scan(scanArgs...); err != nil {
 			return sendError(c, 500, "Failed to scan row.", fiber.Map{"database_error": err.Error()})
 		}
-		rowMap := make(map[string]interface{})
+		rowMap := make(map[string]any)
 		for i, colName := range columns {
 			val := values[i]
 			if b, ok := val.([]byte); ok {
@@ -1104,93 +1103,93 @@ func refreshToken(c *fiber.Ctx) error {
 	})
 }
 
-// createSqlRecord 向 _sqls_ 表写入一条新记录
-func createSqlRecord(c *fiber.Ctx) error {
-	// 认证
-	if _, err := authenticateUser(c); err != nil {
-		return sendError(c, 403, "You are not allowed to perform this request.", nil)
-	}
+// // createSqlRecord 向 _sqls_ 表写入一条新记录
+// func createSqlRecord(c *fiber.Ctx) error {
+// 	// 认证
+// 	if _, err := authenticateUser(c); err != nil {
+// 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+// 	}
 
-	type Body struct {
-		SQL string `json:"SQL"`
-	}
-	var body Body
-	if err := c.BodyParser(&body); err != nil {
-		return sendError(c, 400, "Invalid JSON body.", nil)
-	}
-	if body.SQL == "" {
-		return sendError(c, 400, "Failed to create SQL record.", fiber.Map{"SQL": "SQL field is required."})
-	}
+// 	type Body struct {
+// 		SQL string `json:"SQL"`
+// 	}
+// 	var body Body
+// 	if err := c.BodyParser(&body); err != nil {
+// 		return sendError(c, 400, "Invalid JSON body.", nil)
+// 	}
+// 	if body.SQL == "" {
+// 		return sendError(c, 400, "Failed to create SQL record.", fiber.Map{"SQL": "SQL field is required."})
+// 	}
 
-	err := queries.CreateSql(context.Background(), body.SQL)
-	if err != nil {
-		return sendError(c, 500, "Failed to create SQL record.", fiber.Map{"database_error": err.Error()})
-	}
+// 	err := queries.CreateSql(context.Background(), body.SQL)
+// 	if err != nil {
+// 		return sendError(c, 500, "Failed to create SQL record.", fiber.Map{"database_error": err.Error()})
+// 	}
 
-	return c.Status(201).JSON(fiber.Map{"message": "SQL record created successfully.", "SQL": body.SQL})
-}
+// 	return c.Status(201).JSON(fiber.Map{"message": "SQL record created successfully.", "SQL": body.SQL})
+// }
 
-// 根据 ID 删除 _sqls_ 表中的一条记录
-func deleteSqlRecord(c *fiber.Ctx) error {
-	if _, err := authenticateUser(c); err != nil {
-		return sendError(c, 403, "You are not allowed to perform this request.", nil)
-	}
+// // 根据 ID 删除 _sqls_ 表中的一条记录
+// func deleteSqlRecord(c *fiber.Ctx) error {
+// 	if _, err := authenticateUser(c); err != nil {
+// 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+// 	}
 
-	idStr := c.Params("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		return sendError(c, 400, "Invalid ID format.", nil)
-	}
+// 	idStr := c.Params("id")
+// 	id, err := strconv.ParseInt(idStr, 10, 64)
+// 	if err != nil {
+// 		return sendError(c, 400, "Invalid ID format.", nil)
+// 	}
 
-	err = queries.DeleteSql(context.Background(), id)
-	if err != nil {
-		// 检查是否是因为记录不存在导致的错误
-		if strings.Contains(err.Error(), "no rows in result set") {
-			return sendError(c, 404, "The requested resource wasn't found.", nil)
-		}
-		return sendError(c, 500, "Failed to delete SQL record.", fiber.Map{"database_error": err.Error()})
-	}
+// 	err = queries.DeleteSql(context.Background(), id)
+// 	if err != nil {
+// 		// 检查是否是因为记录不存在导致的错误
+// 		if strings.Contains(err.Error(), "no rows in result set") {
+// 			return sendError(c, 404, "The requested resource wasn't found.", nil)
+// 		}
+// 		return sendError(c, 500, "Failed to delete SQL record.", fiber.Map{"database_error": err.Error()})
+// 	}
 
-	return c.Status(204).Send(nil)
-}
+// 	return c.Status(204).Send(nil)
+// }
 
-// 根据 ID 更新 _sqls_ 表中的一条记录
-func updateSqlRecord(c *fiber.Ctx) error {
-	if _, err := authenticateUser(c); err != nil {
-		return sendError(c, 403, "You are not allowed to perform this request.", nil)
-	}
+// // 根据 ID 更新 _sqls_ 表中的一条记录
+// func updateSqlRecord(c *fiber.Ctx) error {
+// 	if _, err := authenticateUser(c); err != nil {
+// 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+// 	}
 
-	idStr := c.Params("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		return sendError(c, 400, "Invalid ID format.", nil)
-	}
+// 	idStr := c.Params("id")
+// 	id, err := strconv.ParseInt(idStr, 10, 64)
+// 	if err != nil {
+// 		return sendError(c, 400, "Invalid ID format.", nil)
+// 	}
 
-	type Body struct {
-		SQL string `json:"SQL"`
-	}
-	var body Body
-	if err := c.BodyParser(&body); err != nil {
-		return sendError(c, 400, "Invalid JSON body.", nil)
-	}
-	if body.SQL == "" {
-		return sendError(c, 400, "Failed to update SQL record.", fiber.Map{"SQL": "SQL field is required."})
-	}
+// 	type Body struct {
+// 		SQL string `json:"SQL"`
+// 	}
+// 	var body Body
+// 	if err := c.BodyParser(&body); err != nil {
+// 		return sendError(c, 400, "Invalid JSON body.", nil)
+// 	}
+// 	if body.SQL == "" {
+// 		return sendError(c, 400, "Failed to update SQL record.", fiber.Map{"SQL": "SQL field is required."})
+// 	}
 
-	err = queries.UpdateSql(context.Background(), database.UpdateSqlParams{
-		Sql: body.SQL,
-		ID:  id,
-	})
-	if err != nil {
-		// 检查是否是因为记录不存在导致的错误
-		if strings.Contains(err.Error(), "no rows in result set") {
-			return sendError(c, 404, "The requested resource wasn't found.", nil)
-		}
-		return sendError(c, 500, "Failed to update SQL record.", fiber.Map{"database_error": err.Error()})
-	}
+// 	err = queries.UpdateSql(context.Background(), database.UpdateSqlParams{
+// 		Sql: body.SQL,
+// 		ID:  id,
+// 	})
+// 	if err != nil {
+// 		// 检查是否是因为记录不存在导致的错误
+// 		if strings.Contains(err.Error(), "no rows in result set") {
+// 			return sendError(c, 404, "The requested resource wasn't found.", nil)
+// 		}
+// 		return sendError(c, 500, "Failed to update SQL record.", fiber.Map{"database_error": err.Error()})
+// 	}
 
-	return c.JSON(fiber.Map{"message": "SQL record updated successfully.", "id": id, "SQL": body.SQL})
-}
+// 	return c.JSON(fiber.Map{"message": "SQL record updated successfully.", "id": id, "SQL": body.SQL})
+// }
 
 // 获取 _sqls_ 表中最新的一条记录
 func getLatestSqlRecord(c *fiber.Ctx) error {

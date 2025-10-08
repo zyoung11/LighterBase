@@ -70,7 +70,7 @@ func GenerateJWT(userID int64) (string, time.Time, error) {
 
 // ParseJWT 解析并验证 JWT，返回用户 ID
 func ParseJWT(tokenString string) (int64, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &MyCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &MyCustomClaims{}, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
