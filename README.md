@@ -876,6 +876,55 @@
   }
   ```
 
+### 2. 查看上一次SQL操作
+
+> [!IMPORTANT]
+>
+> 只有**管理员**可以执行这个API
+
+- http方法：GET
+
+- URL：http://localhost:8080/api/sqls/latest
+
+- 请求头：
+
+  ```
+  Content-Type: application/json
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 请求体：
+
+  ```json
+  {
+      "SQL": "value"
+  }
+  ```
+
+- 预期返回：
+
+  http状态码：201
+
+  返回体：
+
+  ```json
+  {
+      "SQL": "value"
+  }
+  ```
+
+  http状态码：400
+
+  返回体：
+
+  ```json
+  {
+    "status": 400,
+    "message": "Failed to create table.",
+    "data": {}
+  }
+  ```
+
 
 
 ## 三、 JWT
@@ -1157,4 +1206,6 @@
   null
   ```
 
-  
+
+
+
