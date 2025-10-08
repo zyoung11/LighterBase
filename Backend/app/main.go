@@ -54,7 +54,7 @@ var routes = []Route{
 
 	// --- _sqls_ 表管理 API ---
 	{Method: "GET", Path: "/api/sqls/latest", Handler: getLatestSqlRecord},
-	{Method: "POST", Path: "/api/sqls/", Handler: createSqlRecord},
+	// {Method: "POST", Path: "/api/sqls/", Handler: createSqlRecord},
 	// {Method: "DELETE", Path: "/api/sqls/:id", Handler: deleteSqlRecord},
 	// {Method: "PUT", Path: "/api/sqls/:id", Handler: updateSqlRecord},
 
@@ -1194,7 +1194,8 @@ func updateSqlRecord(c *fiber.Ctx) error {
 
 // 获取 _sqls_ 表中最新的一条记录
 func getLatestSqlRecord(c *fiber.Ctx) error {
-	if _, err := authenticateUser(c); err != nil {
+	userID, err := authenticateUser(c)
+	if err != nil || userID != 1 {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 

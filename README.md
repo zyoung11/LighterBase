@@ -144,14 +144,22 @@
       "create_at": "2023-01-01 00:00:00",
       "update_at": "2023-01-01 00:00:00"
     },
-    ...
+    {
+      "user_id": 2
+      "user_name": "string",
+      "password_hash": "string",
+      "email": "string",
+      "user_avatar": null,
+      "create_at": "2023-01-01 00:00:00",
+      "update_at": "2023-01-01 00:00:00"
+    }
   ]
   ```
-
+  
   http状态码：401, 403, 500
-
+  
   返回体：
-
+  
   ```json
   {
     "error": "error_message"
@@ -893,37 +901,19 @@
   Authorization: Bearer <jwt_token>
   ```
 
-- 请求体：
-
-  ```json
-  {
-      "SQL": "value"
-  }
-  ```
-
 - 预期返回：
 
-  http状态码：201
+  http状态码：200
 
   返回体：
 
   ```json
   {
-      "SQL": "value"
+      "ID": "value1",
+      "sql": "value2"
   }
   ```
-
-  http状态码：400
-
-  返回体：
-
-  ```json
-  {
-    "status": 400,
-    "message": "Failed to create table.",
-    "data": {}
-  }
-  ```
+  
 
 
 
@@ -1205,7 +1195,6 @@
   ```json
   null
   ```
-
 
 
 
