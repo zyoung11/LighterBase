@@ -16,7 +16,7 @@ INSERT INTO projects (
 ) VALUES (
     ?, ?, ?, ?, ?, datetime('now'), datetime('now')
 )
-RETURNING project_id, user_id, project_name, project_avatar, project_description, project_size, create_at, update_at
+RETURNING project_id, user_id, port, project_name, project_avatar, project_description, project_size, create_at, update_at
 `
 
 type CreateProjectParams struct {
@@ -39,6 +39,7 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 	err := row.Scan(
 		&i.ProjectID,
 		&i.UserID,
+		&i.Port,
 		&i.ProjectName,
 		&i.ProjectAvatar,
 		&i.ProjectDescription,
@@ -106,7 +107,7 @@ func (q *Queries) DeleteUser(ctx context.Context, userID int64) error {
 }
 
 const getProjectByID = `-- name: GetProjectByID :one
-SELECT project_id, user_id, project_name, project_avatar, project_description, project_size, create_at, update_at FROM projects WHERE project_id = ? LIMIT 1
+SELECT project_id, user_id, port, project_name, project_avatar, project_description, project_size, create_at, update_at FROM projects WHERE project_id = ? LIMIT 1
 `
 
 func (q *Queries) GetProjectByID(ctx context.Context, projectID int64) (Project, error) {
@@ -115,6 +116,7 @@ func (q *Queries) GetProjectByID(ctx context.Context, projectID int64) (Project,
 	err := row.Scan(
 		&i.ProjectID,
 		&i.UserID,
+		&i.Port,
 		&i.ProjectName,
 		&i.ProjectAvatar,
 		&i.ProjectDescription,
@@ -221,7 +223,7 @@ func (q *Queries) ListAllUsers(ctx context.Context) ([]User, error) {
 }
 
 const listProjectsByUserID = `-- name: ListProjectsByUserID :many
-SELECT project_id, user_id, project_name, project_avatar, project_description, project_size, create_at, update_at FROM projects WHERE user_id = ? ORDER BY create_at DESC
+SELECT project_id, user_id, port, project_name, project_avatar, project_description, project_size, create_at, update_at FROM projects WHERE user_id = ? ORDER BY create_at DESC
 `
 
 func (q *Queries) ListProjectsByUserID(ctx context.Context, userID int64) ([]Project, error) {
@@ -236,6 +238,7 @@ func (q *Queries) ListProjectsByUserID(ctx context.Context, userID int64) ([]Pro
 		if err := rows.Scan(
 			&i.ProjectID,
 			&i.UserID,
+			&i.Port,
 			&i.ProjectName,
 			&i.ProjectAvatar,
 			&i.ProjectDescription,
@@ -265,7 +268,7 @@ SET
     project_size = COALESCE(?, project_size),
     update_at = datetime('now')
 WHERE project_id = ?
-RETURNING project_id, user_id, project_name, project_avatar, project_description, project_size, create_at, update_at
+RETURNING project_id, user_id, port, project_name, project_avatar, project_description, project_size, create_at, update_at
 `
 
 type UpdateProjectParams struct {
@@ -288,6 +291,7 @@ func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (P
 	err := row.Scan(
 		&i.ProjectID,
 		&i.UserID,
+		&i.Port,
 		&i.ProjectName,
 		&i.ProjectAvatar,
 		&i.ProjectDescription,

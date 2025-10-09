@@ -174,6 +174,11 @@ func initMetaDatabase() error {
 	if err != nil {
 		return fmt.Errorf("could not open meta database for queries: %w", err)
 	}
+
+	if _, err := db.Exec("PRAGMA journal_mode=WAL;"); err != nil {
+		return fmt.Errorf("could not enable WAL mode on meta database: %w", err)
+	}
+
 	queries = database.New(db)
 	return nil
 }
@@ -187,6 +192,11 @@ func initDataDatabase() error {
 	if err != nil {
 		return fmt.Errorf("could not open data database: %w", err)
 	}
+
+	if _, err := db.Exec("PRAGMA journal_mode=WAL;"); err != nil {
+		return fmt.Errorf("could not enable WAL mode on meta database: %w", err)
+	}
+
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		log.Printf("Data database file not found. Initializing...")
 		if err := createUsersTable(db); err != nil {
