@@ -187,6 +187,43 @@ func (q *Queries) GetUserByName(ctx context.Context, userName string) (User, err
 	return i, err
 }
 
+const listAllProjectsForRestore = `-- name: ListAllProjectsForRestore :many
+SELECT project_id, user_id, port, project_name, project_avatar, project_description, project_size, create_at, update_at FROM projects WHERE port IS NOT NULL
+`
+
+func (q *Queries) ListAllProjectsForRestore(ctx context.Context) ([]Project, error) {
+	rows, err := q.db.QueryContext(ctx, listAllProjectsForRestore)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Project
+	for rows.Next() {
+		var i Project
+		if err := rows.Scan(
+			&i.ProjectID,
+			&i.UserID,
+			&i.Port,
+			&i.ProjectName,
+			&i.ProjectAvatar,
+			&i.ProjectDescription,
+			&i.ProjectSize,
+			&i.CreateAt,
+			&i.UpdateAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listAllUsers = `-- name: ListAllUsers :many
 SELECT user_id, user_name, password_hash, email, user_avatar, create_at, update_at FROM users
 `

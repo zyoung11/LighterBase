@@ -68,3 +68,8 @@ DELETE FROM projects WHERE project_id = ?;
 
 -- name: UpdateProjectPort :exec
 UPDATE projects SET port = ? WHERE project_id = ?;
+
+
+
+-- name: ListAllProjectsForRestore :many
+SELECT * FROM projects WHERE port IS NOT NULL;

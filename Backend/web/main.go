@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	_ "embed"
 	"fmt"
@@ -40,10 +41,62 @@ var routes = []Route{
 //-------------------------------------------------------------------------------------
 
 func main() {
+	initBaas()
 	initBackend("LighterBaseHub", "build", 8080, 8090)
 }
 
 //-------------------------------------helper-func-------------------------------------
+
+// startProjectInstance 根据数据库中的项目信息启动一个BaaS实例
+func startProjectInstance(project database.Project) error {
+	// 从数据库记录中获取用户ID和项目ID来构建路径
+	projectDir := filepath.Join(baseDir, strconv.FormatInt(project.UserID, 10), strconv.FormatInt(project.ProjectID, 10))
+	executablePath := filepath.Join(projectDir, "LighterBase")
+
+	// 检查可执行文件是否存在
+	if _, err := os.Stat(executablePath); os.IsNotExist(err) {
+		log.Printf("WARN: Executable not found for project %d (user %d) at %s, skipping.", project.ProjectID, project.UserID, executablePath)
+		return nil // 不返回错误，只是跳过
+	}
+
+	// 检查端口是否有效
+	if !project.Port.Valid {
+		log.Printf("WARN: Port not assigned for project %d (user %d), skipping.", project.ProjectID, project.UserID)
+		return nil
+	}
+	assignedPort := project.Port.Int64
+
+	log.Printf("Starting BaaS instance for project %d (user %d) on port %d...", project.ProjectID, project.UserID, assignedPort)
+
+	cmd := exec.Command(executablePath)
+	cmd.Env = append(os.Environ(), fmt.Sprintf("PORT=%d", assignedPort))
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Start(); err != nil {
+		log.Printf("ERROR: Failed to start BaaS instance for project %d: %v", project.ProjectID, err)
+		return err
+	}
+
+	log.Printf("Successfully started BaaS instance for project %d (user %d) on port %d with PID %d", project.ProjectID, project.UserID, assignedPort, cmd.Process.Pid)
+	return nil
+}
+
+func initBaas() {
+	log.Println("Restoring all project instances on startup...")
+	// 从数据库获取所有已分配端口的项目
+	allProjects, err := queries.ListAllProjectsForRestore(context.Background())
+	if err != nil {
+		log.Printf("ERROR: Could not fetch projects for restoration: %v", err)
+	} else {
+		for _, project := range allProjects {
+			if err := startProjectInstance(project); err != nil {
+				log.Printf("ERROR: Failed to restore project %d", project.ProjectID)
+			}
+		}
+	}
+	log.Println("Project restoration process finished.")
+}
 
 //---------------------------------------routing---------------------------------------
 
