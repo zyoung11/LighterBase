@@ -188,22 +188,29 @@ func initDataDatabase() error {
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
 		return fmt.Errorf("could not create database directory: %w", err)
 	}
+
+	needInit := false
+	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
+		needInit = true
+	}
+	
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		return fmt.Errorf("could not open data database: %w", err)
 	}
 
 	if _, err := db.Exec("PRAGMA journal_mode=WAL;"); err != nil {
-		return fmt.Errorf("could not enable WAL mode on meta database: %w", err)
+		return fmt.Errorf("could not enable WAL mode on data database: %w", err)
 	}
 
-	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
+	if needInit {
 		log.Printf("Data database file not found. Initializing...")
 		if err := createUsersTable(db); err != nil {
 			return fmt.Errorf("could not create users table: %w", err)
 		}
 		log.Println("Users table created in data database.")
 	}
+
 	dataDB = db
 	return nil
 }
