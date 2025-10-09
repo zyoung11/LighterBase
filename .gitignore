@@ -7,3 +7,5 @@ TEST/LighterBaseDate/data.db
 TEST/LighterBaseDate
 TEST/LighterBaseDate/data.db-shm
 TEST/LighterBaseDate/data.db-wal
+Backend/app/LighterBaseDate/metaDate.db-shm
+Backend/app/LighterBaseDate/metaDate.db-wal

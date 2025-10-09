@@ -15,6 +15,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -193,7 +194,7 @@ func initDataDatabase() error {
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		needInit = true
 	}
-	
+
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		return fmt.Errorf("could not open data database: %w", err)
@@ -687,8 +688,9 @@ func execSQL(c *fiber.Ctx) error {
 		return sendError(c, 400, "Failed to exec SQL.", fiber.Map{"database_error": err.Error()})
 	}
 
-	// 6. 写审计日志（事务内）
-	if _, err = tx.Exec("INSERT INTO _sqls_ (sql) VALUES (?)", body.SQL); err != nil {
+	// 6. 写审计日志（用 sqlc 插到 metaDate.db）
+	err = queries.CreateSql(context.Background(), body.SQL)
+	if err != nil {
 		return sendError(c, 500, "Failed to log SQL.", fiber.Map{"database_error": err.Error()})
 	}
 
@@ -1120,93 +1122,93 @@ func refreshToken(c *fiber.Ctx) error {
 	})
 }
 
-// // createSqlRecord 向 _sqls_ 表写入一条新记录
-// func createSqlRecord(c *fiber.Ctx) error {
-// 	// 认证
-// 	if _, err := authenticateUser(c); err != nil {
-// 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
-// 	}
+// createSqlRecord 向 _sqls_ 表写入一条新记录
+func createSqlRecord(c *fiber.Ctx) error {
+	// 认证
+	if _, err := authenticateUser(c); err != nil {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
 
-// 	type Body struct {
-// 		SQL string `json:"SQL"`
-// 	}
-// 	var body Body
-// 	if err := c.BodyParser(&body); err != nil {
-// 		return sendError(c, 400, "Invalid JSON body.", nil)
-// 	}
-// 	if body.SQL == "" {
-// 		return sendError(c, 400, "Failed to create SQL record.", fiber.Map{"SQL": "SQL field is required."})
-// 	}
+	type Body struct {
+		SQL string `json:"SQL"`
+	}
+	var body Body
+	if err := c.BodyParser(&body); err != nil {
+		return sendError(c, 400, "Invalid JSON body.", nil)
+	}
+	if body.SQL == "" {
+		return sendError(c, 400, "Failed to create SQL record.", fiber.Map{"SQL": "SQL field is required."})
+	}
 
-// 	err := queries.CreateSql(context.Background(), body.SQL)
-// 	if err != nil {
-// 		return sendError(c, 500, "Failed to create SQL record.", fiber.Map{"database_error": err.Error()})
-// 	}
+	err := queries.CreateSql(context.Background(), body.SQL)
+	if err != nil {
+		return sendError(c, 500, "Failed to create SQL record.", fiber.Map{"database_error": err.Error()})
+	}
 
-// 	return c.Status(201).JSON(fiber.Map{"message": "SQL record created successfully.", "SQL": body.SQL})
-// }
+	return c.Status(201).JSON(fiber.Map{"message": "SQL record created successfully.", "SQL": body.SQL})
+}
 
-// // 根据 ID 删除 _sqls_ 表中的一条记录
-// func deleteSqlRecord(c *fiber.Ctx) error {
-// 	if _, err := authenticateUser(c); err != nil {
-// 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
-// 	}
+// 根据 ID 删除 _sqls_ 表中的一条记录
+func deleteSqlRecord(c *fiber.Ctx) error {
+	if _, err := authenticateUser(c); err != nil {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
 
-// 	idStr := c.Params("id")
-// 	id, err := strconv.ParseInt(idStr, 10, 64)
-// 	if err != nil {
-// 		return sendError(c, 400, "Invalid ID format.", nil)
-// 	}
+	idStr := c.Params("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		return sendError(c, 400, "Invalid ID format.", nil)
+	}
 
-// 	err = queries.DeleteSql(context.Background(), id)
-// 	if err != nil {
-// 		// 检查是否是因为记录不存在导致的错误
-// 		if strings.Contains(err.Error(), "no rows in result set") {
-// 			return sendError(c, 404, "The requested resource wasn't found.", nil)
-// 		}
-// 		return sendError(c, 500, "Failed to delete SQL record.", fiber.Map{"database_error": err.Error()})
-// 	}
+	err = queries.DeleteSql(context.Background(), id)
+	if err != nil {
+		// 检查是否是因为记录不存在导致的错误
+		if strings.Contains(err.Error(), "no rows in result set") {
+			return sendError(c, 404, "The requested resource wasn't found.", nil)
+		}
+		return sendError(c, 500, "Failed to delete SQL record.", fiber.Map{"database_error": err.Error()})
+	}
 
-// 	return c.Status(204).Send(nil)
-// }
+	return c.Status(204).Send(nil)
+}
 
-// // 根据 ID 更新 _sqls_ 表中的一条记录
-// func updateSqlRecord(c *fiber.Ctx) error {
-// 	if _, err := authenticateUser(c); err != nil {
-// 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
-// 	}
+// 根据 ID 更新 _sqls_ 表中的一条记录
+func updateSqlRecord(c *fiber.Ctx) error {
+	if _, err := authenticateUser(c); err != nil {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
 
-// 	idStr := c.Params("id")
-// 	id, err := strconv.ParseInt(idStr, 10, 64)
-// 	if err != nil {
-// 		return sendError(c, 400, "Invalid ID format.", nil)
-// 	}
+	idStr := c.Params("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		return sendError(c, 400, "Invalid ID format.", nil)
+	}
 
-// 	type Body struct {
-// 		SQL string `json:"SQL"`
-// 	}
-// 	var body Body
-// 	if err := c.BodyParser(&body); err != nil {
-// 		return sendError(c, 400, "Invalid JSON body.", nil)
-// 	}
-// 	if body.SQL == "" {
-// 		return sendError(c, 400, "Failed to update SQL record.", fiber.Map{"SQL": "SQL field is required."})
-// 	}
+	type Body struct {
+		SQL string `json:"SQL"`
+	}
+	var body Body
+	if err := c.BodyParser(&body); err != nil {
+		return sendError(c, 400, "Invalid JSON body.", nil)
+	}
+	if body.SQL == "" {
+		return sendError(c, 400, "Failed to update SQL record.", fiber.Map{"SQL": "SQL field is required."})
+	}
 
-// 	err = queries.UpdateSql(context.Background(), database.UpdateSqlParams{
-// 		Sql: body.SQL,
-// 		ID:  id,
-// 	})
-// 	if err != nil {
-// 		// 检查是否是因为记录不存在导致的错误
-// 		if strings.Contains(err.Error(), "no rows in result set") {
-// 			return sendError(c, 404, "The requested resource wasn't found.", nil)
-// 		}
-// 		return sendError(c, 500, "Failed to update SQL record.", fiber.Map{"database_error": err.Error()})
-// 	}
+	err = queries.UpdateSql(context.Background(), database.UpdateSqlParams{
+		Sql: body.SQL,
+		ID:  id,
+	})
+	if err != nil {
+		// 检查是否是因为记录不存在导致的错误
+		if strings.Contains(err.Error(), "no rows in result set") {
+			return sendError(c, 404, "The requested resource wasn't found.", nil)
+		}
+		return sendError(c, 500, "Failed to update SQL record.", fiber.Map{"database_error": err.Error()})
+	}
 
-// 	return c.JSON(fiber.Map{"message": "SQL record updated successfully.", "id": id, "SQL": body.SQL})
-// }
+	return c.JSON(fiber.Map{"message": "SQL record updated successfully.", "id": id, "SQL": body.SQL})
+}
 
 // 获取 _sqls_ 表中最新的一条记录
 func getLatestSqlRecord(c *fiber.Ctx) error {
