@@ -65,3 +65,6 @@ RETURNING *;
 
 -- name: DeleteProject :exec
 DELETE FROM projects WHERE project_id = ?;
+
+-- name: UpdateProjectPort :exec
+UPDATE projects SET port = ? WHERE project_id = ?;

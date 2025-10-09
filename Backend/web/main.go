@@ -2,11 +2,21 @@ package main
 
 import (
 	"database/sql"
+	_ "embed"
+	"fmt"
+	"log"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strconv"
 
 	"LighterBaseHub/database"
 
 	"github.com/gofiber/fiber/v2"
 )
+
+//go:embed LighterBase
+var LighterBase []byte
 
 var routes = []Route{
 	{Method: "GET", Path: "/health", Handler: health},
@@ -27,9 +37,18 @@ var routes = []Route{
 	{Method: "DELETE", Path: "/api/projects/:id", Handler: deleteProject},
 }
 
+//-------------------------------------------------------------------------------------
+
 func main() {
 	initBackend("LighterBaseHub", "build", 8080, 8090)
 }
+
+//-------------------------------------helper-func-------------------------------------
+
+//---------------------------------------routing---------------------------------------
+
+// 用户数据库路径
+const baseDir string = "./LighterBaseHubData/Apps"
 
 // 创建项目请求结构
 type CreateProjectRequest struct {
@@ -48,10 +67,19 @@ func createProject(c *fiber.Ctx) error {
 
 	var req CreateProjectRequest
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 	}
 
-	project, err := queries.CreateProject(c.Context(), database.CreateProjectParams{
+	// --- 1. 数据库操作：创建项目并计算端口 ---
+	tx, err := db.BeginTx(c.Context(), nil)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to start transaction"})
+	}
+	defer tx.Rollback()
+
+	txQueries := queries.WithTx(tx)
+
+	project, err := txQueries.CreateProject(c.Context(), database.CreateProjectParams{
 		UserID:             userID,
 		ProjectName:        req.ProjectName,
 		ProjectAvatar:      sql.NullString{String: req.ProjectAvatar, Valid: req.ProjectAvatar != ""},
@@ -59,7 +87,58 @@ func createProject(c *fiber.Ctx) error {
 		ProjectSize:        sql.NullInt64{Int64: req.ProjectSize, Valid: true},
 	})
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create project"})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create project record"})
+	}
+
+	// 计算端口
+	assignedPort := 9000 + project.ProjectID
+
+	// 使用新生成的 sqlc 函数更新端口
+	err = txQueries.UpdateProjectPort(c.Context(), database.UpdateProjectPortParams{
+		Port:      sql.NullInt64{Int64: int64(assignedPort), Valid: true},
+		ProjectID: project.ProjectID,
+	})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to assign port"})
+	}
+
+	// --- 2. 文件系统操作：创建目录和复制可执行文件 ---
+	// 创建项目专属目录: baseDir/{用户id}/{项目id}/
+	projectDir := filepath.Join(baseDir, strconv.FormatInt(userID, 10), strconv.FormatInt(project.ProjectID, 10))
+	if err := os.MkdirAll(projectDir, 0o755); err != nil {
+		log.Printf("ERROR: Failed to create project directory %s: %v", projectDir, err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create project directory"})
+	}
+
+	// 将嵌入的可执行文件写入到项目目录
+	executablePath := filepath.Join(projectDir, "LighterBase")
+	if err := os.WriteFile(executablePath, LighterBase, 0o755); err != nil {
+		log.Printf("ERROR: Failed to write executable file to %s: %v", executablePath, err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to deploy instance"})
+	}
+
+	// --- 3. 进程管理：启动BaaS实例 ---
+	cmd := exec.Command(executablePath)
+
+	cmd.Env = append(os.Environ(), fmt.Sprintf("PORT=%d", assignedPort))
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	// 启动进程，但不等待它结束
+	if err := cmd.Start(); err != nil {
+		log.Printf("ERROR: Failed to start BaaS instance for project %d: %v", project.ProjectID, err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to start project instance"})
+	}
+
+	log.Printf("Successfully started BaaS instance for project %d (user %d) on port %d with PID %d", project.ProjectID, userID, assignedPort, cmd.Process.Pid)
+
+	// --- 4. 提交事务并返回结果 ---
+	if err := tx.Commit(); err != nil {
+		if cmd.Process != nil {
+			cmd.Process.Kill()
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to commit project creation"})
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(project)

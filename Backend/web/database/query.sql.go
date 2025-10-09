@@ -302,6 +302,20 @@ func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (P
 	return i, err
 }
 
+const updateProjectPort = `-- name: UpdateProjectPort :exec
+UPDATE projects SET port = ? WHERE project_id = ?
+`
+
+type UpdateProjectPortParams struct {
+	Port      sql.NullInt64
+	ProjectID int64
+}
+
+func (q *Queries) UpdateProjectPort(ctx context.Context, arg UpdateProjectPortParams) error {
+	_, err := q.db.ExecContext(ctx, updateProjectPort, arg.Port, arg.ProjectID)
+	return err
+}
+
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET

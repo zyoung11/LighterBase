@@ -30,7 +30,10 @@ import (
 //go:embed SQL/schema.sql
 var schemaFS embed.FS
 
-var queries *database.Queries
+var (
+	queries *database.Queries
+	db      *sql.DB
+)
 
 type Route struct {
 	Method  string
@@ -136,7 +139,8 @@ func initDB(projectName string) {
 
 	// 打开数据库连接
 	dbPath := filepath.Join(dataDir, "data.db")
-	db, err := sql.Open("sqlite3", dbPath+"?_journal_mode=WAL")
+	var err error
+	db, err = sql.Open("sqlite3", dbPath+"?_journal_mode=WAL")
 	if err != nil {
 		log.Fatalf("Failed to open database: %v", err)
 	}

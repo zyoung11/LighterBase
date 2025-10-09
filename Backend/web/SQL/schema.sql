@@ -20,13 +20,3 @@ CREATE TABLE IF NOT EXISTS projects (
     update_at TEXT,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
-
-CREATE TRIGGER IF NOT EXISTS assign_port_after_project_insert
-AFTER INSERT ON projects
-FOR EACH ROW
-WHEN NEW.port IS NULL
-BEGIN
-    UPDATE projects 
-    SET port = 9000 + NEW.project_id 
-    WHERE project_id = NEW.project_id;
-END;
