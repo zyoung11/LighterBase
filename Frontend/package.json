@@ -3,7 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "s":"bun run index.html"    
+    "s": "bun run **/*.html"
   },
   "private": true,
   "devDependencies": {
@@ -11,5 +11,8 @@
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "jwt-decode": "^4.0.0"
   }
 }

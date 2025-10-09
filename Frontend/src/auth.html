@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>lighterBase</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-screen w-screen flex overflow-hidden bg-[#121414] text-gray-200">
+
+  <!-- 左侧 70%：品牌区 -->
+  <section class="w-[70%] flex items-center justify-center relative">
+    <!-- 中央文案 -->
+    <h1 class="text-3xl font-semibold tracking-wide select-none">
+      欢迎使用 lighterBase(骚话)
+    </h1>
+  </section>
+
+  <!-- 右侧 30%：登录/注册区 -->
+  <aside class="w-[30%] bg-[#181A1B] flex items-center justify-center p-8 shadow-2xl">
+    <div class="w-full max-sm:max-w-sm">
+
+      <!-- 标签切换 -->
+      <div class="flex mb-6 rounded-lg overflow-hidden border border-[#2B2F31]">
+        <button id="tab-login"
+                class="flex-1 py-2 text-sm font-medium transition-colors bg-[#2B2F31] text-white">
+          登录
+        </button>
+        <button id="tab-reg"
+                class="flex-1 py-2 text-sm font-medium transition-colors bg-transparent hover:bg-[#2B2F31]/50">
+          注册
+        </button>
+      </div>
+
+      <!-- 登录表单 -->
+      <form id="form-login" class="space-y-4">
+        <div>
+          <label class="block mb-1 text-sm">用户名</label>
+          <input required
+                 id="login-username"
+                 type="text"
+                 placeholder="请输入用户名"
+                 class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
+        </div>
+        <div>
+          <label class="block mb-1 text-sm">密码</label>
+          <input required
+                 id="login-password"
+                 type="password"
+                 placeholder="请输入密码"
+                 class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
+        </div>
+        <button type="submit"
+                class="w-full py-2 mt-2 rounded bg-[#2B2F31] hover:bg-[#3a3f41] transition-colors">
+          登录
+        </button>
+      </form>
+
+      <!-- 注册表单 -->
+      <form id="form-reg" class="hidden space-y-4">
+        <div>
+          <label class="block mb-1 text-sm">用户名</label>
+          <input required
+                 id="username"
+                 type="text"
+                 placeholder="设置用户名"
+                 class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
+        </div>
+        <div>
+          <label class="block mb-1 text-sm">密码</label>
+          <input required
+                 id="password"
+                 type="password"
+                 placeholder="设置密码"
+                 class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
+        </div>
+        <div>
+          <label class="block mb-1 text-sm">邮箱</label>
+          <input required
+                 id="email"
+                 type="email"
+                 placeholder="请输入邮箱"
+                 class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
+        </div>
+        <button type="submit"
+                class="w-full py-2 mt-2 rounded bg-[#2B2F31] hover:bg-[#3a3f41] transition-colors">
+          注册
+        </button>
+      </form>
+
+    </div>
+  </aside>
+
+  <script src="./welcome.ts"></script>
+</body>
+</html>
