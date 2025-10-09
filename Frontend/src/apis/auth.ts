@@ -78,6 +78,27 @@ async userRegister() {
      }
     },
 
+
+async reflashToken() : Promise<any> {
+    try{
+        const res = await fetch(`${URL}/api/auth/refresh`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${document.cookie}`
+            }
+        });
+        if (res.ok) {
+            const data = await res.json();
+        }
+    }catch(err){
+        console.log("刷新Token失败：",err);
+    }
+},
+
+
+
+
+
 isValidEmail(email: string): boolean {
     if (email.length === 0) {
         return false;

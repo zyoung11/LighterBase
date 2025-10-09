@@ -45,7 +45,7 @@ const sidebarContent = {
             `,
 };
 
-// 主工作区内容模板
+
 const workspaceContent = {
   database: `
                 <div class="flex-1 flex flex-col">
@@ -216,8 +216,29 @@ const workspaceContent = {
             `,
 };
 
+const slideBarContent ={
+    api_md:
+       '<p class="text-gray-400">API 文档内容将在这里显示</p>',
+    ai_generated:
+            `
+                    <div class="flex flex-col h-full">
+                        <div class="flex-1 overflow-y-auto mb-4">
+                            <div class="bg-[#2B2F31] p-3 rounded mb-2">
+                                <p class="text-sm">你好！我是AI助手，有什么可以帮助你的吗？</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <input type="text" placeholder="输入消息..." class="flex-1 px-3 py-2 bg-[#2B2F31] rounded focus:outline-none">
+                            <button class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors">发送</button>
+                        </div>
+                    </div>
+                `
+
+}
+
 
 export { 
     sidebarContent,
-     workspaceContent 
+    workspaceContent,
+    slideBarContent
     };
