@@ -11,10 +11,12 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"LighterBaseHub/database"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/proxy"
 )
 
 //go:embed LighterBase
@@ -37,6 +39,9 @@ var routes = []Route{
 	{Method: "GET", Path: "/api/projects/:id", Handler: getProject},
 	{Method: "PUT", Path: "/api/projects/:id", Handler: updateProject},
 	{Method: "DELETE", Path: "/api/projects/:id", Handler: deleteProject},
+
+	// --- BaaS API 反向代理 ---
+	{Method: "ALL", Path: "/:userId/:projectId/*", Handler: baasProxyHandler},
 }
 
 //-------------------------------------------------------------------------------------
@@ -136,6 +141,15 @@ func updateProjectSize(ctx context.Context, project database.Project) error {
 
 	log.Printf("Updated size for project %d (user %d) to %.2f MB", project.ProjectID, project.UserID, sizeMB)
 	return nil
+}
+
+// mustParseInt 是一个辅助函数，用于将字符串转换为int64，出错时panic
+func mustParseInt(s string) int64 {
+	i, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		panic(err)
+	}
+	return i
 }
 
 //---------------------------------------routing---------------------------------------
@@ -397,4 +411,52 @@ func deleteProject(c *fiber.Ctx) error {
 
 	log.Printf("Successfully deleted project %d and its resources.", projectID)
 	return c.SendStatus(fiber.StatusNoContent)
+}
+
+// baasProxyHandler 通用的BaaS反向代理处理器
+func baasProxyHandler(c *fiber.Ctx) error {
+	// 1. 从URL路径中获取参数
+	userIDStr := c.Params("userId")
+	projectIDStr := c.Params("projectId")
+
+	if userIDStr == "" || projectIDStr == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "User ID and Project ID are required"})
+	}
+
+	// 2. 查询项目信息以获取端口
+	project, err := queries.GetProjectByID(c.Context(), mustParseInt(projectIDStr))
+	if err != nil {
+		// 如果项目不存在，返回404
+		if err == sql.ErrNoRows {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Project not found"})
+		}
+		// 其他数据库错误
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to query project"})
+	}
+
+	// 3. 检查端口是否有效
+	if !project.Port.Valid {
+		return c.Status(fiber.StatusServiceUnavailable).JSON(fiber.Map{"error": "Project is not running or port is not assigned"})
+	}
+	targetPort := project.Port.Int64
+
+	// 4. 构建目标URL
+	originalPath := c.OriginalURL()
+	prefix := "/" + userIDStr + "/" + projectIDStr
+	if !strings.HasPrefix(originalPath, prefix) {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid URL format"})
+	}
+	targetPath := strings.TrimPrefix(originalPath, prefix)
+
+	targetURL := fmt.Sprintf("http://localhost:%d%s", targetPort, targetPath)
+	log.Printf("Proxying request to: %s", targetURL)
+
+	// 5. 使用Fiber的proxy中间件进行转发
+	if err := proxy.Do(c, targetURL); err != nil {
+
+		log.Printf("ERROR: Proxy failed for project %d: %v", project.ProjectID, err)
+		return c.Status(fiber.StatusBadGateway).JSON(fiber.Map{"error": "Failed to connect to BaaS instance"})
+	}
+
+	return nil
 }
