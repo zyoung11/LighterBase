@@ -117,7 +117,6 @@ func updateProjectSize(ctx context.Context, project database.Project) error {
 		}
 		return nil
 	})
-
 	if err != nil {
 		return fmt.Errorf("failed to walk project directory %s: %w", projectDir, err)
 	}
@@ -320,7 +319,6 @@ func updateProject(c *fiber.Ctx) error {
 		ProjectName:        req.ProjectName,
 		ProjectAvatar:      sql.NullString{String: req.ProjectAvatar, Valid: req.ProjectAvatar != ""},
 		ProjectDescription: sql.NullString{String: req.ProjectDescription, Valid: req.ProjectDescription != ""},
-		ProjectSize:        sql.NullInt64{Int64: req.ProjectSize, Valid: req.ProjectSize != 0},
 		ProjectID:          int64(projectID),
 	})
 	if err != nil {

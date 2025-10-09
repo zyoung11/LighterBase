@@ -302,7 +302,6 @@ SET
     project_name = COALESCE(?, project_name),
     project_avatar = COALESCE(?, project_avatar),
     project_description = COALESCE(?, project_description),
-    project_size = COALESCE(?, project_size),
     update_at = datetime('now')
 WHERE project_id = ?
 RETURNING project_id, user_id, port, project_name, project_avatar, project_description, project_size, create_at, update_at
@@ -312,7 +311,6 @@ type UpdateProjectParams struct {
 	ProjectName        string
 	ProjectAvatar      sql.NullString
 	ProjectDescription sql.NullString
-	ProjectSize        sql.NullInt64
 	ProjectID          int64
 }
 
@@ -321,7 +319,6 @@ func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (P
 		arg.ProjectName,
 		arg.ProjectAvatar,
 		arg.ProjectDescription,
-		arg.ProjectSize,
 		arg.ProjectID,
 	)
 	var i Project

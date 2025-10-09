@@ -58,7 +58,6 @@ SET
     project_name = COALESCE(?, project_name),
     project_avatar = COALESCE(?, project_avatar),
     project_description = COALESCE(?, project_description),
-    project_size = COALESCE(?, project_size),
     update_at = datetime('now')
 WHERE project_id = ?
 RETURNING *;
