@@ -353,6 +353,20 @@ func (q *Queries) UpdateProjectPort(ctx context.Context, arg UpdateProjectPortPa
 	return err
 }
 
+const updateProjectSize = `-- name: UpdateProjectSize :exec
+UPDATE projects SET project_size = ?, update_at = datetime('now') WHERE project_id = ?
+`
+
+type UpdateProjectSizeParams struct {
+	ProjectSize sql.NullInt64
+	ProjectID   int64
+}
+
+func (q *Queries) UpdateProjectSize(ctx context.Context, arg UpdateProjectSizeParams) error {
+	_, err := q.db.ExecContext(ctx, updateProjectSize, arg.ProjectSize, arg.ProjectID)
+	return err
+}
+
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET

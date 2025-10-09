@@ -70,6 +70,8 @@ DELETE FROM projects WHERE project_id = ?;
 UPDATE projects SET port = ? WHERE project_id = ?;
 
 
-
 -- name: ListAllProjectsForRestore :many
 SELECT * FROM projects WHERE port IS NOT NULL;
+
+-- name: UpdateProjectSize :exec
+UPDATE projects SET project_size = ?, update_at = datetime('now') WHERE project_id = ?;

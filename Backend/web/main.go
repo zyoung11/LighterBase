@@ -6,6 +6,7 @@ import (
 	_ "embed"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -96,6 +97,46 @@ func initBaas() {
 		}
 	}
 	log.Println("Project restoration process finished.")
+}
+
+// updateProjectSize 计算项目文件夹大小（单位MB），并更新到数据库
+func updateProjectSize(ctx context.Context, project database.Project) error {
+	// 1. 构建项目文件夹的绝对路径
+	projectDir := filepath.Join(baseDir, strconv.FormatInt(project.UserID, 10), strconv.FormatInt(project.ProjectID, 10))
+
+	// 2. 遍历文件夹，计算总大小
+	var totalSizeBytes int64
+	err := filepath.Walk(projectDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			// 如果访问某个文件出错，记录警告但继续遍历
+			log.Printf("WARN: Error accessing file %s: %v", path, err)
+			return nil
+		}
+		if !info.IsDir() {
+			totalSizeBytes += info.Size()
+		}
+		return nil
+	})
+
+	if err != nil {
+		return fmt.Errorf("failed to walk project directory %s: %w", projectDir, err)
+	}
+
+	// 3. 将字节转换为MB (B -> KB -> MB)
+	// 使用 math.Round 进行四舍五入
+	sizeMB := math.Round(float64(totalSizeBytes)/1024.0/1024.0*100) / 100
+
+	// 4. 更新数据库
+	err = queries.UpdateProjectSize(ctx, database.UpdateProjectSizeParams{
+		ProjectSize: sql.NullInt64{Int64: int64(sizeMB), Valid: true},
+		ProjectID:   project.ProjectID,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to update project size in database: %w", err)
+	}
+
+	log.Printf("Updated size for project %d (user %d) to %.2f MB", project.ProjectID, project.UserID, sizeMB)
+	return nil
 }
 
 //---------------------------------------routing---------------------------------------
@@ -209,6 +250,13 @@ func listMyProjects(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch projects"})
 	}
 
+	for i := range projects {
+		if err := updateProjectSize(c.Context(), projects[i]); err != nil {
+			// 更新失败不应该中断整个请求，记录日志即可
+			log.Printf("ERROR: Failed to update size for project %d: %v", projects[i].ProjectID, err)
+		}
+	}
+
 	return c.JSON(projects)
 }
 
@@ -229,9 +277,14 @@ func getProject(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Project not found"})
 	}
 
-	// 权限检查：只能访问自己的项目或是管理员（这里简化判断 userID == 1 为管理员）
+	// 权限检查：只能访问自己的项目或是管理员
 	if project.UserID != userID && userID != 1 {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Forbidden"})
+	}
+
+	if err := updateProjectSize(c.Context(), project); err != nil {
+		// 更新失败不应该中断请求，记录日志并返回旧数据
+		log.Printf("ERROR: Failed to update size for project %d: %v", project.ProjectID, err)
 	}
 
 	return c.JSON(project)
