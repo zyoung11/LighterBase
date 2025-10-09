@@ -12,6 +12,7 @@ type Project struct {
 	ProjectID          int64
 	UserID             int64
 	Port               sql.NullInt64
+	Pid                sql.NullInt64
 	ProjectName        string
 	ProjectAvatar      sql.NullString
 	ProjectDescription sql.NullString

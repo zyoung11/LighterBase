@@ -74,3 +74,6 @@ SELECT * FROM projects WHERE port IS NOT NULL;
 
 -- name: UpdateProjectSize :exec
 UPDATE projects SET project_size = ?, update_at = datetime('now') WHERE project_id = ?;
+
+-- name: UpdateProjectPID :exec
+UPDATE projects SET pid = ? WHERE project_id = ?;

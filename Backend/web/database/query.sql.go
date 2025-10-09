@@ -16,7 +16,7 @@ INSERT INTO projects (
 ) VALUES (
     ?, ?, ?, ?, ?, datetime('now'), datetime('now')
 )
-RETURNING project_id, user_id, port, project_name, project_avatar, project_description, project_size, create_at, update_at
+RETURNING project_id, user_id, port, pid, project_name, project_avatar, project_description, project_size, create_at, update_at
 `
 
 type CreateProjectParams struct {
@@ -40,6 +40,7 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 		&i.ProjectID,
 		&i.UserID,
 		&i.Port,
+		&i.Pid,
 		&i.ProjectName,
 		&i.ProjectAvatar,
 		&i.ProjectDescription,
@@ -107,7 +108,7 @@ func (q *Queries) DeleteUser(ctx context.Context, userID int64) error {
 }
 
 const getProjectByID = `-- name: GetProjectByID :one
-SELECT project_id, user_id, port, project_name, project_avatar, project_description, project_size, create_at, update_at FROM projects WHERE project_id = ? LIMIT 1
+SELECT project_id, user_id, port, pid, project_name, project_avatar, project_description, project_size, create_at, update_at FROM projects WHERE project_id = ? LIMIT 1
 `
 
 func (q *Queries) GetProjectByID(ctx context.Context, projectID int64) (Project, error) {
@@ -117,6 +118,7 @@ func (q *Queries) GetProjectByID(ctx context.Context, projectID int64) (Project,
 		&i.ProjectID,
 		&i.UserID,
 		&i.Port,
+		&i.Pid,
 		&i.ProjectName,
 		&i.ProjectAvatar,
 		&i.ProjectDescription,
@@ -188,7 +190,7 @@ func (q *Queries) GetUserByName(ctx context.Context, userName string) (User, err
 }
 
 const listAllProjectsForRestore = `-- name: ListAllProjectsForRestore :many
-SELECT project_id, user_id, port, project_name, project_avatar, project_description, project_size, create_at, update_at FROM projects WHERE port IS NOT NULL
+SELECT project_id, user_id, port, pid, project_name, project_avatar, project_description, project_size, create_at, update_at FROM projects WHERE port IS NOT NULL
 `
 
 func (q *Queries) ListAllProjectsForRestore(ctx context.Context) ([]Project, error) {
@@ -204,6 +206,7 @@ func (q *Queries) ListAllProjectsForRestore(ctx context.Context) ([]Project, err
 			&i.ProjectID,
 			&i.UserID,
 			&i.Port,
+			&i.Pid,
 			&i.ProjectName,
 			&i.ProjectAvatar,
 			&i.ProjectDescription,
@@ -260,7 +263,7 @@ func (q *Queries) ListAllUsers(ctx context.Context) ([]User, error) {
 }
 
 const listProjectsByUserID = `-- name: ListProjectsByUserID :many
-SELECT project_id, user_id, port, project_name, project_avatar, project_description, project_size, create_at, update_at FROM projects WHERE user_id = ? ORDER BY create_at DESC
+SELECT project_id, user_id, port, pid, project_name, project_avatar, project_description, project_size, create_at, update_at FROM projects WHERE user_id = ? ORDER BY create_at DESC
 `
 
 func (q *Queries) ListProjectsByUserID(ctx context.Context, userID int64) ([]Project, error) {
@@ -276,6 +279,7 @@ func (q *Queries) ListProjectsByUserID(ctx context.Context, userID int64) ([]Pro
 			&i.ProjectID,
 			&i.UserID,
 			&i.Port,
+			&i.Pid,
 			&i.ProjectName,
 			&i.ProjectAvatar,
 			&i.ProjectDescription,
@@ -304,7 +308,7 @@ SET
     project_description = COALESCE(?, project_description),
     update_at = datetime('now')
 WHERE project_id = ?
-RETURNING project_id, user_id, port, project_name, project_avatar, project_description, project_size, create_at, update_at
+RETURNING project_id, user_id, port, pid, project_name, project_avatar, project_description, project_size, create_at, update_at
 `
 
 type UpdateProjectParams struct {
@@ -326,6 +330,7 @@ func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (P
 		&i.ProjectID,
 		&i.UserID,
 		&i.Port,
+		&i.Pid,
 		&i.ProjectName,
 		&i.ProjectAvatar,
 		&i.ProjectDescription,
@@ -334,6 +339,20 @@ func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (P
 		&i.UpdateAt,
 	)
 	return i, err
+}
+
+const updateProjectPID = `-- name: UpdateProjectPID :exec
+UPDATE projects SET pid = ? WHERE project_id = ?
+`
+
+type UpdateProjectPIDParams struct {
+	Pid       sql.NullInt64
+	ProjectID int64
+}
+
+func (q *Queries) UpdateProjectPID(ctx context.Context, arg UpdateProjectPIDParams) error {
+	_, err := q.db.ExecContext(ctx, updateProjectPID, arg.Pid, arg.ProjectID)
+	return err
 }
 
 const updateProjectPort = `-- name: UpdateProjectPort :exec

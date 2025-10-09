@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS projects (
     project_id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     port INTEGER,
+    pid INTEGER,
     project_name TEXT NOT NULL,
     project_avatar TEXT,
     project_description TEXT,

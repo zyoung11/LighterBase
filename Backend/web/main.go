@@ -226,6 +226,20 @@ func createProject(c *fiber.Ctx) error {
 
 	log.Printf("Successfully started BaaS instance for project %d (user %d) on port %d with PID %d", project.ProjectID, userID, assignedPort, cmd.Process.Pid)
 
+	// 获取进程ID
+	pid := cmd.Process.Pid
+	log.Printf("Successfully started BaaS instance for project %d (user %d) on port %d with PID %d", project.ProjectID, userID, assignedPort, pid)
+
+	if err := txQueries.UpdateProjectPID(c.Context(), database.UpdateProjectPIDParams{
+		Pid:       sql.NullInt64{Int64: int64(pid), Valid: true},
+		ProjectID: project.ProjectID,
+	}); err != nil {
+		// 如果保存PID失败，杀掉进程并回滚事务
+		log.Printf("ERROR: Failed to save PID for project %d: %v", project.ProjectID, err)
+		cmd.Process.Kill()
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to save project PID"})
+	}
+
 	// --- 4. 提交事务并返回结果 ---
 	if err := tx.Commit(); err != nil {
 		if cmd.Process != nil {
@@ -349,9 +363,38 @@ func deleteProject(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Forbidden"})
 	}
 
-	if err := queries.DeleteProject(c.Context(), int64(projectID)); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete project"})
+	// --- 1. 停止BaaS进程 ---
+	if project.Pid.Valid && project.Pid.Int64 > 0 {
+		pid := project.Pid.Int64
+		log.Printf("Attempting to stop BaaS instance for project %d with PID %d", projectID, pid)
+
+		// 查找进程，确保它仍然存在并且是我们启动的那个
+		process, err := os.FindProcess(int(pid))
+		if err == nil {
+			// 发送中断信号 (SIGTERM)，让进程优雅地退出
+			if err := process.Signal(os.Interrupt); err != nil {
+				log.Printf("WARN: Failed to send interrupt signal to PID %d: %v (process might already be dead)", pid, err)
+			} else {
+				// time.Sleep(2 * time.Second)
+			}
+		} else {
+			log.Printf("WARN: Could not find process with PID %d: %v", pid, err)
+		}
+	} else {
+		log.Printf("INFO: No valid PID found for project %d, skipping process termination.", projectID)
 	}
 
+	// --- 2. 删除项目文件夹 ---
+	projectDir := filepath.Join(baseDir, strconv.FormatInt(project.UserID, 10), strconv.FormatInt(project.ProjectID, 10))
+	if err := os.RemoveAll(projectDir); err != nil {
+		log.Printf("ERROR: Failed to delete project directory %s: %v", projectDir, err)
+	}
+
+	// --- 3. 删除数据库记录 ---
+	if err := queries.DeleteProject(c.Context(), int64(projectID)); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete project record from database"})
+	}
+
+	log.Printf("Successfully deleted project %d and its resources.", projectID)
 	return c.SendStatus(fiber.StatusNoContent)
 }
