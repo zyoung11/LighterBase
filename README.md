@@ -1,4 +1,4 @@
-# 🚀 LighterBaseHub & LighterBase API 文档
+# 🚀 API 文档
 
 > 一站式后端即服务（BaaS）平台，支持多租户、自动 CRUD、JWT 认证、权限管理、SQL 执行与反向代理。  
 > 前端只需丢进 `dist/` 文件夹即可上线，后端一条命令即可启动整个服务。
