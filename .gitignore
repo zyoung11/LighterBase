@@ -9,3 +9,6 @@ TEST/LighterBaseDate/data.db-shm
 TEST/LighterBaseDate/data.db-wal
 Backend/app/LighterBaseDate/metaDate.db-shm
 Backend/app/LighterBaseDate/metaDate.db-wal
+Backend/web/LighterBaseHubData
+Backend/web/LighterBaseHubData/data.db-shm
+Backend/web/LighterBaseHubData/data.db-wal

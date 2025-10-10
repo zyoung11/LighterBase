@@ -22,6 +22,17 @@ import (
 //go:embed LighterBase
 var LighterBase []byte
 
+// 用户数据库路径
+const baseDir string = "./LighterBaseHubData/Apps"
+
+// 创建项目请求结构
+type CreateProjectRequest struct {
+	ProjectName        string `json:"project_name"`
+	ProjectAvatar      string `json:"project_avatar"`
+	ProjectDescription string `json:"project_description"`
+	ProjectSize        int64  `json:"project_size"`
+}
+
 var routes = []Route{
 	{Method: "GET", Path: "/health", Handler: health},
 
@@ -41,12 +52,13 @@ var routes = []Route{
 	{Method: "DELETE", Path: "/api/projects/:id", Handler: deleteProject},
 
 	// --- BaaS API 反向代理 ---
-	{Method: "ALL", Path: "/:userId/:projectId/*", Handler: baasProxyHandler},
+	{Method: "USE", Path: "/:userId/:projectId/*", Handler: baasProxyHandler},
 }
 
 //-------------------------------------------------------------------------------------
 
 func main() {
+	initDB("LighterBaseHub")
 	initBaas()
 	initBackend("LighterBaseHub", "build", 8080, 8090)
 }
@@ -90,6 +102,14 @@ func startProjectInstance(project database.Project) error {
 
 func initBaas() {
 	log.Println("Restoring all project instances on startup...")
+
+	// 创建基础目录
+	if err := os.MkdirAll(baseDir, 0o755); err != nil {
+		log.Printf("ERROR: Failed to create base directory %s: %v", baseDir, err)
+	} else {
+		log.Printf("Base directory %s is ready", baseDir)
+	}
+
 	// 从数据库获取所有已分配端口的项目
 	allProjects, err := queries.ListAllProjectsForRestore(context.Background())
 	if err != nil {
@@ -153,17 +173,6 @@ func mustParseInt(s string) int64 {
 }
 
 //---------------------------------------routing---------------------------------------
-
-// 用户数据库路径
-const baseDir string = "./LighterBaseHubData/Apps"
-
-// 创建项目请求结构
-type CreateProjectRequest struct {
-	ProjectName        string `json:"project_name"`
-	ProjectAvatar      string `json:"project_avatar"`
-	ProjectDescription string `json:"project_description"`
-	ProjectSize        int64  `json:"project_size"`
-}
 
 // 创建项目
 func createProject(c *fiber.Ctx) error {
