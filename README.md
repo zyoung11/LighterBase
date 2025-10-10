@@ -487,13 +487,65 @@
   }
   ```
 
+## 三、Baas 反向代理 API
 
+> [!NOTE]
+>
+> 通过 LighterBaseHub 操作的 **URL** 如下，详细信息请看下方 LighterBase 文档 
+
+### 1. 增
+
+- URL：/:userId/:projectId/api/auto/create/{table}
+
+### 2. 删
+
+- URL：/:userId/:projectId/api/auto/delete/{table}
+
+### 3. 改
+
+- URL：/:userId/:projectId/api/auto/update/{table}
+
+### 4. 查
+
+- URL：/:userId/:projectId/api/auto/view/{table}?page={x}&perpage={y}
+
+### 5. SQL 操作
+
+- URL：/:userld/:projectId/api/create-table/create
+
+### 6. 查看上一次SQL操作
+
+- URL：/:userld/:projectId/api/sqls/latest
+
+### 7. 登录
+
+- URL：/:userld/:projectId/api/auth/login
+
+### 8. 更新 token
+
+- URL：/:userld/:projectId/api/auth/refresh
+
+### 9. 获取所有权限记录
+
+- URL：/:userld/:projectId/api/security
+
+### 10. 创建权限规则
+
+- URL：/:userld/:projectId/api/security/{table}
+
+### 11. 删除权限规则
+
+- URL：/:userld/:projectId/api/security/{table}
+
+### 12. 更新权限规则
+
+- URL：/:userld/:projectId/api/security/{table}
 
 
 
 ------
 
-
+###
 
 # LighterBase API 文档
 
@@ -977,7 +1029,7 @@
   }
   ```
 
-### 2. 更新token
+### 2. 更新 token
 
 - http方法：POST
 
