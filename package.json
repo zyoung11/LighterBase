@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "sqlite-parser": "^1.0.1"
+  }
+}

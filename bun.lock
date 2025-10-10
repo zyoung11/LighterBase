@@ -1,0 +1,13 @@
+{
+  "lockfileVersion": 1,
+  "workspaces": {
+    "": {
+      "dependencies": {
+        "sqlite-parser": "^1.0.1",
+      },
+    },
+  },
+  "packages": {
+    "sqlite-parser": ["sqlite-parser@1.0.1", "", { "bin": { "sqlite-parser": "bin/sqlite-parser" } }, "sha512-/es+YmgQG+VFbwAQD0Nd0Mdzgky8rW3M85zcy2+Vtk3Sj5ydaMl/lopWPehsjsByGw/swVuXSBeMJFh47doRUw=="],
+  }
+}

@@ -1,6 +1,7 @@
 import { sidebarContent, workspaceContent ,slideBarContent} from "./utils/contents";
 import conponents from "./utils/conponents";
 import sql from "./apis/sql";
+import sqliteParser from 'sqlite-parser';
 import {authToken} from "./apis/api"; 
 
 console.log('authToken:', authToken);
@@ -99,7 +100,9 @@ mainWorkspace.addEventListener('keydown', async(e) => {
 
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault(); 
-      await sql.createSql(payload);
+      const ast = sqliteParser(textarea.value); 
+      console.log(JSON.stringify(ast, null, 2));
+      // await sql.createSql(payload);
       console.log('SQL Submitted:', textarea.value);
     }
 
