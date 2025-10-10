@@ -13,6 +13,8 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "jwt-decode": "^4.0.0"
+    "@antv/g6": "4.7.17",
+    "jwt-decode": "^4.0.0",
+    "sqlite-parser": "^1.0.1"
   }
 }

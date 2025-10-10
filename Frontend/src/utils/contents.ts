@@ -51,8 +51,8 @@ const workspaceContent = {
                 <div class="flex-1 flex flex-col">
                     <!-- 上部分：显示区域 (60% 高度) -->
                     <div class="h-[60%]  p-6 relative">
-                        <div class="h-full bg-[#15151D] border-2 border-dashed border-[#2B2F31] rounded-lg flex items-center justify-center">
-                            <span class="text-gray-500">查询结果将在这里显示</span>
+                        <div id="mount" class="h-96 bg-[#15151D] border-2 border-dashed border-[#2B2F31] rounded-lg flex items-center justify-center">
+                            
                         </div>
                         <!-- API文档按钮 -->
                         <button id="api-docs-btn" class="absolute right-4 top-1/2 transform -translate-y-1/2 px-3 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors">
