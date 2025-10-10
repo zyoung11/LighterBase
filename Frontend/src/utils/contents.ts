@@ -50,8 +50,8 @@ const workspaceContent = {
   database: `
                 <div class="flex-1 flex flex-col">
                     <!-- 上部分：显示区域 (60% 高度) -->
-                    <div class="h-[60%] bg-[#1B1E1F] p-6 relative">
-                        <div class="h-full border-2 border-dashed border-[#2B2F31] rounded-lg flex items-center justify-center">
+                    <div class="h-[60%]  p-6 relative">
+                        <div class="h-full bg-[#15151D] border-2 border-dashed border-[#2B2F31] rounded-lg flex items-center justify-center">
                             <span class="text-gray-500">查询结果将在这里显示</span>
                         </div>
                         <!-- API文档按钮 -->
@@ -61,16 +61,15 @@ const workspaceContent = {
                     </div>
 
                     <!-- 下部分：SQL输入区域 (40% 高度) -->
-                    <div class="h-[40%] bg-[#121414] p-6 relative">
-                        <div class="absolute top-6 right-6">
-                            <button id="ai-generated" class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-sm transition-colors">
-                                AI-Generated
-                            </button>
-                        </div>
+                    <div class="h-[40%] p-6 relative flex items-center space-x-4 justify-center"> 
                         <textarea 
-                            class="w-full h-full bg-[#121414] border border-[#2B2F31] rounded-lg p-4 text-gray-200 placeholder-gray-500 resize-none focus:outline-none focus:border-[#4a4f52]"
+                            id="sql-input"
+                            class="w-[80%] h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg p-4 text-gray-200 placeholder-gray-500 resize-none focus:outline-none focus:border-[#4a4f52]"
                             placeholder="在这里输入SQL查询..."
                         ></textarea>
+                        <button id="ai-generated" class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-sm transition-colors">
+                                AI-Generated
+                        </button>
                     </div>
                 </div>
             `,

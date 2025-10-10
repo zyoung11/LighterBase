@@ -1,6 +1,11 @@
 import { sidebarContent, workspaceContent ,slideBarContent} from "./utils/contents";
 import conponents from "./utils/conponents";
-console.log(document.cookie);
+import sql from "./apis/sql";
+import {authToken} from "./apis/api"; 
+
+console.log('authToken:', authToken);
+
+
 // 当前激活的部分
 let currentSection = null;
 const rightSidebar = document.getElementById("right-sidebar") as HTMLElement;
@@ -25,15 +30,20 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
     currentSection = "settings";
     defaultWorkspace.style.display = "none";
     mainWorkspace.innerHTML =workspaceContent.aiSettings;
-    setTimeout(() => {
-      document.getElementById("ai-settings")?.addEventListener("click", () => {
-        mainWorkspace.innerHTML = workspaceContent.aiSettings;
-      });
-      document
-        .getElementById("account-settings")?.addEventListener("click", () => {
-          mainWorkspace.innerHTML = workspaceContent.accountSettings;
-        });
-    }, 100);
+
+
+    rightSidebar.addEventListener('click', (e) => { 
+        const target = e.target as HTMLElement;
+        
+      if (target.closest('#account-settings')) {
+        mainWorkspace.innerHTML = workspaceContent.accountSettings;
+          return;
+      }
+      if (target.closest('#ai-settings')) {
+          mainWorkspace.innerHTML = workspaceContent.aiSettings;
+          return;
+      }
+    });
   }
 );
 
@@ -48,53 +58,54 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
     defaultWorkspace.style.display = "none";
     mainWorkspace.innerHTML = workspaceContent.database;
 
-    // 添加数据库按钮事件
-    setTimeout(() => {
-      document.getElementById("permissions")?.addEventListener("click", () => {
-        currentSection = "permissions";
-        mainWorkspace.innerHTML = workspaceContent.permissions;
-      });
+    rightSidebar.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
 
-      document.getElementById("create-db")?.addEventListener("click", () => {
-        mainWorkspace.innerHTML = workspaceContent.database;
-      });
-
-      document.getElementById("api-docs-btn")?.addEventListener("click",() => {
-      conponents.showRightSlidebar("API 文档",slideBarContent.api_md);
-      });
-
-     document.getElementById("ai-generated")?.addEventListener("click",() => {
-      conponents.showRightSlidebar("AI 助手",slideBarContent.ai_generated);
+      if (target.closest('#permissions')) {
+          currentSection = "permissions";
+          mainWorkspace.innerHTML = workspaceContent.permissions;
+          return;
+      }
+    
+      if (target.closest('#create-db')) {
+          mainWorkspace.innerHTML = workspaceContent.database;
+          return;
+      }
     });
-    }, 100);
+    mainWorkspace.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    
+    if (target.closest('#api-docs-btn')) {
+        conponents.showRightSlidebar("API 文档", slideBarContent.api_md);
+        return;
+    }
+    
+    if (target.closest('#ai-generated')) {
+        conponents.showRightSlidebar("AI 助手", slideBarContent.ai_generated);
+        return;
+    }
+    });
   }
 );
 
-    // mainWorkspace.addEventListener('click', (event) => {
-    // const target = event.target as HTMLElement;
-    
-    // // 数据库相关事件委托
-    // if (target.closest('#permissions')) {
-    //     currentSection = "permissions";
-    //     mainWorkspace.innerHTML = workspaceContent.permissions;
-    //     return;
-    // }
-    
-    // if (target.closest('#create-db')) {
-    //     mainWorkspace.innerHTML = workspaceContent.database;
-    //     return;
-    // }
-    
-    // if (target.closest('#api-docs-btn')) {
-    //     conponents.showRightSlidebar("API 文档", slideBarContent.api_md);
-    //     return;
-    // }
-    
-    // if (target.closest('#ai-generated')) {
-    //     conponents.showRightSlidebar("AI 助手", slideBarContent.ai_generated);
-    //     return;
-    // }
-    // });
+mainWorkspace.addEventListener('keydown', async(e) => {
+  const target = e.target as HTMLElement;
+
+  if (target.id === 'sql-input' && target.tagName === 'TEXTAREA') {
+    const textarea = target as HTMLTextAreaElement;
+    const payload ={
+      "SQL": textarea.value,
+    }
+
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); 
+      await sql.createSql(payload);
+      console.log('SQL Submitted:', textarea.value);
+    }
+
+  }
+});
+
 
 // // 获取元素
 // const bottomModal = document.getElementById("bottom-modal") as HTMLElement;
@@ -212,8 +223,7 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
 // // 初始显示默认工作区
 // showDefaultWorkspace();
 
-// 简单的打字功能示例
-// document.addEventListener("DOMContentLoaded", () => {
+// document.addEventListener("DOMContentLoaded", () => {              可以准备删了
 //   const textarea = document.querySelector("textarea");
 //   if (textarea) {
 //     textarea.addEventListener("keydown", (e) => {

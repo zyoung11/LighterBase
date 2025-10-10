@@ -1,4 +1,5 @@
-import { URL } from "./api.ts";
+import { URL,authToken } from "./api.ts";
+import auth from "./auth.ts";
 
 const sql = {
     async createSql(payload: any): Promise<any> {
@@ -7,14 +8,15 @@ const sql = {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${document.cookie}`
+                    "Authorization": `Bearer ${authToken}`
                 },
                 body: JSON.stringify(payload)
             });
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            return await response.json();
+            const data = await response.json();
+            return data;
         } catch (error) {
             console.error("Error creating SQL:", error);
             throw error;
@@ -27,7 +29,7 @@ const sql = {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${document.cookie}`
+                    "Authorization": `Bearer ${authToken}`
                 }
             });
             if (!response.ok) {
