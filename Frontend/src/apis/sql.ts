@@ -1,6 +1,4 @@
 import { URL,authToken } from "./api.ts";
-import auth from "./auth.ts";
-
 const sql = {
     async createSql(payload: any): Promise<any> {
         try {
