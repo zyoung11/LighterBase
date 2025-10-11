@@ -1191,23 +1191,30 @@ cd LighterBase/Backend/web/LighterBaseHub
   返回体：
 
   ```json
-  {
-    "token": "JWT_TOKEN",
-    "expire": "value1",
-    "record": {
-      "id": "value2",
-      "email": "value3",
-      "name": "value4",
-      "created": "value5",
-      "updated": "value6"
+  [
+    {
+      "id": 1,
+      "table_name": "users",
+      "create_where": "value1",
+      "delete_where": "value2",
+      "update_where": "value3",
+      "view_where": "value4"
+    },
+    {
+      "id": 2,
+      "table_name": "value5",
+      "create_where": "value6",
+      "delete_where": "value7",
+      "update_where": "value8",
+      "view_where": "value9"
     }
-  }
+  ]
   ```
-
+  
   http状态码：400
-
+  
   返回体：
-
+  
   ```json
   {
     "status": 400,
@@ -1316,4 +1323,36 @@ cd LighterBase/Backend/web/LighterBaseHub
   ```
 
 
+
+## 五、其他查询
+
+### 1. 查询所有表名
+
+- http方法：GET
+
+- URL：http://localhost:8080/api/query/tables
+
+- 请求头：
+
+  ```
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  {
+    "tables": [
+      "users",
+      "value2",
+      "value3"
+    ]
+  }
+  ```
+
+  
 

@@ -14,6 +14,7 @@ import (
 	"os/user"
 	"path"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -63,6 +64,9 @@ var routes = []Route{
 	{Method: "POST", Path: "/api/security/:table_name", Handler: createSecurityPolicy},
 	{Method: "DELETE", Path: "/api/security/:table_name", Handler: deleteSecurityPolicy},
 	{Method: "PUT", Path: "/api/security/:table_name", Handler: updateSecurityPolicy},
+
+	// --- 其他查询 API ---
+	{Method: "GET", Path: "/api/query/tables", Handler: listDataTables},
 }
 
 type Route struct {
@@ -698,6 +702,23 @@ func execSQL(c *fiber.Ctx) error {
 	if err = tx.Commit(); err != nil {
 		return sendError(c, 500, "Failed to commit transaction.", fiber.Map{"database_error": err.Error()})
 	}
+
+	go func(sqlText string) {
+		re := regexp.MustCompile(`(?mi)CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?"?([a-zA-Z_][a-zA-Z0-9_]*)"?`)
+		matches := re.FindStringSubmatch(sqlText)
+		if len(matches) < 2 {
+			return
+		}
+		tableName := matches[1]
+
+		_ = queries.CreateSecurity(context.Background(), database.CreateSecurityParams{
+			TableName:   tableName,
+			CreateWhere: sql.NullString{Valid: false},
+			DeleteWhere: sql.NullString{Valid: false},
+			UpdateWhere: sql.NullString{Valid: false},
+			ViewWhere:   sql.NullString{Valid: false},
+		})
+	}(body.SQL)
 
 	return c.Status(201).JSON(fiber.Map{"SQL": body.SQL})
 }
@@ -1356,4 +1377,41 @@ func getSecurityByTable(tableName string) (*database.Security, error) {
 		return nil, err
 	}
 	return &policy, nil
+}
+
+// listDataTables 返回 data.db 中所有用户表名（不含 sqlite_ 系统表）
+func listDataTables(c *fiber.Ctx) error {
+	// 1. 只允许 root
+	userID, err := authenticateUser(c)
+	if err != nil || userID != 1 {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
+	// 2. 查 sqlite_master
+	rows, err := dataDB.Query(
+		`SELECT name FROM sqlite_master 
+		 WHERE type='table' 
+		   AND name NOT LIKE 'sqlite_%' 
+		 ORDER BY name`)
+	if err != nil {
+		return sendError(c, 500, "Failed to list tables.", fiber.Map{"database_error": err.Error()})
+	}
+	defer rows.Close()
+
+	var tables []string
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			continue
+		}
+		tables = append(tables, name)
+	}
+	if err = rows.Err(); err != nil {
+		return sendError(c, 500, "Failed to scan tables.", fiber.Map{"database_error": err.Error()})
+	}
+
+	// 3. 返回
+	return c.JSON(fiber.Map{
+		"tables": tables,
+	})
 }
