@@ -45,13 +45,12 @@ const sidebarContent = {
             `,
 };
 
-
 const workspaceContent = {
   database: `
                 <div class="flex-1 flex flex-col">
                     <!-- 上部分：显示区域 (60% 高度) -->
                     <div class="h-[60%]  p-6 relative">
-                        <div id="mount" class="h-96 bg-[#15151D] border-2 border-dashed border-[#2B2F31] rounded-lg flex items-center justify-center">
+                        <div id="mount" class="h-full bg-[#15151D] border-2 border-dashed border-[#2B2F31] rounded-lg flex items-center justify-center">
                             
                         </div>
                         <!-- API文档按钮 -->
@@ -74,39 +73,35 @@ const workspaceContent = {
                 </div>
             `,
   permissions: `
-                <div class="flex-1 bg-[#1B1E1F] p-6">
-                    <h3 class="text-lg font-semibold mb-4">数据库表权限管理</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-[#2B2F31] rounded-lg">
-                            <thead>
-                                <tr class="border-b border-gray-600">
-                                    <th class="px-4 py-3 text-left">表名</th>
-                                    <th class="px-4 py-3 text-left">读取权限</th>
-                                    <th class="px-4 py-3 text-left">写入权限</th>
-                                    <th class="px-4 py-3 text-left">删除权限</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="border-b border-gray-700 hover:bg-[#3a3f41]">
-                                    <td class="px-4 py-3">users</td>
-                                    <td class="px-4 py-3"><input type="checkbox" checked class="rounded"></td>
-                                    <td class="px-4 py-3"><input type="checkbox" class="rounded"></td>
-                                    <td class="px-4 py-3"><input type="checkbox" class="rounded"></td>
-                                </tr>
-                                <tr class="border-b border-gray-700 hover:bg-[#3a3f41]">
-                                    <td class="px-4 py-3">products</td>
-                                    <td class="px-4 py-3"><input type="checkbox" checked class="rounded"></td>
-                                    <td class="px-4 py-3"><input type="checkbox" checked class="rounded"></td>
-                                    <td class="px-4 py-3"><input type="checkbox" class="rounded"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="mt-4 text-gray-400">
-                        <p>请选择一个单元格</p>
-                    </div>
-                </div>
-            `,
+        <div class="bg-[#1B1E1F] p-6 h-full flex flex-col">
+            <h3 class="text-lg font-semibold mb-4">数据库表权限管理</h3>
+
+            <div class="h-2/3 overflow-y-auto mb-4 border rounded-lg border-gray-700" >
+                <table id="permissions-table" class="min-w-full bg-[#2B2F31] rounded-lg">
+                    <thead>
+                        <tr class="border-b border-gray-600">
+                            <th class="px-4 py-3 text-left w-1/5">Table</th>
+                            <th class="px-4 py-3 text-left">Create</th>
+                            <th class="px-4 py-3 text-left">Delete</th>
+                            <th class="px-4 py-3 text-left">Update</th>
+                            <th class="px-4 py-3 text-left">View</th>
+                        </tr>
+                    </thead>
+                    <tbody id="permissions-table-body">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex flex-col mt-1 pt-4 border-gray-700 justify-center items-center w-full h-1/3 
+            border-t">
+                <textarea 
+                            id="permission-editor"
+                            class="w-[70%] h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg p-4 text-gray-200 placeholder-gray-500 resize-none focus:outline-none focus:border-[#4a4f52]"
+                            placeholder="请先选择一个单元格..."
+                ></textarea>
+            </div>
+        </div>
+    `,
   folder: `
                 <div class="flex-1 bg-[#1B1E1F] p-6">
                     <h3 class="text-lg font-semibold mb-4">数据库表 - files</h3>
@@ -139,7 +134,7 @@ const workspaceContent = {
                 </div>
             `,
   records: `
-                <div class="flex-1 flex flex-col bg-[#1B1E1F]">
+                <div class="flex-1 flex flex-col bg-[#1B1E1F] w-full">
                     <!-- 搜索栏 -->
                     <div class="p-4 border-b border-gray-700">
                         <input type="text" placeholder="搜索记录..." class="w-full px-4 py-2 bg-[#2B2F31] rounded-lg focus:outline-none focus:border-[#4a4f52] border border-transparent">
@@ -215,11 +210,9 @@ const workspaceContent = {
             `,
 };
 
-const slideBarContent ={
-    api_md:
-       '<p class="text-gray-400">API 文档内容将在这里显示</p>',
-    ai_generated:
-            `
+const slideBarContent = {
+  api_md: '<p class="text-gray-400">API 文档内容将在这里显示</p>',
+  ai_generated: `
                     <div class="flex flex-col h-full">
                         <div class="flex-1 overflow-y-auto mb-4">
                             <div class="bg-[#2B2F31] p-3 rounded mb-2">
@@ -231,13 +224,7 @@ const slideBarContent ={
                             <button class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors">发送</button>
                         </div>
                     </div>
-                `
+                `,
+};
 
-}
-
-
-export { 
-    sidebarContent,
-    workspaceContent,
-    slideBarContent
-    };
+export { sidebarContent, workspaceContent, slideBarContent };

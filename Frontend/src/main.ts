@@ -1,8 +1,10 @@
 import { sidebarContent, workspaceContent ,slideBarContent} from "./utils/contents";
 import conponents from "./utils/conponents";
+import gojsER from "./utils/gojsER";
 // import sql from "./apis/sql";
 import sqliteParser from "sqlite-parser";
 import {authToken} from "./apis/api"; 
+import blocks from "./modules/blocks";
 console.log('authToken:', authToken);
 
 
@@ -26,6 +28,7 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
 (document.getElementById("settings-btn") as HTMLElement).addEventListener(
   "click",
   () => {
+    rightSidebar.classList.remove("hidden")
     rightSidebar.innerHTML = sidebarContent.settings;
     currentSection = "settings";
     defaultWorkspace.style.display = "none";
@@ -47,12 +50,66 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
   }
 );
 
+
+
+(document.getElementById("records-btn") as HTMLElement).addEventListener(
+  "click",
+  () => {
+    rightSidebar.classList.add("hidden")
+    currentSection = "records";
+    defaultWorkspace.style.display = "none";
+    mainWorkspace.innerHTML = workspaceContent.records;
+
+    // 添加记录事件
+    setTimeout(() => {
+      // 记录项点击事件
+      document.querySelectorAll(".record-item").forEach((item) => {
+        item.addEventListener("click", function () {
+          const date = this.getAttribute("data-date");
+          (
+            document.getElementById("selected-date") as HTMLElement
+          ).textContent = date;
+          conponents.showRightSlidebar(
+            "记录详情",
+            `
+                            <div class="text-gray-300">
+                                <p class="mb-2"><strong>查询语句:</strong></p>
+                                <p class="bg-[#2B2F31] p-3 rounded">${
+                                  this.querySelector("p").textContent
+                                }</p>
+                                <p class="mt-4 mb-2"><strong>执行时间:</strong></p>
+                                <p>${date} 14:30:25</p>
+                                <p class="mt-4 mb-2"><strong>执行结果:</strong></p>
+                                <p class="text-green-400">成功返回 2 行数据</p>
+                            </div>
+                        `
+          );
+        });
+      });
+
+      // 复选框事件
+      document.querySelectorAll(".record-checkbox").forEach((checkbox) => {
+        checkbox.addEventListener("change", function () {
+          if (
+            document.querySelectorAll(".record-checkbox:checked").length > 0
+          ) {
+            blocks.bottomPopupConfirm("确定要删除所选记录吗？")
+          }
+        });
+      });
+    }, 100);
+  }
+);
+
+
+
 //-----------------------------------------------数据库在第四部分--------------------------------------------
 
 
 (document.getElementById("database-btn") as HTMLElement).addEventListener(
   "click",
   () => {
+    rightSidebar.classList.remove("hidden")
     rightSidebar.innerHTML = sidebarContent.database;
     currentSection = "database";
     defaultWorkspace.style.display = "none";
@@ -100,17 +157,14 @@ mainWorkspace.addEventListener('keydown', async(e) => {
       e.preventDefault(); 
       const ast = sqliteParser(textarea.value); 
       // console.log("测试sqlite-parser",JSON.stringify(ast, null, 2));
-      const tables = conponents.extract(ast);
+      const tables =gojsER.extract(ast);
       console.log("提取的表结构:", tables);
       // await sql.createSql(payload);
-      requestAnimationFrame(() => {conponents.drawER(tables, 'mount');});
+      requestAnimationFrame(() => {gojsER.drawER(tables, 'mount');});
     }
   }
 });
 
-
-// // 获取元素
-// const bottomModal = document.getElementById("bottom-modal") as HTMLElement;
 
 
 // // 显示默认工作区
@@ -121,17 +175,6 @@ mainWorkspace.addEventListener('keydown', async(e) => {
 //   currentSection = null;
 // }
 
-
-
-
-
-
-
-
-// // 显示底部确认窗口
-// function showBottomModal() {
-//   bottomModal.classList.add("show");
-// }
 
 // // 隐藏底部确认窗口
 // function hideBottomModal() {
@@ -149,54 +192,7 @@ mainWorkspace.addEventListener('keydown', async(e) => {
 
 
 
-// (document.getElementById("records-btn") as HTMLElement).addEventListener(
-//   "click",
-//   () => {
-//     rightSidebar.innerHTML = "";
-//     currentSection = "records";
-//     defaultWorkspace.style.display = "none";
-//     mainWorkspace.innerHTML = workspaceContent.records;
 
-//     // 添加记录事件
-//     setTimeout(() => {
-//       // 记录项点击事件
-//       document.querySelectorAll(".record-item").forEach((item) => {
-//         item.addEventListener("click", function () {
-//           const date = this.getAttribute("data-date");
-//           (
-//             document.getElementById("selected-date") as HTMLElement
-//           ).textContent = date;
-//           showRightSlidebar(
-//             "记录详情",
-//             `
-//                             <div class="text-gray-300">
-//                                 <p class="mb-2"><strong>查询语句:</strong></p>
-//                                 <p class="bg-[#2B2F31] p-3 rounded">${
-//                                   this.querySelector("p").textContent
-//                                 }</p>
-//                                 <p class="mt-4 mb-2"><strong>执行时间:</strong></p>
-//                                 <p>${date} 14:30:25</p>
-//                                 <p class="mt-4 mb-2"><strong>执行结果:</strong></p>
-//                                 <p class="text-green-400">成功返回 2 行数据</p>
-//                             </div>
-//                         `
-//           );
-//         });
-//       });
-
-//       // 复选框事件
-//       document.querySelectorAll(".record-checkbox").forEach((checkbox) => {
-//         checkbox.addEventListener("change", function () {
-//           if (
-//             document.querySelectorAll(".record-checkbox:checked").length > 0
-//           ) {
-//             showBottomModal();
-//           }
-//         });
-//       });
-//     }, 100);
-//   }
-// );
 
 // (document.getElementById("folder-btn") as HTMLElement).addEventListener(
 //   "click",
