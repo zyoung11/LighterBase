@@ -69,41 +69,7 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
     
       if (target.closest('#create-db')) {
           mainWorkspace.innerHTML = workspaceContent.database;
-          requestAnimationFrame(() => {
-          const tables = [
-          {
-            name: 'customer',
-            columns: [
-              { name: 'id',        type: 'INTEGER', pk: true,  notNull: true },
-              { name: 'name',      type: 'TEXT',    pk: false, notNull: true },
-              { name: 'email',     type: 'TEXT',    pk: false, notNull: false },
-              { name: 'created_at',type: 'DATETIME',pk: false, notNull: false }
-            ],
-            pks: ['id'],
-            fks: []
-          },
-          {
-            name: 'orders',
-            columns: [
-              { name: 'id',         type: 'INTEGER', pk: true,  notNull: true },
-              { name: 'customer_id',type: 'INTEGER', pk: false, notNull: true },
-              { name: 'amount',     type: 'REAL',    pk: false, notNull: true },
-              { name: 'status',     type: 'TEXT',    pk: false, notNull: true },
-              { name: 'created_at', type: 'DATETIME',pk: false, notNull: false }
-            ],
-            pks: ['id'],
-            fks: [
-              {
-                columns: ['customer_id'],
-                refTable: 'customer',
-                refColumns: ['id']
-              }
-            ]
-          }
-        ];
-          conponents.drawER(tables, 'mount');
-        });
-        return;
+          return;
       }
     });
     mainWorkspace.addEventListener('click', (e) => {
@@ -122,25 +88,25 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
   }
 );
 
-// mainWorkspace.addEventListener('keydown', async(e) => {
-//   const target = e.target as HTMLElement;
+mainWorkspace.addEventListener('keydown', async(e) => {
+  const target = e.target as HTMLElement;
 
-//   if (target.id === 'sql-input' && target.tagName === 'TEXTAREA') {
-//     const textarea = target as HTMLTextAreaElement;
-//     const payload ={
-//       "SQL": textarea.value,
-//     }
-//     if (e.key === 'Enter' && !e.shiftKey) {
-//       e.preventDefault(); 
-//       const ast = sqliteParser(textarea.value); 
-//       // console.log("测试sqlite-parser",JSON.stringify(ast, null, 2));
-//       const tables = conponents.extract(ast);
-//       console.log("提取的表结构:", tables);
-//       // await sql.createSql(payload);
-//       await conponents.drawER(tables, 'mount'); 
-//     }
-//   }
-// });
+  if (target.id === 'sql-input' && target.tagName === 'TEXTAREA') {
+    const textarea = target as HTMLTextAreaElement;
+    const payload ={
+      "SQL": textarea.value,
+    }
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); 
+      const ast = sqliteParser(textarea.value); 
+      // console.log("测试sqlite-parser",JSON.stringify(ast, null, 2));
+      const tables = conponents.extract(ast);
+      console.log("提取的表结构:", tables);
+      // await sql.createSql(payload);
+      requestAnimationFrame(() => {conponents.drawER(tables, 'mount');});
+    }
+  }
+});
 
 
 // // 获取元素

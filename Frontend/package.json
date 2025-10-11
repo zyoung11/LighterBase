@@ -13,7 +13,7 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@antv/g6": "4.7.17",
+    "gojs": "^3.1.0",
     "jwt-decode": "^4.0.0",
     "sqlite-parser": "^1.0.1"
   }
