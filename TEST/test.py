@@ -95,34 +95,7 @@ def sec_admin_get(token: str) -> None:
             except requests.exceptions.RequestException as e:
                 print("请求出错:", e)
 
-def sec_admin_create(table: str,
-                     create_where: str,
-                     delete_where: str,
-                     update_where: str,
-                     view_where: str,
-                     token: str) -> None:
-    url = f"http://localhost:8080/api/security/articles"
-    payload = {
-        "create_where": create_where,
-        "delete_where": delete_where,
-        "update_where": update_where,
-        "view_where": view_where
-    }
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {token}"
-    }
-    print("--- Creating security policy ---")
-    try:
-        resp = requests.post(url, data=json.dumps(payload), headers=headers)
-        print("Status Code:", resp.status_code)
-        try:
-            print("Response Body:\n",
-                  json.dumps(resp.json(), ensure_ascii=False, indent=2))
-        except ValueError:
-            print("Response Body (not json):\n", resp.text)
-    except requests.exceptions.RequestException as e:
-        print("请求出错:", e)
+
 
 def sec_admin_delete(table: str, token: str) -> None:
     url = f"http://localhost:8080/api/security/articles"
@@ -292,7 +265,7 @@ def update_articles(set_dict: dict, where_clause: str, token: str) -> bool:
     return False
 
 def view_articles(select_fields: List[str],where_clause: str,token: str,page: int = 1,perpage: int = 30,) -> List[Dict[str, Any]]:
-    url = f"{BASE_URL}/api/auto/view/articles"
+    url = "http://localhost:8080/api/auto/view/articles"
     params = {"page": page, "perpage": perpage}
     headers = {
         "Content-Type": "application/json",
@@ -311,7 +284,7 @@ def view_articles(select_fields: List[str],where_clause: str,token: str,page: in
 
         if resp.status_code == 200:
             data = resp.json()
-            items = data.get("items", [])
+            items = data.get("items") or []
             total = data.get("totalItems", 0)
             print(f"totalItems={total}, 本页返回 {len(items)} 条")
             return items
@@ -338,7 +311,7 @@ if __name__ == "__main__":
     # 2. 登录 alice 并获取 token
     alice_token = login_user("alice", alice_password_hash)
 
-    # 登录 zellij (此 token 在后续未被使用, 仅作演示)
+    # 登录 zellij 并获取 token
     zellij_token = login_user("zellij", zellij_password_hash)
 
     # 3. 确保 alice 获取到了 token 再执行需要授权的操作
@@ -371,14 +344,6 @@ if __name__ == "__main__":
         print("\n--- Could not retrieve Alice's token, skipping admin operations ---")
         print("Hint: Check if the backend server is running and if the user 'alice' was created successfully.")
 
-    sec_admin_create(
-            table="articles",
-            create_where="user_id = ${user_id}",   # 示例规则
-            delete_where="user_id = ${user_id}",
-            update_where="user_id = ${user_id}",
-            view_where="status = 'published' OR user_id = ${user_id}",
-            token=alice_token
-        )
 
     if alice_token:
                sec_admin_delete("articles", alice_token)
@@ -428,3 +393,77 @@ if __name__ == "__main__":
     print("查询结果:", rows)
 
     
+    # =====  zellij 全流程测试  =====
+    print("\n" + "="*60)
+    print(">>> 现在开始用「普通用户 zellij」重走所有流程 <<<")
+    print("="*60)
+    
+    tokenz = login_user("zellij", zellij_password_hash)
+    if not tokenz:
+        print("❌ 无法拿到 zellij 的 token，后续测试全部跳过！")
+        exit(1)
+    
+    print("\n---[ 期望 403/401 ]---  zellij 调用 /api/create-table/create")
+    sql_admin_create(
+        "CREATE TABLE IF NOT EXISTS t_zellij(id INTEGER PRIMARY KEY);",
+        token=tokenz
+    )
+    
+    print("\n---[ 期望 403/401 ]---  zellij 调用 /api/security/articles")
+    sec_admin_get(tokenz)
+    sec_admin_delete("articles", tokenz)
+    sec_admin_update(
+        table="articles",
+        create_where="1=0",
+        delete_where="1=0",
+        update_where="1=0",
+        view_where="1=0",
+        token=tokenz
+    )
+    
+    article_z = {
+        "user_id": 2,
+        "title": "Zellij 的日记",
+        "slug": "zellij-diary",
+        "summary": "普通用户也能写",
+        "content": "今天天气真好，适合写代码。",
+        "status": "published",
+        "tags": "life"
+    }
+    z_id = create_article(article_z, tokenz)
+    print("zellij 创建的文章 id:", z_id)
+    
+    rows_z = view_articles(
+        select_fields=["id", "title", "status", "user_id"],
+        where_clause="",
+        token=tokenz,
+        page=1,
+        perpage=5
+    )
+    print("zellij 查到的文章总数:", len(rows_z))
+    
+    if z_id:
+        ok = update_articles(
+            {"title": "Zellij 的日记（修订版）"},
+            f"id = '{z_id}' AND user_id = 2",
+            tokenz
+        )
+        print("zellij 更新自己的文章:", "✔️ 成功" if ok else "❌ 失败")
+    
+    if z_id:
+        ok = delete_articles(f"id = '{z_id}' AND user_id = 2", tokenz)
+        print("zellij 删除自己的文章:", "✔️ 成功" if ok else "❌ 失败")
+    
+    print("\n---[ 期望 403/401 或 0 行受影响 ]---  zellij 越权改 alice 的文章")
+    ok = update_articles(
+        {"title": "篡夺标题"},
+        "slug = 'my-first-post' AND user_id = 1",
+        tokenz
+    )
+    print("zellij 越权更新 alice 的文章:", "❌ 成功（异常！）" if ok else "✔️ 被拦截")
+    
+    new_tokenz = refresh_token(tokenz)
+    if new_tokenz:
+        tokenz = new_tokenz
+    
+    print("\n>>> zellij 全流程测试结束，请对比 alice 的日志观察权限差异 <<<")
