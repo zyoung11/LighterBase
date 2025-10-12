@@ -1250,6 +1250,15 @@ func getLatestSqlRecord(c *fiber.Ctx) error {
 	return c.JSON(record)
 }
 
+type SecurityResponse struct {
+	ID          int64   `json:"id"`
+	TableName   string  `json:"table_name"`
+	CreateWhere *string `json:"create_where"`
+	DeleteWhere *string `json:"delete_where"`
+	UpdateWhere *string `json:"update_where"`
+	ViewWhere   *string `json:"view_where"`
+}
+
 func getAllSecurity(c *fiber.Ctx) error {
 	userID, err := authenticateUser(c)
 	if err != nil || userID != 1 {
@@ -1260,7 +1269,41 @@ func getAllSecurity(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
-	return c.JSON(securities)
+
+	// 转换为自定义响应格式
+	response := make([]SecurityResponse, len(securities))
+	for i, sec := range securities {
+		response[i] = SecurityResponse{
+			ID:        sec.ID,
+			TableName: sec.TableName,
+			CreateWhere: func() *string {
+				if sec.CreateWhere.Valid {
+					return &sec.CreateWhere.String
+				}
+				return nil
+			}(),
+			DeleteWhere: func() *string {
+				if sec.DeleteWhere.Valid {
+					return &sec.DeleteWhere.String
+				}
+				return nil
+			}(),
+			UpdateWhere: func() *string {
+				if sec.UpdateWhere.Valid {
+					return &sec.UpdateWhere.String
+				}
+				return nil
+			}(),
+			ViewWhere: func() *string {
+				if sec.ViewWhere.Valid {
+					return &sec.ViewWhere.String
+				}
+				return nil
+			}(),
+		}
+	}
+
+	return c.JSON(response)
 }
 
 // 为表创建安全策略
