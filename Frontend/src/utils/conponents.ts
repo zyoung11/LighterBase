@@ -37,11 +37,11 @@ async showPermissions() {
           <td class="px-4 py-2 border border-gray-300 hover:bg-[#3a3f41] transition-all duration-200 transform hover:scale-105 cursor-pointer" 
               data-table="${permission}" data-field="create_where">${record?.CreateWhere.String || ''}</td>
           <td class="px-4 py-2 border border-gray-300 hover:bg-[#3a3f41] transition-all duration-200 transform hover:scale-105 cursor-pointer" 
-              data-table="${permission}" data-field="delete_where">${record?.delete_where || ''}</td>
+              data-table="${permission}" data-field="delete_where">${record?.DeleteWhere.String || ''}</td>
           <td class="px-4 py-2 border border-gray-300 hover:bg-[#3a3f41] transition-all duration-200 transform hover:scale-105 cursor-pointer" 
-              data-table="${permission}" data-field="update_where">${record?.update_where || ''}</td>
+              data-table="${permission}" data-field="update_where">${record?.UpdateWhere.String || ''}</td>
           <td class="px-4 py-2 border border-gray-300 hover:bg-[#3a3f41] transition-all duration-200 transform hover:scale-105 cursor-pointer" 
-              data-table="${permission}" data-field="view_where">${record?.view_where || ''}</td>
+              data-table="${permission}" data-field="view_where">${record?.ViewWhere.String || ''}</td>
         </tr>
       `;
     }).join('');

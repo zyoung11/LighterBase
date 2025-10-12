@@ -154,15 +154,12 @@ mainWorkspace.addEventListener('keydown', async(e) => {
 });
 
 
-// 替换原有的 input 监听器为以下代码
 mainWorkspace.addEventListener('keydown', async(e) => {
   const target = e.target as HTMLElement;
   
-  // 监听 permission-editor 的回车事件
   if (target.id === 'permission-editor' && target.tagName === 'TEXTAREA') {
     const textarea = target as HTMLTextAreaElement;
-    
-    // 检查是否按下了回车键（不包括 Shift+Enter）
+
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       
@@ -170,22 +167,17 @@ mainWorkspace.addEventListener('keydown', async(e) => {
       const field = textarea.dataset.field;
       const value = textarea.value;
       
-      // 确保必要的数据都存在
       if (table && field && table !== '' && field !== '') {
         try {
-          // 发送请求更新权限
-          await admin.updateAuth(table, {field: value});
-          console.log(`更新表${table}的${field}字段为:`, value);
-          
-          // 可选：显示成功消息或更新UI
-          // 例如，更新对应表格单元格的内容
-          const cell = document.querySelector(`td[data-table="${table}"][data-field="${field}"]`);
-          if (cell) {
-            cell.textContent = value;
+          const payload = {
+            field: value,
           }
+          await admin.updateAuth(table,payload);
+          console.log(`更新表${table}的${field}字段为:`, value);
+
         } catch (error) {
           console.error(`更新表${table}的${field}字段时出错:`, error);
-          // 可选：显示错误消息
+          blocks.popupConfirm(`更新表${table}的${field}字段时出错${value}: ${error}`);
         }
       } else {
         console.warn('缺少必要的数据属性，无法更新权限');

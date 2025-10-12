@@ -43,7 +43,7 @@ bottomPopupConfirm(text: string): Promise<boolean> {
 
     // 创建底部弹窗
     const modal = document.createElement('div');
-    modal.className = 'fixed bottom-2 left-0 right-0  bg-[#181A1B] p-6 shadow-lg transform translate-y-full transition-transform duration-300 w-[30%] h-[8%] mx-auto rounded-xl';
+    modal.className = 'fixed bottom-4 left-0 right-0  bg-[#181A1B] p-6 shadow-lg transform translate-y-full transition-transform duration-300 w-[30%] h-[8%] mx-auto rounded-xl';
     
     modal.innerHTML = `
       <div class="flex justify-between items-center">
