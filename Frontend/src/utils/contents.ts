@@ -20,7 +20,18 @@ const sidebarContent = {
                     </button>
                 </div>
             `,
-  records: ``,
+//   records:             `
+//                             <div class="text-gray-300">
+//                                 <p class="mb-2"><strong>查询语句:</strong></p>
+//                                 <p class="bg-[#2B2F31] p-3 rounded">${
+//                                   this.querySelector("p").textContent
+//                                 }</p>
+//                                 <p class="mt-4 mb-2"><strong>执行时间:</strong></p>
+//                                 <p>${date} 14:30:25</p>
+//                                 <p class="mt-4 mb-2"><strong>执行结果:</strong></p>
+//                                 <p class="text-green-400">成功返回 2 行数据</p>
+//                             </div>
+//                         `,
   folder: `
                 <h3 class="text-lg font-semibold mb-4">文件管理</h3>
                 <div class="space-y-3">
@@ -87,7 +98,7 @@ const workspaceContent = {
                             <th class="px-4 py-3 text-left">View</th>
                         </tr>
                     </thead>
-                    <tbody id="permissions-table-body">
+                    <tbody id="permissions-table-body" >
                     </tbody>
                 </table>
             </div>
@@ -96,7 +107,7 @@ const workspaceContent = {
             border-t">
                 <textarea 
                             id="permission-editor"
-                            class="w-[70%] h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg p-4 text-gray-200 placeholder-gray-500 resize-none focus:outline-none focus:border-[#4a4f52]"
+                            class="w-[70%] h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg p-4 text-gray-200  placeholder-gray-500 placeholder:text-center resize-none focus:outline-none focus:border-[#4a4f52]"
                             placeholder="请先选择一个单元格..."
                 ></textarea>
             </div>

@@ -5,6 +5,7 @@ import gojsER from "./utils/gojsER";
 import sqliteParser from "sqlite-parser";
 import {authToken} from "./apis/api"; 
 import blocks from "./modules/blocks";
+import admin from "./apis/admin";
 console.log('authToken:', authToken);
 
 
@@ -69,21 +70,7 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
           (
             document.getElementById("selected-date") as HTMLElement
           ).textContent = date;
-          conponents.showRightSlidebar(
-            "记录详情",
-            `
-                            <div class="text-gray-300">
-                                <p class="mb-2"><strong>查询语句:</strong></p>
-                                <p class="bg-[#2B2F31] p-3 rounded">${
-                                  this.querySelector("p").textContent
-                                }</p>
-                                <p class="mt-4 mb-2"><strong>执行时间:</strong></p>
-                                <p>${date} 14:30:25</p>
-                                <p class="mt-4 mb-2"><strong>执行结果:</strong></p>
-                                <p class="text-green-400">成功返回 2 行数据</p>
-                            </div>
-                        `
-          );
+          conponents.showRightSlidebar("记录详情",sidebarContent.records);
         });
       });
 
@@ -115,12 +102,13 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
     defaultWorkspace.style.display = "none";
     mainWorkspace.innerHTML = workspaceContent.database;
 
-    rightSidebar.addEventListener('click', (e) => {
+    rightSidebar.addEventListener('click', async(e) => {
         const target = e.target as HTMLElement;
 
       if (target.closest('#permissions')) {
           currentSection = "permissions";
           mainWorkspace.innerHTML = workspaceContent.permissions;
+          await conponents.showPermissions();
           return;
       }
     
@@ -165,6 +153,46 @@ mainWorkspace.addEventListener('keydown', async(e) => {
   }
 });
 
+
+// 替换原有的 input 监听器为以下代码
+mainWorkspace.addEventListener('keydown', async(e) => {
+  const target = e.target as HTMLElement;
+  
+  // 监听 permission-editor 的回车事件
+  if (target.id === 'permission-editor' && target.tagName === 'TEXTAREA') {
+    const textarea = target as HTMLTextAreaElement;
+    
+    // 检查是否按下了回车键（不包括 Shift+Enter）
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      
+      const table = textarea.dataset.table;
+      const field = textarea.dataset.field;
+      const value = textarea.value;
+      
+      // 确保必要的数据都存在
+      if (table && field && table !== '' && field !== '') {
+        try {
+          // 发送请求更新权限
+          await admin.updateAuth(table, {field: value});
+          console.log(`更新表${table}的${field}字段为:`, value);
+          
+          // 可选：显示成功消息或更新UI
+          // 例如，更新对应表格单元格的内容
+          const cell = document.querySelector(`td[data-table="${table}"][data-field="${field}"]`);
+          if (cell) {
+            cell.textContent = value;
+          }
+        } catch (error) {
+          console.error(`更新表${table}的${field}字段时出错:`, error);
+          // 可选：显示错误消息
+        }
+      } else {
+        console.warn('缺少必要的数据属性，无法更新权限');
+      }
+    }
+  }
+});
 
 
 // // 显示默认工作区

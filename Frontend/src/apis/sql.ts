@@ -39,6 +39,22 @@ const sql = {
             throw error;
         }
     },
+
+    async getTableAll(){
+        try {
+            const response = await fetch(`${URL}/api/query/tables`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${authToken}`
+                }
+            });
+            const data:{tables:string[]} = await response.json();
+            return await data.tables;
+        } catch (error) {
+            console.error("获取所以表名失败" ,error);
+            throw error;
+        }
+    },
 }
 
 export default sql;
