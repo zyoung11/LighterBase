@@ -214,6 +214,18 @@ func initDataDatabase() error {
 			return fmt.Errorf("could not create users table: %w", err)
 		}
 		log.Println("Users table created in data database.")
+
+		// 为users表添加空的权限记录
+		if err := queries.CreateSecurity(context.Background(), database.CreateSecurityParams{
+			TableName:   "users",
+			CreateWhere: sql.NullString{Valid: false},
+			DeleteWhere: sql.NullString{Valid: false},
+			UpdateWhere: sql.NullString{Valid: false},
+			ViewWhere:   sql.NullString{Valid: false},
+		}); err != nil {
+			return fmt.Errorf("could not create default security policy for users table: %w", err)
+		}
+		log.Println("Default security policy created for users table.")
 	}
 
 	dataDB = db
