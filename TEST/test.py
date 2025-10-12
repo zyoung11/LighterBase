@@ -297,7 +297,7 @@ if __name__ == "__main__":
     # 3. 确保 alice 获取到了 token 再执行需要授权的操作
     if alice_token:
         print("\n--- Using Alice's token for admin operations ---")
-        
+
         # 使用 alice 的 token 来执行 SQL
         sql_admin_create('''CREATE TABLE IF NOT EXISTS articles (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -326,7 +326,7 @@ if __name__ == "__main__":
 
     sec_admin_update(
             table="articles",
-            create_where="1=1",               # 示例新规则
+            create_where="",               # 示例新规则
             delete_where="user_id = @uid",
             update_where="user_id = @uid",
             view_where="status = 'published'",
@@ -349,9 +349,6 @@ if __name__ == "__main__":
     new_id = create_article(article_data, alice_token)
     print("新文章 id:", new_id)
 
-    ok = delete_articles("slug = 'my-first-post'", alice_token)
-    print("删除成功" if ok else "删除失败")
-
     ok = update_articles(
             {"title": "Updated Title", "read_count": 99},
             "slug = 'my-first-post'",
@@ -368,6 +365,8 @@ if __name__ == "__main__":
     )
     print("查询结果:", rows)
 
+    ok = delete_articles("slug = 'my-first-post'", alice_token)
+    print("删除成功" if ok else "删除失败")
     
     # =====  zellij 全流程测试  =====
     print("\n" + "="*60)

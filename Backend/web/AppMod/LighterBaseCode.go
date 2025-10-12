@@ -419,7 +419,7 @@ func checkPermission(operation, tableName string, userID int64) (bool, error) {
 	switch operation {
 	case "create":
 		if !policy.CreateWhere.Valid || policy.CreateWhere.String == "" {
-			return true, nil // 没有策略则允许
+			return true, nil
 		}
 		whereClause = policy.CreateWhere.String
 	case "delete":
@@ -445,13 +445,26 @@ func checkPermission(operation, tableName string, userID int64) (bool, error) {
 	finalWhereClause := strings.ReplaceAll(whereClause, "@uid", fmt.Sprintf("%d", userID))
 
 	// 构建 SELECT EXISTS 查询
-	// 注意：这里的查询目标是用户要操作的表本身
 	checkQuery := fmt.Sprintf("SELECT EXISTS (SELECT 1 FROM \"%s\" WHERE %s) AS permission_granted", tableName, finalWhereClause)
 
 	var permissionGranted bool
 	err = dataDB.QueryRow(checkQuery).Scan(&permissionGranted)
 	if err != nil {
 		return false, fmt.Errorf("failed to execute permission check query: %w", err)
+	}
+
+	// 如果权限检查失败，检查表是否为空
+	if !permissionGranted {
+		var count int64
+		countQuery := fmt.Sprintf("SELECT COUNT(*) FROM \"%s\"", tableName)
+		err = dataDB.QueryRow(countQuery).Scan(&count)
+		if err != nil {
+			return false, fmt.Errorf("failed to check table count: %w", err)
+		}
+
+		if count == 0 {
+			return false, fmt.Errorf("TABLE_EMPTY")
+		}
 	}
 
 	return permissionGranted, nil
@@ -592,6 +605,7 @@ func openBrowser(url string) error {
 }
 
 //------------------------------------------------------------------------------
+
 
 //----------------------------------routing--------------------------------------
 
@@ -807,10 +821,13 @@ func deleteRecord(c *fiber.Ctx) error {
 	// 2. 权限检查
 	canDelete, err := checkPermission("delete", tableName, userID)
 	if err != nil {
+		if err.Error() == "TABLE_EMPTY" {
+			return sendError(c, 400, "Table is empty", nil)
+		}
 		return sendError(c, 500, "An error occurred during permission check.", fiber.Map{"database_error": err.Error()})
 	}
 	if !canDelete {
-		return sendError(c, 403, "You do not have permission to delete records from this table.", nil)
+		return sendError(c, 403, "You do not have permission to update records in this table.", nil)
 	}
 
 	// 3. 解析请求体中的 WHERE
@@ -868,6 +885,9 @@ func updateRecord(c *fiber.Ctx) error {
 	// 2. 权限检查
 	canUpdate, err := checkPermission("update", tableName, userID)
 	if err != nil {
+		if err.Error() == "TABLE_EMPTY" {
+			return sendError(c, 400, "Table is empty", nil)
+		}
 		return sendError(c, 500, "An error occurred during permission check.", fiber.Map{"database_error": err.Error()})
 	}
 	if !canUpdate {
@@ -949,10 +969,13 @@ func viewRecords(c *fiber.Ctx) error {
 	// 2. 权限检查
 	canView, err := checkPermission("view", tableName, userID)
 	if err != nil {
+		if err.Error() == "TABLE_EMPTY" {
+			return sendError(c, 400, "Table is empty", nil)
+		}
 		return sendError(c, 500, "An error occurred during permission check.", fiber.Map{"database_error": err.Error()})
 	}
 	if !canView {
-		return sendError(c, 403, "You do not have permission to view records in this table.", nil)
+		return sendError(c, 403, "You do not have permission to update records in this table.", nil)
 	}
 
 	// 3. 解析分页和查询参数
