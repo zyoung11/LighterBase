@@ -1,6 +1,7 @@
 import requests
 import json
 import hashlib
+from typing import Dict, Any, List, Optional
 
 def create_user(name: str, password_hash: str, email: str) -> None:
     """创建新用户"""
@@ -198,7 +199,7 @@ def refresh_token(old_token: str) -> str:
     return None
 
 
-def create_article(payload: Dict[str, Any], token: str) -> str | None:
+def create_article(payload: Dict[str, Any], token: str) -> Optional[str]:
     """
     向 articles 表插入一条记录
     成功返回新记录 id；失败返回 None
@@ -225,7 +226,102 @@ def create_article(payload: Dict[str, Any], token: str) -> str | None:
         print("请求出错:", e)
     return None
 
+def delete_articles(where_clause: str, token: str) -> bool:
+    url = "http://localhost:8080/api/auto/delete/articles"
+    headers = {
+        "Content-Type":  "application/json",
+        "Authorization": f"Bearer {token}"
+    }
+    payload = {"WHERE": where_clause}
 
+    print(f"--- DELETE /api/auto/delete/articles ---")
+    print(f"WHERE: {where_clause}")
+
+    try:
+        resp = requests.delete(url, data=json.dumps(payload), headers=headers)
+        print("Status Code:", resp.status_code)
+
+        # 204 No Content
+        if resp.status_code == 204:
+            print("Response Body: null")
+            return True
+
+        # 其它状态码统一打印 JSON 错误信息
+        try:
+            body = resp.json()
+            print("Response Body:\n", json.dumps(body, ensure_ascii=False, indent=2))
+        except ValueError:
+            print("Response Body (not json):\n", resp.text)
+
+    except requests.exceptions.RequestException as e:
+        print("请求出错:", e)
+
+    return False
+
+def update_articles(set_dict: dict, where_clause: str, token: str) -> bool:
+    url = "http://localhost:8080/api/auto/update/articles"
+    headers = {
+        "Content-Type":  "application/json",
+        "Authorization": f"Bearer {token}"
+    }
+    payload = {"set": set_dict, "WHERE": where_clause}
+
+    print(f"--- PUT /api/auto/update/articles ---")
+    print(f"SET: {set_dict}")
+    print(f"WHERE: {where_clause}")
+
+    try:
+        resp = requests.put(url, data=json.dumps(payload), headers=headers)
+        print("Status Code:", resp.status_code)
+
+        # 204 No Content
+        if resp.status_code == 204:
+            print("Response Body: null")
+            return True
+
+        # 其它状态码打印 JSON 错误信息
+        try:
+            body = resp.json()
+            print("Response Body:\n", json.dumps(body, ensure_ascii=False, indent=2))
+        except ValueError:
+            print("Response Body (not json):\n", resp.text)
+
+    except requests.exceptions.RequestException as e:
+        print("请求出错:", e)
+
+    return False
+
+def view_articles(select_fields: List[str],where_clause: str,token: str,page: int = 1,perpage: int = 30,) -> List[Dict[str, Any]]:
+    url = f"{BASE_URL}/api/auto/view/articles"
+    params = {"page": page, "perpage": perpage}
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}",
+    }
+    payload = {"SELECT": select_fields, "WHERE": where_clause}
+
+    print("--- Viewing articles ---")
+    print(f"SELECT: {select_fields}")
+    print(f"WHERE: {where_clause}")
+    print(f"page={page}, perpage={perpage}")
+
+    try:
+        resp = requests.post(url, params=params, data=json.dumps(payload), headers=headers)
+        print("Status Code:", resp.status_code)
+
+        if resp.status_code == 200:
+            data = resp.json()
+            items = data.get("items", [])
+            total = data.get("totalItems", 0)
+            print(f"totalItems={total}, 本页返回 {len(items)} 条")
+            return items
+
+        # 非 200 统一打印错误
+        print_resp(resp)
+    except requests.exceptions.RequestException as e:
+        print("请求出错:", e)
+
+    return []
 
 if __name__ == "__main__":
     # 1. 创建用户
@@ -298,21 +394,37 @@ if __name__ == "__main__":
 
     alice_token = refresh_token(alice_token)    #token更新
 
-
-                        '''增删改查'''
     article_data = {
-            "user_id": 1,                       # 作者 id
-            "title": "My First Post",
-            "slug": "my-first-post",            # 唯一
-            "summary": "简短摘要",
-            "content": "这里是正文内容……",
-            "status": "published",
-            "is_featured": 1,
-            "tags": "life,tech"
-        }
+        "user_id": 1,
+        "title": "My First Post",
+        "slug": "my-first-post",
+        "summary": "简短摘要",
+        "content": "小木冰和牛哥爱打交",
+        "status": "published",
+        "is_featured": 1,
+        "tags": "life,tech"
+    }
+
+    new_id = create_article(article_data, alice_token)
+    print("新文章 id:", new_id)
+
+    ok = delete_articles("slug = 'my-first-post'", alice_token)
+    print("删除成功" if ok else "删除失败")
+
+    ok = update_articles(
+            {"title": "Updated Title", "read_count": 99},
+            "slug = 'my-first-post'",
+            alice_token
+        )
+    print("更新成功" if ok else "更新失败")
+
+    rows = view_articles(
+        select_fields=["id", "title", "slug", "read_count"],
+        where_clause="status = 'published'",
+        token=alice_token,
+        page=1,
+        perpage=10,
+    )
+    print("查询结果:", rows)
+
     
-
-        new_id = create_article(article_data, alice_token)
-        print("新文章 id:", new_id)
-
-        
