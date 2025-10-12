@@ -61,7 +61,7 @@ var routes = []Route{
 
 	// --- _security_ 表管理 API (需要 JWT) ---
 	{Method: "GET", Path: "/api/security", Handler: getAllSecurity},
-	{Method: "POST", Path: "/api/security/:table_name", Handler: createSecurityPolicy},
+	// {Method: "POST", Path: "/api/security/:table_name", Handler: createSecurityPolicy},
 	{Method: "DELETE", Path: "/api/security/:table_name", Handler: deleteSecurityPolicy},
 	{Method: "PUT", Path: "/api/security/:table_name", Handler: updateSecurityPolicy},
 

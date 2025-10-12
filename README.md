@@ -596,15 +596,11 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - URL：/:userld/:projectId/api/security
 
-### 10. 创建权限规则
+### 10. 删除权限规则
 
 - URL：/:userld/:projectId/api/security/{table}
 
-### 11. 删除权限规则
-
-- URL：/:userld/:projectId/api/security/{table}
-
-### 12. 更新权限规则
+### 11. 更新权限规则
 
 - URL：/:userld/:projectId/api/security/{table}
 
@@ -612,7 +608,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ------
 
-###
+
 
 # LighterBase API 文档
 
@@ -1170,13 +1166,22 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 > [!IMPORTANT]
 >
-> 只有**管理员**可以执行以下四个API
+> 1. 只有**管理员**可以执行以下三个API
+>
+> 2. 当有新建的表时，后端会**自动新建**这个表的**空白权限记录**
+>
+> 3. 底层执行：
+>
+>    ```sqlite
+>    SELECT EXISTS(SELECT 1 FROM "<table>" WHERE <权限设置>)
+>    ```
+>
+>    - 返回1：放行
+>    - 返回0：`403 Forbidden`
+>
+> 4. `@uid`是唯一一个变量，功能是从JWT里提取当前用户的id
 
 ### 1. 获取所有权限记录
-
-> [!NOTE]
->
-> 当有新建的表时，后端会**自动新建**这个表的**空白权限记录**
 
 - http方法：GET
 
@@ -1232,44 +1237,8 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-### 2. 创建权限规则
 
-- http方法：POST
-
-- URL：http://localhost:8080/api/security/{table}
-
-- 请求头：
-
-  ```
-  Content-Type: application/json
-  Authorization: Bearer <jwt_token>
-  ```
-
-- 请求体：
-
-  ```json
-  {
-      "create_where": "value1",
-      "delete_where": "value2",
-      "update_where": "value3",
-      "view_where": "value4"
-  }
-  ```
-
-- 预期返回：
-
-  http状态码：201
-
-  返回体：
-
-  ```json
-  {
-    "message": "Security policy created successfully."
-  }
-  ```
-
-
-### 3. 删除权限规则
+### 2. 删除权限规则
 
 - http方法：DELETE
 
@@ -1291,8 +1260,7 @@ cd LighterBase/Backend/web/LighterBaseHub
   null
   ```
 
-
-### 4. 更新权限规则
+### 3. 更新权限规则
 
 - http方法：PUT
 
