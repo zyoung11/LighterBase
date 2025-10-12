@@ -592,15 +592,11 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - URL：/:userld/:projectId/api/auth/refresh
 
-### 9. 获取所有权限记录
+### 9. 获取所有权限状态
 
 - URL：/:userld/:projectId/api/security
 
-### 10. 删除权限规则
-
-- URL：/:userld/:projectId/api/security/{table}
-
-### 11. 更新权限规则
+### 10. 更新权限规则
 
 - URL：/:userld/:projectId/api/security/{table}
 
@@ -1181,7 +1177,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 >
 > 4. `@uid`是唯一一个变量，功能是从JWT里提取当前用户的id
 
-### 1. 获取所有权限记录
+### 1. 获取所有权限状态
 
 - http方法：GET
 
@@ -1237,30 +1233,7 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-
-### 2. 删除权限规则
-
-- http方法：DELETE
-
-- URL：http://localhost:8080/api/security/{table}
-
-- 请求头：
-
-  ```
-  Authorization: Bearer <jwt_token>
-  ```
-
-- 预期返回：
-
-  http状态码：204
-
-  返回体：
-
-  ```json
-  null
-  ```
-
-### 3. 更新权限规则
+### 2. 更新权限规则
 
 - http方法：PUT
 
