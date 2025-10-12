@@ -1,6 +1,7 @@
 import requests
 import json
 import hashlib
+import textwrap
 from typing import Dict, Any, List, Optional
 
 def create_user(name: str, password_hash: str, email: str) -> None:
@@ -95,33 +96,8 @@ def sec_admin_get(token: str) -> None:
             except requests.exceptions.RequestException as e:
                 print("请求出错:", e)
 
-
-
-def sec_admin_delete(table: str, token: str) -> None:
-    url = f"http://localhost:8080/api/security/articles"
-    headers = {"Authorization": f"Bearer {token}"}
-    print(f"--- Deleting security policy for table: articles ---")
-    try:
-        resp = requests.delete(url, headers=headers)
-        print("Status Code:", resp.status_code)
-        if resp.status_code == 204:
-            print("Response Body: null")
-        else:
-            try:
-                print("Response Body:\n",
-                      json.dumps(resp.json(), ensure_ascii=False, indent=2))
-            except ValueError:
-                print("Response Body (not json):\n", resp.text)
-    except requests.exceptions.RequestException as e:
-        print("请求出错:", e)
-
-def sec_admin_update(table: str,
-                     create_where: str,
-                     delete_where: str,
-                     update_where: str,
-                     view_where: str,
-                     token: str) -> None:
-    url = f"http://localhost:8080/api/security/articles"
+def sec_admin_update(table: str,create_where: str,delete_where: str,update_where: str,view_where: str,token: str) -> None:
+    url = f"http://localhost:8080/api/security/{table}"
     payload = {
         "create_where": create_where,
         "delete_where": delete_where,
@@ -132,9 +108,9 @@ def sec_admin_update(table: str,
         "Content-Type": "application/json",
         "Authorization": f"Bearer {token}"
     }
-    print(f"--- Updating security policy for table: articles ---")
+    print(f"--- Updating security policy for table: {table} ---")
     try:
-        resp = requests.put(url, data=json.dumps(payload), headers=headers)
+        resp = requests.put(url, json=payload, headers=headers)
         print("Status Code:", resp.status_code)
         if resp.status_code == 204:
             print("Response Body: null")
@@ -290,7 +266,11 @@ def view_articles(select_fields: List[str],where_clause: str,token: str,page: in
             return items
 
         # 非 200 统一打印错误
-        print_resp(resp)
+        try:
+            body = resp.json()
+            print("Response Body:\n", json.dumps(body, ensure_ascii=False, indent=2))
+        except ValueError:
+            print("Response Body (not json):\n", resp.text)
     except requests.exceptions.RequestException as e:
         print("请求出错:", e)
 
@@ -344,15 +324,11 @@ if __name__ == "__main__":
         print("\n--- Could not retrieve Alice's token, skipping admin operations ---")
         print("Hint: Check if the backend server is running and if the user 'alice' was created successfully.")
 
-
-    if alice_token:
-               sec_admin_delete("articles", alice_token)
-
     sec_admin_update(
             table="articles",
             create_where="1=1",               # 示例新规则
-            delete_where="user_id = ${user_id}",
-            update_where="user_id = ${user_id}",
+            delete_where="user_id = @uid",
+            update_where="user_id = @uid",
             view_where="status = 'published'",
             token=alice_token
         )
@@ -411,7 +387,6 @@ if __name__ == "__main__":
     
     print("\n---[ 期望 403/401 ]---  zellij 调用 /api/security/articles")
     sec_admin_get(tokenz)
-    sec_admin_delete("articles", tokenz)
     sec_admin_update(
         table="articles",
         create_where="1=0",
