@@ -16,7 +16,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
-	"strconv"
+	// "strconv"
 	"strings"
 	"time"
 
@@ -404,7 +404,27 @@ func authenticateUser(c *fiber.Ctx) (int64, error) {
 	return userID, nil
 }
 
-func checkPermission(operation, tableName string, userID int64) (bool, error) {
+// authenticateUserForAPI 用于通用API的认证，返回用户ID和是否为访客
+func authenticateUserForAPI(c *fiber.Ctx) (int64, bool, error) {
+	authHeader := c.Get("Authorization")
+	if authHeader == "" {
+		return 0, true, nil
+	}
+
+	if len(authHeader) <= 7 || authHeader[:7] != "Bearer " {
+		return 0, false, fmt.Errorf("invalid authorization header format")
+	}
+
+	tokenString := authHeader[7:]
+	userID, err := ParseJWT(tokenString)
+	if err != nil {
+		return 0, false, fmt.Errorf("invalid or expired token")
+	}
+
+	return userID, false, nil
+}
+
+func checkPermission(operation, tableName string, userID int64, isGuest bool) (bool, error) {
 	policy, err := getSecurityByTable(tableName)
 	if err != nil {
 		return false, fmt.Errorf("failed to retrieve security policy: %w", err)
@@ -441,6 +461,21 @@ func checkPermission(operation, tableName string, userID int64) (bool, error) {
 		return false, fmt.Errorf("unknown operation: %s", operation)
 	}
 
+	// 检查是否是简单的 "@uid" 权限
+	if strings.TrimSpace(whereClause) == "@uid" {
+		// 如果是 "@uid" 且是访客，则拒绝
+		if isGuest {
+			return false, fmt.Errorf("AUTH_REQUIRED")
+		}
+		// 否则允许（已登录用户）
+		return true, nil
+	}
+
+	// 对于复杂权限，必须是已登录用户
+	if isGuest {
+		return false, fmt.Errorf("AUTH_REQUIRED")
+	}
+
 	// 将 @uid 替换为实际的 userID
 	finalWhereClause := strings.ReplaceAll(whereClause, "@uid", fmt.Sprintf("%d", userID))
 
@@ -471,7 +506,7 @@ func checkPermission(operation, tableName string, userID int64) (bool, error) {
 }
 
 // 增加创建时间和更新时间
-func autoFillTimeFields(table string, body map[string]any) {
+func autoFillTimeFields(body map[string]any) {
 	now := time.Now().Format(time.RFC3339)
 	body["create_at"] = now
 	body["update_at"] = now
@@ -758,18 +793,35 @@ func createRecord(c *fiber.Ctx) error {
 	tableName := c.Params("table")
 
 	var userID int64
+	var isGuest bool
 	var err error
-	if tableName != "users" {
+
+	// users表特殊处理，总是需要登录
+	if tableName == "users" {
 		userID, err = authenticateUser(c)
 		if err != nil {
-			return sendError(c, 403, "You are not allowed to perform this request.", nil)
+			return sendError(c, 401, "Authentication required.", nil)
+		}
+		isGuest = false
+	} else {
+		// 其他表：认证（支持访客）
+		userID, isGuest, err = authenticateUserForAPI(c)
+		if err != nil {
+			return sendError(c, 401, err.Error(), nil)
 		}
 	}
 
-	// 2. 权限检查
-	canCreate, err := checkPermission("create", tableName, userID)
+	// 权限检查
+	canCreate, err := checkPermission("create", tableName, userID, isGuest)
 	if err != nil {
-		return sendError(c, 500, "An error occurred during permission check.", fiber.Map{"database_error": err.Error()})
+		switch err.Error() {
+		case "TABLE_EMPTY":
+			return sendError(c, 400, "Table is empty", nil)
+		case "AUTH_REQUIRED":
+			return sendError(c, 401, "Authentication required.", nil)
+		default:
+			return sendError(c, 500, "An error occurred during permission check.", fiber.Map{"database_error": err.Error()})
+		}
 	}
 	if !canCreate {
 		return sendError(c, 403, "You do not have permission to create records in this table.", nil)
@@ -794,7 +846,7 @@ func createRecord(c *fiber.Ctx) error {
 			body["password_hash"] = string(hashedPassword)
 		}
 
-		autoFillTimeFields(tableName, body)
+		autoFillTimeFields(body)
 	}
 
 	// 5. 执行插入
@@ -826,22 +878,26 @@ func deleteRecord(c *fiber.Ctx) error {
 		return sendError(c, 400, "Table name is required.", nil)
 	}
 
-	// 1. 认证并获取 userID
-	userID, err := authenticateUser(c)
+	// 1. 认证（支持访客）
+	userID, isGuest, err := authenticateUserForAPI(c)
 	if err != nil {
-		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+		return sendError(c, 401, err.Error(), nil)
 	}
 
 	// 2. 权限检查
-	canDelete, err := checkPermission("delete", tableName, userID)
+	canDelete, err := checkPermission("delete", tableName, userID, isGuest)
 	if err != nil {
-		if err.Error() == "TABLE_EMPTY" {
+		switch err.Error() {
+		case "TABLE_EMPTY":
 			return sendError(c, 400, "Table is empty", nil)
+		case "AUTH_REQUIRED":
+			return sendError(c, 401, "Authentication required.", nil)
+		default:
+			return sendError(c, 500, "An error occurred during permission check.", fiber.Map{"database_error": err.Error()})
 		}
-		return sendError(c, 500, "An error occurred during permission check.", fiber.Map{"database_error": err.Error()})
 	}
 	if !canDelete {
-		return sendError(c, 403, "You do not have permission to update records in this table.", nil)
+		return sendError(c, 403, "You do not have permission to delete records in this table.", nil)
 	}
 
 	// 3. 解析请求体中的 WHERE
@@ -890,22 +946,26 @@ func updateRecord(c *fiber.Ctx) error {
 		return sendError(c, 400, "Table name is required.", nil)
 	}
 
-	// 1. 认证并获取 userID
-	userID, err := authenticateUser(c)
+	// 1. 认证（支持访客）
+	userID, isGuest, err := authenticateUserForAPI(c)
 	if err != nil {
-		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+		return sendError(c, 401, err.Error(), nil)
 	}
 
 	// 2. 权限检查
-	canUpdate, err := checkPermission("update", tableName, userID)
+	canDelete, err := checkPermission("delete", tableName, userID, isGuest)
 	if err != nil {
-		if err.Error() == "TABLE_EMPTY" {
+		switch err.Error() {
+		case "TABLE_EMPTY":
 			return sendError(c, 400, "Table is empty", nil)
+		case "AUTH_REQUIRED":
+			return sendError(c, 401, "Authentication required.", nil)
+		default:
+			return sendError(c, 500, "An error occurred during permission check.", fiber.Map{"database_error": err.Error()})
 		}
-		return sendError(c, 500, "An error occurred during permission check.", fiber.Map{"database_error": err.Error()})
 	}
-	if !canUpdate {
-		return sendError(c, 403, "You do not have permission to update records in this table.", nil)
+	if !canDelete {
+		return sendError(c, 403, "You do not have permission to delete records in this table.", nil)
 	}
 
 	// 3. 解析请求体
@@ -974,22 +1034,26 @@ func viewRecords(c *fiber.Ctx) error {
 		return sendError(c, 400, "Table name is required.", nil)
 	}
 
-	// 1. 认证并获取 userID
-	userID, err := authenticateUser(c)
+	// 1. 认证（支持访客）
+	userID, isGuest, err := authenticateUserForAPI(c)
 	if err != nil {
-		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+		return sendError(c, 401, err.Error(), nil)
 	}
 
 	// 2. 权限检查
-	canView, err := checkPermission("view", tableName, userID)
+	canDelete, err := checkPermission("delete", tableName, userID, isGuest)
 	if err != nil {
-		if err.Error() == "TABLE_EMPTY" {
+		switch err.Error() {
+		case "TABLE_EMPTY":
 			return sendError(c, 400, "Table is empty", nil)
+		case "AUTH_REQUIRED":
+			return sendError(c, 401, "Authentication required.", nil)
+		default:
+			return sendError(c, 500, "An error occurred during permission check.", fiber.Map{"database_error": err.Error()})
 		}
-		return sendError(c, 500, "An error occurred during permission check.", fiber.Map{"database_error": err.Error()})
 	}
-	if !canView {
-		return sendError(c, 403, "You do not have permission to update records in this table.", nil)
+	if !canDelete {
+		return sendError(c, 403, "You do not have permission to delete records in this table.", nil)
 	}
 
 	// 3. 解析分页和查询参数
@@ -1181,92 +1245,92 @@ func refreshToken(c *fiber.Ctx) error {
 }
 
 // createSqlRecord 向 _sqls_ 表写入一条新记录
-func createSqlRecord(c *fiber.Ctx) error {
-	// 认证
-	if _, err := authenticateUser(c); err != nil {
-		return sendError(c, 403, "You are not allowed to perform this request.", nil)
-	}
+// func createSqlRecord(c *fiber.Ctx) error {
+// 	// 认证
+// 	if _, err := authenticateUser(c); err != nil {
+// 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+// 	}
 
-	type Body struct {
-		SQL string `json:"SQL"`
-	}
-	var body Body
-	if err := c.BodyParser(&body); err != nil {
-		return sendError(c, 400, "Invalid JSON body.", nil)
-	}
-	if body.SQL == "" {
-		return sendError(c, 400, "Failed to create SQL record.", fiber.Map{"SQL": "SQL field is required."})
-	}
+// 	type Body struct {
+// 		SQL string `json:"SQL"`
+// 	}
+// 	var body Body
+// 	if err := c.BodyParser(&body); err != nil {
+// 		return sendError(c, 400, "Invalid JSON body.", nil)
+// 	}
+// 	if body.SQL == "" {
+// 		return sendError(c, 400, "Failed to create SQL record.", fiber.Map{"SQL": "SQL field is required."})
+// 	}
 
-	err := queries.CreateSql(context.Background(), body.SQL)
-	if err != nil {
-		return sendError(c, 500, "Failed to create SQL record.", fiber.Map{"database_error": err.Error()})
-	}
+// 	err := queries.CreateSql(context.Background(), body.SQL)
+// 	if err != nil {
+// 		return sendError(c, 500, "Failed to create SQL record.", fiber.Map{"database_error": err.Error()})
+// 	}
 
-	return c.Status(201).JSON(fiber.Map{"message": "SQL record created successfully.", "SQL": body.SQL})
-}
+// 	return c.Status(201).JSON(fiber.Map{"message": "SQL record created successfully.", "SQL": body.SQL})
+// }
 
 // 根据 ID 删除 _sqls_ 表中的一条记录
-func deleteSqlRecord(c *fiber.Ctx) error {
-	if _, err := authenticateUser(c); err != nil {
-		return sendError(c, 403, "You are not allowed to perform this request.", nil)
-	}
+// func deleteSqlRecord(c *fiber.Ctx) error {
+// 	if _, err := authenticateUser(c); err != nil {
+// 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+// 	}
 
-	idStr := c.Params("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		return sendError(c, 400, "Invalid ID format.", nil)
-	}
+// 	idStr := c.Params("id")
+// 	id, err := strconv.ParseInt(idStr, 10, 64)
+// 	if err != nil {
+// 		return sendError(c, 400, "Invalid ID format.", nil)
+// 	}
 
-	err = queries.DeleteSql(context.Background(), id)
-	if err != nil {
-		// 检查是否是因为记录不存在导致的错误
-		if strings.Contains(err.Error(), "no rows in result set") {
-			return sendError(c, 404, "The requested resource wasn't found.", nil)
-		}
-		return sendError(c, 500, "Failed to delete SQL record.", fiber.Map{"database_error": err.Error()})
-	}
+// 	err = queries.DeleteSql(context.Background(), id)
+// 	if err != nil {
+// 		// 检查是否是因为记录不存在导致的错误
+// 		if strings.Contains(err.Error(), "no rows in result set") {
+// 			return sendError(c, 404, "The requested resource wasn't found.", nil)
+// 		}
+// 		return sendError(c, 500, "Failed to delete SQL record.", fiber.Map{"database_error": err.Error()})
+// 	}
 
-	return c.Status(204).Send(nil)
-}
+// 	return c.Status(204).Send(nil)
+// }
 
 // 根据 ID 更新 _sqls_ 表中的一条记录
-func updateSqlRecord(c *fiber.Ctx) error {
-	if _, err := authenticateUser(c); err != nil {
-		return sendError(c, 403, "You are not allowed to perform this request.", nil)
-	}
+// func updateSqlRecord(c *fiber.Ctx) error {
+// 	if _, err := authenticateUser(c); err != nil {
+// 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+// 	}
 
-	idStr := c.Params("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		return sendError(c, 400, "Invalid ID format.", nil)
-	}
+// 	idStr := c.Params("id")
+// 	id, err := strconv.ParseInt(idStr, 10, 64)
+// 	if err != nil {
+// 		return sendError(c, 400, "Invalid ID format.", nil)
+// 	}
 
-	type Body struct {
-		SQL string `json:"SQL"`
-	}
-	var body Body
-	if err := c.BodyParser(&body); err != nil {
-		return sendError(c, 400, "Invalid JSON body.", nil)
-	}
-	if body.SQL == "" {
-		return sendError(c, 400, "Failed to update SQL record.", fiber.Map{"SQL": "SQL field is required."})
-	}
+// 	type Body struct {
+// 		SQL string `json:"SQL"`
+// 	}
+// 	var body Body
+// 	if err := c.BodyParser(&body); err != nil {
+// 		return sendError(c, 400, "Invalid JSON body.", nil)
+// 	}
+// 	if body.SQL == "" {
+// 		return sendError(c, 400, "Failed to update SQL record.", fiber.Map{"SQL": "SQL field is required."})
+// 	}
 
-	err = queries.UpdateSql(context.Background(), database.UpdateSqlParams{
-		Sql: body.SQL,
-		ID:  id,
-	})
-	if err != nil {
-		// 检查是否是因为记录不存在导致的错误
-		if strings.Contains(err.Error(), "no rows in result set") {
-			return sendError(c, 404, "The requested resource wasn't found.", nil)
-		}
-		return sendError(c, 500, "Failed to update SQL record.", fiber.Map{"database_error": err.Error()})
-	}
+// 	err = queries.UpdateSql(context.Background(), database.UpdateSqlParams{
+// 		Sql: body.SQL,
+// 		ID:  id,
+// 	})
+// 	if err != nil {
+// 		// 检查是否是因为记录不存在导致的错误
+// 		if strings.Contains(err.Error(), "no rows in result set") {
+// 			return sendError(c, 404, "The requested resource wasn't found.", nil)
+// 		}
+// 		return sendError(c, 500, "Failed to update SQL record.", fiber.Map{"database_error": err.Error()})
+// 	}
 
-	return c.JSON(fiber.Map{"message": "SQL record updated successfully.", "id": id, "SQL": body.SQL})
-}
+// 	return c.JSON(fiber.Map{"message": "SQL record updated successfully.", "id": id, "SQL": body.SQL})
+// }
 
 // 获取 _sqls_ 表中最新的一条记录
 func getLatestSqlRecord(c *fiber.Ctx) error {
