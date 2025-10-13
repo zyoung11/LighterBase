@@ -6,6 +6,7 @@ import sqliteParser from "sqlite-parser";
 import {authToken} from "./apis/api"; 
 import blocks from "./modules/blocks";
 import admin from "./apis/admin";
+import sql from "./apis/sql";
 console.log('authToken:', authToken);
 
 
@@ -53,40 +54,40 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
 
 
 
-(document.getElementById("records-btn") as HTMLElement).addEventListener(
-  "click",
-  () => {
-    rightSidebar.classList.add("hidden")
-    currentSection = "records";
-    defaultWorkspace.style.display = "none";
-    mainWorkspace.innerHTML = workspaceContent.records;
+// (document.getElementById("records-btn") as HTMLElement).addEventListener(
+//   "click",
+//   () => {
+//     rightSidebar.classList.add("hidden")
+//     currentSection = "records";
+//     defaultWorkspace.style.display = "none";
+//     mainWorkspace.innerHTML = workspaceContent.records;
 
-    // 添加记录事件
-    setTimeout(() => {
-      // 记录项点击事件
-      document.querySelectorAll(".record-item").forEach((item) => {
-        item.addEventListener("click", function () {
-          const date = this.getAttribute("data-date");
-          (
-            document.getElementById("selected-date") as HTMLElement
-          ).textContent = date;
-          conponents.showRightSlidebar("记录详情",sidebarContent.records);
-        });
-      });
+//     // 添加记录事件
+//     setTimeout(() => {
+//       // 记录项点击事件
+//       document.querySelectorAll(".record-item").forEach((item) => {
+//         item.addEventListener("click", function () {
+//           const date = this.getAttribute("data-date");
+//           (
+//             document.getElementById("selected-date") as HTMLElement
+//           ).textContent = date;
+//           conponents.showRightSlidebar("记录详情",sidebarContent.records);
+//         });
+//       });
 
-      // 复选框事件
-      document.querySelectorAll(".record-checkbox").forEach((checkbox) => {
-        checkbox.addEventListener("change", function () {
-          if (
-            document.querySelectorAll(".record-checkbox:checked").length > 0
-          ) {
-            blocks.bottomPopupConfirm("确定要删除所选记录吗？")
-          }
-        });
-      });
-    }, 100);
-  }
-);
+//       // 复选框事件
+//       document.querySelectorAll(".record-checkbox").forEach((checkbox) => {
+//         checkbox.addEventListener("change", function () {
+//           if (
+//             document.querySelectorAll(".record-checkbox:checked").length > 0
+//           ) {
+//             blocks.bottomPopupConfirm("确定要删除所选记录吗？")
+//           }
+//         });
+//       });
+//     }, 100);
+//   }
+// );
 
 
 
@@ -118,7 +119,7 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
       }
     });
 
-
+    //--------------------------------------------------后期考虑修改这部分，b不应该是要点击数据库的按钮才能使用，只要const选择中的dom元素存在就能修改
     mainWorkspace.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
     
@@ -155,15 +156,32 @@ mainWorkspace.addEventListener('keydown', async(e) => {
   }
 });
 
+// 初始显示默认工作区
+showDefaultWorkspace();
+
+// 显示默认工作区
+function showDefaultWorkspace() {
+  // defaultWorkspace.style.display = "flex";
+  // mainWorkspace.innerHTML = "";
+  // mainWorkspace.appendChild(defaultWorkspace);
+  // currentSection = null;
+
+    rightSidebar.classList.remove("hidden")
+    rightSidebar.innerHTML = sidebarContent.database;
+    currentSection = "database";
+    defaultWorkspace.style.display = "none";
+    mainWorkspace.innerHTML = workspaceContent.database;
+
+    const apibtn = document.getElementById("api-docs-btn") as HTMLElement;
+    if(apibtn){
+      apibtn.addEventListener('click', async() => {
+        conponents.showRightSlidebar("API 文档", slideBarContent.api_md);
+        await conponents.setupTableButtons();
+      });
+    }
+}
 
 
-// // 显示默认工作区
-// function showDefaultWorkspace() {
-//   defaultWorkspace.style.display = "flex";
-//   mainWorkspace.innerHTML = "";
-//   mainWorkspace.appendChild(defaultWorkspace);
-//   currentSection = null;
-// }
 
 
 // // 隐藏底部确认窗口
@@ -208,8 +226,7 @@ mainWorkspace.addEventListener('keydown', async(e) => {
 //   }
 // );
 
-// // 初始显示默认工作区
-// showDefaultWorkspace();
+
 
 // document.addEventListener("DOMContentLoaded", () => {              可以准备删了
 //   const textarea = document.querySelector("textarea");

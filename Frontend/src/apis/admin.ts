@@ -56,6 +56,7 @@ const admin ={
     },
 
     async updateAuth(table:string,payload:any): Promise<any> {
+        console.log("选择的表：",table,"更新权限：",payload);
         try{
             const res = await fetch(`${URL}/api/security/${table}`, {
                 method: "PUT",
@@ -66,7 +67,7 @@ const admin ={
                 body: JSON.stringify(payload)
             });
             if (res.ok) {
-                return res.json();
+                return true;
             }
         }catch(err){
             console.log("更新权限失败：",err);

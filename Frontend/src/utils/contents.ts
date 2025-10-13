@@ -1,6 +1,5 @@
 const sidebarContent = {
   logo: `
-                <h3 class="text-lg font-semibold mb-4">系统信息</h3>
                 <div class="space-y-3">
                     <p class="text-sm text-gray-400">数据库管理系统 v1.0</p>
                     <p class="text-sm text-gray-400">已连接用户: admin</p>
@@ -10,7 +9,6 @@ const sidebarContent = {
                 </div>
             `,
   settings: `
-                <h3 class="text-lg font-semibold mb-4">设置</h3>
                 <div class="space-y-3">
                     <button id="ai-settings" class="w-full px-4 py-3 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-left transition-colors">
                         AI
@@ -33,7 +31,6 @@ const sidebarContent = {
 //                             </div>
 //                         `,
   folder: `
-                <h3 class="text-lg font-semibold mb-4">文件管理</h3>
                 <div class="space-y-3">
                     <button class="w-full px-4 py-3 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-left transition-colors">
                         新建文件夹
@@ -44,7 +41,6 @@ const sidebarContent = {
                 </div>
             `,
   database: `
-                <h3 class="text-lg font-semibold mb-4">数据库操作</h3>
                 <div class="space-y-3">
                     <button id="create-db" class="w-full mb-3 px-4 py-3 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-left transition-colors">
                         Create DB
@@ -101,6 +97,9 @@ const workspaceContent = {
                     <tbody id="permissions-table-body" >
                     </tbody>
                 </table>
+            </div>
+
+            <div id="permissions-input-area" class="w-[60%] mt-4 p-4 bg-[#2B2F31] rounded-lg flex-1 mx-auto">
             </div>
 
         </div>
@@ -214,7 +213,23 @@ const workspaceContent = {
 };
 
 const slideBarContent = {
-  api_md: '<p class="text-gray-400">API 文档内容将在这里显示</p>',
+  api_md: `
+     <div id="table-create" class="flex flex-col h-full w-full overflow-hidden">
+        <div class="table-btn flex w-full h-20 p-3 m-3 ">
+            <button class="py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors" data-id="table-1">table-1</button>
+            <button class="py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors" data-id="table-2">table-2</button>
+            <button class="py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors" data-id="table-3">table-3</button>
+            <button class="py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors" data-id="table-4">table-4</button>
+        </div> 
+
+        <div class="table-md w-[80%] h-[30%] p-3 m-3 bg-[#2B2F31] " >
+
+        </div>
+        
+    </div>    
+
+
+  `,
   ai_generated: `
                     <div class="flex flex-col h-full">
                         <div class="flex-1 overflow-y-auto mb-4">
