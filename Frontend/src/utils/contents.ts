@@ -103,14 +103,6 @@ const workspaceContent = {
                 </table>
             </div>
 
-            <div class="flex flex-col mt-1 pt-4 border-gray-700 justify-center items-center w-full h-1/3 
-            border-t">
-                <textarea 
-                            id="permission-editor"
-                            class="w-[70%] h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg p-4 text-gray-200  placeholder-gray-500 placeholder:text-center resize-none focus:outline-none focus:border-[#4a4f52]"
-                            placeholder="请先选择一个单元格..."
-                ></textarea>
-            </div>
         </div>
     `,
   folder: `

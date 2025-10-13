@@ -117,6 +117,8 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
           return;
       }
     });
+
+
     mainWorkspace.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
     
@@ -153,38 +155,6 @@ mainWorkspace.addEventListener('keydown', async(e) => {
   }
 });
 
-
-mainWorkspace.addEventListener('keydown', async(e) => {
-  const target = e.target as HTMLElement;
-  
-  if (target.id === 'permission-editor' && target.tagName === 'TEXTAREA') {
-    const textarea = target as HTMLTextAreaElement;
-
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      
-      const table = textarea.dataset.table;
-      const field = textarea.dataset.field;
-      const value = textarea.value;
-      
-      if (table && field && table !== '' && field !== '') {
-        try {
-          const payload = {
-            field: value,
-          }
-          await admin.updateAuth(table,payload);
-          console.log(`更新表${table}的${field}字段为:`, value);
-
-        } catch (error) {
-          console.error(`更新表${table}的${field}字段时出错:`, error);
-          blocks.popupConfirm(`更新表${table}的${field}字段时出错${value}: ${error}`);
-        }
-      } else {
-        console.warn('缺少必要的数据属性，无法更新权限');
-      }
-    }
-  }
-});
 
 
 // // 显示默认工作区
