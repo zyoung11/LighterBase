@@ -730,19 +730,22 @@ func execSQL(c *fiber.Ctx) error {
 
 	go func(sqlText string) {
 		re := regexp.MustCompile(`(?mi)CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?"?([a-zA-Z_][a-zA-Z0-9_]*)"?`)
-		matches := re.FindStringSubmatch(sqlText)
-		if len(matches) < 2 {
-			return
-		}
-		tableName := matches[1]
+		allMatches := re.FindAllStringSubmatch(sqlText, -1)
 
-		_ = queries.CreateSecurity(context.Background(), database.CreateSecurityParams{
-			TableName:   tableName,
-			CreateWhere: sql.NullString{Valid: false},
-			DeleteWhere: sql.NullString{Valid: false},
-			UpdateWhere: sql.NullString{Valid: false},
-			ViewWhere:   sql.NullString{Valid: false},
-		})
+		for _, matches := range allMatches {
+			if len(matches) < 2 {
+				continue
+			}
+			tableName := matches[1]
+
+			_ = queries.CreateSecurity(context.Background(), database.CreateSecurityParams{
+				TableName:   tableName,
+				CreateWhere: sql.NullString{Valid: false},
+				DeleteWhere: sql.NullString{Valid: false},
+				UpdateWhere: sql.NullString{Valid: false},
+				ViewWhere:   sql.NullString{Valid: false},
+			})
+		}
 	}(body.SQL)
 
 	return c.Status(201).JSON(fiber.Map{"SQL": body.SQL})
