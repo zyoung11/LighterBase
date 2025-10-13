@@ -796,15 +796,7 @@ func createRecord(c *fiber.Ctx) error {
 	var isGuest bool
 	var err error
 
-	// users表特殊处理，总是需要登录
-	if tableName == "users" {
-		userID, err = authenticateUser(c)
-		if err != nil {
-			return sendError(c, 401, "Authentication required.", nil)
-		}
-		isGuest = false
-	} else {
-		// 其他表：认证（支持访客）
+	if tableName != "users" {
 		userID, isGuest, err = authenticateUserForAPI(c)
 		if err != nil {
 			return sendError(c, 401, err.Error(), nil)
