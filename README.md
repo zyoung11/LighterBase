@@ -1176,6 +1176,12 @@ cd LighterBase/Backend/web/LighterBaseHub
 >    - 返回0：`403 Forbidden`
 >
 > 4. `@uid`是唯一一个变量，功能是从JWT里提取当前用户的id
+>
+> 5. 特殊规定：
+>
+>    - `xxx_where: "@uid"` 表示只容许登录状态的请求
+>    - `xxx_where: ""` 表示容许所有请求
+>
 
 ### 1. 获取所有权限状态
 
