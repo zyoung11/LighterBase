@@ -49,7 +49,8 @@ const sql = {
                 }
             });
             const data:{tables:string[]} = await response.json();
-            return await data.tables;
+            const tables = data.tables;
+            return tables;
         } catch (error) {
             console.error("获取所以表名失败" ,error);
             throw error;

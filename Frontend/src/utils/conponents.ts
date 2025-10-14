@@ -150,113 +150,130 @@ async showPermissions() {
   }
 },
 
-
-// 在 conponents.ts 文件中添加以下方法
-
-async showTableMdContent(tableId: string) {
+async showTableMdContent() {
   const tableMd = document.querySelector('.table-md') as HTMLElement;
   if (!tableMd) return;
+  tableMd.innerHTML = '';
 
-  // 根据不同的 tableId 显示不同的内容
-  switch (tableId) {
-    case 'table-1':
-      tableMd.innerHTML = `
-        <div class="p-4">
-          <h4 class="text-lg font-semibold mb-3">Table 1 详情</h4>
-          <p class="text-gray-300">这是 table-1 的详细信息内容</p>
-          <div class="mt-4 bg-[#1B1E1F] p-3 rounded">
-            <p>字段1: varchar(255)</p>
-            <p>字段2: int</p>
-            <p>字段3: datetime</p>
-          </div>
-        </div>
-      `;
-      break;
-    case 'table-2':
-      tableMd.innerHTML = `
-        <div class="p-4">
-          <h4 class="text-lg font-semibold mb-3">Table 2 详情</h4>
-          <p class="text-gray-300">这是 table-2 的详细信息内容</p>
-          <div class="mt-4 bg-[#1B1E1F] p-3 rounded">
-            <p>字段A: text</p>
-            <p>字段B: boolean</p>
-            <p>字段C: decimal(10,2)</p>
-          </div>
-        </div>
-      `;
-      break;
-    case 'table-3':
-      tableMd.innerHTML = `
-        <div class="p-4">
-          <h4 class="text-lg font-semibold mb-3">Table 3 详情</h4>
-          <p class="text-gray-300">这是 table-3 的详细信息内容</p>
-          <div class="mt-4 bg-[#1B1E1F] p-3 rounded">
-            <p>字段X: bigint</p>
-            <p>字段Y: json</p>
-            <p>字段Z: timestamp</p>
-          </div>
-        </div>
-      `;
-      break;
-    case 'table-4':
-      tableMd.innerHTML = `
-        <div class="p-4">
-          <h4 class="text-lg font-semibold mb-3">Table 4 详情</h4>
-          <p class="text-gray-300">这是 table-4 的详细信息内容</p>
-          <div class="mt-4 bg-[#1B1E1F] p-3 rounded">
-            <p>字段M: uuid</p>
-            <p>字段N: blob</p>
-            <p>字段O: enum</p>
-          </div>
-        </div>
-      `;
-      break;
-    default:
-      tableMd.innerHTML = '<p class="text-gray-400 p-4">请选择一个表查看详细信息</p>';
-  }
-},
+  const tables = await sql.getTableAll();
+  const patterns = ['create', 'delete', 'update', 'search'];
 
-async setupTableButtons() {
-  // 确保侧边栏内容已经加载
-  const tableCreate = document.getElementById('table-create');
-  if (!tableCreate) return;
+  patterns.forEach(pattern => {
+    // 外层区块
+    const block = document.createElement('div');
+    block.className = 'mb-6';
 
-  // 为每个按钮添加点击事件监听器
-  const buttons = tableCreate.querySelectorAll('.table-btn button');
-  buttons.forEach(button => {
-    button.addEventListener('click', (e) => {
+    // 按钮栏：当前模式下的四个表按钮
+    const btnBar = document.createElement('div');
+    btnBar.className = 'flex gap-2 mb-2';
+    tables.forEach(t => {
+      const btn = document.createElement('button');
+      btn.className = 'px-3 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors';
+      btn.textContent = t;
+      btn.dataset.table = t;
+      btn.dataset.pattern = pattern;
+      btnBar.appendChild(btn);
+    });
+
+    // 内容区：仅显示当前模式+当前表
+    const contentBox = document.createElement('div');
+    contentBox.className = 'p-3 bg-[#1B1E1F] rounded text-gray-300';
+    // contentBox.textContent = `显示${tableId}的${pattern}`;
+
+    // 事件委托：仅刷新本区块内容
+    btnBar.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
-      const tableId = target.getAttribute('data-id');
-      
-      // 移除所有按钮的 active 状态
-      buttons.forEach(btn => {
-        btn.classList.remove('bg-[#3a3f41]');
-        btn.classList.add('bg-[#2B2F31]');
-      });
-      
-      // 为当前点击的按钮添加 active 状态
-      target.classList.remove('bg-[#2B2F31]');
-      target.classList.add('bg-[#3a3f41]');
-      
-      // 显示对应的内容
-      if (tableId) {
-        this.showTableMdContent(tableId);
+      if (target.dataset.table && target.dataset.pattern) {
+        // 激活样式
+        btnBar.querySelectorAll('button').forEach(b => {
+          b.classList.remove('bg-[#3a3f41]');
+          b.classList.add('bg-[#2B2F31]');
+        });
+        target.classList.remove('bg-[#2B2F31]');
+        target.classList.add('bg-[#3a3f41]');
+        // 更新本区块内容
+        contentBox.textContent = `显示${target.dataset.table}的${target.dataset.pattern}`;
       }
     });
-  });
 
-  // 默认显示第一个表的内容
-  if (buttons.length > 0) {
-    const firstButton = buttons[0] as HTMLElement;
-    firstButton.classList.remove('bg-[#2B2F31]');
-    firstButton.classList.add('bg-[#3a3f41]');
-    const firstTableId = firstButton.getAttribute('data-id');
-    if (firstTableId) {
-      this.showTableMdContent(firstTableId);
-    }
+    // 默认激活当前表按钮
+    // const defaultBtn = btnBar.querySelector(`[data-table="${tableId}"]`) as HTMLButtonElement;
+    // if (defaultBtn) {
+    //   defaultBtn.classList.remove('bg-[#2B2F31]');
+    //   defaultBtn.classList.add('bg-[#3a3f41]');
+    // }
+
+    block.appendChild(btnBar);
+    block.appendChild(contentBox);
+    tableMd.appendChild(block);
+
+
+    if (tables.length > 0) {
+    const firstBtn = btnBar.querySelector('button') as HTMLButtonElement;
+    firstBtn.click();
+  }
+  });
+},
+
+// async setupTableButtons() {
+//   const container = document.getElementById('tables-api');
+//   if (!container) return;
+//   container.innerHTML = '';
+
+//   const tables = await sql.getTableAll();
+//   const tableBar = document.createElement('div');
+//   tableBar.className = 'flex gap-2 p-3';
+//   tables.forEach(table => {
+//     const btn = document.createElement('button');
+//     btn.className = 'px-3 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors';
+//     btn.textContent = table;
+//     btn.dataset.id = table;
+//     tableBar.appendChild(btn);
+//   });
+
+//   const contentDiv = document.createElement('div');
+//   contentDiv.className = 'table-md w-full h-full';
+
+//   tableBar.addEventListener('click', (e) => {
+//     const target = e.target as HTMLElement;
+//     if (target.dataset.id) {
+//       tableBar.querySelectorAll('button').forEach(b => {
+//         b.classList.remove('bg-[#3a3f41]');
+//         b.classList.add('bg-[#2B2F31]');
+//       });
+//       target.classList.remove('bg-[#2B2F31]');
+//       target.classList.add('bg-[#3a3f41]');
+//       this.showTableMdContent(target.dataset.id);
+//     }
+//   });
+
+//  // container.appendChild(tableBar);
+//   container.appendChild(contentDiv);
+
+//   if (tables.length > 0) {
+//     const firstBtn = tableBar.querySelector('button') as HTMLButtonElement;
+//     firstBtn.click();
+//   }
+// }
+
+
+async setupTableButtons() {
+  const container = document.getElementById('tables-api');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const tables = await sql.getTableAll();
+
+  // 不创建 tableBar，也不插入 DOM
+  const contentDiv = document.createElement('div');
+  contentDiv.className = 'table-md w-full h-full';
+  container.appendChild(contentDiv);
+
+  // 手动传入默认 tableId
+  if (tables.length > 0) {
+    this.showTableMdContent();
   }
 }
-
 
 };
 

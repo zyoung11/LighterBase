@@ -214,18 +214,7 @@ const workspaceContent = {
 
 const slideBarContent = {
   api_md: `
-     <div id="table-create" class="flex flex-col h-full w-full overflow-hidden">
-        <div class="table-btn flex w-full h-20 p-3 m-3 ">
-            <button class="py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors" data-id="table-1">table-1</button>
-            <button class="py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors" data-id="table-2">table-2</button>
-            <button class="py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors" data-id="table-3">table-3</button>
-            <button class="py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors" data-id="table-4">table-4</button>
-        </div> 
-
-        <div class="table-md w-[80%] h-[30%] p-3 m-3 bg-[#2B2F31] " >
-
-        </div>
-        
+     <div id="tables-api" class="flex flex-col h-full w-full overflow">        
     </div>    
 
 
