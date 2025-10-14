@@ -161,7 +161,7 @@ async showTableMdContent() {
   patterns.forEach(pattern => {
     // 外层区块
     const block = document.createElement('div');
-    block.className = 'mb-6';
+    block.className = 'w-full h-[60%] mb-8';
 
     // 按钮栏：当前模式下的四个表按钮
     const btnBar = document.createElement('div');
@@ -177,7 +177,7 @@ async showTableMdContent() {
 
     // 内容区：仅显示当前模式+当前表
     const contentBox = document.createElement('div');
-    contentBox.className = 'p-3 bg-[#1B1E1F] rounded text-gray-300';
+    contentBox.className = 'w-full h-[80%] p-1 bg-[#1B1E1F] rounded text-gray-300';
     // contentBox.textContent = `显示${tableId}的${pattern}`;
 
     // 事件委托：仅刷新本区块内容

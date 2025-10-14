@@ -97,42 +97,7 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
 (document.getElementById("database-btn") as HTMLElement).addEventListener(
   "click",
   () => {
-    rightSidebar.classList.remove("hidden")
-    rightSidebar.innerHTML = sidebarContent.database;
-    currentSection = "database";
-    defaultWorkspace.style.display = "none";
-    mainWorkspace.innerHTML = workspaceContent.database;
-
-    rightSidebar.addEventListener('click', async(e) => {
-        const target = e.target as HTMLElement;
-
-      if (target.closest('#permissions')) {
-          currentSection = "permissions";
-          mainWorkspace.innerHTML = workspaceContent.permissions;
-          await conponents.showPermissions();
-          return;
-      }
-    
-      if (target.closest('#create-db')) {
-          mainWorkspace.innerHTML = workspaceContent.database;
-          return;
-      }
-    });
-
-    //--------------------------------------------------后期考虑修改这部分，b不应该是要点击数据库的按钮才能使用，只要const选择中的dom元素存在就能修改
-    mainWorkspace.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement;
-    
-    if (target.closest('#api-docs-btn')) {
-        conponents.showRightSlidebar("API 文档", slideBarContent.api_md);
-        return;
-    }
-    
-    if (target.closest('#ai-generated')) {
-        conponents.showRightSlidebar("AI 助手", slideBarContent.ai_generated);
-        return;
-    }
-    });
+    showDefaultWorkspace();
   }
 );
 
@@ -172,13 +137,42 @@ function showDefaultWorkspace() {
     defaultWorkspace.style.display = "none";
     mainWorkspace.innerHTML = workspaceContent.database;
 
+    
+    rightSidebar.addEventListener('click', async(e) => {
+        const target = e.target as HTMLElement;
+
+      if (target.closest('#permissions')) {
+          currentSection = "permissions";
+          mainWorkspace.innerHTML = workspaceContent.permissions;
+          await conponents.showPermissions();
+          return;
+      }
+    
+      if (target.closest('#create-db')) {
+          mainWorkspace.innerHTML = workspaceContent.database;
+          return;
+      }
+    });
     const apibtn = document.getElementById("api-docs-btn") as HTMLElement;
+    const aibtn = document.getElementById("ai-generated") as HTMLElement;
+    
     if(apibtn){
       apibtn.addEventListener('click', async() => {
         conponents.showRightSlidebar("API 文档", slideBarContent.api_md);
         await conponents.setupTableButtons();
       });
     }
+
+    if(aibtn){
+      aibtn.addEventListener('click', async() => {
+        conponents.showRightSlidebar("AI 助手", slideBarContent.ai_generated);
+        await conponents.setupTableButtons();
+      });
+    }
+
+
+
+
 }
 
 

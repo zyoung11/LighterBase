@@ -62,7 +62,7 @@ const workspaceContent = {
                         </div>
                         <!-- API文档按钮 -->
                         <button id="api-docs-btn" class="absolute right-4 top-1/2 transform -translate-y-1/2 px-3 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors">
-                            API文档
+                            <img src ="./icons/api白.svg" alt="API文档">
                         </button>
                     </div>
 
@@ -73,9 +73,14 @@ const workspaceContent = {
                             class="w-[80%] h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg p-4 text-gray-200 placeholder-gray-500 resize-none focus:outline-none focus:border-[#4a4f52]"
                             placeholder="在这里输入SQL查询..."
                         ></textarea>
+                        <div class ="flex flex-col">
                         <button id="ai-generated" class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-sm transition-colors">
                                 AI-Generated
                         </button>
+                        <button id="sql-send" class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-sm transition-colors">
+                                确认
+                        </button>
+                        </div>
                     </div>
                 </div>
             `,
