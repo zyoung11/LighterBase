@@ -2,7 +2,7 @@ import requests
 import json
 import hashlib
 import textwrap
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Union
 
 def create_user(name: str, password_hash: str, email: str) -> None:
     """创建新用户"""
@@ -45,24 +45,32 @@ def login_user(name: str, password_hash: str):
         print("请求出错:", e)
         return None
         
-def sql_admin_create(sql: str, token: str) -> None:
-    url = "http://localhost:8080/api/create-table/create"
-    payload = json.dumps({"sql": sql})
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token          # 变量，不是字面量
-    }
-    print(f"--- Executing SQL (create): {sql} ---")
-    try:
-        resp = requests.post(url, data=payload, headers=headers)
-        print("Status Code:", resp.status_code)
-        try:
-            print("Response Body:\n",
-                  json.dumps(resp.json(), ensure_ascii=False, indent=2))
-        except ValueError:
-            print("Response Body (not json):\n", resp.text)
-    except requests.exceptions.RequestException as e:
-        print("请求出错:", e)
+def sql_admin_create(sql: Union[str, List[str]], token: str) -> None:
+        url = "http://localhost:8080/api/create-table/create"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {token}"
+        }
+        
+        # 统一转成列表
+        if isinstance(sql, str):
+            sql_list = [sql]
+        else:
+            sql_list = sql
+        
+        for idx, s in enumerate(sql_list, 1):
+            payload = json.dumps({"sql": s.strip()})
+            print(f"--- Executing SQL ({idx}/{len(sql_list)}): {s[:50]}... ---")
+            try:
+                resp = requests.post(url, data=payload, headers=headers)
+                print("Status Code:", resp.status_code)
+                try:
+                    print("Response Body:\n",
+                        json.dumps(resp.json(), ensure_ascii=False, indent=2))
+                except ValueError:
+                    print("Response Body (not json):\n", resp.text)
+            except requests.exceptions.RequestException as e:
+                print("请求出错:", e)
 
 
 def sql_admin_check(ID: str, sql: str, token: str) -> None:
@@ -276,6 +284,30 @@ def view_articles(select_fields: List[str],where_clause: str,token: str,page: in
 
     return []
 
+def query_all_tables(token: str) -> List[str]:
+    url = "http://localhost:8080/api/query/tables"
+    headers = {"Authorization": f"Bearer {token}"}
+    print("--- GET /api/query/tables ---")
+
+    try:
+        resp = requests.get(url, headers=headers)
+        print("Status Code:", resp.status_code)
+        if resp.status_code == 200:
+            data = resp.json()
+            tables = data.get("tables") or []
+            print("Tables:", tables)
+            return tables
+        # 非 200 统一打印错误
+        try:
+            body = resp.json()
+            print("Response Body:\n", json.dumps(body, ensure_ascii=False, indent=2))
+        except ValueError:
+            print("Response Body (not json):\n", resp.text)
+    except requests.exceptions.RequestException as e:
+        print("请求出错:", e)
+
+    return []
+
 if __name__ == "__main__":
     # 1. 创建用户
     # 为 alice 提供一个已知的密码哈希 (sha256 of "password123")
@@ -298,24 +330,46 @@ if __name__ == "__main__":
     if alice_token:
         print("\n--- Using Alice's token for admin operations ---")
 
-        # 使用 alice 的 token 来执行 SQL
-        sql_admin_create('''CREATE TABLE IF NOT EXISTS articles (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL REFERENCES users(id),
-            title TEXT NOT NULL,
-            slug TEXT NOT NULL UNIQUE,
-            summary TEXT,
-            content TEXT NOT NULL,
-            status TEXT NOT NULL DEFAULT 'draft',
-            is_featured INTEGER NOT NULL DEFAULT 0,
-            read_count INTEGER NOT NULL DEFAULT 0,
-            like_count INTEGER NOT NULL DEFAULT 0,
-            tags TEXT,
-            cover_url TEXT,
-            publish_at TEXT,
-            create_at TEXT NOT NULL DEFAULT (datetime('now')),
-            update_at TEXT NOT NULL DEFAULT (datetime('now'))
-        );''', token=alice_token)
+        sql_admin_create([
+            # 1. 文章表
+            """CREATE TABLE IF NOT EXISTS articles (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                title TEXT NOT NULL,
+                slug TEXT NOT NULL UNIQUE,
+                summary TEXT,
+                content TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'draft',
+                is_featured INTEGER NOT NULL DEFAULT 0,
+                read_count INTEGER NOT NULL DEFAULT 0,
+                like_count INTEGER NOT NULL DEFAULT 0,
+                tags TEXT,
+                cover_url TEXT,
+                publish_at TEXT,
+                create_at TEXT NOT NULL DEFAULT (datetime('now')),
+                update_at TEXT NOT NULL DEFAULT (datetime('now'))
+            );""",
+
+            # 2. 标签表
+            """CREATE TABLE IF NOT EXISTS tags (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL UNIQUE,
+                color TEXT DEFAULT '#ffffff',
+                created_at TEXT NOT NULL DEFAULT (datetime('now'))
+            );""",
+
+            # 3. 评论表
+            """CREATE TABLE IF NOT EXISTS comments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                article_id INTEGER NOT NULL REFERENCES articles(id) ON DELETE CASCADE,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                parent_id INTEGER REFERENCES comments(id) ON DELETE CASCADE,
+                content TEXT NOT NULL,
+                like_count INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+            );"""
+        ], token=alice_token)
 
         # 使用 alice 的 token 来检查 SQL (假设 ID 为 1 的用户是 alice)
         # 注意：此功能需要后端修复 `no such table: _sqls_` 的问题才能正常工作
@@ -367,6 +421,13 @@ if __name__ == "__main__":
 
     ok = delete_articles("slug = 'my-first-post'", alice_token)
     print("删除成功" if ok else "删除失败")
+
+    tables = query_all_tables(alice_token)
+    if tables:
+        print("当前数据库共有表：", tables)
+    else:
+        print("查询失败或无权限")
+
     
     # =====  zellij 全流程测试  =====
     print("\n" + "="*60)
@@ -439,5 +500,9 @@ if __name__ == "__main__":
     new_tokenz = refresh_token(tokenz)
     if new_tokenz:
         tokenz = new_tokenz
+
+    tables_z = query_all_tables(tokenz)
+    if not tables_z:
+        print("✔️ 被正确拦截")
     
     print("\n>>> zellij 全流程测试结束，请对比 alice 的日志观察权限差异 <<<")
