@@ -56,6 +56,23 @@ const sql = {
             throw error;
         }
     },
+
+    async getLogs(x:number,y:number):Promise<any> {
+        try{
+            const res = await fetch(`${URL}/api/query/logs/?page=${x}&perpage=${y}`,{
+                method: "GET",
+                headers:{
+                    "Content-Type": "application"
+                }                       
+        });
+
+        if(res.ok){
+            const data = await res.json();
+        }
+    }catch(e){
+        console.log("显示获取logs报错",e)
+        }
+    }
 }
 
 export default sql;

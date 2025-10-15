@@ -1,76 +1,70 @@
-import { URL } from "./api.ts";
+class lighterBase {
+    private baseURL: string;
+    
+    constructor(baseURL: string) {
+        if (!baseURL || typeof baseURL !== 'string') {
+            throw new Error("MyAutoAPI 初始化失败：必须传入一个有效的基准 URL 字符串。");
+        }
+        this.baseURL = baseURL;
+    }
+    
+    private getAuthToken(): string {
+        const match = document.cookie.split('; ')
+            .find(row => row.startsWith('auth_token=')) 
+            ?.split('=')[1];
+            
+        return match || '';
+    }
 
-const auto = {
-    async createTable(payload: any,table:string): Promise<any> {
-        try{
-            const res = await fetch(`${URL}/api/auto/create/${table}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${document.cookie}`
-                },
-                body: JSON.stringify(payload)
-            });
+    private async request(method: string, endpoint: string, payload?: any): Promise<any> {
+        try {
+            const token = this.getAuthToken(); 
+            const url = `${this.baseURL}/api/auto/${endpoint}`;
+            
+            const headers: HeadersInit = {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` 
+            };
+
+            const config: RequestInit = {
+                method: method,
+                headers: headers
+            };
+            
+            if (payload && method !== "GET" && method !== "DELETE") {
+                config.body = JSON.stringify(payload);
+            }
+
+            const res = await fetch(url, config);
+            
             if (res.ok) {
                 return res.json();
+            } else {
+                const errorData = await res.json();
+                throw new Error(errorData.message || `API 请求错误: 状态码 ${res.status}`);
             }
-        }catch(err){
-            console.log("创建表失败：",err);
+        } catch (err) {
+            console.error(`MyAutoAPI 请求失败:`, err);
+            throw err;
         }
-    },
+    }
 
-    async deleteTable(table:string): Promise<any> {
-        try{
-            const res = await fetch(`${URL}/api/auto/delete/${table}`, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${document.cookie}`
-                }
-            });
-            if (res.ok) {
-                return res.json();
-            }
-        }catch(err){
-            console.log("删除表失败：",err);
-        }
-    },
+    public createTable(payload: any, table: string): Promise<any> {
+        return this.request("POST", `create/${table}`, payload);
+    }
+    
+    public deleteTable(table: string): Promise<any> {
+        return this.request("DELETE", `delete/${table}`);
+    }
 
-    async updateTable(payload: any,table:string): Promise<any> {
-        try{
-            const res = await fetch(`${URL}/api/auto/update/${table}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${document.cookie}`
-                },
-                body: JSON.stringify(payload)
-            });
-            if (res.ok) {
-                return res.json();
-            }
-        }catch(err){
-            console.log("更新表失败：",err);
-        }
-    },
+    public updateTable(payload: any, table: string): Promise<any> {
+        return this.request("PUT", `update/${table}`, payload);
+    }
 
-    async searchTable(payload: any,table:string,x:number,y:number): Promise<any> {
-        try{
-            const res = await fetch(`${URL}/api/auto/view/${table}?page=${x}&perpage=${y}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${document.cookie}`
-                },
-                body: JSON.stringify(payload)
-            });
-            if (res.ok) {
-                return res.json();
-            }
-        }catch(err){
-            console.log("搜索表失败：",err);
-        }
+    public searchTable(payload: any, table: string, page: number, perpage: number): Promise<any> {
+        const endpoint = `view/${table}?page=${page}&perpage=${perpage}`;
+        return this.request("POST", endpoint, payload);
     }
 }
 
-export default auto;
+export default lighterBase;

@@ -150,6 +150,7 @@ async showPermissions() {
   }
 },
 
+// conponents.ts
 async showTableMdContent() {
   const tableMd = document.querySelector('.table-md') as HTMLElement;
   if (!tableMd) return;
@@ -163,12 +164,11 @@ async showTableMdContent() {
     const block = document.createElement('div');
     block.className = 'w-full h-[60%] mb-8';
 
-    // 按钮栏：当前模式下的四个表按钮
     const btnBar = document.createElement('div');
-    btnBar.className = 'flex gap-2 mb-2';
+    btnBar.className = 'flex gap-2';
     tables.forEach(t => {
       const btn = document.createElement('button');
-      btn.className = 'px-3 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors';
+      btn.className = 'px-3 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-t transition-colors'; 
       btn.textContent = t;
       btn.dataset.table = t;
       btn.dataset.pattern = pattern;
@@ -177,31 +177,27 @@ async showTableMdContent() {
 
     // 内容区：仅显示当前模式+当前表
     const contentBox = document.createElement('div');
-    contentBox.className = 'w-full h-[80%] p-1 bg-[#1B1E1F] rounded text-gray-300';
-    // contentBox.textContent = `显示${tableId}的${pattern}`;
+    contentBox.className = 'w-full h-[80%] bg-[#3a3f41] rounded-b text-gray-300 p-4'; 
+    contentBox.innerHTML = ``; 
 
-    // 事件委托：仅刷新本区块内容
     btnBar.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
       if (target.dataset.table && target.dataset.pattern) {
-        // 激活样式
         btnBar.querySelectorAll('button').forEach(b => {
           b.classList.remove('bg-[#3a3f41]');
           b.classList.add('bg-[#2B2F31]');
         });
         target.classList.remove('bg-[#2B2F31]');
         target.classList.add('bg-[#3a3f41]');
-        // 更新本区块内容
-        contentBox.textContent = `显示${target.dataset.table}的${target.dataset.pattern}`;
+        //（上传库后这里是"lighterbase"）
+        contentBox.innerHTML = `
+        显示${target.dataset.table}的${target.dataset.pattern}
+        <code class="svelte-s3jkbp">
+            <p>import lighterBase from "../apis/auto";</p>
+        </code>
+        `;
       }
     });
-
-    // 默认激活当前表按钮
-    // const defaultBtn = btnBar.querySelector(`[data-table="${tableId}"]`) as HTMLButtonElement;
-    // if (defaultBtn) {
-    //   defaultBtn.classList.remove('bg-[#2B2F31]');
-    //   defaultBtn.classList.add('bg-[#3a3f41]');
-    // }
 
     block.appendChild(btnBar);
     block.appendChild(contentBox);
@@ -214,47 +210,6 @@ async showTableMdContent() {
   }
   });
 },
-
-// async setupTableButtons() {
-//   const container = document.getElementById('tables-api');
-//   if (!container) return;
-//   container.innerHTML = '';
-
-//   const tables = await sql.getTableAll();
-//   const tableBar = document.createElement('div');
-//   tableBar.className = 'flex gap-2 p-3';
-//   tables.forEach(table => {
-//     const btn = document.createElement('button');
-//     btn.className = 'px-3 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors';
-//     btn.textContent = table;
-//     btn.dataset.id = table;
-//     tableBar.appendChild(btn);
-//   });
-
-//   const contentDiv = document.createElement('div');
-//   contentDiv.className = 'table-md w-full h-full';
-
-//   tableBar.addEventListener('click', (e) => {
-//     const target = e.target as HTMLElement;
-//     if (target.dataset.id) {
-//       tableBar.querySelectorAll('button').forEach(b => {
-//         b.classList.remove('bg-[#3a3f41]');
-//         b.classList.add('bg-[#2B2F31]');
-//       });
-//       target.classList.remove('bg-[#2B2F31]');
-//       target.classList.add('bg-[#3a3f41]');
-//       this.showTableMdContent(target.dataset.id);
-//     }
-//   });
-
-//  // container.appendChild(tableBar);
-//   container.appendChild(contentDiv);
-
-//   if (tables.length > 0) {
-//     const firstBtn = tableBar.querySelector('button') as HTMLButtonElement;
-//     firstBtn.click();
-//   }
-// }
 
 
 async setupTableButtons() {
