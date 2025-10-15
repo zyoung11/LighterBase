@@ -5,7 +5,10 @@
       "name": "frontend",
       "dependencies": {
         "gojs": "^3.1.0",
+        "highlight.js": "^11.11.1",
         "jwt-decode": "^4.0.0",
+        "marked": "^16.4.0",
+        "marked-highlight": "^2.2.2",
         "sqlite-parser": "^1.0.1",
       },
       "devDependencies": {
@@ -29,7 +32,13 @@
 
     "gojs": ["gojs@3.1.0", "", {}, "sha512-c7MI9G0PSLgqtrwApNVRCtTiqaYVYZJSfnIxx8+TxLOyBru6Wj+BdHPsBtjKDE16VLBKoR1pZ1JqI3E3T0kUkw=="],
 
+    "highlight.js": ["highlight.js@11.11.1", "", {}, "sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w=="],
+
     "jwt-decode": ["jwt-decode@4.0.0", "", {}, "sha512-+KJGIyHgkGuIq3IEBNftfhW/LfWhXUIY6OmyVWjliu5KH1y0fw7VQ8YndE2O4qZdMSd9SqbnC8GOcZEy0Om7sA=="],
+
+    "marked": ["marked@16.4.0", "", { "bin": { "marked": "bin/marked.js" } }, "sha512-CTPAcRBq57cn3R8n3hwc2REddc28hjR7RzDXQ+lXLmMJYqn20BaI2cGw6QjgZGIgVfp2Wdfw4aMzgNteQ6qJgQ=="],
+
+    "marked-highlight": ["marked-highlight@2.2.2", "", { "peerDependencies": { "marked": ">=4 <17" } }, "sha512-KlHOP31DatbtPPXPaI8nx1KTrG3EW0Z5zewCwpUj65swbtKOTStteK3sNAjBqV75Pgo3fNEVNHeptg18mDuWgw=="],
 
     "sqlite-parser": ["sqlite-parser@1.0.1", "", { "bin": { "sqlite-parser": "bin/sqlite-parser" } }, "sha512-/es+YmgQG+VFbwAQD0Nd0Mdzgky8rW3M85zcy2+Vtk3Sj5ydaMl/lopWPehsjsByGw/swVuXSBeMJFh47doRUw=="],
 

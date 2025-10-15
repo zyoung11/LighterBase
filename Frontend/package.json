@@ -14,7 +14,10 @@
   },
   "dependencies": {
     "gojs": "^3.1.0",
+    "highlight.js": "^11.11.1",
     "jwt-decode": "^4.0.0",
+    "marked": "^16.4.0",
+    "marked-highlight": "^2.2.2",
     "sqlite-parser": "^1.0.1"
   }
 }

@@ -1,8 +1,23 @@
 import sql from "../apis/sql";
 import admin from "../apis/admin";
+import { apiMarked } from "./contents";
+import { marked } from "marked";
+import { markedHighlight } from "marked-highlight"; // 如果使用 marked-highlight 扩展
+import hljs from 'highlight.js';
+import 'highlight.js/styles/vs2015.css';
+
+marked.use(markedHighlight({
+  langPrefix: 'hljs language-',
+  highlight(code, lang) {
+    const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+    return hljs.highlight(code, { language }).value;
+  }
+}));
+
 const rightSlidebar = document.getElementById("right-slidebar") as HTMLElement;
 const slidebarTitle = document.getElementById("slidebar-title") as HTMLElement;
 const slidebarContent = document.getElementById("slidebar-content") as HTMLElement;
+
 
 const conponents = {
   hideRightSlidebar() {
@@ -177,10 +192,10 @@ async showTableMdContent() {
 
     // 内容区：仅显示当前模式+当前表
     const contentBox = document.createElement('div');
-    contentBox.className = 'w-full h-[80%] bg-[#3a3f41] rounded-b text-gray-300 p-4'; 
+    contentBox.className = ' w-full h-[80%] bg-[#3a3f41] rounded-b text-gray-300 p-4 whitespace-normal'; 
     contentBox.innerHTML = ``; 
 
-    btnBar.addEventListener('click', (e) => {
+    btnBar.addEventListener('click', async(e) => {
       const target = e.target as HTMLElement;
       if (target.dataset.table && target.dataset.pattern) {
         btnBar.querySelectorAll('button').forEach(b => {
@@ -188,16 +203,21 @@ async showTableMdContent() {
           b.classList.add('bg-[#2B2F31]');
         });
         target.classList.remove('bg-[#2B2F31]');
-        target.classList.add('bg-[#3a3f41]');
-        //（上传库后这里是"lighterbase"）
-        contentBox.innerHTML = `
-        显示${target.dataset.table}的${target.dataset.pattern}
-        <code class="svelte-s3jkbp">
-            <p>import lighterBase from "../apis/auto";</p>
-        </code>
-        `;
+        target.classList.add('bg-[#3a3f41]');      
+
+         const htmlContent = await marked.parse(apiMarked.api_md);   
+        contentBox.innerHTML = htmlContent;
       }
     });
+        //显示${target.dataset.table}的${target.dataset.pattern}
+        //     <code class="svelte-s3jkbp">
+        //     <br>
+        //     <span class = "text-orange-300">import</span>
+        //     <span class = "text-black">lighterBase</span>
+        //     <span class = "text-orange-300"> from </span>
+        //     <span class = "text-green-300">"../apis/auto";</span><br>
+        //     <span>const lb = LighterBase("url")</span>
+        // </code>
 
     block.appendChild(btnBar);
     block.appendChild(contentBox);

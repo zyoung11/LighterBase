@@ -240,4 +240,33 @@ const slideBarContent = {
                 `,
 };
 
-export { sidebarContent, workspaceContent, slideBarContent };
+const apiMarked = {
+api_md:`
+#import { marked } from 'marked';
+## 代码
+
+
+代码块:
+\`\`\`javascript
+import { hello } from './hello';
+function hello() {
+  console.log('Hello World');
+}
+\`\`\`
+
+## 表格
+
+| 姓名 | 年龄 | 城市 |
+| ---- | ---- | ---- |
+| 张三 | 25   | 北京 |
+| 李四 | 30   | 上海 |
+
+## 引用
+
+> 这是一个引用块
+> 可以跨多行
+
+## 分割线
+`
+}
+export { sidebarContent, workspaceContent, slideBarContent, apiMarked};
