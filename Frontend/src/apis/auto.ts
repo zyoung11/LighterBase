@@ -53,7 +53,7 @@ class lighterBase {
         return this.request("POST", `create/${table}`, payload);
     }
     
-    public deleteTable(table: string): Promise<any> {
+    public deleteTable(payload:any,table: string): Promise<any> {
         return this.request("DELETE", `delete/${table}`);
     }
 

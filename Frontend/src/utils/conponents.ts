@@ -173,6 +173,8 @@ async showTableMdContent() {
 
   const tables = await sql.getTableAll();
   const patterns = ['create', 'delete', 'update', 'search'];
+  // 映射 apiMarked 字符串
+  const apiMarkedMap: { [key: string]: string } = apiMarked; // 明确类型
 
   patterns.forEach(pattern => {
     // 外层区块
@@ -192,7 +194,7 @@ async showTableMdContent() {
 
     // 内容区：仅显示当前模式+当前表
     const contentBox = document.createElement('div');
-    contentBox.className = ' w-full h-[80%] bg-[#3a3f41] rounded-b text-gray-300 p-4 whitespace-normal'; 
+    contentBox.className = ' w-full h-[80%] bg-[#3a3f41] rounded-b text-gray-300 p-4 whitespace-normal overflow-y-auto'; // 添加 overflow-y-auto
     contentBox.innerHTML = ``; 
 
     btnBar.addEventListener('click', async(e) => {
@@ -205,29 +207,50 @@ async showTableMdContent() {
         target.classList.remove('bg-[#2B2F31]');
         target.classList.add('bg-[#3a3f41]');      
 
-         const htmlContent = await marked.parse(apiMarked.api_md);   
+        // *** 核心修改部分开始 ***
+        const selectedPattern = target.dataset.pattern as keyof typeof apiMarked;
+        
+        // 获取对应的 Markdown 字符串
+        const markdownContent = apiMarkedMap[selectedPattern] || '';
+        
+        // 替换 markdownContent 中的 'table_name' 为选中的表名
+        const table = target.dataset.table;
+        const finalMarkdown = markdownContent.replace(/table_name/g, table || '');
+
+        // 渲染 Markdown
+        const htmlContent = await marked.parse(finalMarkdown);   
         contentBox.innerHTML = htmlContent;
+        // *** 核心修改部分结束 ***
       }
     });
-        //显示${target.dataset.table}的${target.dataset.pattern}
-        //     <code class="svelte-s3jkbp">
-        //     <br>
-        //     <span class = "text-orange-300">import</span>
-        //     <span class = "text-black">lighterBase</span>
-        //     <span class = "text-orange-300"> from </span>
-        //     <span class = "text-green-300">"../apis/auto";</span><br>
-        //     <span>const lb = LighterBase("url")</span>
-        // </code>
-
+    
+    // 默认显示第一个表的 API 文档
     block.appendChild(btnBar);
     block.appendChild(contentBox);
     tableMd.appendChild(block);
 
 
-    if (tables.length > 0) {
-    const firstBtn = btnBar.querySelector('button') as HTMLButtonElement;
-    firstBtn.click();
+    
+if (tables.length > 0) {
+  const firstBtn = btnBar.querySelector('button') as HTMLButtonElement;
+  if (firstBtn) {
+    // 把「点击按钮后要做的事情」提炼成独立函数
+    const renderFirstTable = async () => {
+      const selectedPattern = firstBtn.dataset.pattern as keyof typeof apiMarked;
+      const markdownContent = apiMarkedMap[selectedPattern] || '';
+      const table = firstBtn.dataset.table || '';
+      const finalMarkdown = markdownContent.replace(/table_name/g, table);
+      const htmlContent = await marked.parse(finalMarkdown);
+      contentBox.innerHTML = htmlContent;
+
+      // 把第一个按钮样式设成「已选中」
+      firstBtn.classList.remove('bg-[#2B2F31]');
+      firstBtn.classList.add('bg-[#3a3f41]');
+    };
+    // 立刻执行一次，实现「打开侧边栏即触发第一个按钮」
+    renderFirstTable();
   }
+}
   });
 },
 

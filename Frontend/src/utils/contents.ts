@@ -1,4 +1,4 @@
-import apiIcon from '../icons/api白.svg';
+import apiIcon from "../icons/api白.svg";
 const sidebarContent = {
   logo: `
                 <div class="space-y-3">
@@ -19,18 +19,18 @@ const sidebarContent = {
                     </button>
                 </div>
             `,
-//   records:             `
-//                             <div class="text-gray-300">
-//                                 <p class="mb-2"><strong>查询语句:</strong></p>
-//                                 <p class="bg-[#2B2F31] p-3 rounded">${
-//                                   this.querySelector("p").textContent
-//                                 }</p>
-//                                 <p class="mt-4 mb-2"><strong>执行时间:</strong></p>
-//                                 <p>${date} 14:30:25</p>
-//                                 <p class="mt-4 mb-2"><strong>执行结果:</strong></p>
-//                                 <p class="text-green-400">成功返回 2 行数据</p>
-//                             </div>
-//                         `,
+  //   records:             `
+  //                             <div class="text-gray-300">
+  //                                 <p class="mb-2"><strong>查询语句:</strong></p>
+  //                                 <p class="bg-[#2B2F31] p-3 rounded">${
+  //                                   this.querySelector("p").textContent
+  //                                 }</p>
+  //                                 <p class="mt-4 mb-2"><strong>执行时间:</strong></p>
+  //                                 <p>${date} 14:30:25</p>
+  //                                 <p class="mt-4 mb-2"><strong>执行结果:</strong></p>
+  //                                 <p class="text-green-400">成功返回 2 行数据</p>
+  //                             </div>
+  //                         `,
   folder: `
                 <div class="space-y-3">
                     <button class="w-full px-4 py-3 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-left transition-colors">
@@ -241,32 +241,72 @@ const slideBarContent = {
 };
 
 const apiMarked = {
-api_md:`
-#import { marked } from 'marked';
-## 代码
-
-
-代码块:
+  create: `
 \`\`\`javascript
-import { hello } from './hello';
-function hello() {
-  console.log('Hello World');
-}
+import LighterBase from 'lighter-base';
+
+const lb = new LighterBase('https://your-api-endpoint.com');
+
+...
+const payload = {
+      "Field1": "value1",
+      "Field2": "value2",
+      "Field3": "value3"
+  }
+//这里是增
+const insertData = await  lb.createTable(payload, table_name);
+
 \`\`\`
+`,
+  delete: `
+\`\`\`javascript
+import LighterBase from 'lighter-base';
 
-## 表格
+const lb = new LighterBase('https://your-api-endpoint.com');
 
-| 姓名 | 年龄 | 城市 |
-| ---- | ---- | ---- |
-| 张三 | 25   | 北京 |
-| 李四 | 30   | 上海 |
+...
+const payload = {
+      "WHERE": "value"
+  }
+//这里是删
+const deleteData = await lb.deleteTable(playload, table_name);
 
-## 引用
+\`\`\`
+`,
+  update: `
+\`\`\`javascript
+import LighterBase from 'lighter-base';
 
-> 这是一个引用块
-> 可以跨多行
+const lb = new LighterBase('https://your-api-endpoint.com');
 
-## 分割线
-`
-}
-export { sidebarContent, workspaceContent, slideBarContent, apiMarked};
+...
+const payload = {
+      "set": {
+          "Field1": "value1",
+          "Field2": "value2",
+          "Field3": "value3"
+      },
+      "WHERE": "value"
+  }
+//这里是改
+const updateData = await lb.updateTable(payload, table_name);
+
+\`\`\`
+`,
+  search: `
+\`\`\`javascript
+import LighterBase from 'lighter-base';
+
+const lb = new LighterBase('https://your-api-endpoint.com');
+
+...
+const payload = {
+      "SELECT": ["Field1", "Field2", "Field3"],
+      "WHERE": "value"
+  }
+//这里是查
+const searchData = await lb.searchTable(payload, table_name, page, perpage);
+\`\`\`
+`,
+};
+export { sidebarContent, workspaceContent, slideBarContent, apiMarked };
