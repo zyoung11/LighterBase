@@ -1313,5 +1313,84 @@ cd LighterBase/Backend/web/LighterBaseHub
 ### 2. 查询日志
 
 - http方法：GET
-- URL：http://localhost:8080/api/query/logs
 
+- URL：http://localhost:8080/api/query/logs?page={x}&perpage={y}
+
+- 请求体：
+
+  ```json
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+    {
+      "page": 1,
+      "perPage": 30,
+      "totalPages": 3,
+      "totalItems": 75,
+      "logs": [
+        {
+          "id": 75,
+          "log_text": "2025-01-15 10:30:45 127.0.0.1:54321 200 - GET /api/health",
+          "created_at": "2025-01-15 10:30:45"
+        },
+        {
+          "id": 74,
+          "log_text": "2025-01-15 10:30:40 127.0.0.1:54320 404 - GET /api/nonexistent",
+          "created_at": "2025-01-15 10:30:40"
+        }
+      ]
+    }
+  ```
+
+- 预期返回：
+
+  http状态码：401
+
+  返回体：
+
+  ```json
+    {
+      "status": 401,
+      "message": "The request requires valid record authorization token to be set.",
+      "data": {}
+    }
+  ```
+
+- 预期返回：
+
+  http状态码：403
+
+  返回体：
+
+  ```json
+    {
+      "status": 403,
+      "message": "You are not allowed to perform this request.",
+      "data": {}
+    }
+  ```
+
+- 预期返回：
+
+  http状态码：500
+
+  返回体：
+
+  ```json
+    {
+      "status": 500,
+      "message": "Failed to count logs.",
+      "data": {
+        "database_error": "database is locked"
+      }
+    }
+  ```
+
+  
