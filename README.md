@@ -1309,5 +1309,9 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-  
+
+### 2. 查询日志
+
+- http方法：GET
+- URL：http://localhost:8080/api/query/logs
 

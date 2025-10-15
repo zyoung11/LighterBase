@@ -67,9 +67,7 @@ var routes = []Route{
 
 	// --- 其他查询 API ---
 	{Method: "GET", Path: "/api/query/tables", Handler: listDataTables},
-
-	// --- 日志管理 API ---
-	{Method: "GET", Path: "/api/logs", Handler: listLogs},
+	{Method: "GET", Path: "/api/query/logs", Handler: listLogs},
 }
 
 type Route struct {
