@@ -1597,11 +1597,21 @@ func listLogs(c *fiber.Ctx) error {
 		return sendError(c, 500, "Failed to fetch logs.", fiber.Map{"database_error": err.Error()})
 	}
 
+	// 转换为期望的格式
+	formattedLogs := make([]map[string]any, len(logs))
+	for i, log := range logs {
+		formattedLogs[i] = map[string]any{
+			"id":         log.ID,
+			"log_text":   log.LogText,
+			"created_at": log.CreatedAt.String,
+		}
+	}
+
 	return c.JSON(fiber.Map{
 		"page":       page,
 		"perPage":    perPage,
 		"totalPages": totalPages,
 		"totalItems": total,
-		"logs":       logs,
+		"logs":       formattedLogs,
 	})
 }

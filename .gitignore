@@ -21,3 +21,6 @@ Backend/app/LighterBaseDate/data.db-wal
 Backend/app/LighterBaseDate
 Backend/app/LighterBaseDate/data.db-shm
 Backend/app/LighterBaseDate/data.db-wal
+Backend
+Backend/web/AppMod/LighterBaseDate/data.db
+Backend/web/AppMod/LighterBaseDate/metaDate.db
