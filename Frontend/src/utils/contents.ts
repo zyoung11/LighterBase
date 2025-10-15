@@ -1,3 +1,4 @@
+import apiIcon from '../icons/api白.svg';
 const sidebarContent = {
   logo: `
                 <div class="space-y-3">
@@ -62,7 +63,7 @@ const workspaceContent = {
                         </div>
                         <!-- API文档按钮 -->
                         <button id="api-docs-btn" class="absolute right-4 top-1/2 transform -translate-y-1/2 px-3 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors">
-                            <img src ="./icons/api白.svg" alt="API文档">
+                            <img src ="${apiIcon}" class ="w-6 h-6 object-contain" alt="API文档">
                         </button>
                     </div>
 
