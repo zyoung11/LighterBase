@@ -8,6 +8,12 @@ import (
 	"database/sql"
 )
 
+type Log struct {
+	ID        int64
+	LogText   string
+	CreatedAt sql.NullString
+}
+
 type Security struct {
 	ID          int64
 	TableName   string

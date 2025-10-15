@@ -67,6 +67,9 @@ var routes = []Route{
 
 	// --- 其他查询 API ---
 	{Method: "GET", Path: "/api/query/tables", Handler: listDataTables},
+
+	// --- 日志管理 API ---
+	{Method: "GET", Path: "/api/logs", Handler: listLogs},
 }
 
 type Route struct {
@@ -144,7 +147,28 @@ func NewApp(name string, routes []Route) *fiber.App {
 	app := fiber.New(fiber.Config{AppName: name})
 
 	app.Use(cors.New())
-	app.Use(logger.New())
+
+	// 创建日志文件
+	logFile, err := os.OpenFile("./LighterBaseDate/app.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0o666)
+	if err != nil {
+		log.Fatalf("error opening log file: %v", err)
+	}
+
+	// 自定义logger配置
+	app.Use(logger.New(logger.Config{
+		Format:     "${time} ${ip}:${port} ${status} - ${method} ${path}\n",
+		TimeFormat: "2006-01-02 15:04:05",
+		Output:     logFile,
+		Done: func(c *fiber.Ctx, logString []byte) {
+			// 将日志同时写入数据库
+			go func(logText string) {
+				err := queries.CreateLog(context.Background(), logText)
+				if err != nil {
+					log.Printf("Failed to save log to database: %v", err)
+				}
+			}(string(logString))
+		},
+	}))
 
 	for _, r := range routes {
 		app.Add(strings.ToUpper(r.Method), r.Path, r.Handler)
@@ -1549,5 +1573,49 @@ func listDataTables(c *fiber.Ctx) error {
 	// 3. 返回
 	return c.JSON(fiber.Map{
 		"tables": tables,
+	})
+}
+
+// 添加日志列表处理函数
+func listLogs(c *fiber.Ctx) error {
+	// 只允许root用户访问
+	userID, err := authenticateUser(c)
+	if err != nil || userID != 1 {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
+	// 解析分页参数
+	page := c.QueryInt("page", 1)
+	perPage := c.QueryInt("perpage", 30)
+
+	if page < 1 || perPage < 1 || perPage > 100 {
+		return sendError(c, 400, "Invalid pagination parameters.", nil)
+	}
+
+	// 获取总数
+	total, err := queries.CountLogs(context.Background())
+	if err != nil {
+		return sendError(c, 500, "Failed to count logs.", fiber.Map{"database_error": err.Error()})
+	}
+
+	// 计算分页
+	totalPages := int((total + int64(perPage) - 1) / int64(perPage))
+	offset := (page - 1) * perPage
+
+	// 获取日志列表
+	logs, err := queries.ListLogs(context.Background(), database.ListLogsParams{
+		Limit:  int64(perPage),
+		Offset: int64(offset),
+	})
+	if err != nil {
+		return sendError(c, 500, "Failed to fetch logs.", fiber.Map{"database_error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{
+		"page":       page,
+		"perPage":    perPage,
+		"totalPages": totalPages,
+		"totalItems": total,
+		"logs":       logs,
 	})
 }

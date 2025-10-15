@@ -10,6 +10,26 @@ import (
 	"database/sql"
 )
 
+const countLogs = `-- name: CountLogs :one
+SELECT COUNT(*) FROM _log_
+`
+
+func (q *Queries) CountLogs(ctx context.Context) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countLogs)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const createLog = `-- name: CreateLog :exec
+INSERT INTO _log_ (log_text) VALUES (?)
+`
+
+func (q *Queries) CreateLog(ctx context.Context, logText string) error {
+	_, err := q.db.ExecContext(ctx, createLog, logText)
+	return err
+}
+
 const createSecurity = `-- name: CreateSecurity :exec
 INSERT INTO _security_ (table_name, create_where, delete_where, update_where, view_where)
 VALUES (?, ?, ?, ?, ?)
@@ -90,6 +110,38 @@ func (q *Queries) GetSecurityByTable(ctx context.Context, tableName string) (Sec
 		&i.ViewWhere,
 	)
 	return i, err
+}
+
+const listLogs = `-- name: ListLogs :many
+SELECT id, log_text, created_at FROM _log_ ORDER BY id DESC LIMIT ? OFFSET ?
+`
+
+type ListLogsParams struct {
+	Limit  int64
+	Offset int64
+}
+
+func (q *Queries) ListLogs(ctx context.Context, arg ListLogsParams) ([]Log, error) {
+	rows, err := q.db.QueryContext(ctx, listLogs, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Log
+	for rows.Next() {
+		var i Log
+		if err := rows.Scan(&i.ID, &i.LogText, &i.CreatedAt); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listSecurities = `-- name: ListSecurities :many

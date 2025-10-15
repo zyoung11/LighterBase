@@ -35,3 +35,12 @@ WHERE table_name = ?;
 SELECT id, table_name, create_where, delete_where, update_where, view_where
 FROM _security_
 WHERE table_name = ?;
+
+-- name: CreateLog :exec
+INSERT INTO _log_ (log_text) VALUES (?);
+
+-- name: ListLogs :many
+SELECT id, log_text, created_at FROM _log_ ORDER BY id DESC LIMIT ? OFFSET ?;
+
+-- name: CountLogs :one
+SELECT COUNT(*) FROM _log_;
