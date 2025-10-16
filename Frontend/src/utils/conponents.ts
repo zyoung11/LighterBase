@@ -403,70 +403,63 @@ showLogs() {
 },
 
 
-/* 点击 folder 后，右侧展示所有表，主区默认空表；点击表名即查询全列数据 */
 async showFolderTables() {
-  /* 1. 渲染右侧表名列表 */
-  const sidebarBox = document.getElementById("folder-table-list") as HTMLElement;
+  const sidebarBox = document.getElementById('folder-table-list');
   if (!sidebarBox) return;
-  sidebarBox.innerHTML = "";                               // 清空旧列表
+  sidebarBox.innerHTML = '';
 
-  const tables = await sql.getTableAll();                  // 拿所有表名
+  const tables = await sql.getTableAll();
   tables.forEach((t: string) => {
-    const btn = document.createElement("button");
+    const btn = document.createElement('button');
     btn.className =
-      "w-full text-left px-3 py-2 rounded hover:bg-[#3a3f41] transition-colors";
+      'w-full text-left px-3 py-2 rounded hover:bg-[#2B2F31] transition-colors text-sm';
     btn.textContent = t;
     btn.dataset.table = t;
     sidebarBox.appendChild(btn);
   });
 
-  /* 2. 给右侧列表加事件：点击表 -> 查询全列 -> 渲染主区表格 */
-  sidebarBox.addEventListener("click", async (e) => {
-    const target = e.target as HTMLElement;
-    const table = target.dataset.table;
+  /* 点击表名 -> 主区渲染数据 */
+  sidebarBox.addEventListener('click', async (e) => {
+    const tgt = e.target as HTMLElement;
+    const table = tgt.dataset.table;
     if (!table) return;
 
-    /* 构造查询所有列的请求体 */
-    const payload = { SELECT: ["*"], WHERE: "" };          // WHERE 空字符串即可查全部
+    const payload = { SELECT: '*', WHERE: '' };
     try {
-      /* 使用 lighterBase 封装（与 api.ts 同一目录） */
-      const lb = new lighterBase("http://localhost:8080");                     // URL 在 api.ts 里已有
+      const lb = new lighterBase('http://localhost:8080');
       const res = await lb.searchTable(payload, table, 1, 30);
-
-      /* 渲染主工作区 */
-      renderTableInMain(res.items, table);
+      renderTableInMain(res.items || [], table);
     } catch (err) {
       console.error(`查询表 ${table} 失败：`, err);
     }
   });
 
-  /* 3. 默认空表提示 */
+  /* 主区渲染函数（Tailwind 表格） */
   function renderTableInMain(items: any[], table: string) {
-    const main = document.getElementById("main-workspace") as HTMLElement;
-    if (!items || items.length === 0) {
-      main.innerHTML = `<div class="p-6 text-gray-400">表 “${table}” 暂无数据</div>`;
+    const main = document.getElementById('main-workspace');
+    if (!items.length) {
+      main!.innerHTML = `
+        <div class="flex-1 bg-[#1B1E1F] flex items-center justify-center">
+          <div class="text-gray-400 text-sm">表 “${table}” 暂无数据</div>
+        </div>`;
       return;
     }
 
-    /* 取第一条数据拼出表头 */
     const cols = Object.keys(items[0]);
-    let headHTML = "";
-    cols.forEach((k) => (headHTML += `<th>${k}</th>`));
+    const headHTML = cols.map(k => `<th class="px-4 py-2 text-left">${k}</th>`).join('');
+    const bodyHTML = items.map(row =>
+      '<tr class="border-t border-gray-700">' +
+      cols.map(k => `<td class="px-4 py-2">${row[k] ?? ''}</td>`).join('') +
+      '</tr>'
+    ).join('');
 
-    let bodyHTML = "";
-    items.forEach((row) => {
-      bodyHTML += "<tr>";
-      cols.forEach((k) => (bodyHTML += `<td>${row[k] ?? ""}</td>`));
-      bodyHTML += "</tr>";
-    });
-
-    main.innerHTML = `
-      <div class="flex-1 bg-[#1B1E1F] p-6">
-        <h3 class="text-lg font-semibold mb-4">表：${table}</h3>
-        <div class="overflow-x-auto">
-          <table class="table min-w-full bg-[#2B2F31] rounded-lg text-gray-300">
-            <thead>
-              <tr class="border-b border-gray-600">${headHTML}</tr>
+    main!.innerHTML = `
+      <div class="flex-1 bg-[#1B1E1F] p-6 flex flex-col">
+        <h3 class="text-base font-semibold mb-4 text-gray-200">表：${table}</h3>
+        <div class="flex-1 overflow-auto rounded-lg border border-gray-700">
+          <table class="min-w-full bg-[#2B2F31] text-sm text-gray-300">
+            <thead class="sticky top-0 bg-[#2B2F31]">
+              <tr>${headHTML}</tr>
             </thead>
             <tbody>${bodyHTML}</tbody>
           </table>

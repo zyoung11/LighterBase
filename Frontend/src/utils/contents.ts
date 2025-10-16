@@ -32,15 +32,13 @@ const sidebarContent = {
   //                             </div>
   //                         `,
   folder: `
-                <div class="space-y-3">
-                    <button class="w-full px-4 py-3 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-left transition-colors">
-                        新建文件夹
-                    </button>
-                    <button class="w-full px-4 py-3 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg text-left transition-colors">
-                        导入文件
-                    </button>
-                </div>
-            `,
+    <div class="flex flex-col h-full">
+      <div class="text-xs uppercase tracking-wide text-gray-500 mb-3">表列表</div>
+      <div id="folder-table-list" class="flex-1 overflow-y-auto space-y-1 pr-1">
+        <!-- 动态表名按钮会插到这里 -->
+      </div>
+    </div>
+  `,
   database: `
                 <div class="space-y-3">
                     <button id="create-db" class="w-full mb-3 px-4 py-3 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-left transition-colors">
@@ -110,19 +108,11 @@ const workspaceContent = {
 
         </div>
     `,
-folder: `
-  <div class="flex h-full">
-    <!-- 左侧表列表 -->
-    <aside class="w-64 bg-[#1B1E1F] border-r border-gray-700 p-4">
-      <div class="mb-4 text-sm text-gray-400">表列表</div>
-      <div id="folder-table-list" class="space-y-2"></div>
-    </aside>
-
-    <!-- 右侧主区 -->
-    <main id="folder-main" class="flex-1 bg-[#1B1E1F] p-6">
-      <div class="text-gray-500">请点击左侧表名查看数据</div>
-    </main>
-  </div>`,
+  folder: `
+    <div class="flex-1 bg-[#1B1E1F] flex items-center justify-center">
+      <div class="text-gray-500 text-sm">请点击左侧表名查看数据</div>
+    </div>
+  `,
  records: `
 <div class="flex-1 flex flex-col bg-[#1B1E1F]">
   <!-- 顶部搜索 -->

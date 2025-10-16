@@ -99,18 +99,7 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
   }
 );
 
-const sqlend = document.getElementById('sql-end') as HTMLElement;
-if (sqlend) {
-  sqlend.addEventListener('click', async () => {
-    const textarea = document.getElementById('sql-input') as HTMLTextAreaElement | null;
-    if (textarea) {
-      const payload = {
-        "SQL": textarea.value,
-      };
-      await sql.createSql(payload);
-    }
-  });
-}
+
 
 
 async function initializeDatabaseView() {
@@ -248,6 +237,25 @@ function showDefaultWorkspace() {
       conponents.showRightSlidebar("AI 助手", slideBarContent.ai_generated);
       await conponents.setupTableButtons();
       return;
+    }
+    if(target.closest('#sql-send')){
+      const textarea = document.getElementById('sql-input') as HTMLTextAreaElement | null;
+      if (textarea) {
+        let sqlValue = textarea.value;
+        
+        // 删除users表相关的内容
+        const usersTablePattern = /CREATE TABLE users \([\s\S]*?;\n*/i;
+        sqlValue = sqlValue.replace(usersTablePattern, '');
+        
+        // 删除多余的空白行
+        sqlValue = sqlValue.replace(/^\s*[\r\n]/gm, '').trim();
+        
+        const payload = {
+          "SQL": sqlValue,
+        };
+        console.log('payload:', payload);
+        await sql.createSql(payload);
+      }
     }
   });
 }
