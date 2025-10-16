@@ -40,7 +40,9 @@ const sql = {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            return await response.json();
+            const data = await response.json();
+            console.log(data.Sql);
+            return data.Sql;
         } catch (error) {
             console.error("Error getting lastest SQL:", error);
             throw error;

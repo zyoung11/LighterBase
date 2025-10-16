@@ -237,6 +237,14 @@ const slideBarContent = {
                         </div>
                     </div>
                 `,
+log_detail: `
+<div class="flex flex-col h-full text-sm text-gray-300">
+  <div class="mb-2 text-gray-500 text-xs">#<span id="log-id"></span></div>
+  <div class="mb-2">级别：<span id="log-level"></span></div>
+  <div class="mb-2">创建时间：<span id="log-created"></span></div>
+  <div class="mb-1 text-gray-400">日志内容</div>
+  <div class="bg-[#2B2F31] p-3 rounded whitespace-pre-wrap break-all" id="log-text"></div>
+</div>`
 };
 
 const apiMarked = {
@@ -308,13 +316,5 @@ const searchData = await lb.searchTable(payload, table_name, page, perpage);
 \`\`\`
 `,
 
-log_detail: `
-<div class="flex flex-col h-full text-sm text-gray-300">
-  <div class="mb-2 text-gray-500 text-xs">#<span id="log-id"></span></div>
-  <div class="mb-2">级别：<span id="log-level"></span></div>
-  <div class="mb-2">创建时间：<span id="log-created"></span></div>
-  <div class="mb-1 text-gray-400">日志内容</div>
-  <div class="bg-[#2B2F31] p-3 rounded whitespace-pre-wrap break-all" id="log-text"></div>
-</div>`
 };
 export { sidebarContent, workspaceContent, slideBarContent, apiMarked };

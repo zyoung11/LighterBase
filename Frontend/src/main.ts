@@ -72,91 +72,180 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
   }
 );
 
+(document.getElementById("folder-btn") as HTMLElement).addEventListener(
+  "click",
+  () => {
+    rightSidebar.innerHTML = sidebarContent.folder;
+    currentSection = "folder";
+    defaultWorkspace.style.display = "none";
+    mainWorkspace.innerHTML = workspaceContent.folder;
+  }
+);
 
-
-//-----------------------------------------------数据库在第四部分--------------------------------------------
 
 
 (document.getElementById("database-btn") as HTMLElement).addEventListener(
   "click",
   () => {
     showDefaultWorkspace();
+    initializeDatabaseView();
   }
 );
 
-mainWorkspace.addEventListener('keydown', async(e) => {
+const sqlend = document.getElementById('sql-end') as HTMLElement;
+if (sqlend) {
+  sqlend.addEventListener('click', async () => {
+    const textarea = document.getElementById('sql-input') as HTMLTextAreaElement | null;
+    if (textarea) {
+      const payload = {
+        "SQL": textarea.value,
+      };
+      await sql.createSql(payload);
+    }
+  });
+}
+
+
+async function initializeDatabaseView() {
+  const textarea = document.getElementById('sql-input') as HTMLTextAreaElement | null;
+  if (textarea) {
+    let initialSQL = `CREATE TABLE users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  password_hash TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  avatar TEXT,
+  create_at TEXT NOT NULL,
+  update_at TEXT NOT NULL
+);
+
+`;
+    
+    // 检查是否有现有的表数据
+    try {
+      const tableStatements = await sql.lastestSql();
+      if (tableStatements) {
+        // 如果有内容，使用返回的SQL语句
+        initialSQL += tableStatements + '\n';
+      }
+    } catch (error) {
+      console.warn("获取表数据失败，使用默认SQL:", error);
+    }
+
+    textarea.value = initialSQL;
+    
+    const initialLength = initialSQL.length;
+    
+    textarea.addEventListener('input', () => {
+      if (textarea.value.length < initialLength || 
+          !textarea.value.startsWith(initialSQL)) {
+        textarea.value = initialSQL;
+      }
+    });
+    
+    textarea.focus();
+    textarea.setSelectionRange(initialLength, initialLength);
+
+    // 渲染ER图
+    try {
+      const ast = sqliteParser(initialSQL);
+      const tables = gojsER.extract(ast);
+      console.log("提取的表结构:", tables);
+      requestAnimationFrame(() => { 
+        gojsER.drawER(tables, 'mount');
+      });
+    } catch (error) {
+      console.error("初始SQL解析错误:", error);
+    }
+  }
+}
+
+
+mainWorkspace.addEventListener('keydown', async (e) => {
   const target = e.target as HTMLElement;
 
   if (target.id === 'sql-input' && target.tagName === 'TEXTAREA') {
     const textarea = target as HTMLTextAreaElement;
-    const payload ={
-      "SQL": textarea.value,
-    }
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault(); 
-      const ast = sqliteParser(textarea.value); 
-      // console.log("测试sqlite-parser",JSON.stringify(ast, null, 2));
-      const tables =gojsER.extract(ast);
-      console.log("提取的表结构:", tables);
-      // await sql.createSql(payload);
-      requestAnimationFrame(() => {gojsER.drawER(tables, 'mount');});
+      e.preventDefault();
+      
+      try {
+        const ast = sqliteParser(textarea.value);
+        const tables = gojsER.extract(ast);
+        requestAnimationFrame(() => { 
+          gojsER.drawER(tables, 'mount');
+        });
+      } catch (error) {
+        console.error("SQL解析错误:", error);
+      }
+    } else if (e.key === 'Enter' && e.shiftKey) {
+      e.preventDefault();
+      
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      textarea.value = textarea.value.substring(0, start) + '\n' + textarea.value.substring(end);
+      textarea.selectionStart = textarea.selectionEnd = start + 1;
     }
   }
 });
 
-// 初始显示默认工作区
 showDefaultWorkspace();
-
-// 显示默认工作区
 function showDefaultWorkspace() {
-  // defaultWorkspace.style.display = "flex";
-  // mainWorkspace.innerHTML = "";
-  // mainWorkspace.appendChild(defaultWorkspace);
-  // currentSection = null;
+  rightSidebar.classList.remove("hidden")
+  rightSidebar.innerHTML = sidebarContent.database;
+  currentSection = "database";
+  defaultWorkspace.style.display = "none";
+  mainWorkspace.innerHTML = workspaceContent.database;
 
-    rightSidebar.classList.remove("hidden")
-    rightSidebar.innerHTML = sidebarContent.database;
-    currentSection = "database";
-    defaultWorkspace.style.display = "none";
-    mainWorkspace.innerHTML = workspaceContent.database;
-
-    
-    rightSidebar.addEventListener('click', async(e) => {
-        const target = e.target as HTMLElement;
-
-      if (target.closest('#permissions')) {
-          currentSection = "permissions";
-          mainWorkspace.innerHTML = workspaceContent.permissions;
-          await conponents.showPermissions();
-          return;
+  setTimeout(() => {
+    const mountElement = document.getElementById('mount');
+    if (!mountElement) {
+      const databaseContainer = document.getElementById('database-container');
+      if (databaseContainer) {
+        const mountDiv = document.createElement('div');
+        mountDiv.id = 'mount';
+        mountDiv.style.width = '100%';
+        mountDiv.style.height = '400px';
+        databaseContainer.appendChild(mountDiv);
       }
-    
-      if (target.closest('#create-db')) {
-          mainWorkspace.innerHTML = workspaceContent.database;
-          return;
-      }
-    });
-    const apibtn = document.getElementById("api-docs-btn") as HTMLElement;
-    const aibtn = document.getElementById("ai-generated") as HTMLElement;
-    
-    if(apibtn){
-      apibtn.addEventListener('click', async() => {
-        conponents.showRightSlidebar("API 文档", slideBarContent.api_md);
-        await conponents.setupTableButtons();
-      });
     }
+  }, 0);
 
-    if(aibtn){
-      aibtn.addEventListener('click', async() => {
-        conponents.showRightSlidebar("AI 助手", slideBarContent.ai_generated);
-        await conponents.setupTableButtons();
-      });
+  initializeDatabaseView();
+
+  rightSidebar.addEventListener('click', async(e) => {
+    const target = e.target as HTMLElement;
+
+    if (target.closest('#permissions')) {
+      currentSection = "permissions";
+      mainWorkspace.innerHTML = workspaceContent.permissions;
+      await conponents.showPermissions();
+      return;
     }
+  
+    if (target.closest('#create-db')) {
+      mainWorkspace.innerHTML = workspaceContent.database;
+      return;
+    }
+  });
 
+  mainWorkspace.addEventListener('click', async(e) => { 
+    const target = e.target as HTMLElement;
 
-
-
+    if (target.closest('#api-docs-btn')) {
+      conponents.showRightSlidebar("API 文档", slideBarContent.api_md);
+      await conponents.setupTableButtons();
+      return;
+    }
+    if (target.closest('#ai-generated')) {
+      conponents.showRightSlidebar("AI 助手", slideBarContent.ai_generated);
+      await conponents.setupTableButtons();
+      return;
+    }
+  });
 }
+
+
 
 
 
@@ -176,18 +265,6 @@ function showDefaultWorkspace() {
 // );
 
 
-
-
-
-// (document.getElementById("folder-btn") as HTMLElement).addEventListener(
-//   "click",
-//   () => {
-//     rightSidebar.innerHTML = sidebarContent.folder;
-//     currentSection = "folder";
-//     defaultWorkspace.style.display = "none";
-//     mainWorkspace.innerHTML = workspaceContent.folder;
-//   }
-// );
 
 
 // // 底部模态框按钮

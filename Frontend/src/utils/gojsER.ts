@@ -1,6 +1,7 @@
 import * as godraw from "gojs"
 
 const $ = godraw.GraphObject.make; 
+let currentDiagram: any = null;
 
 type Table = {
   name: string;
@@ -78,12 +79,18 @@ const gojsER = {
   },
 
 
-   drawER(tables: Table[], mountId: string) {
+  drawER(tables: Table[], mountId: string) {
     const container = document.getElementById(mountId);
     if (!container) {
       console.error(`Container with ID '${mountId}' not found.`);
       return null;
     }
+
+    if (currentDiagram) {
+      currentDiagram.div = null; 
+    }
+
+    container.innerHTML = '';
 
     const nodeDataArray = tables.map((t) => ({
       key: t.name, 
@@ -99,7 +106,6 @@ const gojsER = {
       }))
     );
 
-
     const diagram = $(godraw.Diagram, mountId, 
       {
         initialAutoScale: godraw.Diagram.Uniform,
@@ -109,6 +115,8 @@ const gojsER = {
         "undoManager.isEnabled": true, 
       }
     );
+
+    currentDiagram = diagram;
 
     diagram.nodeTemplate = $(godraw.Node, "Auto",
         {
@@ -145,16 +153,11 @@ const gojsER = {
 
     diagram.linkTemplate = $(godraw.Link,
       { routing: godraw.Link.AvoidsNodes, curve: godraw.Link.JumpOver },
-      $(godraw.Shape, { stroke: "#999", strokeWidth: 1 }), // 连接线本身
-      $(godraw.Shape, { toArrow: "Standard", fill: "#999", scale: 1.5 }) // 箭头
-      // $(godraw.TextBlock, // 标签
-      //   { segmentOffset: new godraw.Point(0, 15), segmentIndex: 1, font: "12px sans-serif" },
-      //   new godraw.Binding("text", "label")
-      // )
+      $(godraw.Shape, { stroke: "#999", strokeWidth: 1 }),
+      $(godraw.Shape, { toArrow: "Standard", fill: "#999", scale: 1.5 })
     );
 
     diagram.model = new godraw.GraphLinksModel(nodeDataArray, linkDataArray);
-
 
     return diagram;
   },
