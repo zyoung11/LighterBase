@@ -1,4 +1,11 @@
 import { URL,authToken } from "./api.ts";
+type theLogs = {
+    page: number;
+    perPage: number;
+    totalPages: number;
+    totalItems: number;
+    logs: { id: number; log_text: string; created_at: string; level: number }[];
+    }
 const sql = {
     async createSql(payload: any): Promise<any> {
         try {
@@ -57,21 +64,26 @@ const sql = {
         }
     },
 
-    async getLogs(x:number,y:number):Promise<any> {
-        try{
-            const res = await fetch(`${URL}/api/query/logs/?page=${x}&perpage=${y}`,{
-                method: "GET",
-                headers:{
-                    "Content-Type": "application"
-                }                       
-        });
+    async getLogs(page: number, perPage: number): Promise<theLogs> {
+    try {
+        const res = await fetch(
+        `${URL}/api/query/logs?page=${page}&perpage=${perPage}`,
+        {
+            method: 'GET',
+            headers: {
+            Authorization: `Bearer ${authToken}`,
+            },
+        }
+        );
+        if (!res.ok) throw new Error(`logs ${res.status}`);
+        const data = await res.json();
+        console.log(data);
+        return data;
 
-        if(res.ok){
-            const data = await res.json();
-        }
-    }catch(e){
-        console.log("显示获取logs报错",e)
-        }
+    } catch (e) {
+        console.error('getLogs error', e);
+        throw e;
+    }
     }
 }
 

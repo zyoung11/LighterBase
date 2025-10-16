@@ -141,47 +141,46 @@ const workspaceContent = {
                     </div>
                 </div>
             `,
-  records: `
-                <div class="flex-1 flex flex-col bg-[#1B1E1F] w-full">
-                    <!-- 搜索栏 -->
-                    <div class="p-4 border-b border-gray-700">
-                        <input type="text" placeholder="搜索记录..." class="w-full px-4 py-2 bg-[#2B2F31] rounded-lg focus:outline-none focus:border-[#4a4f52] border border-transparent">
-                    </div>
-                    <div class="flex flex-1 overflow-hidden">
-                        <!-- Info栏 -->
-                        <div class="w-64 bg-[#181A1B] p-4 overflow-y-auto">
-                            <div class="space-y-2">
-                                <label class="flex items-center space-x-2 p-2 hover:bg-[#2B2F31] rounded cursor-pointer">
-                                    <input type="checkbox" class="record-checkbox rounded">
-                                    <span>查询记录 1</span>
-                                </label>
-                                <label class="flex items-center space-x-2 p-2 hover:bg-[#2B2F31] rounded cursor-pointer">
-                                    <input type="checkbox" class="record-checkbox rounded">
-                                    <span>查询记录 2</span>
-                                </label>
-                                <label class="flex items-center space-x-2 p-2 hover:bg-[#2B2F31] rounded cursor-pointer">
-                                    <input type="checkbox" class="record-checkbox rounded">
-                                    <span>查询记录 3</span>
-                                </label>
-                            </div>
-                        </div>
-                        <!-- 显示区域和日期栏 -->
-                        <div class="flex-1 flex flex-col p-4">
-                            <div class="flex-1 overflow-y-auto">
-                                <div class="record-item p-3 hover:bg-[#2B2F31] rounded cursor-pointer mb-2" data-date="2024-01-15">
-                                    <p>SELECT * FROM users WHERE id = 1</p>
-                                </div>
-                                <div class="record-item p-3 hover:bg-[#2B2F31] rounded cursor-pointer mb-2" data-date="2024-01-14">
-                                    <p>UPDATE products SET price = 99.99 WHERE id = 5</p>
-                                </div>
-                            </div>
-                            <div class="border-t border-gray-700 pt-2 mt-2">
-                                <p class="text-sm text-gray-400">日期: <span id="selected-date">未选择</span></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `,
+ records: `
+<div class="flex-1 flex flex-col bg-[#1B1E1F]">
+  <!-- 顶部搜索 -->
+  <div class="p-4 border-b border-gray-700">
+    <input id="logs-search" type="text" placeholder="搜索 id 或日志内容…"
+           class="w-full px-4 py-2 bg-[#2B2F31] rounded focus:outline-none focus:border-[#4a4f52] border border-transparent">
+  </div>
+
+  <!-- 表格区域 -->
+  <div class="flex-1 overflow-y-auto p-4">
+    <table class="min-w-full bg-[#2B2F31] rounded-lg text-sm">
+      <thead>
+        <tr class="border-b border-gray-600">
+          <th class="px-3 py-2 text-left w-10">
+            <input id="logs-select-all" type="checkbox" class="rounded">
+          </th>
+          <th class="px-3 py-2 text-left">级别</th>
+          <th class="px-3 py-2 text-left">ID</th>
+          <th class="px-3 py-2 text-left">日志内容</th>
+          <th class="px-3 py-2 text-left">创建时间</th>
+        </tr>
+      </thead>
+      <tbody id="logs-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- 底部分页 + 每页条数 -->
+  <div class="p-4 border-t border-gray-700 flex justify-between items-center text-sm">
+    <div id="logs-pagination" class="flex gap-2 items-center"></div>
+    <div class="flex items-center gap-2">
+      <span class="text-gray-400">每页</span>
+      <select id="logs-perpage" class="px-2 py-1 bg-[#2B2F31] rounded border border-gray-600">
+        <option value="30">30</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+      <span class="text-gray-400">条</span>
+    </div>
+  </div>
+</div>`,
   aiSettings: `
                 <div class="flex-1 bg-[#1B1E1F] p-6">
                 <h3 class="text-lg font-semibold mb-4">AI 设置</h3>
@@ -308,5 +307,14 @@ const payload = {
 const searchData = await lb.searchTable(payload, table_name, page, perpage);
 \`\`\`
 `,
+
+log_detail: `
+<div class="flex flex-col h-full text-sm text-gray-300">
+  <div class="mb-2 text-gray-500 text-xs">#<span id="log-id"></span></div>
+  <div class="mb-2">级别：<span id="log-level"></span></div>
+  <div class="mb-2">创建时间：<span id="log-created"></span></div>
+  <div class="mb-1 text-gray-400">日志内容</div>
+  <div class="bg-[#2B2F31] p-3 rounded whitespace-pre-wrap break-all" id="log-text"></div>
+</div>`
 };
 export { sidebarContent, workspaceContent, slideBarContent, apiMarked };

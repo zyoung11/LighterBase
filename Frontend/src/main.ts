@@ -54,40 +54,23 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
 
 
 
-// (document.getElementById("records-btn") as HTMLElement).addEventListener(
-//   "click",
-//   () => {
-//     rightSidebar.classList.add("hidden")
-//     currentSection = "records";
-//     defaultWorkspace.style.display = "none";
-//     mainWorkspace.innerHTML = workspaceContent.records;
+(document.getElementById("records-btn") as HTMLElement).addEventListener(
+  "click",
+  () => {
+    rightSidebar.classList.add("hidden")
+    currentSection = "records";
+    defaultWorkspace.style.display = "none";
+    mainWorkspace.innerHTML = workspaceContent.records;
 
-//     // 添加记录事件
-//     setTimeout(() => {
-//       // 记录项点击事件
-//       document.querySelectorAll(".record-item").forEach((item) => {
-//         item.addEventListener("click", function () {
-//           const date = this.getAttribute("data-date");
-//           (
-//             document.getElementById("selected-date") as HTMLElement
-//           ).textContent = date;
-//           conponents.showRightSlidebar("记录详情",sidebarContent.records);
-//         });
-//       });
-
-//       // 复选框事件
-//       document.querySelectorAll(".record-checkbox").forEach((checkbox) => {
-//         checkbox.addEventListener("change", function () {
-//           if (
-//             document.querySelectorAll(".record-checkbox:checked").length > 0
-//           ) {
-//             blocks.bottomPopupConfirm("确定要删除所选记录吗？")
-//           }
-//         });
-//       });
-//     }, 100);
-//   }
-// );
+  (document.getElementById('records-btn') as HTMLElement).addEventListener('click', () => {
+    rightSidebar.classList.add('hidden');
+    currentSection = 'records';
+    defaultWorkspace.style.display = 'none';
+    mainWorkspace.innerHTML = workspaceContent.records; // 一次性插入 HTML
+    conponents.showLogs(); // 内部用事件委托，无需 timeout
+  });
+  }
+);
 
 
 

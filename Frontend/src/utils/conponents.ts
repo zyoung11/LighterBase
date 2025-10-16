@@ -271,7 +271,135 @@ async setupTableButtons() {
   if (tables.length > 0) {
     this.showTableMdContent();
   }
-}
+},
+
+/* 在 conponents 对象内追加 */
+_showLogsPage: 1, // 保存当前页码
+
+showLogs() {
+  const render = async () => {
+    const search = (document.getElementById('logs-search') as HTMLInputElement)?.value.trim() || '';
+    const page    = Number(this._showLogsPage || 1);
+    const perPage = Number((document.getElementById('logs-perpage') as HTMLSelectElement)?.value || 30);
+
+    let { logs, totalPages } = await sql.getLogs(page, perPage);
+
+    /* 前端模糊搜索（id + 内容） */
+    if (search) {
+      logs = logs.filter((l: any) =>
+        `${l.id} ${l.log_text}`.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    /* 级别样式 */
+    const levelStyle = (lvl: number) => {
+      const map: { [k: number]: string } = { 0: 'bg-green-600', 8: 'bg-red-600' };
+      const bg = map[lvl] || 'bg-gray-600';
+      return `inline-block px-2 py-0.5 text-xs text-white rounded-full ${bg}`;
+    };
+
+    /* 渲染表格 */
+    const tbody = document.getElementById('logs-tbody') as HTMLElement;
+    tbody.innerHTML = logs
+      .map(
+        (l: any) => `
+<tr class="border-b border-gray-700 hover:bg-[#3a3f41] cursor-pointer" data-id="${l.id}">
+  <td class="px-3 py-2"><input type="checkbox" class="log-row-checkbox rounded" data-id="${l.id}"></td>
+  <td class="px-3 py-2"><span class="${levelStyle(l.level)}">${l.level}</span></td>
+  <td class="px-3 py-2">${l.id}</td>
+  <td class="px-3 py-2 break-all">${l.log_text}</td>
+  <td class="px-3 py-2">${l.created_at}</td>
+</tr>`
+      )
+      .join('');
+
+    /* 分页按钮：1 2 3 4 … 8 */
+    const pag = document.getElementById('logs-pagination') as HTMLElement;
+    pag.innerHTML = '';
+    const makeBtn = (n: number | string, active = false) => {
+      const btn = document.createElement('button');
+      btn.className = `px-2 py-1 rounded border text-sm ${
+        active ? 'bg-blue-600 border-blue-600' : 'bg-[#2B2F31] border-gray-600'
+      }`;
+      btn.textContent = String(n);
+      if (typeof n === 'number') {
+        btn.addEventListener('click', () => {
+          this._showLogsPage = n;
+          render();
+        });
+      }
+      return btn;
+    };
+    const dots = document.createElement('span');
+    dots.textContent = '…';
+
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pag.appendChild(makeBtn(i, i === page));
+    } else {
+      [1, 2, 3, 4, dots, totalPages].forEach((p) =>
+        pag.appendChild(typeof p === 'number' ? makeBtn(p, p === page) : dots)
+      );
+    }
+
+    tbody.querySelectorAll('tr').forEach((tr) => {
+      tr.addEventListener('click', (e) => {
+        if ((e.target as HTMLElement).tagName === 'INPUT') return;
+        const id = Number(tr.dataset.id);
+        const log = logs.find((l: any) => l.id === id);
+        
+        // 修复1: 替换 slideBarContent.log_detail 为实际的HTML内容
+        const logDetailContent = `
+          <div class="p-4">
+            <h3 class="text-lg font-semibold mb-4">日志详情</h3>
+            <div class="space-y-2">
+              <p><strong>ID:</strong> <span id="log-id">${log.id}</span></p>
+              <p><strong>级别:</strong> <span id="log-level">${log.level}</span></p>
+              <p><strong>创建时间:</strong> <span id="log-created">${log.created_at}</span></p>
+              <p><strong>内容:</strong> <pre id="log-text" class="mt-2 p-2 bg-[#2B2F31] rounded">${log.log_text}</pre></p>
+            </div>
+          </div>
+        `;
+        
+        this.showRightSlidebar('日志详情', logDetailContent);
+      });
+    });
+
+    const updateBottom = () => {
+      const checked = Array.from(
+        document.querySelectorAll('.log-row-checkbox:checked') as NodeListOf<HTMLInputElement>
+      ).map((i) => Number(i.dataset.id));
+      if (checked.length) {
+        // 实现一个简单的确认弹窗替代原来的 blocks.bottomPopupConfirm
+        if (confirm(`确定删除选中的 ${checked.length} 条日志吗？`)) {
+          admin.deleteLogs(checked).then(() => {
+            this._showLogsPage = 1;
+            render();
+          }).catch(error => {
+            console.error('删除日志失败:', error);
+          });
+        }
+      }
+    };
+
+    /* 全选 */
+    (document.getElementById('logs-select-all') as HTMLInputElement).onchange = (e) => {
+      const checked = (e.target as HTMLInputElement).checked;
+      tbody.querySelectorAll('.log-row-checkbox').forEach((i: any) => (i.checked = checked));
+      updateBottom();
+    };
+    tbody.querySelectorAll('.log-row-checkbox').forEach((i: any) =>
+      i.addEventListener('change', updateBottom)
+    );
+  };
+
+  /* 首次渲染 & 绑定事件 */
+  render();
+  document.getElementById('logs-search')?.addEventListener('input', render);
+  document.getElementById('logs-perpage')?.addEventListener('change', () => {
+    this._showLogsPage = 1;
+    render();
+  });
+},
 
 };
 
