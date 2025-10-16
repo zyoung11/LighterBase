@@ -24,9 +24,6 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
   conponents.hideRightSlidebar
 );
 
-
-
-
 (document.getElementById("settings-btn") as HTMLElement).addEventListener(
   "click",
   () => {
@@ -54,37 +51,25 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
 
 
 
-(document.getElementById("records-btn") as HTMLElement).addEventListener(
-  "click",
-  () => {
-    rightSidebar.classList.add("hidden")
-    currentSection = "records";
-    defaultWorkspace.style.display = "none";
-    mainWorkspace.innerHTML = workspaceContent.records;
-
   (document.getElementById('records-btn') as HTMLElement).addEventListener('click', () => {
     rightSidebar.classList.add('hidden');
     currentSection = 'records';
     defaultWorkspace.style.display = 'none';
-    mainWorkspace.innerHTML = workspaceContent.records; // 一次性插入 HTML
-    conponents.showLogs(); // 内部用事件委托，无需 timeout
+    mainWorkspace.innerHTML = workspaceContent.records; 
+    conponents.showLogs(); 
   });
-  }
-);
 
-/* ========== folder 按钮 ========== */
+
 (document.getElementById("folder-btn") as HTMLElement).addEventListener(
   "click",
   async () => {
     rightSidebar.classList.remove("hidden");
-    rightSidebar.innerHTML = sidebarContent.folder;          // 右侧保持原来的两个按钮
+    rightSidebar.innerHTML = sidebarContent.folder;        
     currentSection = "folder";
     defaultWorkspace.style.display = "none";
 
-    /* 主工作区：先放一张空表 */
     mainWorkspace.innerHTML = workspaceContent.folder;
 
-    /* 渲染左侧“表列表” */
     await conponents.showFolderTables();
   }
 );
@@ -98,8 +83,6 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
     initializeDatabaseView();
   }
 );
-
-
 
 
 async function initializeDatabaseView() {
@@ -295,22 +278,3 @@ function showDefaultWorkspace() {
 //   }
 // );
 
-
-
-// document.addEventListener("DOMContentLoaded", () => {              可以准备删了
-//   const textarea = document.querySelector("textarea");
-//   if (textarea) {
-//     textarea.addEventListener("keydown", (e) => {
-//       if (e.key === "Tab") {
-//         e.preventDefault();
-//         const start = textarea.selectionStart;
-//         const end = textarea.selectionEnd;
-//         textarea.value =
-//           textarea.value.substring(0, start) +
-//           "    " +
-//           textarea.value.substring(end);
-//         textarea.selectionStart = textarea.selectionEnd = start + 4;
-//       }
-//     });
-//   }
-// });

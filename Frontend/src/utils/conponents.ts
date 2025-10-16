@@ -274,8 +274,7 @@ async setupTableButtons() {
   }
 },
 
-/* 在 conponents 对象内追加 */
-_showLogsPage: 1, // 保存当前页码
+_showLogsPage: 1, 
 
 showLogs() {
   const render = async () => {
@@ -285,7 +284,6 @@ showLogs() {
 
     let { logs, totalPages } = await sql.getLogs(page, perPage);
 
-    /* 前端模糊搜索（id + 内容） */
     if (search) {
       logs = logs.filter((l: any) =>
         `${l.id} ${l.log_text}`.toLowerCase().includes(search.toLowerCase())
