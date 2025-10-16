@@ -967,7 +967,7 @@ func updateRecord(c *fiber.Ctx) error {
 	}
 
 	// 2. 权限检查
-	canDelete, err := checkPermission("delete", tableName, userID, isGuest)
+	canDelete, err := checkPermission("update", tableName, userID, isGuest)
 	if err != nil {
 		switch err.Error() {
 		case "TABLE_EMPTY":
@@ -1055,7 +1055,7 @@ func viewRecords(c *fiber.Ctx) error {
 	}
 
 	// 2. 权限检查
-	canDelete, err := checkPermission("delete", tableName, userID, isGuest)
+	canDelete, err := checkPermission("view", tableName, userID, isGuest)
 	if err != nil {
 		switch err.Error() {
 		case "TABLE_EMPTY":
