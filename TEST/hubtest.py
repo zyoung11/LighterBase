@@ -81,6 +81,76 @@ def user_delete(uid: int, token: str) -> bool:
     print("错误响应:", r.text)
     return False
 
+def project_create(token: str, name: str, avatar: str = "", description: str = "") -> dict | None:
+    url = f"{HOST}/api/projects"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}"
+    }
+    payload = {
+        "project_name": name,
+        "project_avatar": avatar,
+        "project_description": description
+    }
+    r = requests.post(url, json=payload, headers=headers)
+    print(f"[create_project {name}] 状态码: {r.status_code}")
+    if r.status_code == 201:
+        project = r.json()
+        print("新建项目成功:", json.dumps(project, ensure_ascii=False, indent=2))
+        return project
+    print("新建项目失败:", r.text)
+    return None
+
+def projects_my(token: str) -> list | None:
+    url = f"{HOST}/api/projects"
+    headers = {"Authorization": f"Bearer {token}"}
+    r = requests.get(url, headers=headers)
+    print(f"[projects_my] 状态码: {r.status_code}")
+    if r.status_code == 200:
+        projects = r.json()
+        print("当前用户项目列表:")
+        for p in projects:
+            print(" -", p["project_name"], f"(id={p['project_id']}, desc={p.get('project_description', '')})")
+        return projects
+    print("错误响应:", r.text)
+    return None
+
+def project_get(pid: int, token: str) -> dict | None:
+    url = f"{HOST}/api/projects/{pid}"
+    headers = {"Authorization": f"Bearer {token}"}
+    r = requests.get(url, headers=headers)
+    print(f"[get_project {pid}] 状态码: {r.status_code}")
+    if r.status_code == 200:
+        proj = r.json()
+        print("项目详情:", json.dumps(proj, ensure_ascii=False, indent=2))
+        return proj
+    print("错误响应:", r.text)
+    return None    
+
+def project_update(pid: int, token: str, name: str | None = None, avatar: str | None = None, desc: str | None = None, size: int | None = None) -> dict | None:
+    url = f"{HOST}/api/projects/{pid}"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}"
+    }
+    payload = {k: v for k, v in {
+        "project_name": name,
+        "project_avatar": avatar,
+        "project_description": desc,
+        "project_size": size
+    }.items() if v is not None}
+
+    r = requests.put(url, json=payload, headers=headers)
+    print(f"[update_project {pid}] 状态码: {r.status_code}")
+    if r.status_code == 200:
+        proj = r.json()
+        print("更新后项目:", json.dumps(proj, ensure_ascii=False, indent=2))
+        return proj
+    print("错误响应:", r.text)
+    return None
+
+
+
 
 
 if __name__ == "__main__":
@@ -123,4 +193,25 @@ if __name__ == "__main__":
             exit(1)
         user_delete(zrl_info["user_id"], admin_token)
 
-        
+    for name in ("abc", "jkl"):
+        proj = project_create(
+            admin_token,
+            name=name,
+            avatar="",
+            description=f"{name} 的描述"
+        )
+        if proj:
+            print(f"记录新 project_id = {proj['project_id']}")
+        else:
+            print(f"项目 {name} 创建失败，脚本提前结束")
+            exit(1)
+    projects = projects_my(admin_token)
+    if projects:
+        first_id = projects[0]["project_id"]
+        project_get(first_id, admin_token)
+
+    if projects:
+        first_id = projects[0]["project_id"]
+        project_update(first_id, admin_token,
+                       name="abc_updated",
+                       desc="描述已被更新")
