@@ -72,13 +72,20 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
   }
 );
 
+/* ========== folder 按钮 ========== */
 (document.getElementById("folder-btn") as HTMLElement).addEventListener(
   "click",
-  () => {
-    rightSidebar.innerHTML = sidebarContent.folder;
+  async () => {
+    rightSidebar.classList.remove("hidden");
+    rightSidebar.innerHTML = sidebarContent.folder;          // 右侧保持原来的两个按钮
     currentSection = "folder";
     defaultWorkspace.style.display = "none";
+
+    /* 主工作区：先放一张空表 */
     mainWorkspace.innerHTML = workspaceContent.folder;
+
+    /* 渲染左侧“表列表” */
+    await conponents.showFolderTables();
   }
 );
 

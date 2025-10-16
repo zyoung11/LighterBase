@@ -38,7 +38,11 @@
         </button>
         <button id="auth-btn"
           class="w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg flex items-center justify-center text-white font-bold transition-colors">
-          auth_test
+          auth
+        </button>
+        <button id="test-btn"
+          class="w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg flex items-center justify-center text-white font-bold transition-colors">
+          test
         </button>
       </div>
 
@@ -78,7 +82,7 @@
 
       <!-- 右侧滑入侧边栏 -->
       <div id="right-slidebar"
-        class="w-[40%] bg-[#181A1B] p-4 flex flex-col sidebar-transition transform translate-x-full absolute right-0 top-0 h-full">
+        class="w-[40%] bg-[#181A1B] p-4 flex flex-col sidebar-transition transform translate-x-full absolute right-0 top-0 h-full z-20">
         <div class="flex justify-between items-center mb-4">
           <h3 id="slidebar-title" class="text-lg font-semibold"></h3>
           <button id="close-slidebar" class="text-gray-400 hover:text-white">
@@ -97,6 +101,10 @@
   <script>
     document.getElementById('auth-btn').addEventListener('click', () => {
       window.location.href = '/welcome';
+    });
+
+    document.getElementById('test-btn').addEventListener('click', () => {
+      window.location.href = '/test';
     });
   </script>
 </body>

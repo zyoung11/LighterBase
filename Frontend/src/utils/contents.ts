@@ -62,7 +62,7 @@ const workspaceContent = {
                             
                         </div>
                         <!-- API文档按钮 -->
-                        <button id="api-docs-btn" class="absolute right-4 top-1/2 transform -translate-y-1/2 px-3 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors">
+                        <button id="api-docs-btn" class="absolute right-4 top-1/2 transform -translate-y-1/2 px-3 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors z-10">
                             <img src ="${apiIcon}" class ="w-6 h-6 object-contain" alt="API文档">
                         </button>
                     </div>
@@ -110,37 +110,19 @@ const workspaceContent = {
 
         </div>
     `,
-  folder: `
-                <div class="flex-1 bg-[#1B1E1F] p-6">
-                    <h3 class="text-lg font-semibold mb-4">数据库表 - files</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-[#2B2F31] rounded-lg">
-                            <thead>
-                                <tr class="border-b border-gray-600">
-                                    <th class="px-4 py-3 text-left">ID</th>
-                                    <th class="px-4 py-3 text-left">文件名</th>
-                                    <th class="px-4 py-3 text-left">大小</th>
-                                    <th class="px-4 py-3 text-left">修改时间</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="border-b border-gray-700 hover:bg-[#3a3f41]">
-                                    <td class="px-4 py-3">1</td>
-                                    <td class="px-4 py-3">document.pdf</td>
-                                    <td class="px-4 py-3">2.5 MB</td>
-                                    <td class="px-4 py-3">2024-01-15</td>
-                                </tr>
-                                <tr class="border-b border-gray-700 hover:bg-[#3a3f41]">
-                                    <td class="px-4 py-3">2</td>
-                                    <td class="px-4 py-3">image.jpg</td>
-                                    <td class="px-4 py-3">1.2 MB</td>
-                                    <td class="px-4 py-3">2024-01-14</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            `,
+folder: `
+  <div class="flex h-full">
+    <!-- 左侧表列表 -->
+    <aside class="w-64 bg-[#1B1E1F] border-r border-gray-700 p-4">
+      <div class="mb-4 text-sm text-gray-400">表列表</div>
+      <div id="folder-table-list" class="space-y-2"></div>
+    </aside>
+
+    <!-- 右侧主区 -->
+    <main id="folder-main" class="flex-1 bg-[#1B1E1F] p-6">
+      <div class="text-gray-500">请点击左侧表名查看数据</div>
+    </main>
+  </div>`,
  records: `
 <div class="flex-1 flex flex-col bg-[#1B1E1F]">
   <!-- 顶部搜索 -->

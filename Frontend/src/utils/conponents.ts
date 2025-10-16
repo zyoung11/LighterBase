@@ -5,6 +5,7 @@ import { marked } from "marked";
 import { markedHighlight } from "marked-highlight"; // 如果使用 marked-highlight 扩展
 import hljs from 'highlight.js';
 import 'highlight.js/styles/vs2015.css';
+import lighterBase from "../apis/auto";
 
 marked.use(markedHighlight({
   langPrefix: 'hljs language-',
@@ -400,6 +401,79 @@ showLogs() {
     render();
   });
 },
+
+
+/* 点击 folder 后，右侧展示所有表，主区默认空表；点击表名即查询全列数据 */
+async showFolderTables() {
+  /* 1. 渲染右侧表名列表 */
+  const sidebarBox = document.getElementById("folder-table-list") as HTMLElement;
+  if (!sidebarBox) return;
+  sidebarBox.innerHTML = "";                               // 清空旧列表
+
+  const tables = await sql.getTableAll();                  // 拿所有表名
+  tables.forEach((t: string) => {
+    const btn = document.createElement("button");
+    btn.className =
+      "w-full text-left px-3 py-2 rounded hover:bg-[#3a3f41] transition-colors";
+    btn.textContent = t;
+    btn.dataset.table = t;
+    sidebarBox.appendChild(btn);
+  });
+
+  /* 2. 给右侧列表加事件：点击表 -> 查询全列 -> 渲染主区表格 */
+  sidebarBox.addEventListener("click", async (e) => {
+    const target = e.target as HTMLElement;
+    const table = target.dataset.table;
+    if (!table) return;
+
+    /* 构造查询所有列的请求体 */
+    const payload = { SELECT: ["*"], WHERE: "" };          // WHERE 空字符串即可查全部
+    try {
+      /* 使用 lighterBase 封装（与 api.ts 同一目录） */
+      const lb = new lighterBase("http://localhost:8080");                     // URL 在 api.ts 里已有
+      const res = await lb.searchTable(payload, table, 1, 30);
+
+      /* 渲染主工作区 */
+      renderTableInMain(res.items, table);
+    } catch (err) {
+      console.error(`查询表 ${table} 失败：`, err);
+    }
+  });
+
+  /* 3. 默认空表提示 */
+  function renderTableInMain(items: any[], table: string) {
+    const main = document.getElementById("main-workspace") as HTMLElement;
+    if (!items || items.length === 0) {
+      main.innerHTML = `<div class="p-6 text-gray-400">表 “${table}” 暂无数据</div>`;
+      return;
+    }
+
+    /* 取第一条数据拼出表头 */
+    const cols = Object.keys(items[0]);
+    let headHTML = "";
+    cols.forEach((k) => (headHTML += `<th>${k}</th>`));
+
+    let bodyHTML = "";
+    items.forEach((row) => {
+      bodyHTML += "<tr>";
+      cols.forEach((k) => (bodyHTML += `<td>${row[k] ?? ""}</td>`));
+      bodyHTML += "</tr>";
+    });
+
+    main.innerHTML = `
+      <div class="flex-1 bg-[#1B1E1F] p-6">
+        <h3 class="text-lg font-semibold mb-4">表：${table}</h3>
+        <div class="overflow-x-auto">
+          <table class="table min-w-full bg-[#2B2F31] rounded-lg text-gray-300">
+            <thead>
+              <tr class="border-b border-gray-600">${headHTML}</tr>
+            </thead>
+            <tbody>${bodyHTML}</tbody>
+          </table>
+        </div>
+      </div>`;
+  }
+}
 
 };
 
