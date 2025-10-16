@@ -148,7 +148,259 @@ def project_update(pid: int, token: str, name: str | None = None, avatar: str | 
         return proj
     print("错误响应:", r.text)
     return None
+        
+def sql_admin_create(sql: Union[str, List[str]], token: str, user_id: str, project_id: str) -> None:
+    url = f"{HOST}/{user_id}/{project_id}/api/create-table/create"        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {token}"
+        }
+        
+        if isinstance(sql, str):
+            sql_list = [sql]
+        else:
+            sql_list = sql
+        
+        for idx, s in enumerate(sql_list, 1):
+            payload = json.dumps({"sql": s.strip()})
+            print(f"--- Executing SQL ({idx}/{len(sql_list)}): {s[:50]}... ---")
+            try:
+                resp = requests.post(url, data=payload, headers=headers)
+                print("Status Code:", resp.status_code)
+                try:
+                    print("Response Body:\n",
+                        json.dumps(resp.json(), ensure_ascii=False, indent=2))
+                except ValueError:
+                    print("Response Body (not json):\n", resp.text)
+            except requests.exceptions.RequestException as e:
+                print("请求出错:", e)
 
+
+def sql_admin_check(ID: str, sql: str, token: str, user_id: str, project_id: str) -> None:
+        url = f"{HOST}/{user_id}/{project_id}/api/sqls/latest"
+    params = {"ID": ID, "sql": sql}
+    headers = {"Authorization": "Bearer " + token}   # 变量
+    print(f"--- Checking SQL for user ID {ID}: {sql} ---")
+    try:
+        resp = requests.get(url, params=params, headers=headers)
+        print("Status Code:", resp.status_code)
+        try:
+            print("Response Body:\n",
+                  json.dumps(resp.json(), ensure_ascii=False, indent=2))
+        except ValueError:
+            print("Response Body (not json):\n", resp.text)
+    except requests.exceptions.RequestException as e:
+        print("请求出错:", e)
+
+def sec_admin_get(token: str, user_id: str, project_id: str) -> None:
+    url = f"{HOST}/{user_id}/{project_id}/api/security"
+            headers = {"Authorization": f"Bearer {token}"}
+            print("--- GET /api/security ---")
+            try:
+                resp = requests.get(url, headers=headers)
+                print("Status Code:", resp.status_code)
+                try:
+                    print("Response Body:\n",
+                          json.dumps(resp.json(), ensure_ascii=False, indent=2))
+                except ValueError:
+                    print("Response Body (not json):\n", resp.text)
+            except requests.exceptions.RequestException as e:
+                print("请求出错:", e)
+
+def sec_admin_update(table: str, create_where: str, delete_where: str, update_where: str, view_where: str, token: str, user_id: str, project_id: str) -> None:
+        url = f"{HOST}/{user_id}/{project_id}/api/security/{table}"
+    payload = {
+        "create_where": create_where,
+        "delete_where": delete_where,
+        "update_where": update_where,
+        "view_where": view_where
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}"
+    }
+    print(f"--- Updating security policy for table: {table} ---")
+    try:
+        resp = requests.put(url, json=payload, headers=headers)
+        print("Status Code:", resp.status_code)
+        if resp.status_code == 204:
+            print("Response Body: null")
+        else:
+            try:
+                print("Response Body:\n",
+                      json.dumps(resp.json(), ensure_ascii=False, indent=2))
+            except ValueError:
+                print("Response Body (not json):\n", resp.text)
+    except requests.exceptions.RequestException as e:
+        print("请求出错:", e)
+
+def refresh_token(old_token: str, user_id: str, project_id: str) -> Optional[str]:
+        url = f"{HOST}/{user_id}/{project_id}/api/auth/refresh"
+    headers = {"Authorization": f"Bearer {old_token}"}
+    print("--- POST /api/auth/refresh ---")
+    try:
+        resp = requests.post(url, headers=headers)
+        print("Status Code:", resp.status_code)
+        try:
+            body = resp.json()
+            print("Response Body:\n",
+                  json.dumps(body, ensure_ascii=False, indent=2))
+            if resp.status_code == 200 and body.get("token"):
+                print("Successfully refreshed token.")
+                return body["token"]     # 新 JWT
+        except ValueError:
+            print("Response Body (not json):\n", resp.text)
+    except requests.exceptions.RequestException as e:
+        print("请求出错:", e)
+    return None
+
+
+def create_article(payload: Dict[str, Any], token: str, user_id: str, project_id: str) -> Optional[str]:
+        url = f"{HOST}/{user_id}/{project_id}/api/auto/create/articles"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}"
+    }
+    print("--- POST /api/auto/create/articles ---")
+    try:
+        resp = requests.post(url, data=json.dumps(payload), headers=headers)
+        print("Status Code:", resp.status_code)
+        try:
+            body = resp.json()
+            print("Response Body:\n",
+                  json.dumps(body, ensure_ascii=False, indent=2))
+            if resp.status_code == 201 and "id" in body:
+                print("Article created successfully.")
+                return body["id"]
+        except ValueError:
+            print("Response Body (not json):\n", resp.text)
+    except requests.exceptions.RequestException as e:
+        print("请求出错:", e)
+    return None
+
+def delete_articles(where_clause: str, token: str, user_id: str, project_id: str) -> bool:
+        url = f"{HOST}/{user_id}/{project_id}/api/auto/delete/articles"
+    headers = {
+        "Content-Type":  "application/json",
+        "Authorization": f"Bearer {token}"
+    }
+    payload = {"WHERE": where_clause}
+
+    print(f"--- DELETE /api/auto/delete/articles ---")
+    print(f"WHERE: {where_clause}")
+
+    try:
+        resp = requests.delete(url, data=json.dumps(payload), headers=headers)
+        print("Status Code:", resp.status_code)
+
+        # 204 No Content
+        if resp.status_code == 204:
+            print("Response Body: null")
+            return True
+
+        # 其它状态码统一打印 JSON 错误信息
+        try:
+            body = resp.json()
+            print("Response Body:\n", json.dumps(body, ensure_ascii=False, indent=2))
+        except ValueError:
+            print("Response Body (not json):\n", resp.text)
+
+    except requests.exceptions.RequestException as e:
+        print("请求出错:", e)
+
+    return False
+
+def update_articles(set_dict: dict, where_clause: str, token: str, user_id: str, project_id: str) -> bool:
+    url = f"{HOST}/{user_id}/{project_id}/api/auto/update/articles"
+    headers = {
+        "Content-Type":  "application/json",
+        "Authorization": f"Bearer {token}"
+    }
+    payload = {"set": set_dict, "WHERE": where_clause}
+
+    print(f"--- PUT /api/auto/update/articles ---")
+    print(f"SET: {set_dict}")
+    print(f"WHERE: {where_clause}")
+
+    try:
+        resp = requests.put(url, data=json.dumps(payload), headers=headers)
+        print("Status Code:", resp.status_code)
+
+        # 204 No Content
+        if resp.status_code == 204:
+            print("Response Body: null")
+            return True
+
+        # 其它状态码打印 JSON 错误信息
+        try:
+            body = resp.json()
+            print("Response Body:\n", json.dumps(body, ensure_ascii=False, indent=2))
+        except ValueError:
+            print("Response Body (not json):\n", resp.text)
+
+    except requests.exceptions.RequestException as e:
+        print("请求出错:", e)
+
+    return False
+
+def query_all_tables(token: str, user_id: str, project_id: str) -> List[str]:
+        url = f"{HOST}/{user_id}/{project_id}/api/query/tables"
+    params = {"page": page, "perpage": perpage}
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}",
+    }
+    payload = {"SELECT": select_fields, "WHERE": where_clause}
+
+    print("--- Viewing articles ---")
+    print(f"SELECT: {select_fields}")
+    print(f"WHERE: {where_clause}")
+    print(f"page={page}, perpage={perpage}")
+
+    try:
+        resp = requests.post(url, params=params, data=json.dumps(payload), headers=headers)
+        print("Status Code:", resp.status_code)
+
+        if resp.status_code == 200:
+            data = resp.json()
+            items = data.get("items") or []
+            total = data.get("totalItems", 0)
+            print(f"totalItems={total}, 本页返回 {len(items)} 条")
+            return items
+
+        # 非 200 统一打印错误
+        try:
+            body = resp.json()
+            print("Response Body:\n", json.dumps(body, ensure_ascii=False, indent=2))
+        except ValueError:
+            print("Response Body (not json):\n", resp.text)
+    except requests.exceptions.RequestException as e:
+        print("请求出错:", e)
+
+    return []
+
+# def query_all_tables(token: str) -> List[str]:
+#     url = "http://localhost:8080/api/query/tables"
+#     headers = {"Authorization": f"Bearer {token}"}
+#     print("--- GET /api/query/tables ---")
+# 
+#     try:
+#         resp = requests.get(url, headers=headers)
+#         print("Status Code:", resp.status_code)
+#         if resp.status_code == 200:
+#             data = resp.json()
+#             tables = data.get("tables") or []
+#             print("Tables:", tables)
+#             return tables
+#         # 非 200 统一打印错误
+#         try:
+#             body = resp.json()
+#             print("Response Body:\n", json.dumps(body, ensure_ascii=False, indent=2))
+#         except ValueError:
+#             print("Response Body (not json):\n", resp.text)
+#     except requests.exceptions.RequestException as e:
+#         print("请求出错:", e)
+# 
+#     return []
 
 
 
