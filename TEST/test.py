@@ -51,8 +51,7 @@ def sql_admin_create(sql: Union[str, List[str]], token: str) -> None:
             "Content-Type": "application/json",
             "Authorization": f"Bearer {token}"
         }
-        
-        # 统一转成列表
+
         if isinstance(sql, str):
             sql_list = [sql]
         else:
@@ -273,7 +272,6 @@ def view_articles(select_fields: List[str],where_clause: str,token: str,page: in
             print(f"totalItems={total}, 本页返回 {len(items)} 条")
             return items
 
-        # 非 200 统一打印错误
         try:
             body = resp.json()
             print("Response Body:\n", json.dumps(body, ensure_ascii=False, indent=2))
@@ -308,28 +306,8 @@ def query_all_tables(token: str) -> List[str]:
 
     return []
 
-if __name__ == "__main__":
-    # 1. 创建用户
-    # 为 alice 提供一个已知的密码哈希 (sha256 of "password123")
-    alice_password_hash = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
-    create_user("alice", alice_password_hash, "alice@example.com")
-
-    # 为 zellij 的密码动态计算哈希值
-    zellij_password = "今天天气真好，适合出去走走。"
-    zellij_password_hash = hashlib.sha256(zellij_password.encode('utf-8')).hexdigest()
-    # 同时修正 zellij 的邮箱地址
-    create_user("zellij", zellij_password_hash, "zellij@example.com")
-
-    # 2. 登录 alice 并获取 token
-    alice_token = login_user("alice", alice_password_hash)
-
-    # 登录 zellij 并获取 token
-    zellij_token = login_user("zellij", zellij_password_hash)
-
-    # 3. 确保 alice 获取到了 token 再执行需要授权的操作
-    if alice_token:
-        print("\n--- Using Alice's token for admin operations ---")
-
+a
+]
         sql_admin_create([
             # 1. 文章表
             """CREATE TABLE IF NOT EXISTS articles (
