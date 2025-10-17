@@ -36,9 +36,10 @@ var (
 )
 
 type Route struct {
-	Method  string
-	Path    string
-	Handler fiber.Handler
+	Method       string
+	Path         string
+	Handler      fiber.Handler
+	AuthRequired bool
 }
 
 //------------------------------------JWT---------------------------------------
@@ -116,7 +117,11 @@ func NewApp(name string, routes []Route) *fiber.App {
 	app.Use(logger.New())
 
 	for _, r := range routes {
-		app.Add(strings.ToUpper(r.Method), r.Path, r.Handler)
+		if r.AuthRequired {
+			app.Add(strings.ToUpper(r.Method), r.Path, JWTMiddleware, r.Handler)
+		} else {
+			app.Add(strings.ToUpper(r.Method), r.Path, r.Handler)
+		}
 	}
 
 	return app

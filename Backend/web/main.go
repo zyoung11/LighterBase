@@ -34,25 +34,27 @@ type CreateProjectRequest struct {
 }
 
 var routes = []Route{
-	{Method: "GET", Path: "/health", Handler: health},
+	{Method: "GET", Path: "/health", Handler: health, AuthRequired: false},
 
 	// 用户相关
-	{Method: "POST", Path: "/api/users/register", Handler: register},
-	{Method: "POST", Path: "/api/users/login", Handler: login},
-	{Method: "GET", Path: "/api/users", Handler: listUsers},
-	{Method: "GET", Path: "/api/users/:id", Handler: getUser},
-	{Method: "PUT", Path: "/api/users/:id", Handler: updateUser},
-	{Method: "DELETE", Path: "/api/users/:id", Handler: deleteUser},
+	{Method: "POST", Path: "/api/users/register", Handler: register, AuthRequired: false},
+	{Method: "POST", Path: "/api/users/login", Handler: login, AuthRequired: false},
+
+	// 用户相关
+	{Method: "GET", Path: "/api/users", Handler: listUsers, AuthRequired: true},
+	{Method: "GET", Path: "/api/users/:id", Handler: getUser, AuthRequired: true},
+	{Method: "PUT", Path: "/api/users/:id", Handler: updateUser, AuthRequired: true},
+	{Method: "DELETE", Path: "/api/users/:id", Handler: deleteUser, AuthRequired: true},
 
 	// 项目相关
-	{Method: "POST", Path: "/api/projects", Handler: createProject},
-	{Method: "GET", Path: "/api/projects", Handler: listMyProjects},
-	{Method: "GET", Path: "/api/projects/:id", Handler: getProject},
-	{Method: "PUT", Path: "/api/projects/:id", Handler: updateProject},
-	{Method: "DELETE", Path: "/api/projects/:id", Handler: deleteProject},
+	{Method: "POST", Path: "/api/projects", Handler: createProject, AuthRequired: true},
+	{Method: "GET", Path: "/api/projects", Handler: listMyProjects, AuthRequired: true},
+	{Method: "GET", Path: "/api/projects/:id", Handler: getProject, AuthRequired: true},
+	{Method: "PUT", Path: "/api/projects/:id", Handler: updateProject, AuthRequired: true},
+	{Method: "DELETE", Path: "/api/projects/:id", Handler: deleteProject, AuthRequired: true},
 
-	// --- BaaS API 反向代理 ---
-	{Method: "USE", Path: "/:userId/:projectId/*", Handler: baasProxyHandler},
+	// BaaS API 反向代理
+	{Method: "USE", Path: "/:userId/:projectId/*", Handler: baasProxyHandler, AuthRequired: true},
 }
 
 //-------------------------------------------------------------------------------------
@@ -67,14 +69,13 @@ func main() {
 
 // startProjectInstance 根据数据库中的项目信息启动一个BaaS实例
 func startProjectInstance(project database.Project) error {
-	// 从数据库记录中获取用户ID和项目ID来构建路径
 	projectDir := filepath.Join(baseDir, strconv.FormatInt(project.UserID, 10), strconv.FormatInt(project.ProjectID, 10))
 	executablePath := filepath.Join(projectDir, "LighterBase")
 
 	// 检查可执行文件是否存在
 	if _, err := os.Stat(executablePath); os.IsNotExist(err) {
 		log.Printf("WARN: Executable not found for project %d (user %d) at %s, skipping.", project.ProjectID, project.UserID, executablePath)
-		return nil // 不返回错误，只是跳过
+		return nil
 	}
 
 	// 检查端口是否有效
@@ -86,7 +87,15 @@ func startProjectInstance(project database.Project) error {
 
 	log.Printf("Starting BaaS instance for project %d (user %d) on port %d...", project.ProjectID, project.UserID, assignedPort)
 
-	cmd := exec.Command(executablePath)
+	// 获取绝对路径
+	absExecutablePath, err := filepath.Abs(executablePath)
+	if err != nil {
+		log.Printf("ERROR: Failed to get absolute path for %s: %v", executablePath, err)
+		return err
+	}
+
+	cmd := exec.Command(absExecutablePath)
+	cmd.Dir = projectDir
 	cmd.Env = append(os.Environ(), fmt.Sprintf("PORT=%d", assignedPort))
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -227,17 +236,32 @@ func createProject(c *fiber.Ctx) error {
 	}
 
 	// 将嵌入的可执行文件写入到项目目录
-	executablePath := filepath.Join(projectDir, "LighterBase")
-	if err := os.WriteFile(executablePath, LighterBase, 0o755); err != nil {
-		log.Printf("ERROR: Failed to write executable file to %s: %v", executablePath, err)
+	targetExecutablePath := filepath.Join(projectDir, "LighterBase")
+	if err := os.WriteFile(targetExecutablePath, LighterBase, 0o755); err != nil {
+		log.Printf("ERROR: Failed to write executable file to %s: %v", targetExecutablePath, err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to deploy instance"})
 	}
 
+	// --- 关键修改 1: 显式设置可执行权限 ---
+	if err := os.Chmod(targetExecutablePath, 0o755); err != nil {
+		log.Printf("ERROR: Failed to set executable permissions for %s: %v", targetExecutablePath, err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to set permissions for instance"})
+	}
+
 	// --- 3. 进程管理：启动BaaS实例 ---
-	cmd := exec.Command(executablePath)
+
+	absExecutablePath, err := filepath.Abs(targetExecutablePath)
+	if err != nil {
+		log.Printf("ERROR: Failed to get absolute path for %s: %v", targetExecutablePath, err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to resolve instance path"})
+	}
+
+	cmd := exec.Command(absExecutablePath)
+
+	// --- 关键修改 3: 设置子进程的工作目录 ---
+	cmd.Dir = projectDir
 
 	cmd.Env = append(os.Environ(), fmt.Sprintf("PORT=%d", assignedPort))
-
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
