@@ -143,7 +143,7 @@ const workspaceContent = {
 
   <!-- 底部分页 + 每页条数 -->
   <div class=" p-4 border-t border-gray-700 flex justify-between items-center text-sm">
-    <div id="logs-pagination" class="flex gap-2 items-center"></div>
+    <div id="logs-pagination" class="flex gap-2 items-center mx-auto"></div>
     <div class="flex items-center gap-2">
       <span class="text-gray-400">每页</span>
       <select id="logs-perpage" class="px-2 py-1 bg-[#2B2F31] rounded border border-gray-600">
@@ -223,71 +223,402 @@ const slideBarContent = {
 
 const apiMarked = {
   create: `
+<div class ="mb-3"> 
+  <span class="text-white mr-4 text-xl">向<span>
+  <span class=" text-orange-400 text-xl">table_name</span>
+  <span class="text-white text-xl">表中插入数据<span>
+</div>
+
 \`\`\`javascript
 import LighterBase from 'lighter-base';
 
 const lb = new LighterBase('https://your-api-endpoint.com');
 
 ...
+
 const payload = {
       "Field1": "value1",
       "Field2": "value2",
       "Field3": "value3"
   }
-//这里是增
-const insertData = await  lb.createTable(payload, table_name);
-
+//替换json数据包与表名来新增据数据
+const insertData = await lb.insertTable(payload, "table_name");
 \`\`\`
-`,
-  delete: `
-\`\`\`javascript
-import LighterBase from 'lighter-base';
 
-const lb = new LighterBase('https://your-api-endpoint.com');
+<span class ="text-xl mt-3">详细API:</span>
+<div class="bg-[#DCEEF3] p-2 rounded mb-3"> 
+  <span class="bg-[#2C2F2F] text-white rounded-lg p-1 mr-4">POST</span>
+  <span class="text-black">/api/auto/create/table_name<span>
+</div>
+<span class ="text-xl">请求头:</span>
 
-...
-const payload = {
-      "WHERE": "value"
+\`\`\`md
+{
+  "Content-Type": "application/json",
+  "Authorization": "Bearer <jwt_token>"
+}
+> 当 table_name 为 users 时，无需 Authorization。
+\`\`\`
+
+<span class ="text-xl">请求体:</span>
+
+\`\`\`json
+  {
+      "Field1": "value1",
+      "Field2": "value2",
+      "Field3": "value3"
   }
-//这里是删
-const deleteData = await lb.deleteTable(playload, table_name);
-
 \`\`\`
+
+<span class ="text-xl">响应:</span>
+<div  class="response-btn-bar flex gap-2 mb-2">
+  <button data-status="insert-201" class="px-3 py-1 text-sm text-black rounded response-btn active bg-[#DCEEF3]">201 Created</button>
+  <button data-status="insert-400" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">400 Bad Request</button>
+  <button data-status="insert-403" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">403 Forbidden</button>
+</div>
+
+<div class="response-content-box">
+  <div data-status-content="insert-201" class="response-content-item block">
+
+\`\`\`json
+{
+    "id": "id"
+}
+\`\`\`
+  </div>
+  <div data-status-content="insert-400" class="response-content-item hidden">
+
+\`\`\`json
+{
+  "status": 400,
+  "message": "Failed to create record.",
+  "data": {
+    "id": {
+      "code": "validation_required",
+      "message": "Missing required value."
+    }
+  }
+}
+\`\`\`
+  </div>
+  <div data-status-content="insert-403" class="response-content-item hidden">
+
+\`\`\`json
+{
+  "status": 403,
+  "message": "You are not allowed to perform this request.",
+  "data": {}
+}
+\`\`\`
+  </div>
+</div>
 `,
-  update: `
+
+  delete: `
+<div class ="mb-3"> 
+  <span class="text-white mr-4 text-xl">从<span>
+  <span class=" text-orange-400 text-xl">table_name</span>
+  <span class="text-white text-xl">表中删除数据<span>
+</div>
+
 \`\`\`javascript
 import LighterBase from 'lighter-base';
 
 const lb = new LighterBase('https://your-api-endpoint.com');
 
 ...
+
+const payload = {
+      "WHERE": "id = 42"
+  }
+// 删除满足条件的记录（禁止删除 users 表 id=1 的记录）
+const deleteData = await lb.deleteTable(payload, "table_name");
+\`\`\`
+
+<span class ="text-xl mt-3">详细API:</span>
+<div class="bg-[#FAD2D2] p-2 rounded mb-3"> 
+  <span class="bg-red-600 text-white rounded-lg p-1 mr-4">DELETE</span>
+  <span class="text-black">/api/auto/delete/table_name<span>
+</div>
+<span class ="text-xl">请求头:</span>
+
+\`\`\`md
+{
+  "Content-Type": "application/json",
+  "Authorization": "Bearer <jwt_token>"
+}
+\`\`\`
+
+<span class ="text-xl">请求体:</span>
+
+\`\`\`json
+  {
+      "WHERE": "id = 42"
+  }
+\`\`\`
+
+<span class ="text-xl">响应:</span>
+<div  class="response-btn-bar flex gap-2 mb-2">
+  <button data-status="delete-204" class="px-3 py-1 text-sm text-black rounded response-btn active bg-[#DCEEF3]">204 No Content</button>
+  <button data-status="delete-400" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">400 Bad Request</button>
+  <button data-status="delete-403" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">403 Forbidden</button>
+  <button data-status="delete-404" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">404 Not Found</button>
+</div>
+
+<div class="response-content-box">
+  <div data-status-content="delete-204" class="response-content-item block">
+
+\`\`\`json
+null
+\`\`\`
+  </div>
+  <div data-status-content="delete-400" class="response-content-item hidden">
+
+\`\`\`json
+{
+  "status": 400,
+  "message": "Failed to delete record.",
+  "data": {}
+}
+\`\`\`
+  </div>
+  <div data-status-content="delete-403" class="response-content-item hidden">
+
+\`\`\`json
+{
+  "status": 403,
+  "message": "Only admin can access this action.",
+  "data": {}
+}
+\`\`\`
+  </div>
+  <div data-status-content="delete-404" class="response-content-item hidden">
+
+\`\`\`json
+{
+  "status": 404,
+  "message": "The requested resource wasn't found.",
+  "data": {}
+}
+\`\`\`
+  </div>
+</div>
+`,
+
+  update: `
+<div class ="mb-3"> 
+  <span class="text-white mr-4 text-xl">在<span>
+  <span class=" text-orange-400 text-xl">table_name</span>
+  <span class="text-white text-xl">表中更新数据<span>
+</div>
+
+\`\`\`javascript
+import LighterBase from 'lighter-base';
+
+const lb = new LighterBase('https://your-api-endpoint.com');
+
+...
+
 const payload = {
       "set": {
-          "Field1": "value1",
-          "Field2": "value2",
-          "Field3": "value3"
+          "Field1": "newValue1",
+          "Field2": "newValue2"
       },
-      "WHERE": "value"
+      "WHERE": "id = 42"
   }
-//这里是改
-const updateData = await lb.updateTable(payload, table_name);
-
+// 更新满足条件的记录（禁止更新 users 表 id=1 或默认列）
+const updateData = await lb.updateTable(payload, "table_name");
 \`\`\`
+
+<span class ="text-xl mt-3">详细API:</span>
+<div class="bg-[#D1E9F8] p-2 rounded mb-3"> 
+  <span class="bg-blue-600 text-white rounded-lg p-1 mr-4">PUT</span>
+  <span class="text-black">/api/auto/update/table_name<span>
+</div>
+<span class ="text-xl">请求头:</span>
+
+\`\`\`md
+{
+  "Content-Type": "application/json",
+  "Authorization": "Bearer <jwt_token>"
+}
+\`\`\`
+
+<span class ="text-xl">请求体:</span>
+
+\`\`\`json
+  {
+      "set": {
+          "Field1": "newValue1",
+          "Field2": "newValue2"
+      },
+      "WHERE": "id = 42"
+  }
+\`\`\`
+
+<span class ="text-xl">响应:</span>
+<div  class="response-btn-bar flex gap-2 mb-2">
+  <button data-status="update-204" class="px-3 py-1 text-sm text-black rounded response-btn active bg-[#DCEEF3]">204 No Content</button>
+  <button data-status="update-400" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">400 Bad Request</button>
+  <button data-status="update-403" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">403 Forbidden</button>
+  <button data-status="update-404" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">404 Not Found</button>
+</div>
+
+<div class="response-content-box">
+  <div data-status-content="update-204" class="response-content-item block">
+
+\`\`\`json
+null
+\`\`\`
+  </div>
+  <div data-status-content="update-400" class="response-content-item hidden">
+
+\`\`\`json
+{
+  "status": 400,
+  "message": "Failed to update record.",
+  "data": {
+    "id": {
+      "code": "validation_required",
+      "message": "Missing required value."
+    }
+  }
+}
+\`\`\`
+  </div>
+  <div data-status-content="update-403" class="response-content-item hidden">
+
+\`\`\`json
+{
+  "status": 403,
+  "message": "You are not allowed to perform this request.",
+  "data": {}
+}
+\`\`\`
+  </div>
+  <div data-status-content="update-404" class="response-content-item hidden">
+  
+\`\`\`json
+{
+  "status": 404,
+  "message": "The requested resource wasn't found.",
+  "data": {}
+}
+\`\`\`
+  </div>
+</div>
 `,
+
   search: `
+<div class ="mb-3"> 
+  <span class="text-white mr-4 text-xl">从<span>
+  <span class=" text-orange-400 text-xl">table_name</span>
+  <span class="text-white text-xl">表中查询数据<span>
+</div>
+
 \`\`\`javascript
 import LighterBase from 'lighter-base';
 
 const lb = new LighterBase('https://your-api-endpoint.com');
 
 ...
+
 const payload = {
       "SELECT": ["Field1", "Field2", "Field3"],
-      "WHERE": "value"
+      "WHERE": "status = 'active'"
   }
-//这里是查
-const searchData = await lb.searchTable(payload, table_name, page, perpage);
+// 分页查询，page 与 perpage 为可选参数
+const searchData = await lb.searchTable(payload, "table_name", 1, 30);
 \`\`\`
-`,
+
+<span class ="text-xl mt-3">详细API:</span>
+<div class="bg-[#E2F1E8] p-2 rounded mb-3"> 
+  <span class="bg-green-600 text-white rounded-lg p-1 mr-4">POST</span>
+  <span class="text-black">/api/auto/view/table_name?page=1&perpage=30<span>
+</div>
+<span class ="text-xl">请求头:</span>
+
+\`\`\`md
+{
+  "Content-Type": "application/json",
+  "Authorization": "Bearer <jwt_token>"
+}
+\`\`\`
+
+<span class ="text-xl">请求体:</span>
+
+\`\`\`json
+  {
+      "SELECT": ["Field1", "Field2", "Field3"],
+      "WHERE": "status = 'active'"
+  }
+\`\`\`
+
+<span class ="text-xl">响应:</span>
+<div  class="response-btn-bar flex gap-2 mb-2">
+  <button data-status="search-200" class="px-3 py-1 text-sm text-black rounded response-btn active bg-[#DCEEF3]">200 OK</button>
+  <button data-status="search-400" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">400 Bad Request</button>
+  <button data-status="search-403" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">403 Forbidden</button>
+  <button data-status="search-404" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">404 Not Found</button>
+</div>
+
+<div class="response-content-box">
+  <div data-status-content="search-200" class="response-content-item block">
+
+\`\`\`json
+{
+  "page": 1,
+  "perPage": 30,
+  "totalPages": 1,
+  "totalItems": 2,
+  "items": [
+    {
+        "Field1": "value1",
+        "Field2": "value2",
+        "Field3": "value3"
+    },
+    {
+        "Field1": "value1",
+        "Field2": "value2",
+        "Field3": "value3"
+    }
+  ]
+}
+\`\`\`
+  </div>
+  <div data-status-content="search-400" class="response-content-item hidden">
+
+\`\`\`json
+{
+  "status": 400,
+  "message": "Something went wrong while processing your request. Invalid filter.",
+  "data": {}
+}
+\`\`\`
+  </div>
+  <div data-status-content="search-403" class="response-content-item hidden">
+
+\`\`\`json
+{
+  "status": 403,
+  "message": "You are not allowed to perform this request.",
+  "data": {}
+}
+\`\`\`
+  </div>
+  <div data-status-content="search-404" class="response-content-item hidden">
+
+\`\`\`json
+{
+  "status": 404,
+  "message": "The requested resource wasn't found.",
+  "data": {}
+}
+\`\`\`
+  </div>
+</div>
+`
 };
+
+
 export { sidebarContent, workspaceContent, slideBarContent, apiMarked };

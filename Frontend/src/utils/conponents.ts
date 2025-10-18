@@ -5,6 +5,7 @@ import { marked } from "marked";
 import { markedHighlight } from "marked-highlight"; // 如果使用 marked-highlight 扩展
 import hljs from 'highlight.js';
 import 'highlight.js/styles/vs2015.css';
+// import 'highlight.js/styles/rainbow.css'
 import lighterBase from "../apis/auto";
 
 marked.use(markedHighlight({
@@ -169,13 +170,12 @@ async showTableMdContent() {
 
   const tables = await sql.getTableAll();
   const patterns = ['create', 'delete', 'update', 'search'];
-  // 映射 apiMarked 字符串
-  const apiMarkedMap: { [key: string]: string } = apiMarked; // 明确类型
+  const apiMarkedMap: { [key: string]: string } = apiMarked; 
 
   patterns.forEach(pattern => {
-    // 外层区块
+
     const block = document.createElement('div');
-    block.className = 'w-full h-[60%]';
+    block.className = 'w-full h-auto mb-4';
 
     const btnBar = document.createElement('div');
     btnBar.className = 'flex gap-2';
@@ -188,9 +188,8 @@ async showTableMdContent() {
       btnBar.appendChild(btn);
     });
 
-    // 内容区：仅显示当前模式+当前表
     const contentBox = document.createElement('div');
-    contentBox.className = ' w-full h-[80%] bg-[#3a3f41] rounded-b text-gray-300 p-4 whitespace-normal overflow-y-auto'; // 添加 overflow-y-auto
+    contentBox.className = ' w-full h-[80%] bg-[#3a3f41] rounded-b text-gray-300 p-4 whitespace-normal overflow-y-auto'; 
     contentBox.innerHTML = ``; 
 
     btnBar.addEventListener('click', async(e) => {
@@ -203,24 +202,18 @@ async showTableMdContent() {
         target.classList.remove('bg-[#2B2F31]');
         target.classList.add('bg-[#3a3f41]');      
 
-        // *** 核心修改部分开始 ***
         const selectedPattern = target.dataset.pattern as keyof typeof apiMarked;
         
-        // 获取对应的 Markdown 字符串
         const markdownContent = apiMarkedMap[selectedPattern] || '';
         
-        // 替换 markdownContent 中的 'table_name' 为选中的表名
         const table = target.dataset.table;
         const finalMarkdown = markdownContent.replace(/table_name/g, table || '');
 
-        // 渲染 Markdown
         const htmlContent = await marked.parse(finalMarkdown);   
         contentBox.innerHTML = htmlContent;
-        // *** 核心修改部分结束 ***
       }
     });
     
-    // 默认显示第一个表的 API 文档
     block.appendChild(btnBar);
     block.appendChild(contentBox);
     tableMd.appendChild(block);
@@ -230,7 +223,7 @@ async showTableMdContent() {
 if (tables.length > 0) {
   const firstBtn = btnBar.querySelector('button') as HTMLButtonElement;
   if (firstBtn) {
-    // 把「点击按钮后要做的事情」提炼成独立函数
+
     const renderFirstTable = async () => {
       const selectedPattern = firstBtn.dataset.pattern as keyof typeof apiMarked;
       const markdownContent = apiMarkedMap[selectedPattern] || '';
@@ -238,15 +231,53 @@ if (tables.length > 0) {
       const finalMarkdown = markdownContent.replace(/table_name/g, table);
       const htmlContent = await marked.parse(finalMarkdown);
       contentBox.innerHTML = htmlContent;
+      this.setupResponseToggle()
 
-      // 把第一个按钮样式设成「已选中」
       firstBtn.classList.remove('bg-[#2B2F31]');
       firstBtn.classList.add('bg-[#3a3f41]');
     };
-    // 立刻执行一次，实现「打开侧边栏即触发第一个按钮」
     renderFirstTable();
   }
 }
+  });
+},
+
+setupResponseToggle() {
+  const btnBars = document.querySelectorAll('.response-btn-bar');
+  if (!btnBars.length) return;
+
+  btnBars.forEach(btnBar => {
+    btnBar.addEventListener('click', (e) => {
+      const target = e.target as HTMLButtonElement;
+      if (!target.classList.contains('response-btn')) return;
+
+      const status = target.dataset.status;
+      if (!status) return;
+
+      // 只操作当前btnBar内的按钮
+      btnBar.querySelectorAll('.response-btn').forEach(btn => {
+        btn.classList.remove('bg-[#DCEEF3]', 'active');
+        btn.classList.add('bg-gray-300', 'hover:bg-gray-400');
+      });
+      
+      target.classList.remove('bg-gray-300', 'hover:bg-gray-400');
+      target.classList.add('bg-[#DCEEF3]', 'active');
+
+      // 查找与当前btnBar关联的内容区域
+      const contentBox = btnBar.nextElementSibling as HTMLElement;
+      if (contentBox && contentBox.classList.contains('response-content-box')) {
+        contentBox.querySelectorAll('.response-content-item').forEach(item => {
+          item.classList.add('hidden');
+          item.classList.remove('block');
+        });
+        
+        const targetContent = contentBox.querySelector(`[data-status-content="${status}"]`);
+        if (targetContent) {
+          targetContent.classList.remove('hidden');
+          targetContent.classList.add('block');
+        }
+      }
+    });
   });
 },
 
