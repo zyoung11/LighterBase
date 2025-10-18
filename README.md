@@ -496,11 +496,10 @@ cd LighterBase/Backend/web/LighterBaseHub
   {
     "project_name": "string",
     "project_avatar": "string",
-    "project_description": "string",
-    "project_size": 0
+    "project_description": "string"
   }
   ```
-
+  
 - 预期返回： 
   http状态码：200 
   返回体：

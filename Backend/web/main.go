@@ -25,14 +25,6 @@ var LighterBase []byte
 // 用户数据库路径
 const baseDir string = "./LighterBaseHubData/Apps"
 
-// 创建项目请求结构
-type CreateProjectRequest struct {
-	ProjectName        string `json:"project_name"`
-	ProjectAvatar      string `json:"project_avatar"`
-	ProjectDescription string `json:"project_description"`
-	ProjectSize        int64  `json:"project_size"`
-}
-
 var routes = []Route{
 	{Method: "GET", Path: "/health", Handler: health, AuthRequired: false},
 
@@ -183,6 +175,25 @@ func mustParseInt(s string) int64 {
 
 //---------------------------------------routing---------------------------------------
 
+// 创建项目请求结构
+type CreateProjectRequest struct {
+	ProjectName        string `json:"project_name"`
+	ProjectAvatar      string `json:"project_avatar"`
+	ProjectDescription string `json:"project_description"`
+	ProjectSize        int64  `json:"project_size"`
+}
+
+type ProjectResponse struct {
+	ProjectID          int64  `json:"project_id"`
+	UserID             int64  `json:"user_id"`
+	ProjectName        string `json:"project_name"`
+	ProjectAvatar      string `json:"project_avatar"`
+	ProjectDescription string `json:"project_description"`
+	ProjectSize        int64  `json:"project_size"`
+	CreateAt           string `json:"create_at"`
+	UpdateAt           string `json:"update_at"`
+}
+
 // 创建项目
 func createProject(c *fiber.Ctx) error {
 	userID, ok := c.Locals("userID").(int64)
@@ -295,7 +306,18 @@ func createProject(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to commit project creation"})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(project)
+	response := ProjectResponse{
+		ProjectID:          project.ProjectID,
+		UserID:             project.UserID,
+		ProjectName:        project.ProjectName,
+		ProjectAvatar:      project.ProjectAvatar.String,
+		ProjectDescription: project.ProjectDescription.String,
+		ProjectSize:        project.ProjectSize.Int64,
+		CreateAt:           project.CreateAt.String,
+		UpdateAt:           project.UpdateAt.String,
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(response)
 }
 
 // 获取当前用户的所有项目
@@ -310,14 +332,26 @@ func listMyProjects(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch projects"})
 	}
 
-	for i := range projects {
-		if err := updateProjectSize(c.Context(), projects[i]); err != nil {
-			// 更新失败不应该中断整个请求，记录日志即可
-			log.Printf("ERROR: Failed to update size for project %d: %v", projects[i].ProjectID, err)
+	var response []ProjectResponse
+	for _, project := range projects {
+		if err := updateProjectSize(c.Context(), project); err != nil {
+			log.Printf("ERROR: Failed to update size for project %d: %v", project.ProjectID, err)
 		}
+
+		// 转换为响应格式
+		response = append(response, ProjectResponse{
+			ProjectID:          project.ProjectID,
+			UserID:             project.UserID,
+			ProjectName:        project.ProjectName,
+			ProjectAvatar:      project.ProjectAvatar.String,
+			ProjectDescription: project.ProjectDescription.String,
+			ProjectSize:        project.ProjectSize.Int64,
+			CreateAt:           project.CreateAt.String,
+			UpdateAt:           project.UpdateAt.String,
+		})
 	}
 
-	return c.JSON(projects)
+	return c.JSON(response)
 }
 
 // 获取单个项目
@@ -337,17 +371,26 @@ func getProject(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Project not found"})
 	}
 
-	// 权限检查：只能访问自己的项目或是管理员
 	if project.UserID != userID && userID != 1 {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Forbidden"})
 	}
 
 	if err := updateProjectSize(c.Context(), project); err != nil {
-		// 更新失败不应该中断请求，记录日志并返回旧数据
 		log.Printf("ERROR: Failed to update size for project %d: %v", project.ProjectID, err)
 	}
 
-	return c.JSON(project)
+	response := ProjectResponse{
+		ProjectID:          project.ProjectID,
+		UserID:             project.UserID,
+		ProjectName:        project.ProjectName,
+		ProjectAvatar:      project.ProjectAvatar.String,
+		ProjectDescription: project.ProjectDescription.String,
+		ProjectSize:        project.ProjectSize.Int64,
+		CreateAt:           project.CreateAt.String,
+		UpdateAt:           project.UpdateAt.String,
+	}
+
+	return c.JSON(response)
 }
 
 // 更新项目
@@ -386,7 +429,19 @@ func updateProject(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update project"})
 	}
 
-	return c.JSON(updatedProject)
+	// 转换为响应格式
+	response := ProjectResponse{
+		ProjectID:          updatedProject.ProjectID,
+		UserID:             updatedProject.UserID,
+		ProjectName:        updatedProject.ProjectName,
+		ProjectAvatar:      updatedProject.ProjectAvatar.String,
+		ProjectDescription: updatedProject.ProjectDescription.String,
+		ProjectSize:        updatedProject.ProjectSize.Int64,
+		CreateAt:           updatedProject.CreateAt.String,
+		UpdateAt:           updatedProject.UpdateAt.String,
+	}
+
+	return c.JSON(response)
 }
 
 // 删除项目
