@@ -2068,7 +2068,7 @@
       "type": "text",
       "x": 1989.7777911857838,
       "y": 1418.1550183135346,
-      "width": 110.94578462915018,
+      "width": 110.90486145019531,
       "height": 32.78378220980472,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -2083,8 +2083,8 @@
       "index": "b2c",
       "roundness": null,
       "seed": 499939659,
-      "version": 93,
-      "versionNonce": 66793943,
+      "version": 94,
+      "versionNonce": 1702553863,
       "isDeleted": false,
       "boundElements": [
         {
@@ -2096,7 +2096,7 @@
           "type": "arrow"
         }
       ],
-      "updated": 1759648158734,
+      "updated": 1760768387781,
       "link": null,
       "locked": false,
       "text": "#2B2F31",

@@ -193,7 +193,7 @@ const workspaceContent = {
 
 const slideBarContent = {
   api_md: `
-     <div id="tables-api" class="flex flex-col h-full w-full overflow">        
+     <div id="tables-api" class="flex flex-col h-full w-full bg-[#2B2F31] items-center overflow-y-auto">        
     </div>    
 
 

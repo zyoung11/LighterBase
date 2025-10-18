@@ -37,10 +37,6 @@
           class="w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg flex items-center justify-center text-white font-bold transition-colors">
           <img src="./icons/mo.png" alt="Logo" class="rounded-sm">
         </button>
-        <button id="auth-btn"
-          class="w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg flex items-center justify-center text-white font-bold transition-colors">
-          auth
-        </button>
       </div>
 
       <!-- 导航按钮 -->
@@ -88,7 +84,7 @@
             </svg>
           </button>
         </div>
-        <div id="slidebar-content" class="flex-1 overflow-y-auto"></div>
+        <div id="slidebar-content" class="flex-1 h-full rounded-lg overflow-y-auto items-center"></div>
       </div>
     </div>
   </div>
@@ -96,7 +92,7 @@
   <script src="./tailwind.js"></script>
   <script src="main.ts"></script>
   <script>
-    document.getElementById('auth-btn').addEventListener('click', () => {
+    document.getElementById('logo-btn').addEventListener('click', () => {
       window.location.href = '/welcome';
     });
   </script>

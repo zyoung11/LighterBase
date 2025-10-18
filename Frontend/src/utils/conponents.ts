@@ -26,147 +26,142 @@ const conponents = {
   },
 
   showRightSlidebar(title: string, content: string) {
-    slidebarTitle.textContent = title;
+    // slidebarTitle.textContent = title;
     slidebarContent.innerHTML = content;
     rightSlidebar.classList.remove("translate-x-full");
   },
 
-// conponents.ts
 async showPermissions() {
   const permissionTableBody = document.getElementById("permissions-table-body") as HTMLElement;
-  const permissionsInputArea = document.getElementById("permissions-input-area") as HTMLElement; // 假设此ID存在于 workspaceContent.permissions 中
-  
-  // 初始状态显示提示信息
+  const permissionsInputArea = document.getElementById("permissions-input-area") as HTMLElement;
   if (permissionsInputArea) {
     permissionsInputArea.innerHTML = '<p class="text-gray-400">请先选择一个单元格</p>';
   }
 
-  // 移除旧的监听器，防止重复添加
   const oldListener = permissionTableBody.dataset.listener;
   if (oldListener) {
-      permissionTableBody.removeEventListener('click', (window as any)[oldListener]);
-      delete permissionTableBody.dataset.listener;
+    permissionTableBody.removeEventListener('click', (window as any)[oldListener]);
+    delete permissionTableBody.dataset.listener;
   }
 
   try {
-    const permissions = await sql.getTableAll(); 
+    const permissions = await sql.getTableAll();
     const records = await admin.getRecords();
-
     const recordsMap = new Map();
     if (records && Array.isArray(records)) {
-      records.forEach((record: any) => {
-        recordsMap.set(record.table_name, record);// 创建一个Map对象，将记录的表名作为键，记录对象作为值
-      });
+      records.forEach((record: any) => recordsMap.set(record.table_name, record));
     }
-  
-    // 渲染表格
-    permissionTableBody.innerHTML = permissions.map((permission) => {
-      const record = recordsMap.get(permission);
 
-      const createWhere = record?.create_where || ''; // 使用空字符串而不是 null
-      const deleteWhere = record?.delete_where || '';
-      const updateWhere = record?.update_where || '';
-      const viewWhere = record?.view_where || '';
+    permissionTableBody.innerHTML = permissions
+      .map((permission) => {
+        const record = recordsMap.get(permission);
+        const createWhere = record?.create_where ?? '';
+        const deleteWhere = record?.delete_where ?? '';
+        const updateWhere = record?.update_where ?? '';
+        const viewWhere = record?.view_where ?? '';
+        return `
+          <tr class="border border-gray-700 hover:bg-[#2B2F31]">
+            <td class="px-4 py-3 text-left w-1/5">${permission}</td>
+            <td class="px-4 py-3 text-left cursor-pointer border-l border-gray-700"
+                data-table="${permission}" data-field="create_where" data-current-value="${createWhere}">${createWhere}</td>
+            <td class="px-4 py-3 text-left cursor-pointer border-l border-gray-700"
+                data-table="${permission}" data-field="delete_where" data-current-value="${deleteWhere}">${deleteWhere}</td>
+            <td class="px-4 py-3 text-left cursor-pointer border-l border-gray-700"
+                data-table="${permission}" data-field="update_where" data-current-value="${updateWhere}">${updateWhere}</td>
+            <td class="px-4 py-3 text-left cursor-pointer border-l border-gray-700"
+                data-table="${permission}" data-field="view_where" data-current-value="${viewWhere}">${viewWhere}</td>
+          </tr>`;
+      })
+      .join('');
 
-      return `
-        <tr class="border border-gray-700 hover:bg-[#2B2F31]">
-          <td class="px-4 py-3 text-left w-1/5">${permission}</td>
-          <td class="px-4 py-3 text-left cursor-pointer border-l border-gray-700" 
-              data-table="${permission}" data-field="create_where" data-current-value="${createWhere}">${createWhere}</td>
-          <td class="px-4 py-3 text-left cursor-pointer border-l border-gray-700" 
-              data-table="${permission}" data-field="delete_where" data-current-value="${deleteWhere}">${deleteWhere}</td>
-          <td class="px-4 py-3 text-left cursor-pointer border-l border-gray-700" 
-              data-table="${permission}" data-field="update_where" data-current-value="${updateWhere}">${updateWhere}</td>
-          <td class="px-4 py-3 text-left cursor-pointer border-l border-gray-700" 
-              data-table="${permission}" data-field="view_where" data-current-value="${viewWhere}">${viewWhere}</td>
-        </tr>
-      `;
-    }).join('');
-
-    // 定义新的点击事件处理函数
-    const newListener = async (e: Event) => {
-      const target = e.target as HTMLElement;
-      const selectedCell = target.closest('td.cursor-pointer'); // 确保点击的是权限单元格
-
-      // 清除之前选中的样式
-      permissionTableBody.querySelectorAll('.bg-blue-800').forEach(cell => {
-          cell.classList.remove('bg-blue-800');
-          cell.classList.add('text-left'); // 保持原有样式
-      });
-
-      if (selectedCell && permissionsInputArea) {
-        selectedCell.classList.add('bg-blue-800'); // 添加选中样式
-
-        const row = selectedCell.closest('tr');
-        if (!row) return;
-
-        const table = selectedCell.getAttribute('data-table');
-        const field = selectedCell.getAttribute('data-field');
-        const currentValue = selectedCell.getAttribute('data-current-value') || '';
-
-        permissionsInputArea.innerHTML = `
-            <h4 class="text-md font-semibold mb-2">编辑权限: ${table} - ${field}；where = ？</h4>
-            <textarea
-                id="permission-textarea"
-                data-table="${table}"
-                data-field="${field}"
-                class="w-full h-24 bg-[#2B2F31] border border-[#4a4f52] rounded-lg p-3 text-gray-200 resize-none focus:outline-none"
-            >${currentValue}</textarea>
-            <button id="save-permission-btn" class="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
-                保存修改
-            </button>
-        `;
-        
-        (document.getElementById('save-permission-btn') as HTMLElement).addEventListener('click', async () => {
-            const textarea = document.getElementById('permission-textarea') as HTMLTextAreaElement;
-            const newValue = textarea.value.trim();
-            const tableToUpdate = textarea.getAttribute('data-table');
-            const fieldToUpdate = textarea.getAttribute('data-field');
-
-            if (tableToUpdate && fieldToUpdate) {
-                const payload: { [key: string]: string | null } = {
-                    "create_where": null, "delete_where": null, "update_where": null, "view_where": null
-                };
-                
-                // 获取当前行所有权限的*值*，如果为空则设为 null，否则设为当前值
-                payload.create_where = (row.querySelector('[data-field="create_where"]') as HTMLElement)?.getAttribute('data-current-value') || null;
-                payload.delete_where = (row.querySelector('[data-field="delete_where"]') as HTMLElement)?.getAttribute('data-current-value') || null;
-                payload.update_where = (row.querySelector('[data-field="update_where"]') as HTMLElement)?.getAttribute('data-current-value') || null;
-                payload.view_where = (row.querySelector('[data-field="view_where"]') as HTMLElement)?.getAttribute('data-current-value') || null;
-                
-                payload[fieldToUpdate] = newValue === '' ? null : newValue;
-
-                try {
-                    await admin.updateAuth(tableToUpdate, payload);
-                    console.log(`更新表 ${tableToUpdate} 的权限为:`, payload);
-                    await this.showPermissions(); // 重新渲染表格
-                } catch (error) {
-                    console.error(`更新表 ${tableToUpdate} 权限时出错:`, error,"输入的内容为：",payload);
-                }
-            } else {
-                console.warn('缺少表名或字段名，无法更新权限');
-            }
-        });
-        
-      } else if(permissionsInputArea) {
-          permissionsInputArea.innerHTML = '<p class="text-gray-400">请先选择一个单元格</p>';
+    let selectedCell: HTMLTableCellElement | null = null;
+    const selectCell = (cell: HTMLTableCellElement) => {
+      if (selectedCell) {
+        selectedCell.classList.remove('bg-blue-800');
       }
+      selectedCell = cell;
+      cell.classList.add('bg-blue-800');
     };
 
-    // 为新的监听器生成一个唯一的名称，并将其存储在 window 上，以便后续可以移除
-    const listenerName = `permissionListener_${Date.now()}`;
+    const newListener = async (e: Event) => {
+      const target = e.target as HTMLElement;
+      const cell = target.closest('td.cursor-pointer') as HTMLTableCellElement;
+      if (!cell) return;               
+      if (cell === selectedCell) return; 
+
+      selectCell(cell);
+
+      const table = cell.dataset.table!;
+      const field = cell.dataset.field!;
+      const currentValue = cell.dataset.currentValue ?? '';
+
+
+      permissionsInputArea.innerHTML = `
+        <h4 class="text-md font-semibold mb-2">编辑权限: ${table} - ${field}；where = ？</h4>
+        <textarea
+          id="permission-textarea"
+          data-table="${table}"
+          data-field="${field}"
+          class="w-full h-24 bg-[#2B2F31] border border-[#4a4f52] rounded-lg p-3 text-gray-200 resize-none focus:outline-none"
+        >${currentValue}</textarea>`;
+
+
+      const textarea = document.getElementById('permission-textarea') as HTMLTextAreaElement;
+      textarea.focus();
+
+
+      textarea.addEventListener('keydown', async (ke) => {
+        if (ke.key === 'Enter' && !ke.shiftKey) {
+          ke.preventDefault();
+          const newValue = textarea.value.trim();
+          const row = cell.closest('tr')!;
+          const payload: any = {
+            create_where: null,
+            delete_where: null,
+            update_where: null,
+            view_where: null,
+          };
+
+          row.querySelectorAll<HTMLElement>('td[data-field]').forEach((td) => {
+            const f = td.dataset.field!;
+            payload[f] = td.dataset.currentValue || null;
+          });
+          payload[field] = newValue === '' ? null : newValue;
+
+          try {
+            await admin.updateAuth(table, payload);
+            cell.dataset.currentValue = payload[field] ?? '';
+            cell.textContent = payload[field] ?? '';
+
+          } catch (err) {
+            console.error(`更新表 ${table} 权限时出错:`, err);
+          }
+        }
+      });
+    };
+
+
+    document.addEventListener('click', (e) => {
+      const inTable = (e.target as HTMLElement).closest('#permissions-table');
+      const inInput = (e.target as HTMLElement).closest('#permissions-input-area');
+      if (!inTable && !inInput && selectedCell) {
+        selectedCell.classList.remove('bg-blue-800');
+        selectedCell = null;
+        permissionsInputArea.innerHTML = '<p class="text-gray-400">请先选择一个单元格</p>';
+      }
+    });
+
+
+    const listenerName = `perm_${Date.now()}`;
     (window as any)[listenerName] = newListener;
     permissionTableBody.dataset.listener = listenerName;
-
     permissionTableBody.addEventListener('click', newListener);
-
-
-  } catch(e) {
-    console.log(e);
+  } catch (e) {
+    console.error(e);
   }
 },
 
-// conponents.ts
+
 async showTableMdContent() {
   const tableMd = document.querySelector('.table-md') as HTMLElement;
   if (!tableMd) return;
@@ -180,7 +175,7 @@ async showTableMdContent() {
   patterns.forEach(pattern => {
     // 外层区块
     const block = document.createElement('div');
-    block.className = 'w-full h-[60%] mb-8';
+    block.className = 'w-full h-[60%]';
 
     const btnBar = document.createElement('div');
     btnBar.className = 'flex gap-2';
@@ -265,7 +260,7 @@ async setupTableButtons() {
 
   // 不创建 tableBar，也不插入 DOM
   const contentDiv = document.createElement('div');
-  contentDiv.className = 'table-md w-full h-full';
+  contentDiv.className = 'table-md w-[90%] h-full items-center justify-center p-4'; 
   container.appendChild(contentDiv);
 
   // 手动传入默认 tableId
@@ -312,33 +307,25 @@ showLogs() {
       )
       .join('');
 
-    /* 分页按钮：1 2 3 4 … 8 */
     const pag = document.getElementById('logs-pagination') as HTMLElement;
-    pag.innerHTML = '';
-    const makeBtn = (n: number | string, active = false) => {
-      const btn = document.createElement('button');
-      btn.className = `px-2 py-1 rounded border text-sm ${
-        active ? 'bg-blue-600 border-blue-600' : 'bg-[#2B2F31] border-gray-600'
-      }`;
-      btn.textContent = String(n);
-      if (typeof n === 'number') {
-        btn.addEventListener('click', () => {
-          this._showLogsPage = n;
-          render();
-        });
-      }
+    pag.innerHTML='';
+    const range=(s:number,e:number)=>Array.from({length:e-s+1},(_,i)=>s+i);
+    const make=(n:number| string,active=false)=>{
+      const btn=document.createElement('button');
+      btn.textContent=String(n);
+      btn.className=`px-2 py-1 rounded border text-sm ${active?'bg-blue-600 border-blue-600':'bg-[#2B2F31] border-gray-600'}`;
+      if(typeof n==='number') btn.addEventListener('click',()=>{ this._showLogsPage=n; render(); });
       return btn;
     };
-    const dots = document.createElement('span');
-    dots.textContent = '…';
-
-    if (totalPages <= 7) {
-      for (let i = 1; i <= totalPages; i++) pag.appendChild(makeBtn(i, i === page));
-    } else {
-      [1, 2, 3, 4, dots, totalPages].forEach((p) =>
-        pag.appendChild(typeof p === 'number' ? makeBtn(p, p === page) : dots)
-      );
-    }
+    const dots=()=>{const d=document.createElement('span'); d.textContent='…'; return d; };
+    const total=totalPages, cur=page, delta=2;
+    const left =Math.max(2, cur-delta);
+    const right=Math.min(total-1,cur+delta);
+    pag.appendChild(make(1,cur===1));
+    if(left>2) pag.appendChild(dots());
+    range(left,right).forEach(i=>pag.appendChild(make(i,i===cur)));
+    if(right<total-1) pag.appendChild(dots());
+    if(total>1) pag.appendChild(make(total,cur===total));
 
     tbody.querySelectorAll('tr').forEach((tr) => {
       tr.addEventListener('click', (e) => {
@@ -464,6 +451,30 @@ async showFolderTables() {
         </div>
       </div>`;
   }
+
+  if(tables.length){
+    const first=tables[0];
+    (sidebarBox.querySelector('button') as HTMLButtonElement).click();
+  }
+
+
+  const tip=document.createElement('div');
+  tip.className='fixed hidden backdrop-blur-md bg-black/60 text-white text-xs rounded px-2 py-1 pointer-events-none transition-opacity';
+  document.body.appendChild(tip);
+  document.getElementById('main-workspace')!.addEventListener('mouseover',e=>{
+    const cel=(e.target as HTMLElement).closest('td');
+    if(!cel) return;
+    const full=cel.textContent??'';
+    if(full.length<20) return;   
+    tip.textContent=full;
+    tip.classList.remove('hidden');
+    const rect=cel.getBoundingClientRect();
+    tip.style.left=rect.left+'px';
+    tip.style.top =(rect.top -28)+'px';
+  });
+  document.getElementById('main-workspace')!.addEventListener('mouseout',e=>{
+    if(!(e.relatedTarget as HTMLElement)?.closest('td')) tip.classList.add('hidden');
+  });
 }
 
 };
