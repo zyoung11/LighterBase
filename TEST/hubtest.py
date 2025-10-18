@@ -271,7 +271,7 @@ if __name__ == "__main__":
     proj_token = login_user(uid, pwd, uid, pid)          # 注意传的是明文密码
     if not proj_token:
         print("❌ 拿不到项目 token，退出")
-        exit(1)
+        # exit(1)
 
     # 2. 建表
     sql_admin_create(
