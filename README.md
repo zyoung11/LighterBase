@@ -599,6 +599,18 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - URL：/:userld/:projectId/api/security/{table}
 
+### 11. 查询所有表名
+
+- URL：/:userld/:projectId/api/query/tables
+
+### 12.  查询日志
+
+- URL：/:userld/:projectId/api/query/logs?page={x}&perpage={y}
+
+### 13.搜索日志
+
+- URL：/:userld/:projectId/api/search/logs?page={x}&perpage={y}
+
 
 
 ------
@@ -1308,7 +1320,6 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-
 ### 2. 查询日志
 
 - http方法：GET
@@ -1391,7 +1402,6 @@ cd LighterBase/Backend/web/LighterBaseHub
       }
     }
   ```
-
 
 ### 3. 搜索日志
 
