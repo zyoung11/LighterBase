@@ -68,6 +68,7 @@ var routes = []Route{
 	// --- 其他查询 API ---
 	{Method: "GET", Path: "/api/query/tables", Handler: listDataTables},
 	{Method: "GET", Path: "/api/query/logs", Handler: listLogs},
+	{Method: "POST", Path: "/api/search/logs", Handler: searchLogs},
 }
 
 type Route struct {
@@ -1422,71 +1423,71 @@ func getAllSecurity(c *fiber.Ctx) error {
 }
 
 // 为表创建安全策略
-func createSecurityPolicy(c *fiber.Ctx) error {
-	userID, err := authenticateUser(c)
-	if err != nil || userID != 1 {
-		return sendError(c, 403, "You are not allowed to perform this request.", nil)
-	}
+// func createSecurityPolicy(c *fiber.Ctx) error {
+// 	userID, err := authenticateUser(c)
+// 	if err != nil || userID != 1 {
+// 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+// 	}
 
-	tableName := c.Params("table_name")
-	if tableName == "" {
-		return sendError(c, 400, "Table name is required.", nil)
-	}
+// 	tableName := c.Params("table_name")
+// 	if tableName == "" {
+// 		return sendError(c, 400, "Table name is required.", nil)
+// 	}
 
-	type Body struct {
-		CreateWhere string `json:"create_where"`
-		DeleteWhere string `json:"delete_where"`
-		UpdateWhere string `json:"update_where"`
-		ViewWhere   string `json:"view_where"`
-	}
-	var body Body
-	if err := c.BodyParser(&body); err != nil {
-		return sendError(c, 400, "Invalid JSON body.", nil)
-	}
-	if tableName == "" {
-		return sendError(c, 400, "Failed to create security policy.", fiber.Map{"table_name": "table_name is required."})
-	}
+// 	type Body struct {
+// 		CreateWhere string `json:"create_where"`
+// 		DeleteWhere string `json:"delete_where"`
+// 		UpdateWhere string `json:"update_where"`
+// 		ViewWhere   string `json:"view_where"`
+// 	}
+// 	var body Body
+// 	if err := c.BodyParser(&body); err != nil {
+// 		return sendError(c, 400, "Invalid JSON body.", nil)
+// 	}
+// 	if tableName == "" {
+// 		return sendError(c, 400, "Failed to create security policy.", fiber.Map{"table_name": "table_name is required."})
+// 	}
 
-	// 使用 sqlc 生成的函数
-	err = queries.CreateSecurity(context.Background(), database.CreateSecurityParams{
-		TableName:   tableName,
-		CreateWhere: sql.NullString{String: body.CreateWhere, Valid: body.CreateWhere != ""},
-		DeleteWhere: sql.NullString{String: body.DeleteWhere, Valid: body.DeleteWhere != ""},
-		UpdateWhere: sql.NullString{String: body.UpdateWhere, Valid: body.UpdateWhere != ""},
-		ViewWhere:   sql.NullString{String: body.ViewWhere, Valid: body.ViewWhere != ""},
-	})
-	if err != nil {
-		// 检查唯一性约束冲突
-		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
-			return sendError(c, 409, "A security policy for this table already exists.", nil) // 409 Conflict
-		}
-		return sendError(c, 500, "Failed to create security policy.", fiber.Map{"database_error": err.Error()})
-	}
+// 	// 使用 sqlc 生成的函数
+// 	err = queries.CreateSecurity(context.Background(), database.CreateSecurityParams{
+// 		TableName:   tableName,
+// 		CreateWhere: sql.NullString{String: body.CreateWhere, Valid: body.CreateWhere != ""},
+// 		DeleteWhere: sql.NullString{String: body.DeleteWhere, Valid: body.DeleteWhere != ""},
+// 		UpdateWhere: sql.NullString{String: body.UpdateWhere, Valid: body.UpdateWhere != ""},
+// 		ViewWhere:   sql.NullString{String: body.ViewWhere, Valid: body.ViewWhere != ""},
+// 	})
+// 	if err != nil {
+// 		// 检查唯一性约束冲突
+// 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+// 			return sendError(c, 409, "A security policy for this table already exists.", nil) // 409 Conflict
+// 		}
+// 		return sendError(c, 500, "Failed to create security policy.", fiber.Map{"database_error": err.Error()})
+// 	}
 
-	return c.Status(201).JSON(fiber.Map{"message": "Security policy created successfully."})
-}
+// 	return c.Status(201).JSON(fiber.Map{"message": "Security policy created successfully."})
+// }
 
 // 删除表的安全策略
-func deleteSecurityPolicy(c *fiber.Ctx) error {
-	userID, err := authenticateUser(c)
-	if err != nil || userID != 1 {
-		return sendError(c, 403, "You are not allowed to perform this request.", nil)
-	}
+// func deleteSecurityPolicy(c *fiber.Ctx) error {
+// 	userID, err := authenticateUser(c)
+// 	if err != nil || userID != 1 {
+// 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+// 	}
 
-	tableName := c.Params("table_name")
-	if tableName == "" {
-		return sendError(c, 400, "Table name is required.", nil)
-	}
+// 	tableName := c.Params("table_name")
+// 	if tableName == "" {
+// 		return sendError(c, 400, "Table name is required.", nil)
+// 	}
 
-	err = queries.DeleteSecurity(context.Background(), tableName)
-	if err != nil {
-		// sqlc 对于 DELETE 不存在的记录不会返回 sql.ErrNoRows，而是返回一个错误
-		// 我们可以检查 RowsAffected
-		return sendError(c, 500, "Failed to delete security policy.", fiber.Map{"database_error": err.Error()})
-	}
+// 	err = queries.DeleteSecurity(context.Background(), tableName)
+// 	if err != nil {
+// 		// sqlc 对于 DELETE 不存在的记录不会返回 sql.ErrNoRows，而是返回一个错误
+// 		// 我们可以检查 RowsAffected
+// 		return sendError(c, 500, "Failed to delete security policy.", fiber.Map{"database_error": err.Error()})
+// 	}
 
-	return c.SendStatus(204) // 204 No Content
-}
+// 	return c.SendStatus(204) // 204 No Content
+// }
 
 // 更新表的安全策略
 func updateSecurityPolicy(c *fiber.Ctx) error {
@@ -1624,6 +1625,78 @@ func listLogs(c *fiber.Ctx) error {
 		"perPage":    perPage,
 		"totalPages": totalPages,
 		"totalItems": total,
+		"logs":       formattedLogs,
+	})
+}
+
+// searchLogs 模糊搜索日志并分页返回
+func searchLogs(c *fiber.Ctx) error {
+	// 只允许root用户访问
+	userID, err := authenticateUser(c)
+	if err != nil || userID != 1 {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
+	// 解析请求体（只包含搜索关键词）
+	type Body struct {
+		Query string `json:"query"`
+	}
+	var body Body
+	if err := c.BodyParser(&body); err != nil {
+		return sendError(c, 400, "Invalid JSON body.", nil)
+	}
+	if body.Query == "" {
+		return sendError(c, 400, "Query parameter is required.", nil)
+	}
+
+	// 通过查询参数获取分页信息
+	page := c.QueryInt("page", 1)
+	perPage := c.QueryInt("perpage", 30)
+
+	// 验证分页参数
+	if page < 1 || perPage < 1 || perPage > 100 {
+		return sendError(c, 400, "Invalid pagination parameters.", nil)
+	}
+
+	// 构建搜索模式（添加%通配符）
+	searchPattern := "%" + body.Query + "%"
+
+	// 获取总数
+	total, err := queries.CountSearchLogs(context.Background(), searchPattern)
+	if err != nil {
+		return sendError(c, 500, "Failed to count search results.", fiber.Map{"database_error": err.Error()})
+	}
+
+	// 计算分页
+	totalPages := int((total + int64(perPage) - 1) / int64(perPage))
+	offset := (page - 1) * perPage
+
+	// 获取搜索结果
+	logs, err := queries.SearchLogs(context.Background(), database.SearchLogsParams{
+		LogText: searchPattern,
+		Limit:   int64(perPage),
+		Offset:  int64(offset),
+	})
+	if err != nil {
+		return sendError(c, 500, "Failed to search logs.", fiber.Map{"database_error": err.Error()})
+	}
+
+	// 转换为期望的格式
+	formattedLogs := make([]map[string]any, len(logs))
+	for i, log := range logs {
+		formattedLogs[i] = map[string]any{
+			"id":         log.ID,
+			"log_text":   log.LogText,
+			"created_at": log.CreatedAt.String,
+		}
+	}
+
+	return c.JSON(fiber.Map{
+		"page":       page,
+		"perPage":    perPage,
+		"totalPages": totalPages,
+		"totalItems": total,
+		"query":      body.Query,
 		"logs":       formattedLogs,
 	})
 }

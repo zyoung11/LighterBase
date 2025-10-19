@@ -1315,7 +1315,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - URL：http://localhost:8080/api/query/logs?page={x}&perpage={y}
 
-- 请求体：
+- 请求头：
 
   ```json
   Authorization: Bearer <jwt_token>
@@ -1392,4 +1392,47 @@ cd LighterBase/Backend/web/LighterBaseHub
     }
   ```
 
-  
+
+### 3. 搜索日志
+
+- http方法：POST
+
+- URL：http://localhost:8080/api/search/logs?page={x}&perpage={y}
+
+- 请求头：
+
+  ```json
+  Authorization: Bearer <jwt_token>
+  Content-Type: application/json
+  ```
+
+- 请求体：
+
+  ```json
+  {
+      "query": "搜索关键词"
+  }
+  ```
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  {
+      "page": 1,
+      "perPage": 30,
+      "totalPages": 1,
+      "totalItems": 5,
+      "query": "搜索关键词",
+      "logs": [
+          {
+              "id": 1,
+              "log_text": "包含搜索关键词的日志内容",
+              "created_at": "2023-01-01 12:00:00"
+          }
+      ]
+  }
+  ```

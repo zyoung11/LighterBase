@@ -21,6 +21,18 @@ func (q *Queries) CountLogs(ctx context.Context) (int64, error) {
 	return count, err
 }
 
+const countSearchLogs = `-- name: CountSearchLogs :one
+SELECT COUNT(*) FROM _log_ 
+WHERE log_text LIKE ?
+`
+
+func (q *Queries) CountSearchLogs(ctx context.Context, logText string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countSearchLogs, logText)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createLog = `-- name: CreateLog :exec
 INSERT INTO _log_ (log_text) VALUES (?)
 `
@@ -192,6 +204,42 @@ func (q *Queries) ListSqls(ctx context.Context) ([]Sqls, error) {
 	for rows.Next() {
 		var i Sqls
 		if err := rows.Scan(&i.ID, &i.Sql); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchLogs = `-- name: SearchLogs :many
+SELECT id, log_text, created_at FROM _log_ 
+WHERE log_text LIKE ? 
+ORDER BY id DESC 
+LIMIT ? OFFSET ?
+`
+
+type SearchLogsParams struct {
+	LogText string
+	Limit   int64
+	Offset  int64
+}
+
+func (q *Queries) SearchLogs(ctx context.Context, arg SearchLogsParams) ([]Log, error) {
+	rows, err := q.db.QueryContext(ctx, searchLogs, arg.LogText, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Log
+	for rows.Next() {
+		var i Log
+		if err := rows.Scan(&i.ID, &i.LogText, &i.CreatedAt); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

@@ -44,3 +44,13 @@ SELECT id, log_text, created_at FROM _log_ ORDER BY id DESC LIMIT ? OFFSET ?;
 
 -- name: CountLogs :one
 SELECT COUNT(*) FROM _log_;
+
+-- name: SearchLogs :many
+SELECT id, log_text, created_at FROM _log_ 
+WHERE log_text LIKE ? 
+ORDER BY id DESC 
+LIMIT ? OFFSET ?;
+
+-- name: CountSearchLogs :one
+SELECT COUNT(*) FROM _log_ 
+WHERE log_text LIKE ?;
