@@ -1328,7 +1328,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - 请求头：
 
-  ```json
+  ```
   Authorization: Bearer <jwt_token>
   ```
 
@@ -1411,7 +1411,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - 请求头：
 
-  ```json
+  ```
   Authorization: Bearer <jwt_token>
   Content-Type: application/json
   ```
