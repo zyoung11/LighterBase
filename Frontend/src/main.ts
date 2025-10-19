@@ -226,11 +226,9 @@ function showDefaultWorkspace() {
       if (textarea) {
         let sqlValue = textarea.value;
         
-        // 删除users表相关的内容
         const usersTablePattern = /CREATE TABLE users \([\s\S]*?;\n*/i;
         sqlValue = sqlValue.replace(usersTablePattern, '');
         
-        // 删除多余的空白行
         sqlValue = sqlValue.replace(/^\s*[\r\n]/gm, '').trim();
         
         const payload = {
@@ -242,39 +240,4 @@ function showDefaultWorkspace() {
     }
   });
 }
-
-
-
-
-
-
-// // 隐藏底部确认窗口
-// function hideBottomModal() {
-//   bottomModal.classList.remove("show");
-// }
-
-// // 导航按钮事件
-// (document.getElementById("logo-btn") as HTMLElement).addEventListener(
-//   "click",
-//   () => {
-//     rightSidebar.innerHTML = sidebarContent.logo;
-//     showDefaultWorkspace();
-//   }
-// );
-
-
-
-
-// // 底部模态框按钮
-// (document.getElementById("modal-cancel") as HTMLElement).addEventListener(
-//   "click",
-//   hideBottomModal
-// );
-// (document.getElementById("modal-confirm") as HTMLElement).addEventListener(
-//   "click",
-//   () => {
-//     hideBottomModal();
-//     // 这里可以添加确认后的操作
-//   }
-// );
 
