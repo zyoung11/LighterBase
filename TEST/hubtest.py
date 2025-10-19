@@ -1,5 +1,6 @@
 import json
 import requests
+import time
 from typing import List, Dict, Optional, Union, Any
 
 HOST = "http://localhost:8080"
@@ -22,6 +23,100 @@ def login(user_name: str, password: str) -> Optional[str]:
         return r.json().get("token")
     print(f"[登录 {user_name}] 失败: {r.text}")
     return None
+
+def admin_list_all_users(token: str) -> List[Dict[str, Any]]:
+    url = f"{HOST}/api/users"
+    headers = {"Authorization": f"Bearer {token}"}
+    print("--- GET /api/users (admin only) ---")
+    try:
+        resp = requests.get(url, headers=headers)
+        print("Status Code:", resp.status_code)
+        if resp.status_code == 200:
+            data = resp.json()
+            print("Total users:", len(data))
+            return data
+        try:
+            print("Error Response:\n", json.dumps(resp.json(), ensure_ascii=False, indent=2))
+        except ValueError:
+            print("Error Response (not json):\n", resp.text)
+    except requests.exceptions.RequestException as e:
+        print("请求出错:", e)
+    return []
+
+def admin_get_user_by_id(token: str, user_id: Union[int, str]) -> Optional[Dict[str, Any]]:
+    url = f"{HOST}/api/users/{user_id}"
+    headers = {"Authorization": f"Bearer {token}"}
+    print(f"--- GET /api/users/{user_id} (admin only) ---")
+    try:
+        resp = requests.get(url, headers=headers)
+        print("Status Code:", resp.status_code)
+        if resp.status_code == 200:
+            user = resp.json()
+            print("User details:\n", json.dumps(user, ensure_ascii=False, indent=2))
+            return user
+        # 400/401/403/404/500
+        try:
+            print("Error Response:\n", json.dumps(resp.json(), ensure_ascii=False, indent=2))
+        except ValueError:
+            print("Error Response (not json):\n", resp.text)
+    except requests.exceptions.RequestException as e:
+        print("请求出错:", e)
+    return None
+
+def admin_update_user(token: str, user_id: Union[int, str], user_name: Optional[str] = None, password: Optional[str] = None, user_avatar: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    url = f"{HOST}/api/users/{user_id}"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}"
+    }
+    payload = {}
+    if user_name is not None:
+        payload["user_name"] = user_name
+    if password is not None:
+        payload["password"] = password
+    if user_avatar is not None:
+        payload["user_avatar"] = user_avatar
+
+    print(f"--- PUT /api/users/{user_id} (admin only) ---")
+    print("Payload:", json.dumps(payload, ensure_ascii=False))
+    try:
+        resp = requests.put(url, data=json.dumps(payload), headers=headers)
+        print("Status Code:", resp.status_code)
+        if resp.status_code == 200:
+            user = resp.json()
+            print("Updated user:\n", json.dumps(user, ensure_ascii=False, indent=2))
+            return user
+        # 400/401/403/500
+        try:
+            print("Error Response:\n", json.dumps(resp.json(), ensure_ascii=False, indent=2))
+        except ValueError:
+            print("Error Response (not json):\n", resp.text)
+    except requests.exceptions.RequestException as e:
+        print("请求出错:", e)
+    return None
+
+def admin_delete_user(token: str, user_id: Union[int, str]) -> bool:
+    url = f"{HOST}/api/users/{user_id}"
+    headers = {"Authorization": f"Bearer {token}"}
+    print(f"--- DELETE /api/users/{user_id} (admin only) ---")
+    try:
+        resp = requests.delete(url, headers=headers)
+        print("Status Code:", resp.status_code)
+        if resp.status_code == 204:
+            print("Response Body: null")
+            return True
+        # 400/401/403/500
+        try:
+            print("Error Response:\n", json.dumps(resp.json(), ensure_ascii=False, indent=2))
+        except ValueError:
+            print("Error Response (not json):\n", resp.text)
+    except requests.exceptions.RequestException as e:
+        print("请求出错:", e)
+    return False
+
+
+
+
 
 def project_create(token: str, name: str, avatar: str = "", description: str = "") -> Optional[Dict]:
     url = f"{HOST}/api/projects"
@@ -260,6 +355,7 @@ if __name__ == "__main__":
     
     # ---------- 2. 创建项目 ----------
     proj = project_create(user_token, "demo_proj", description="just for test")
+    time.sleep(0.5)
     print("原始返回:", json.dumps(proj, ensure_ascii=False, indent=2))
     if not proj:
         exit("❌ 项目创建失败")
@@ -308,3 +404,70 @@ if __name__ == "__main__":
     if proj_token:
         new_token = refresh_token(proj_token, uid, pid)
         print("✅ 刷新后 token:", new_token)
+
+    # ---------- 10. 管理员获取所有用户 ----------
+    print("\n====== 管理员获取所有用户 ======")
+    all_users = admin_list_all_users(user_token)        # 当前 token 所属用户需为管理员
+    if all_users:
+        print("✅ 当前系统用户列表：")
+        for u in all_users:
+            print(f"  - id={u['user_id']}  name={u['user_name']}  email={u['email']}")
+    else:
+        print("❌ 获取用户列表失败（可能权限不足或接口异常）")
+
+    # ---------- 11. 管理员获取单个用户 ----------
+    print("\n====== 管理员获取单个用户 ======")
+    # 先拿到用户列表，再随机查一个
+    all_users = admin_list_all_users(user_token)
+    if all_users:
+        sample = all_users[0]
+        uid_to_query = sample["user_id"]
+        user_detail = admin_get_user_by_id(user_token, uid_to_query)
+        if user_detail:
+            print("✅ 单用户查询成功")
+        else:
+            print("❌ 单用户查询失败")
+    else:
+        print("❌ 未能获取用户列表，跳过单用户查询")    
+
+    # ---------- 12. 管理员更新单个用户 ----------
+    print("\n====== 管理员更新单个用户 ======")
+    all_users = admin_list_all_users(user_token)
+    if all_users:
+        target = all_users[-1]          # 任选一个
+        uid_up = target["user_id"]
+        updated = admin_update_user(
+            token=user_token,
+            user_id=uid_up,
+            user_name=target["user_name"] + "_v2",
+            user_avatar="https://example.com/avatar_v2.png"
+        )
+        if updated:
+            print("✅ 更新成功，最新用户名：", updated["user_name"])
+        else:
+            print("❌ 更新失败")
+    else:
+        print("❌ 未能获取用户列表，跳过更新测试")
+
+    # ---------- 13. 管理员删除用户：先建再删 ----------
+    print("\n====== 管理员删除用户（先建再删）======")
+    zrl_token = register("zrl", "123456", "zrl@example.com")
+    if not zrl_token:
+        print("❌ 注册 zrl 失败，跳过删除测试")
+    else:
+        all_users = admin_list_all_users(user_token)
+        zrl_user = next((u for u in all_users if u["user_name"] == "zrl"), None)
+        if not zrl_user:
+            print("❌ 找不到刚注册的 zrl，跳过删除测试")
+        else:
+            zrl_id = zrl_user["user_id"]
+            print(f"准备删除用户 zrl（id={zrl_id}）")
+            # 3) 管理员删除
+            ok = admin_delete_user(user_token, zrl_id)
+            print("✅ 删除成功" if ok else "❌ 删除失败")
+            # 4) 再次查询验证
+            all_users_after = admin_list_all_users(user_token)
+            if not any(u["user_name"] == "zrl" for u in all_users_after):
+                print("✅ 已确认 zrl 不再存在于用户列表")
+            else:
+                print("⚠️  zrl 仍然存在")
