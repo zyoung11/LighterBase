@@ -100,7 +100,6 @@ async function initializeDatabaseView() {
 
 `;
     
-    // 检查是否有现有的表数据
     try {
       const tableStatements = await sql.lastestSql();
       if (tableStatements) {
@@ -110,7 +109,6 @@ async function initializeDatabaseView() {
     } catch (error) {
       console.warn("获取表数据失败，使用默认SQL:", error);
     }
-
     textarea.value = initialSQL;
     
     const initialLength = initialSQL.length;
@@ -125,7 +123,7 @@ async function initializeDatabaseView() {
     textarea.focus();
     textarea.setSelectionRange(initialLength, initialLength);
 
-    // 渲染ER图
+
     try {
       const ast = sqliteParser(initialSQL);
       const tables = gojsER.extract(ast);
@@ -176,19 +174,19 @@ function showDefaultWorkspace() {
   defaultWorkspace.style.display = "none";
   mainWorkspace.innerHTML = workspaceContent.database;
 
-  setTimeout(() => {
-    const mountElement = document.getElementById('mount');
-    if (!mountElement) {
-      const databaseContainer = document.getElementById('database-container');
-      if (databaseContainer) {
-        const mountDiv = document.createElement('div');
-        mountDiv.id = 'mount';
-        mountDiv.style.width = '100%';
-        mountDiv.style.height = '400px';
-        databaseContainer.appendChild(mountDiv);
-      }
+document.addEventListener('DOMContentLoaded', () => {
+  const mountElement = document.getElementById('mount');
+  if (!mountElement) {
+    const databaseContainer = document.getElementById('database-container');
+    if (databaseContainer) {
+      const mountDiv = document.createElement('div');
+      mountDiv.id = 'mount';
+      mountDiv.style.width = '100%';
+      mountDiv.style.height = '400px';
+      databaseContainer.appendChild(mountDiv);
     }
-  }, 0);
+  }
+});
 
   initializeDatabaseView();
 
@@ -204,6 +202,7 @@ function showDefaultWorkspace() {
   
     if (target.closest('#create-db')) {
       mainWorkspace.innerHTML = workspaceContent.database;
+      initializeDatabaseView();
       return;
     }
   });
@@ -240,4 +239,62 @@ function showDefaultWorkspace() {
     }
   });
 }
+
+
+document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.id === 'view-full-sql-btn') {
+        const textarea = document.getElementById('sql-input') as HTMLTextAreaElement;
+        const fullSQL = textarea.value;
+        
+        if (fullSQL.trim()) {
+            // 显示模态框
+            const modal = document.getElementById('full-sql-modal') as HTMLElement;
+            const content = document.getElementById('full-sql-content') as HTMLElement;
+            
+            content.textContent = fullSQL;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        } else {
+            alert('SQL语句为空！');
+        }
+    }
+    
+
+    if (target.id === 'close-full-sql-modal' || target.id === 'close-modal-btn') {
+        const modal = document.getElementById('full-sql-modal') as HTMLElement;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    
+    if (target.id === 'copy-full-sql') {
+        const content = document.getElementById('full-sql-content') as HTMLElement;
+        const text = content.textContent || '';
+        
+        navigator.clipboard.writeText(text).then(() => {
+
+            const btn = target as HTMLButtonElement;
+            const originalText = btn.textContent;
+            btn.textContent = '已复制！';
+            btn.classList.add('bg-green-600');
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.classList.remove('bg-green-600');
+            }, 2000);
+        }).catch(err => {
+            console.error('复制失败:', err);
+            alert('复制失败，请手动复制');
+        });
+    }
+});
+
+
+document.getElementById('full-sql-modal')?.addEventListener('click', (e) => {
+    const modal = e.target as HTMLElement;
+    if (modal.id === 'full-sql-modal') {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+});
 

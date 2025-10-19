@@ -1,6 +1,8 @@
 import apiIcon from "../icons/api白.svg";
 import message_light from "../icons/message_light.svg";
 import confirm from "../icons/勾白.svg";
+import magnify from "../icons/扩大白.svg";
+import level from "../icons/level白.svg";
 const sidebarContent = {
   logo: `
                 <div class="space-y-3">
@@ -68,21 +70,55 @@ const workspaceContent = {
                     </div>
 
                     <!-- 下部分：SQL输入区域 (40% 高度) -->
-                    <div class="h-[40%] p-6 relative flex items-center space-x-4 justify-center"> 
-                        <textarea 
-                            id="sql-input"
-                            class="w-[80%] h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg p-4 text-gray-200 placeholder-gray-500 resize-none focus:outline-none focus:border-[#4a4f52]"
-                            placeholder="在这里输入SQL查询..."
-                        ></textarea>
-                        <div class ="flex flex-col">
-                        <button id="ai-generated" class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-sm transition-colors mb-4">
-                            <img src ="${message_light}" class ="w-8 h-8 object-contain" alt="AI-generated">
-                        </button>
-                        <button id="sql-send" class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-sm transition-colors">
-                            <img src ="${confirm}" class ="w-8 h-8 object-contain" alt="确认">
-                        </button>
-                        </div>
-                    </div>
+                    <!-- 在 sql-input 区域的右上角添加按钮 -->
+<div class="h-[40%] p-6 relative flex items-center space-x-4 justify-center"> 
+    <div class="relative w-[80%] h-full">
+        <textarea 
+            id="sql-input"
+            class="w-full h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg p-4 text-gray-200 placeholder-gray-500 resize-none focus:outline-none focus:border-[#4a4f52]"
+            placeholder="在这里输入SQL查询..."
+        ></textarea>
+        <!-- 查看完整SQL按钮 -->
+        <button 
+            id="view-full-sql-btn" 
+            class="absolute top-2 right-2 px-3 py-1 bg-[#3a3f41] hover:bg-[#4a4f52] rounded text-xs text-gray-300 transition-colors"
+            title="查看完整SQL"
+        >
+            <img src="${magnify}" class="w-6 h-6 object-contain" alt="查看完整SQL">
+        </button>
+    </div>
+    <div class="flex flex-col">
+        <button id="ai-generated" class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-sm transition-colors mb-4">
+            <img src="${message_light}" class="w-8 h-8 object-contain" alt="AI-generated">
+        </button>
+        <button id="sql-send" class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a4f41] rounded-lg text-sm transition-colors">
+            <img src="${confirm}" class="w-8 h-8 object-contain" alt="确认">
+        </button>
+    </div>
+</div>
+
+<!-- 弹出窗口模态框 -->
+<div id="full-sql-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-[#2B2F31] rounded-lg p-6 w-[80%] max-w-4xl max-h-[80%] overflow-hidden">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-200">完整SQL语句</h3>
+            <button id="close-full-sql-modal" class="text-gray-400 hover:text-gray-200 text-2xl">
+                ×
+            </button>
+        </div>
+        <div class="overflow-auto max-h-[60vh]">
+            <pre id="full-sql-content" class="bg-[#1B1E1F] p-4 rounded text-gray-300 text-sm whitespace-pre-wrap overflow-x-auto"></pre>
+        </div>
+        <div class="mt-4 flex justify-end">
+            <button id="copy-full-sql" class="px-4 py-2 bg-[#4a4f52] hover:bg-[#5a5f62] rounded text-sm text-gray-200 transition-colors mr-2">
+                复制
+            </button>
+            <button id="close-modal-btn" class="px-4 py-2 bg-[#3a3f41] hover:bg-[#4a4f52] rounded text-sm text-gray-200 transition-colors">
+                关闭
+            </button>
+        </div>
+    </div>
+</div>
                 </div>
             `,
   permissions: `
@@ -131,7 +167,7 @@ const workspaceContent = {
           <th class="px-3 py-2 text-left w-10">
             <input id="logs-select-all" type="checkbox" class="rounded">
           </th>
-          <th class="px-3 py-2 text-left">级别</th>
+          <th class="px-3 py-2 text-left">Level <img src="${level}" class="w-6 h-6 object-contain" alt="查看完整SQL"></th>
           <th class="px-3 py-2 text-left">ID</th>
           <th class="px-3 py-2 text-left">日志内容</th>
           <th class="px-3 py-2 text-left">创建时间</th>
@@ -617,8 +653,7 @@ const searchData = await lb.searchTable(payload, "table_name", 1, 30);
 \`\`\`
   </div>
 </div>
-`
+`,
 };
-
 
 export { sidebarContent, workspaceContent, slideBarContent, apiMarked };

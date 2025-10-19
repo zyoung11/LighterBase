@@ -17,19 +17,19 @@ marked.use(markedHighlight({
 }));
 
 const rightSlidebar = document.getElementById("right-slidebar") as HTMLElement;
-const slidebarTitle = document.getElementById("slidebar-title") as HTMLElement;
+// const slidebarTitle = document.getElementById("slidebar-title") as HTMLElement;
 const slidebarContent = document.getElementById("slidebar-content") as HTMLElement;
 
 
 const conponents = {
   hideRightSlidebar() {
-    rightSlidebar.classList.add("translate-x-full");
+    rightSlidebar.classList.add("translate-x-[110%]");
   },
 
   showRightSlidebar(title: string, content: string) {
     // slidebarTitle.textContent = title;
     slidebarContent.innerHTML = content;
-    rightSlidebar.classList.remove("translate-x-full");
+    rightSlidebar.classList.remove("translate-x-[110%]");
   },
 
 async showPermissions() {
@@ -189,7 +189,7 @@ async showTableMdContent() {
     });
 
     const contentBox = document.createElement('div');
-    contentBox.className = ' w-full h-[80%] bg-[#3a3f41] rounded-b text-gray-300 p-4 whitespace-normal overflow-y-auto'; 
+    contentBox.className = ' w-full h-[90%] bg-[#3a3f41] rounded-b text-gray-300 p-4 whitespace-normal overflow-y-auto'; 
     contentBox.innerHTML = ``; 
 
     btnBar.addEventListener('click', async(e) => {
@@ -316,14 +316,14 @@ showLogs() {
       );
     }
 
-    /* 级别样式 */
+
     const levelStyle = (lvl: number) => {
       const map: { [k: number]: string } = { 0: 'bg-green-600', 8: 'bg-red-600' };
       const bg = map[lvl] || 'bg-gray-600';
       return `inline-block px-2 py-0.5 text-xs text-white rounded-full ${bg}`;
     };
 
-    /* 渲染表格 */
+
     const tbody = document.getElementById('logs-tbody') as HTMLElement;
     tbody.innerHTML = logs
       .map(
