@@ -86,7 +86,35 @@ const sql = {
         console.error('getLogs error', e);
         throw e;
     }
+    },
+
+
+      async searchLogs(page: number = 1,perPage: number = 30,query: string = ''):  Promise<theLogs> {
+    try {
+      const res = await fetch(
+        `${URL}/api/search/logs?page=${page}&perpage=${perPage}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({ query }),
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error(`查询失败: ${res.status} ${res.statusText}`);
+      }
+
+      const data = await res.json();
+      return data;
+    } catch (error) {
+      console.error('searchLogs error', error);
+      throw error;
     }
+  }
+    
 }
 
 export default sql;

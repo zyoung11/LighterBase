@@ -3,6 +3,8 @@ import message_light from "../icons/message_light.svg";
 import confirm from "../icons/勾白.svg";
 import magnify from "../icons/扩大白.svg";
 import level from "../icons/level白.svg";
+import logcontent from "../icons/page白.svg";
+import date from "../icons/date白.svg";
 const sidebarContent = {
   logo: `
                 <div class="space-y-3">
@@ -167,10 +169,25 @@ const workspaceContent = {
           <th class="px-3 py-2 text-left w-10">
             <input id="logs-select-all" type="checkbox" class="rounded">
           </th>
-          <th class="px-3 py-2 text-left">Level <img src="${level}" class="w-6 h-6 object-contain" alt="查看完整SQL"></th>
+          <th class="px-3 py-2 text-left flex items-center">
+            <div class="flex items-center">
+              <img src="${level}" class="w-3 h-3 object-contain" alt="查看完整SQL ">
+              <p>Level</p>
+            </div>
+          </th>
           <th class="px-3 py-2 text-left">ID</th>
-          <th class="px-3 py-2 text-left">日志内容</th>
-          <th class="px-3 py-2 text-left">创建时间</th>
+          <th class="px-3 py-2">
+            <div class="flex items-center">
+              <img src="${logcontent}" class="w-5 h-5 object-contain" alt="日志内容 ">
+              <p>日志内容</p>
+            </div>
+          </th>
+          <th class="px-3 py-2 text-left flex items-center">
+            <div class="flex items-center">
+              <img src="${date}" class="w-3 h-3 object-contain" alt="创建时间 ">
+              <p>创建时间</p>
+            </div>
+          </th>
         </tr>
       </thead>
       <tbody id="logs-tbody"></tbody>

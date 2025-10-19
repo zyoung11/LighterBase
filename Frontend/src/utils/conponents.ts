@@ -7,6 +7,17 @@ import hljs from 'highlight.js';
 import 'highlight.js/styles/vs2015.css';
 // import 'highlight.js/styles/rainbow.css'
 import lighterBase from "../apis/auto";
+import blocks from "../modules/blocks";
+
+let logDeletePopup: {
+  element: HTMLElement | null;
+  isOpen: boolean;
+  checkedIds: number[];
+} = {
+  element: null,
+  isOpen: false,
+  checkedIds: []
+};
 
 marked.use(markedHighlight({
   langPrefix: 'hljs language-',
@@ -308,14 +319,21 @@ showLogs() {
     const page    = Number(this._showLogsPage || 1);
     const perPage = Number((document.getElementById('logs-perpage') as HTMLSelectElement)?.value || 30);
 
-    let { logs, totalPages } = await sql.getLogs(page, perPage);
+    // 修复变量作用域问题
+    let logsResult;
+    let totalPages;
 
     if (search) {
-      logs = logs.filter((l: any) =>
-        `${l.id} ${l.log_text}`.toLowerCase().includes(search.toLowerCase())
-      );
+      // 当有搜索关键词时，使用搜索接口
+      const result = await sql.searchLogs(page, perPage, search);
+      logsResult = result.logs;
+      totalPages = result.totalPages;
+    } else {
+      // 当无搜索关键词时，使用普通分页接口
+      const result = await sql.getLogs(page, perPage);
+      logsResult = result.logs;
+      totalPages = result.totalPages;
     }
-
 
     const levelStyle = (lvl: number) => {
       const map: { [k: number]: string } = { 0: 'bg-green-600', 8: 'bg-red-600' };
@@ -323,21 +341,21 @@ showLogs() {
       return `inline-block px-2 py-0.5 text-xs text-white rounded-full ${bg}`;
     };
 
-
     const tbody = document.getElementById('logs-tbody') as HTMLElement;
-    tbody.innerHTML = logs
+    tbody.innerHTML = logsResult
       .map(
         (l: any) => `
 <tr class="border-b border-gray-700 hover:bg-[#3a3f41] cursor-pointer" data-id="${l.id}">
   <td class="px-3 py-2"><input type="checkbox" class="log-row-checkbox rounded" data-id="${l.id}"></td>
   <td class="px-3 py-2"><span class="${levelStyle(l.level)}">${l.level}</span></td>
   <td class="px-3 py-2">${l.id}</td>
-  <td class="px-3 py-2 break-all">${l.log_text}</td>
+  <td class="px-3 py-2 break-all ">${l.log_text}</td>
   <td class="px-3 py-2">${l.created_at}</td>
 </tr>`
       )
       .join('');
 
+    // 更新分页组件
     const pag = document.getElementById('logs-pagination') as HTMLElement;
     pag.innerHTML='';
     const range=(s:number,e:number)=>Array.from({length:e-s+1},(_,i)=>s+i);
@@ -358,13 +376,13 @@ showLogs() {
     if(right<total-1) pag.appendChild(dots());
     if(total>1) pag.appendChild(make(total,cur===total));
 
+    // 绑定行点击事件
     tbody.querySelectorAll('tr').forEach((tr) => {
       tr.addEventListener('click', (e) => {
         if ((e.target as HTMLElement).tagName === 'INPUT') return;
         const id = Number(tr.dataset.id);
-        const log = logs.find((l: any) => l.id === id);
+        const log = logsResult.find((l: any) => l.id === id);
         
-        // 修复1: 替换 slideBarContent.log_detail 为实际的HTML内容
         const logDetailContent = `
           <div class="p-4">
             <h3 class="text-lg font-semibold mb-4">日志详情</h3>
@@ -381,22 +399,55 @@ showLogs() {
       });
     });
 
-    const updateBottom = () => {
-      const checked = Array.from(
-        document.querySelectorAll('.log-row-checkbox:checked') as NodeListOf<HTMLInputElement>
-      ).map((i) => Number(i.dataset.id));
-      if (checked.length) {
-        // 实现一个简单的确认弹窗替代原来的 blocks.bottomPopupConfirm
-        if (confirm(`确定删除选中的 ${checked.length} 条日志吗？`)) {
-          admin.deleteLogs(checked).then(() => {
-            this._showLogsPage = 1;
-            render();
-          }).catch(error => {
-            console.error('删除日志失败:', error);
-          });
-        }
+
+
+// 修改 showLogs 方法中的 updateBottom 函数部分
+const updateBottom = () => {
+  const checked = Array.from(
+    document.querySelectorAll('.log-row-checkbox:checked') as NodeListOf<HTMLInputElement>
+  ).map((i) => Number(i.dataset.id));
+  
+  logDeletePopup.checkedIds = checked;
+  
+  if (checked.length > 0) {
+    if (!logDeletePopup.isOpen) {
+      blocks.bottomPopupConfirm(`确定删除选中的 ${checked.length} 条日志吗？`)
+        .then(async (confirmed) => {
+          logDeletePopup.isOpen = false;
+          if (confirmed) {
+            try {
+              // await admin.deleteLogs(checked);
+              this._showLogsPage = 1;
+              render();
+            } catch (e) {
+              console.error('删除日志失败:', e);
+            }
+          }
+        });
+      
+      logDeletePopup.isOpen = true;
+      
+      // 等待 DOM 更新后获取弹窗元素
+      setTimeout(() => {
+        logDeletePopup.element = document.querySelector('.fixed.bottom-4') as HTMLElement;
+      }, 100);
+    } else if (logDeletePopup.element) {
+      // 如果弹窗已打开，只更新文本内容
+      const messageElement = logDeletePopup.element.querySelector('#modal-message');
+      if (messageElement) {
+        messageElement.textContent = `确定删除选中的 ${checked.length} 条日志吗？`;
       }
-    };
+    }
+  } else {
+    // 如果没有选中项且弹窗打开，则关闭弹窗
+    if (logDeletePopup.isOpen && logDeletePopup.element) {
+      const cancelBtn = logDeletePopup.element.querySelector('#modal-cancel') as HTMLButtonElement;
+      if (cancelBtn) {
+        cancelBtn.click();
+      }
+    }
+  }
+};
 
     /* 全选 */
     (document.getElementById('logs-select-all') as HTMLInputElement).onchange = (e) => {
@@ -411,7 +462,10 @@ showLogs() {
 
   /* 首次渲染 & 绑定事件 */
   render();
-  document.getElementById('logs-search')?.addEventListener('input', render);
+  document.getElementById('logs-search')?.addEventListener('input', () => {
+    this._showLogsPage = 1; // 搜索时重置到第一页
+    render();
+  });
   document.getElementById('logs-perpage')?.addEventListener('change', () => {
     this._showLogsPage = 1;
     render();

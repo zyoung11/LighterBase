@@ -37,9 +37,9 @@ popupConfirm(text: string): Promise<boolean> {
 
 bottomPopupConfirm(text: string): Promise<boolean> {
   return new Promise((resolve) => {
-    // 创建背景遮罩
-    const backdrop = document.createElement('div');
-    backdrop.className = 'fixed inset-0 z-[9999] bg-black/50';
+    // // 创建背景遮罩
+    // const backdrop = document.createElement('div');
+    // backdrop.className = 'fixed inset-0 z-[9999] bg-black/50';
 
     // 创建底部弹窗
     const modal = document.createElement('div');
@@ -60,8 +60,8 @@ bottomPopupConfirm(text: string): Promise<boolean> {
     `;
 
     // 添加到DOM
-    document.body.appendChild(backdrop);
-    backdrop.appendChild(modal);
+    // document.body.appendChild(backdrop);
+    document.body.appendChild(modal);
     // document.body.appendChild(modal);
 
     // 触发显示动画
@@ -73,14 +73,14 @@ bottomPopupConfirm(text: string): Promise<boolean> {
     const clean = (result: boolean) => {
       modal.classList.add('translate-y-full');
       setTimeout(() => {
-        backdrop.remove();
+        // backdrop.remove();
         modal.remove();
         resolve(result);
       }, 300);
     };
 
     // 事件监听
-    backdrop.addEventListener('click', () => clean(false));
+    // backdrop.addEventListener('click', () => clean(false));
     
     (modal.querySelector('#modal-cancel') as HTMLButtonElement).addEventListener('click', () => clean(false));
     (modal.querySelector('#modal-confirm') as HTMLButtonElement).addEventListener('click', () => clean(true));
