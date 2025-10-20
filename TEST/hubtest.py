@@ -5,7 +5,6 @@ from typing import List, Dict, Optional, Union, Any
 
 HOST = "http://localhost:8080"
 
-# ---------- hub-level APIs (NO change) ----------
 def register(user_name: str, password: str, email: str) -> Optional[str]:
     url = f"{HOST}/api/users/register"
     r = requests.post(url, json={"user_name": user_name, "password": password, "email": email})
@@ -129,6 +128,45 @@ def project_create(token: str, name: str, avatar: str = "", description: str = "
         print("新建项目成功:", json.dumps(proj, ensure_ascii=False, indent=2))
         return proj
     print("新建项目失败:", r.text)
+    return None
+
+def create_user_p(name: str, password: str, email: str, user_id: str, project_id: str, user_token: str) -> bool:
+    url = f"{HOST}/{user_id}/{project_id}/api/auto/create/users"
+    payload = {"name": name, "password_hash": password, "email": email}
+    headers = {"Content-Type": "application/json",
+                "Authorization": f"Bearer {user_token}"
+    }
+    print(f"--- Creating user: {name} ---")
+    try:
+        resp = requests.post(url, json=payload, headers=headers)
+        print("Status Code:", resp.status_code)
+        if resp.status_code == 201:
+            print("✅ 项目内注册成功")
+            return True
+        print("Error:", resp.text)
+    except requests.exceptions.RequestException as e:
+        print("请求出错:", e)
+    return False
+    
+    
+def login_user_p(name: str, password: str, user_id: str, project_id: str, user_token: str) -> Optional[str]:
+    url = f"{HOST}/{user_id}/{project_id}/api/auth/login"
+    payload = {"name": name, "password_hash": password}
+    headers = {"Content-Type": "application/json",
+                "Authorization": f"Bearer {user_token}"
+    }
+    print(f"--- Logging in user: {name} ---")
+    try:
+        resp = requests.post(url, json=payload, headers=headers)
+        print("Status Code:", resp.status_code)
+        body = resp.json()
+        print("Response Body:\n", json.dumps(body, ensure_ascii=False, indent=2))
+        if resp.status_code == 200 and body.get("token"):
+            print("✅ 项目内登录成功")
+            return body["token"]
+        print("❌ 登录失败")
+    except Exception as e:
+        print("请求异常:", e)
     return None
 
 # ---------- BaaS reverse-proxy APIs ----------
@@ -352,8 +390,13 @@ if __name__ == "__main__":
     if not user_token:
         print("❌ 拿不到用户 token，退出")
         exit(1)
-    
-    # ---------- 2. 创建项目 ----------
+
+    user_token = login(uid, pwd)
+    if not user_token:
+        print("❌ 登录失败，用户名或密码错误")
+    print("✅ 登录成功，token 已拿到：", user_token)
+
+    # ---------- 1. 创建项目 ----------
     proj = project_create(user_token, "demo_proj", description="just for test")
     time.sleep(0.5)
     print("原始返回:", json.dumps(proj, ensure_ascii=False, indent=2))
@@ -362,12 +405,6 @@ if __name__ == "__main__":
     pid = proj.get("project_id") or proj.get("id")
     if not pid:
         exit("❌ 返回体里找不到项目 id 字段")
-    
-    # ---------- 3. 项目维度登录 → 拿项目 token ----------
-    proj_token = login_user(uid, pwd, uid, pid)          # 注意传的是明文密码
-    if not proj_token:
-        print("❌ 拿不到项目 token，退出")
-        # exit(1)
 
     # 2. 建表
     sql_admin_create(
@@ -375,35 +412,44 @@ if __name__ == "__main__":
         user_token, uid, pid
     )
 
+    # 8. 安全策略
+    sec_admin_get(user_token, uid, pid)
+    sec_admin_update("articles", "true", "true", "true", "true", user_token, uid, pid)
+    
+    # ---------- 3. 项目维度登录 → 拿项目 token ----------
+    new_user = "alice"
+    new_pwd  = "123456"
+    ok = create_user_p(new_user, new_pwd, "alice@example.com", uid, pid, user_token)
+    if not ok:
+        exit("❌ 项目内注册 alice 失败")
+    proj_token = login_user_p(new_user, new_pwd, uid, pid, user_token)
+    if not proj_token:
+        exit("❌ 项目内登录 alice 失败")
+
     # 3. 增
-    article_id = create_article({"title": "hello", "body": "world"}, user_token, uid, pid)
+    article_id = create_article({"title": "hello", "body": "world"}, proj_token, uid, pid)
     print("✅ 新文章 id =", article_id)
 
     # 4. 查
-    rows = view_articles(["id", "title"], "id > 0", user_token, uid, pid, page=1, perpage=5)
+    rows = view_articles(["id", "title"], "id > 0", proj_token, uid, pid, page=1, perpage=5)
     print("✅ 查到的行:", rows)
 
     # 5. 改
-    ok = update_articles({"body": "world updated"}, "id = " + str(article_id), user_token, uid, pid)
+    ok = update_articles({"body": "world updated"}, "id = " + str(article_id), proj_token, uid, pid)
     print("✅ 更新成功" if ok else "❌ 更新失败")
 
     # 6. 删
-    ok = delete_articles("id = " + str(article_id), user_token, uid, pid)
+    ok = delete_articles("id = " + str(article_id), proj_token, uid, pid)
     print("✅ 删除成功" if ok else "❌ 删除失败")
 
     # 7. 枚举表
     tbls = query_all_tables(user_token, uid, pid)
     print("✅ 当前项目表列表:", tbls)
 
-    # 8. 安全策略
-    sec_admin_get(user_token, uid, pid)
-    sec_admin_update("articles", "true", "false", "true", "true", user_token, uid, pid)
 
     # 9. 项目维度登录 & 刷新
-    proj_token = login_user(uid, pwd, uid, pid)
-    if proj_token:
-        new_token = refresh_token(proj_token, uid, pid)
-        print("✅ 刷新后 token:", new_token)
+    new_token = refresh_token(proj_token, uid, pid)
+    print("✅ 刷新后 token:", new_token)
 
     # ---------- 10. 管理员获取所有用户 ----------
     print("\n====== 管理员获取所有用户 ======")
