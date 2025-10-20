@@ -258,6 +258,25 @@ func initBackend(projectName string, frontendDir string, backendPort int, fronte
 	Run(projectName, backendPort, routes)
 }
 
+//--------------------------------helper-func-------------------------------------
+
+// 辅助函数：将User转换为UserResponse
+func userToResponse(user database.User) UserResponse {
+	var avatar string
+	if user.UserAvatar.Valid {
+		avatar = user.UserAvatar.String
+	}
+
+	return UserResponse{
+		UserID:     user.UserID,
+		UserName:   user.UserName,
+		Email:      user.Email,
+		UserAvatar: avatar,
+		CreateAt:   user.CreateAt.String,
+		UpdateAt:   user.UpdateAt.String,
+	}
+}
+
 //----------------------------------routing--------------------------------------
 
 func health(c *fiber.Ctx) error {
@@ -324,7 +343,7 @@ func register(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"user":  user,
+		"user":  userToResponse(user),
 		"token": token,
 	})
 }
@@ -353,8 +372,8 @@ func login(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate token"})
 	}
 
-	return c.JSON(fiber.Map{
-		"user":  user,
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"user":  userToResponse(user),
 		"token": token,
 	})
 }
@@ -377,7 +396,12 @@ func listUsers(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch users"})
 	}
 
-	return c.JSON(users)
+	var response []UserResponse
+	for _, user := range users {
+		response = append(response, userToResponse(user))
+	}
+
+	return c.JSON(response)
 }
 
 // 获取单个用户
@@ -403,7 +427,7 @@ func getUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
 	}
 
-	return c.JSON(user)
+	return c.JSON(userToResponse(user))
 }
 
 // 更新用户
@@ -420,7 +444,7 @@ func updateUser(c *fiber.Ctx) error {
 	}
 
 	// 检查是否是当前用户或管理员
-	if currentUserID != int64(id) || currentUserID == 1 {
+	if currentUserID != int64(id) && currentUserID != 1 {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Forbidden"})
 	}
 
@@ -455,7 +479,7 @@ func updateUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update user"})
 	}
 
-	return c.JSON(user)
+	return c.JSON(userToResponse(user))
 }
 
 // 删除用户
@@ -472,7 +496,7 @@ func deleteUser(c *fiber.Ctx) error {
 	}
 
 	// 检查是否是当前用户或管理员
-	if currentUserID != int64(id) || currentUserID == 1 {
+	if currentUserID != int64(id) && currentUserID != 1 {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Forbidden"})
 	}
 
