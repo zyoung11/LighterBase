@@ -1,4 +1,4 @@
-import { URL } from "./api.ts";
+import { URL ,authToken} from "./api.ts";
 import blocks from "../modules/blocks.ts";
 
 
@@ -84,12 +84,14 @@ async reflashToken() : Promise<any> {
         const res = await fetch(`${URL}/api/auth/refresh`, {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${document.cookie}`
+                "Authorization": `Bearer ${authToken}`
             }
         });
         if (res.ok) {
             const data = await res.json();
+            return data;
         }
+        
     }catch(err){
         console.log("刷新Token失败：",err);
     }
