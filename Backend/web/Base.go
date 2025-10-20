@@ -368,7 +368,7 @@ func listUsers(c *fiber.Ctx) error {
 	}
 
 	// 检查是否是当前用户或管理员
-	if currentUserID == 1 {
+	if currentUserID != 1 {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Forbidden"})
 	}
 
@@ -394,7 +394,7 @@ func getUser(c *fiber.Ctx) error {
 	}
 
 	// 检查是否是当前用户或管理员
-	if currentUserID != int64(id) || currentUserID == 1 {
+	if currentUserID != int64(id) && currentUserID != 1 {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Forbidden"})
 	}
 
