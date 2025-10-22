@@ -78,18 +78,19 @@ async userRegister() {
      }
     },
 
-
-async reflashToken() : Promise<any> {
+async reflashToken(url:string,currentToken:string) : Promise<any> {
     try{
-        const res = await fetch(`${URL}/api/auth/refresh`, {
+        console.log("开始刷新token")
+        const res = await fetch(`${url}/api/auth/refresh`, {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${authToken}`
+                "Authorization": `Bearer ${currentToken}`
             }
         });
         if (res.ok) {
             const data = await res.json();
-            return data;
+            console.log("查看更新后的token：",data.token)
+            return data.token;
         }
         
     }catch(err){
