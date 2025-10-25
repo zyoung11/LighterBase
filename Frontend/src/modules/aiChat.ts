@@ -1,7 +1,6 @@
 import { slideBarContent, workspaceContent, sidebarContent } from "../utils/contents";
 import conponents from "../utils/conponents";
 
-// 定义支持的 AI 模型
 const AI_MODELS = [
     { id: 'deepseek', name: 'DeepSeek', endpoint: 'https://api.deepseek.com/v1/chat/completions', model: 'deepseek-chat' },
     { id: 'kimi', name: 'Kimi', endpoint: 'https://api.moonshot.cn/v1/chat/completions', model: 'moonshot-v1-8k' },
