@@ -208,25 +208,53 @@ const workspaceContent = {
     </div>
   </div>
 </div>`,
-  aiSettings: `
-                <div class="flex-1 bg-[#1B1E1F] p-6">
-                <h3 class="text-lg font-semibold mb-4">AI 设置</h3>
-                <div class="w-full mt-4">
-                    <!-- Model choosing row -->
-                    <div class="flex items-center gap-4 mb-4">
-                    <span class="text-gray-300 whitespace-nowrap">Model choosing</span>
-                    <select class="flex-1 px-3 py-2 bg-[#2A2D30] text-gray-200 rounded border border-gray-600 focus:outline-none focus:border-blue-500">
-                        <option>GPT-4</option>
-                        <option>GPT-3.5 Turbo</option>
-                        <option>Claude</option>
-                        <option>Gemini</option>
-                    </select>
-                    <input type="password" placeholder="Enter API Key" class="flex-1 px-3 py-2 bg-[#2A2D30] text-gray-200 rounded border border-gray-600 focus:outline-none focus:border-blue-500">
-                    </div>
+aiSettings: `
+    <div class="p-6 h-full flex flex-col space-y-6">
+        <h2 class="text-xl font-semibold border-b border-gray-700 pb-3">AI 助手设置</h2>
+        
+        <div class="flex items-center space-x-4">
+            <label class="text-sm font-medium w-24">选择 AI 模型:</label>
+            <div class="relative w-80">
+                <button id="ai-dropdown-button" class="w-full px-4 py-2 text-left bg-[#2B2F31] rounded-lg border border-[#3a3f41] hover:border-[#4a4f52] focus:outline-none flex justify-between items-center">
+                    <span id="selected-ai-name">点击选择 AI 模型</span>
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                
+                <div id="ai-dropdown-menu" class="hidden absolute z-10 w-full mt-1 bg-[#2B2F31] rounded-lg shadow-lg border border-[#3a3f41] max-h-60 overflow-y-auto">
+                    <button id="add-ai-btn" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-[#3a3f41] flex items-center">
+                        <span class="text-lg mr-2">+</span>
+                        添加新的 AI (请在上方列表选择)
+                    </button>
                 </div>
+            </div>
+        </div>
+
+        <div id="add-ai-key-section" class="hidden flex flex-col space-y-4 border border-gray-700 p-4 rounded-lg">
+            <h3 class="text-lg font-medium text-white" id="ai-input-title">配置 AI Key</h3>
+            
+            <div class="flex items-center space-x-4">
+                <label class="text-sm font-medium w-24">AI 名称:</label>
+                <input id="new-ai-name-input" type="text" placeholder="例如: OpenAI, Gemini"
+                       class="flex-1 px-3 py-2 rounded bg-[#2B2F31] border border-[#3a3f41] focus:border-[#4a4f52] focus:outline-none" disabled />
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <label class="text-sm font-medium w-24">API Key:</label>
+                <div class="flex-1 flex">
+                    <input id="new-api-key-input" type="password" placeholder="请输入 API Key"
+                           class="flex-1 px-3 py-2 rounded-l-lg bg-[#2B2F31] border border-[#3a3f41] focus:border-[#4a4f52] focus:outline-none" />
+                    <button id="add-api-key-btn" class="hidden px-4 py-2 bg-[#3a3f41] hover:bg-[#4a4f52] rounded-r-lg text-white transition-colors">
+                        添加 Key
+                    </button>
                 </div>
-            `,
-  accountSettings: `
+            </div>
+            <p id="ai-key-message" class="text-sm text-red-400 hidden ml-28"></p>
+        </div>
+
+    </div>
+    `,
+
+     accountSettings: `
                 <div class="flex-1 bg-[#1B1E1F] p-6">
                 <h3 class="text-lg font-semibold mb-4">Account</h3>
                 <div class="space-y-4">
@@ -251,19 +279,32 @@ const slideBarContent = {
 
 
   `,
-  ai_generated: `
-                    <div class="flex flex-col h-full">
-                        <div class="flex-1 overflow-y-auto mb-4">
-                            <div class="bg-[#2B2F31] p-3 rounded mb-2">
-                                <p class="text-sm">你好！我是AI助手，有什么可以帮助你的吗？</p>
-                            </div>
-                        </div>
-                        <div class="flex space-x-2">
-                            <input type="text" placeholder="输入消息..." class="flex-1 px-3 py-2 bg-[#2B2F31] rounded focus:outline-none">
-                            <button class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors">发送</button>
-                        </div>
-                    </div>
-                `,
+ai_generated: `
+    <div id="ai-chat-box" class="flex flex-col flex-1 h-full p-4">
+      <div class="pb-3 border-b border-gray-700 mb-3">
+          <label class="text-sm text-gray-400">当前模型:</label>
+          <button id="chat-model-switch-btn" class="px-3 py-1 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-sm transition-colors ml-2">
+              <span id="current-ai-model">未选择</span> (点击切换/配置)
+          </button>
+      </div>
+
+      <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4 pb-4">
+          <div class="text-center text-gray-500 text-sm py-2">请选择一个 AI 模型开始对话</div>
+      </div>
+      
+      <div id="chat-input-area" class="border-t border-gray-700 pt-4 mt-auto">
+          <div class="flex space-x-2">
+              <textarea id="ai-chat-input" rows="1" placeholder="输入你的问题..." 
+                        class="flex-1 p-3 rounded-lg bg-[#2B2F31] border border-[#3a3f41] focus:border-[#4a4f52] focus:outline-none resize-none"
+                        style="max-height: 150px;" disabled></textarea>
+              <button id="send-ai-message" class="w-12 h-12 flex items-center justify-center bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors" disabled>
+                  <svg class="w-6 h-6 transform rotate-90 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+              </button>
+          </div>
+      </div>
+    </div>
+  `,
+
   log_detail: `
 <div class="flex flex-col h-full text-sm text-gray-300">
   <div class="mb-2 text-gray-500 text-xs">#<span id="log-id"></span></div>

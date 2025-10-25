@@ -304,7 +304,7 @@ async setupTableButtons() {
   const contentDiv = document.createElement('div');
   contentDiv.className = 'table-md w-[90%] h-full items-center justify-center p-4'; 
   container.appendChild(contentDiv);
-
+  console.log("查看tables:",tables)
   // 手动传入默认 tableId
   if (tables.length > 0) {
     this.showTableMdContent();

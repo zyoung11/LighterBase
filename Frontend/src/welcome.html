@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="./icons/mo.png" />
+  <link rel="icon" href="./icons/LOGOW.png" />
   <title>lighterBase</title>
 </head>
+
 <body class="h-screen w-screen flex overflow-hidden bg-[#121414] text-gray-200">
 
   <!-- 左侧 70%：品牌区 -->
@@ -22,12 +24,11 @@
 
       <!-- 标签切换 -->
       <div class="flex mb-6 rounded-lg overflow-hidden border border-[#2B2F31]">
-        <button id="tab-login"
-                class="flex-1 py-2 text-sm font-medium transition-colors bg-[#2B2F31] text-white">
+        <button id="tab-login" class="flex-1 py-2 text-sm font-medium transition-colors bg-[#2B2F31] text-white">
           登录
         </button>
         <button id="tab-reg"
-                class="flex-1 py-2 text-sm font-medium transition-colors bg-transparent hover:bg-[#2B2F31]/50">
+          class="flex-1 py-2 text-sm font-medium transition-colors bg-transparent hover:bg-[#2B2F31]/50">
           注册
         </button>
       </div>
@@ -36,22 +37,15 @@
       <form id="form-login" class="space-y-4">
         <div>
           <label class="block mb-1 text-sm">用户名</label>
-          <input required
-                 id="login-username"
-                 type="text"
-                 placeholder="请输入用户名"
-                 class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
+          <input required id="login-username" type="text" placeholder="请输入用户名"
+            class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
         </div>
         <div>
           <label class="block mb-1 text-sm">密码</label>
-          <input required
-                 id="login-password"
-                 type="password"
-                 placeholder="请输入密码"
-                 class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
+          <input required id="login-password" type="password" placeholder="请输入密码"
+            class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
         </div>
-        <button type="submit"
-                class="w-full py-2 mt-2 rounded bg-[#2B2F31] hover:bg-[#3a3f41] transition-colors">
+        <button type="submit" class="w-full py-2 mt-2 rounded bg-[#2B2F31] hover:bg-[#3a3f41] transition-colors">
           登录
         </button>
       </form>
@@ -60,30 +54,20 @@
       <form id="form-reg" class="hidden space-y-4">
         <div>
           <label class="block mb-1 text-sm">用户名</label>
-          <input required
-                 id="username"
-                 type="text"
-                 placeholder="设置用户名"
-                 class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
+          <input required id="username" type="text" placeholder="设置用户名"
+            class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
         </div>
         <div>
           <label class="block mb-1 text-sm">密码</label>
-          <input required
-                 id="password"
-                 type="password"
-                 placeholder="设置密码"
-                 class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
+          <input required id="password" type="password" placeholder="设置密码"
+            class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
         </div>
         <div>
           <label class="block mb-1 text-sm">邮箱</label>
-          <input required
-                 id="email"
-                 type="email"
-                 placeholder="请输入邮箱"
-                 class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
+          <input required id="email" type="email" placeholder="请输入邮箱"
+            class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
         </div>
-        <button type="submit"
-                class="w-full py-2 mt-2 rounded bg-[#2B2F31] hover:bg-[#3a3f41] transition-colors">
+        <button type="submit" class="w-full py-2 mt-2 rounded bg-[#2B2F31] hover:bg-[#3a3f41] transition-colors">
           注册
         </button>
       </form>
@@ -93,4 +77,5 @@
   <script src="./tailwind.js"></script>
   <script src="./welcome.ts"></script>
 </body>
+
 </html>

@@ -3,21 +3,21 @@ import blocks from "../modules/blocks.ts";
 
 
 const auth ={
-async userRegister() {
+async userRegister(): Promise<boolean> {
     const username = (document.getElementById("username") as HTMLInputElement).value;
     const password = (document.getElementById("password") as HTMLInputElement).value;
     const email = (document.getElementById("email") as HTMLInputElement).value;
     
     if (!email) {
         blocks.popupConfirm("邮箱不能为空");
-        return;
+        return false;
     }
     try {
         if (!this.isValidEmail(email)) {
             blocks.popupConfirm("请输入有效的邮箱地址");
-            return;
+            return false; 
         }
-        
+        console.log(username,password,email)
         const res = await fetch(`${URL}/api/auto/create/users`, {
             method: "POST",
             headers: {
@@ -26,24 +26,20 @@ async userRegister() {
             body: JSON.stringify({
                 "name": username,
                 "password_hash": password,
-                "email": email  // 确保包含 email 字段
+                "email": email 
             })
         });
         
         if (res.ok) {
-            blocks.popupConfirm("成功注册");
-            // 清空表单
-            (document.getElementById("username") as HTMLInputElement).value = '';
-            (document.getElementById("password") as HTMLInputElement).value = '';
-            (document.getElementById("email") as HTMLInputElement).value = '';
+            return true;
         } else {
-            // 处理服务器返回的错误
-            const errorData = await res.json().catch(() => ({}));
-            blocks.popupConfirm(errorData.message || "注册失败");
+            blocks.popupConfirm( "注册失败");
+            return false; 
         }
     } catch (err) {
         console.log("注册失败：", err);
         blocks.popupConfirm("注册失败，请检查网络连接");
+        return false;
     }
 },
 
@@ -67,17 +63,16 @@ async userRegister() {
               const token = data.token;
             if (res.ok) {
                document.cookie = `authToken=${token}; path=/;`;
-               //path=/ 表示这个 cookie 在整个网站都有效
-               const success = await blocks.popupConfirm("成功登录");
-                if (success) {
-                   window.location.href = "/";
-               }
+               window.location.href = "/";
+            } else {
+                const errorData = await res.json().catch(() => ({}));
+                blocks.popupConfirm(errorData.message || "登录失败");
             }
         }catch(err){
         console.log("登录失败：",err);
+        blocks.popupConfirm("登录失败，请检查网络连接"); // 登录失败时弹出窗口
      }
-    },
-
+   },
 async reflashToken(url:string,currentToken:string) : Promise<any> {
     try{
         console.log("开始刷新token")

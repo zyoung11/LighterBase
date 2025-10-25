@@ -3,13 +3,31 @@ import conponents from "./utils/conponents";
 import gojsER from "./utils/gojsER";
 // import sql from "./apis/sql";
 import sqliteParser from "sqlite-parser";
-import {authToken} from "./apis/api"; 
+import {authToken,URL} from "./apis/api"; 
 import blocks from "./modules/blocks";
 import admin from "./apis/admin";
 import sql from "./apis/sql";
 console.log('authToken:', authToken);
+import {jwtDecode} from "jwt-decode"
+import auth from "./apis/auth" 
+import aichat from "./modules/aiChat";
 
-
+(async() => {
+const exp = Number(jwtDecode(authToken).exp)*1000;
+try{
+if(exp){
+ if(exp < Date.now()){
+ console.log("token已经过期",authToken);
+   const newToken = await auth.reflashToken(URL,authToken);
+  document.cookie = `authToken=${newToken}; path=/;`;
+   console.log("Token更新成功");    
+ }
+}
+}catch(e){
+  window.location.href="/welcome";
+  return;
+}
+})(); 
 // 当前激活的部分
 let currentSection = null;
 const rightSidebar = document.getElementById("right-sidebar") as HTMLElement;
@@ -31,9 +49,9 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
     rightSidebar.innerHTML = sidebarContent.settings;
     currentSection = "settings";
     defaultWorkspace.style.display = "none";
-    mainWorkspace.innerHTML =workspaceContent.aiSettings;
+    mainWorkspace.innerHTML =workspaceContent.aiSettings; //
 
-
+    aichat.setupAISettings(); // 调用 aichat 中的设置逻辑
     rightSidebar.addEventListener('click', (e) => { 
         const target = e.target as HTMLElement;
         
@@ -42,13 +60,13 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
           return;
       }
       if (target.closest('#ai-settings')) {
-          mainWorkspace.innerHTML = workspaceContent.aiSettings;
+          mainWorkspace.innerHTML = workspaceContent.aiSettings; //
+          aichat.setupAISettings(); // 重新设置 AI 设置
           return;
       }
     });
   }
 );
-
 
 
   (document.getElementById('records-btn') as HTMLElement).addEventListener('click', () => {
@@ -215,12 +233,36 @@ document.addEventListener('DOMContentLoaded', () => {
       await conponents.setupTableButtons();
       return;
     }
-    if (target.closest('#ai-generated')) {
+if (target.closest('#ai-generated')) {
+      const selectedModelId = localStorage.getItem('selected_ai_model_id');
+      const apiKey = selectedModelId ? localStorage.getItem(`ai_api_key_${selectedModelId}`) : null;
+      
+      if (!selectedModelId || !apiKey) {
+        // 如果没有选中模型或 Key 未设置，则跳转到 AI 设置
+        alert('请先在 AI 设置中选择模型并设置 API Key！');
+        
+        // 模拟点击设置按钮
+        (document.getElementById("settings-btn") as HTMLElement)?.click();
+        
+        // 确保显示 AI Settings 界面
+        rightSidebar.classList.remove("hidden"); // 侧边栏是 settings
+        rightSidebar.innerHTML = sidebarContent.settings; //
+        mainWorkspace.innerHTML = workspaceContent.aiSettings; //
+        aichat.setupAISettings();
+        return;
+      }
+
       conponents.showRightSlidebar("AI 助手", slideBarContent.ai_generated);
-      await conponents.setupTableButtons();
+      aichat.setupChatDisplay(selectedModelId); 
+      
+      setupAIChatListeners(); // <--- 关键修复：在这里绑定事件
+
       return;
     }
+
     if(target.closest('#sql-send')){
+      const success = await blocks.popupConfirm("提交后将不能修改")
+      if(success){
       const textarea = document.getElementById('sql-input') as HTMLTextAreaElement | null;
       if (textarea) {
         let sqlValue = textarea.value;
@@ -235,6 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         console.log('payload:', payload);
         await sql.createSql(payload);
+      }
       }
     }
   });
@@ -297,4 +340,18 @@ document.getElementById('full-sql-modal')?.addEventListener('click', (e) => {
         modal.classList.remove('flex');
     }
 });
+function setupAIChatListeners() {
+    const sendButton = document.getElementById('send-ai-message') as HTMLButtonElement; 
+    const chatInput = document.getElementById('ai-chat-input') as HTMLTextAreaElement; 
 
+    sendButton?.addEventListener('click', () => {
+        aichat.handleChatSubmit();
+    });
+
+    chatInput?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault(); // 阻止默认换行
+            aichat.handleChatSubmit();
+        }
+    });
+}
