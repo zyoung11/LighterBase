@@ -35,7 +35,7 @@ const slidebarContent = document.getElementById("slidebar-content") as HTMLEleme
 
 function extractStatusCode(logText: string): number | null {
     const parts = logText.split(' ');
-    if (parts.length > 3) {
+    if (parts.length > 3 && parts[3]) {
         const statusCodeStr = parts[3];
         const statusCode = parseInt(statusCodeStr, 10);
 
@@ -350,9 +350,11 @@ async setupTableButtons() {
   }
 },
 
-_showLogsPage: 1, 
+ _showLogsPage: 1,
+ selectedIds: [] as number[],
+ currentSearch: '',
 
-showLogs() {
+ showLogs() {
   const render = async () => {
     const search = (document.getElementById('logs-search') as HTMLInputElement)?.value.trim() || '';
     const page    = Number(this._showLogsPage || 1);
@@ -361,6 +363,8 @@ showLogs() {
     // 修复变量作用域问题
     let logsResult;
     let totalPages;
+
+    this.currentSearch = search;
 
     if (search) {
       // 当有搜索关键词时，使用搜索接口
@@ -384,9 +388,9 @@ const tbody = document.getElementById('logs-tbody') as HTMLElement;
           // 2. 根据状态码获取级别和颜色 (如果提取失败，默认使用 DEBUG)
           const logDisplay = getLogLevelDisplay(statusCode ?? 0); 
           
-          return `
-<tr class="border-b border-gray-700 hover:bg-[#3a3f41] cursor-pointer" data-id="${l.id}">
-  <td class="px-3 py-2"><input type="checkbox" class="log-row-checkbox rounded" data-id="${l.id}"></td>
+           return `
+ <tr class="border-b border-gray-700 hover:bg-[#3a3f41] cursor-pointer" data-id="${l.id}">
+   <td class="px-3 py-2"><input type="checkbox" class="log-row-checkbox rounded" data-id="${l.id}" ${this.selectedIds.includes(l.id) ? 'checked' : ''}></td>
   <td class="px-3 py-2">
     <span class="inline-block px-2 py-0.5 text-xs text-white rounded-full ${logDisplay.color.replace('text-', 'bg-')} font-bold">
       ${logDisplay.level} 
@@ -398,11 +402,22 @@ const tbody = document.getElementById('logs-tbody') as HTMLElement;
 </tr>`
         }
       )
-      .join('');
+       .join('');
 
+    // 绑定复选框事件
+    tbody.querySelectorAll('.log-row-checkbox').forEach((checkbox: any) => {
+      const id = Number(checkbox.dataset.id);
+      checkbox.addEventListener('change', () => {
+        if (checkbox.checked) {
+          if (!this.selectedIds.includes(id)) this.selectedIds.push(id);
+        } else {
+          this.selectedIds = this.selectedIds.filter(i => i !== id);
+        }
+        updateBottom();
+      });
+    });
 
-
-    const pag = document.getElementById('logs-pagination') as HTMLElement;
+     const pag = document.getElementById('logs-pagination') as HTMLElement;
     pag.innerHTML='';
     const range=(s:number,e:number)=>Array.from({length:e-s+1},(_,i)=>s+i);
     const make=(n:number| string,active=false)=>{
@@ -428,10 +443,11 @@ const tbody = document.getElementById('logs-tbody') as HTMLElement;
         if ((e.target as HTMLElement).tagName === 'INPUT') return;
         const id = Number(tr.dataset.id);
         const log = logsResult.find((l: any) => l.id === id);
+        if (!log) return;
                   // 1. 提取状态码
           const statusCode = extractStatusCode(log.log_text || '');
           // 2. 根据状态码获取级别和颜色 (如果提取失败，默认使用 DEBUG)
-          const logDisplay = getLogLevelDisplay(statusCode ?? 0); 
+          const logDisplay = getLogLevelDisplay(statusCode ?? 0);
         const logDetailContent = `
           <div class="p-4">
             <h3 class="text-lg font-semibold mb-4">日志详情</h3>
@@ -443,7 +459,7 @@ const tbody = document.getElementById('logs-tbody') as HTMLElement;
             </div>
           </div>
         `;
-        
+
         this.showRightSlidebar('日志详情', logDetailContent);
       });
     });
@@ -452,41 +468,52 @@ const tbody = document.getElementById('logs-tbody') as HTMLElement;
 
 // 修改 showLogs 方法中的 updateBottom 函数部分
 const updateBottom = () => {
-  const checked = Array.from(
-    document.querySelectorAll('.log-row-checkbox:checked') as NodeListOf<HTMLInputElement>
-  ).map((i) => Number(i.dataset.id));
-  
+  const checked = this.selectedIds;
+
   logDeletePopup.checkedIds = checked;
-  
+
   if (checked.length > 0) {
     if (!logDeletePopup.isOpen) {
-      blocks.bottomPopupConfirm(`确定删除选中的 ${checked.length} 条日志吗？`)
+      blocks.bottomPopupConfirm(`确定下载选中的 ${checked.length} 条日志为CSV文件吗？`)
         .then(async (confirmed) => {
           logDeletePopup.isOpen = false;
-if (confirmed) {
-            try {
-              const lb = new lighterBase(URL);
-              console.log("查看checked",checked)
-              // ✅ 修正：根据用户要求，循环删除每一条选中的日志
-              for (const id of checked) {
-                console.log("查看每一个id",id)
-                  // lighterBase.deleteTable 需要一个 WHERE 字符串作为条件
-                  const payload = {
-                    "WHERE":`id = ${id}`
-                  }
-                  await lb.deleteTable(payload, "logs");
+          if (confirmed) {
+            let allLogs: any[] = [];
+            if (this.currentSearch) {
+              const result = await sql.searchLogs(1, perPage, this.currentSearch);
+              const total = result.totalPages;
+              for (let p = 1; p <= total; p++) {
+                const res = await sql.searchLogs(p, perPage, this.currentSearch);
+                allLogs = allLogs.concat(res.logs);
               }
-              
-              this._showLogsPage = 1;
-              render();
-            }catch(e){
-             console.log("删除失败")
-}
-}
+            } else {
+              const result = await sql.getLogs(1, perPage);
+              const total = result.totalPages;
+              for (let p = 1; p <= total; p++) {
+                const res = await sql.getLogs(p, perPage);
+                allLogs = allLogs.concat(res.logs);
+              }
+            }
+            const selectedLogs = allLogs.filter((l: any) => checked.includes(l.id));
+            const csvHeader = 'ID,Level,Log Text,Created At\n';
+            const csvRows = selectedLogs.map((l: any) => {
+              const statusCode = extractStatusCode(l.log_text || '');
+              const logDisplay = getLogLevelDisplay(statusCode ?? 0);
+              return `${l.id},"${logDisplay.level}","${l.log_text.replace(/"/g, '""')}","${l.created_at}"`;
+            }).join('\n');
+            const csvContent = csvHeader + csvRows;
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = globalThis.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'logs.csv';
+            a.click();
+            globalThis.URL.revokeObjectURL(url);
+          }
         });
-      
+
       logDeletePopup.isOpen = true;
-      
+
       // 等待 DOM 更新后获取弹窗元素
       setTimeout(() => {
         logDeletePopup.element = document.querySelector('.fixed.bottom-4') as HTMLElement;
@@ -495,7 +522,7 @@ if (confirmed) {
       // 如果弹窗已打开，只更新文本内容
       const messageElement = logDeletePopup.element.querySelector('#modal-message');
       if (messageElement) {
-        messageElement.textContent = `确定删除选中的 ${checked.length} 条日志吗？`;
+        messageElement.textContent = `确定下载选中的 ${checked.length} 条日志为CSV文件吗？`;
       }
     }
   } else {
@@ -512,12 +539,16 @@ if (confirmed) {
     /* 全选 */
     (document.getElementById('logs-select-all') as HTMLInputElement).onchange = (e) => {
       const checked = (e.target as HTMLInputElement).checked;
+      logsResult.forEach((l: any) => {
+        if (checked) {
+          if (!this.selectedIds.includes(l.id)) this.selectedIds.push(l.id);
+        } else {
+          this.selectedIds = this.selectedIds.filter(i => i !== l.id);
+        }
+      });
       tbody.querySelectorAll('.log-row-checkbox').forEach((i: any) => (i.checked = checked));
       updateBottom();
     };
-    tbody.querySelectorAll('.log-row-checkbox').forEach((i: any) =>
-      i.addEventListener('change', updateBottom)
-    );
   };
 
   /* 首次渲染 & 绑定事件 */
@@ -554,7 +585,7 @@ async showFolderTables() {
     const table = tgt.dataset.table;
     if (!table) return;
 
-    const payload = { SELECT: '*', WHERE: '' };
+    const payload = { SELECT: ['*'], WHERE: '' };
     try {
       const lb = new lighterBase('http://localhost:8080');
       const res = await lb.searchTable(payload, table, 1, 30);
