@@ -75,7 +75,7 @@ class lighterBase {
         headers: headers
       };
 
-      if (payload && method !== "GET" && method !== "DELETE") {
+      if (payload && method !== "GET") {
         config.body = JSON.stringify(payload);
       }
       console.log("检查具体的请求:",config);

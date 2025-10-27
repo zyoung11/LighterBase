@@ -280,13 +280,8 @@ if (target.closest('#ai-generated')) {
       }
       }
     }
-  });
-}
 
-
-document.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement;
-    if (target.id === 'view-full-sql-btn') {
+        if (target.closest( '#view-full-sql-btn')) {
         const textarea = document.getElementById('sql-input') as HTMLTextAreaElement;
         const fullSQL = textarea.value;
         
@@ -302,9 +297,15 @@ document.addEventListener('click', (e) => {
             alert('SQL语句为空！');
         }
     }
+  });
+}
+
+
+document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
     
 
-    if (target.id === 'close-full-sql-modal' || target.id === 'close-modal-btn') {
+    if (target.id === 'close-full-sql-modal') {
         const modal = document.getElementById('full-sql-modal') as HTMLElement;
         modal.classList.add('hidden');
         modal.classList.remove('flex');

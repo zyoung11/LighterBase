@@ -115,9 +115,6 @@ const workspaceContent = {
             <button id="copy-full-sql" class="px-4 py-2 bg-[#4a4f52] hover:bg-[#5a5f62] rounded text-sm text-gray-200 transition-colors mr-2">
                 复制
             </button>
-            <button id="close-modal-btn" class="px-4 py-2 bg-[#3a3f41] hover:bg-[#4a4f52] rounded text-sm text-gray-200 transition-colors">
-                关闭
-            </button>
         </div>
     </div>
 </div>

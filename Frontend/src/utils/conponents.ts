@@ -1,3 +1,4 @@
+import {URL} from "../apis/api"
 import sql from "../apis/sql";
 import admin from "../apis/admin";
 import { apiMarked } from "./contents";
@@ -31,6 +32,44 @@ const rightSlidebar = document.getElementById("right-slidebar") as HTMLElement;
 // const slidebarTitle = document.getElementById("slidebar-title") as HTMLElement;
 const slidebarContent = document.getElementById("slidebar-content") as HTMLElement;
 
+
+function extractStatusCode(logText: string): number | null {
+    const parts = logText.split(' ');
+    if (parts.length > 3) {
+        const statusCodeStr = parts[3];
+        const statusCode = parseInt(statusCodeStr, 10);
+
+        if (!isNaN(statusCode) && statusCode >= 100 && statusCode < 600) {
+            return statusCode;
+        }
+    }
+    return null;
+}
+
+// 2. 根据状态码获取日志级别和样式
+interface LogDisplay {
+    level: string; // 日志级别名称 (e.g., INFO, WARN, ERROR)
+    color: string; // 样式类 (e.g., Tailwind CSS class for color)
+}
+
+function getLogLevelDisplay(statusCode: number): LogDisplay {
+    if (statusCode >= 200 && statusCode < 300) {
+        // 2xx 成功：正常操作
+        return { level: 'INFO', color: 'text-green-400' }; 
+    } else if (statusCode >= 300 && statusCode < 400) {
+        // 3xx 重定向：需要注意
+        return { level: 'WARN', color: 'text-yellow-400' }; 
+    } else if (statusCode >= 400 && statusCode < 500) {
+        // 4xx 客户端错误：需要警告
+        return { level: 'WARN', color: 'text-orange-400' }; 
+    } else if (statusCode >= 500 && statusCode < 600) {
+        // 5xx 服务器错误：严重错误
+        return { level: 'ERROR', color: 'text-red-500' }; 
+    } else {
+        // 其他/未知：默认级别
+        return { level: 'DEBUG', color: 'text-gray-400' }; 
+    }
+}
 
 const conponents = {
   hideRightSlidebar() {
@@ -304,7 +343,7 @@ async setupTableButtons() {
   const contentDiv = document.createElement('div');
   contentDiv.className = 'table-md w-[90%] h-full items-center justify-center p-4'; 
   container.appendChild(contentDiv);
-  console.log("查看tables:",tables)
+  // console.log("查看tables:",tables)
   // 手动传入默认 tableId
   if (tables.length > 0) {
     this.showTableMdContent();
@@ -335,27 +374,34 @@ showLogs() {
       totalPages = result.totalPages;
     }
 
-    const levelStyle = (lvl: number) => {
-      const map: { [k: number]: string } = { 0: 'bg-green-600', 8: 'bg-red-600' };
-      const bg = map[lvl] || 'bg-gray-600';
-      return `inline-block px-2 py-0.5 text-xs text-white rounded-full ${bg}`;
-    };
 
-    const tbody = document.getElementById('logs-tbody') as HTMLElement;
+const tbody = document.getElementById('logs-tbody') as HTMLElement;
     tbody.innerHTML = logsResult
       .map(
-        (l: any) => `
+        (l: any) => {
+          // 1. 提取状态码
+          const statusCode = extractStatusCode(l.log_text || '');
+          // 2. 根据状态码获取级别和颜色 (如果提取失败，默认使用 DEBUG)
+          const logDisplay = getLogLevelDisplay(statusCode ?? 0); 
+          
+          return `
 <tr class="border-b border-gray-700 hover:bg-[#3a3f41] cursor-pointer" data-id="${l.id}">
   <td class="px-3 py-2"><input type="checkbox" class="log-row-checkbox rounded" data-id="${l.id}"></td>
-  <td class="px-3 py-2"><span class="${levelStyle(l.level)}">${l.level}</span></td>
+  <td class="px-3 py-2">
+    <span class="inline-block px-2 py-0.5 text-xs text-white rounded-full ${logDisplay.color.replace('text-', 'bg-')} font-bold">
+      ${logDisplay.level} 
+    </span>
+  </td>
   <td class="px-3 py-2">${l.id}</td>
   <td class="px-3 py-2 break-all ">${l.log_text}</td>
   <td class="px-3 py-2">${l.created_at}</td>
 </tr>`
+        }
       )
       .join('');
 
-    // 更新分页组件
+
+
     const pag = document.getElementById('logs-pagination') as HTMLElement;
     pag.innerHTML='';
     const range=(s:number,e:number)=>Array.from({length:e-s+1},(_,i)=>s+i);
@@ -382,15 +428,18 @@ showLogs() {
         if ((e.target as HTMLElement).tagName === 'INPUT') return;
         const id = Number(tr.dataset.id);
         const log = logsResult.find((l: any) => l.id === id);
-        
+                  // 1. 提取状态码
+          const statusCode = extractStatusCode(log.log_text || '');
+          // 2. 根据状态码获取级别和颜色 (如果提取失败，默认使用 DEBUG)
+          const logDisplay = getLogLevelDisplay(statusCode ?? 0); 
         const logDetailContent = `
           <div class="p-4">
             <h3 class="text-lg font-semibold mb-4">日志详情</h3>
             <div class="space-y-2">
               <p><strong>ID:</strong> <span id="log-id">${log.id}</span></p>
-              <p><strong>级别:</strong> <span id="log-level">${log.level}</span></p>
+              <p><strong>级别:</strong> <span id="log-level"  class ="inline-block px-2 py-0.5 text-xs text-white rounded-full  ${logDisplay.color.replace('text-', 'bg-')} font-bold">${logDisplay.level}</span></p>
               <p><strong>创建时间:</strong> <span id="log-created">${log.created_at}</span></p>
-              <p><strong>内容:</strong> <pre id="log-text" class="mt-2 p-2 bg-[#2B2F31] rounded">${log.log_text}</pre></p>
+              <p><strong>内容:</strong> <pre id="log-text" class="mt-2 p-2 bg-[#2B2F31] rounded ">${log.log_text}</pre></p>
             </div>
           </div>
         `;
@@ -414,15 +463,26 @@ const updateBottom = () => {
       blocks.bottomPopupConfirm(`确定删除选中的 ${checked.length} 条日志吗？`)
         .then(async (confirmed) => {
           logDeletePopup.isOpen = false;
-          if (confirmed) {
+if (confirmed) {
             try {
-              // await admin.deleteLogs(checked);
+              const lb = new lighterBase(URL);
+              console.log("查看checked",checked)
+              // ✅ 修正：根据用户要求，循环删除每一条选中的日志
+              for (const id of checked) {
+                console.log("查看每一个id",id)
+                  // lighterBase.deleteTable 需要一个 WHERE 字符串作为条件
+                  const payload = {
+                    "WHERE":`id = ${id}`
+                  }
+                  await lb.deleteTable(payload, "logs");
+              }
+              
               this._showLogsPage = 1;
               render();
-            } catch (e) {
-              console.error('删除日志失败:', e);
-            }
-          }
+            }catch(e){
+             console.log("删除失败")
+}
+}
         });
       
       logDeletePopup.isOpen = true;
