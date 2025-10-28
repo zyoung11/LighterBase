@@ -1,51 +1,48 @@
 import { slideBarContent, workspaceContent, sidebarContent } from "../utils/contents";
 import conponents from "../utils/conponents";
+import OpenAI from "openai";
+import type { ChatCompletionChunk } from "openai/resources";
+import { marked } from 'marked';
+import hljs from 'highlight.js';
+declare const marked: any;
+declare const hljs: any;
 
-const AI_MODELS = [
-    { id: 'deepseek', name: 'DeepSeek', endpoint: 'https://api.deepseek.com/v1/chat/completions', model: 'deepseek-chat' },
-    { id: 'kimi', name: 'Kimi', endpoint: 'https://api.moonshot.cn/v1/chat/completions', model: 'moonshot-v1-8k' },
-    { id: 'qwen', name: '千问 (Qwen)', endpoint: 'https://dashscope.aliyuncs.com/api/v1/services/aigc/chat/completion', model: 'qwen-turbo' }, // 阿里云通义千问
-    { id: 'glm', name: 'GLM (Zhipu)', endpoint: 'https://open.bigmodel.cn/api/paas/v4/chat/completions', model: 'glm-4' }, // 智谱AI
+type AIModel = {
+    id: string;
+    name: string;
+    model: string;
+    base_url?: string;
+};
+
+const AI_MODELS: AIModel[] = [
+    { id: 'deepseek', name: 'DeepSeek', base_url: 'https://api.deepseek.com/v1', model: 'deepseek-chat' },
+    { id: 'kimi', name: 'Kimi', base_url: 'https://api.moonshot.cn/v1', model: 'moonshot-v1-8k' },
+    { id: 'qwen', name: '千问 (Qwen)', base_url: 'https://dashscope.aliyuncs.com/api/v1/services/aigc/chat', model: 'qwen-turbo' },
+    { id: 'glm', name: 'GLM (Zhipu)', base_url: 'https://open.bigmodel.cn/api/paas/v4', model: 'glm-4' },
 ];
 
 const AI_KEY_STORAGE_PREFIX = 'ai_api_key_';
 const SELECTED_MODEL_STORAGE_KEY = 'selected_ai_model_id';
 
-/**
- * 从 localStorage 获取所有已存储的 AI API Keys。
- * @returns {Record<string, string>} 键是模型ID，值是API Key。
- */
 function getStoredApiKeys(): Record<string, string> {
     const keys: Record<string, string> = {};
-    AI_MODELS.forEach(model => {
-        const key = localStorage.getItem(`${AI_KEY_STORAGE_PREFIX}${model.id}`);
-        if (key) {
-            keys[model.id] = key;
+    for (const model of AI_MODELS) {
+        const apiKey = localStorage.getItem(`${AI_KEY_STORAGE_PREFIX}${model.id}`);
+        if (apiKey) {
+            keys[model.id] = apiKey;
         }
-    });
+    }
     return keys;
 }
 
-/**
- * 保存 API Key 到 localStorage。
- * @param modelId 模型ID
- * @param apiKey API Key
- */
 function saveApiKey(modelId: string, apiKey: string) {
     localStorage.setItem(`${AI_KEY_STORAGE_PREFIX}${modelId}`, apiKey);
 }
 
-/**
- * 获取当前选中的模型ID。
- */
 function getSelectedModelId(): string | null {
     return localStorage.getItem(SELECTED_MODEL_STORAGE_KEY);
 }
 
-/**
- * 设置当前选中的模型ID。
- * @param modelId 模型ID
- */
 function setSelectedModelId(modelId: string | null) {
     if (modelId) {
         localStorage.setItem(SELECTED_MODEL_STORAGE_KEY, modelId);
@@ -54,9 +51,6 @@ function setSelectedModelId(modelId: string | null) {
     }
 }
 
-/**
- * 更新 AI 设置界面的下拉菜单和显示文本。
- */
 function updateAISettingsDisplay(selectedModelId: string | null) {
     const dropdownMenu = document.getElementById('ai-dropdown-menu');
     const selectedNameSpan = document.getElementById('selected-ai-name');
@@ -64,14 +58,13 @@ function updateAISettingsDisplay(selectedModelId: string | null) {
 
     const storedKeys = getStoredApiKeys();
     
-    // 清除现有模型按钮，保留“添加新的 AI”
     const existingModelButtons = dropdownMenu.querySelectorAll('.ai-model-select-btn');
     existingModelButtons.forEach(btn => btn.remove());
 
-    let selectedModel = null;
+    let selectedModel: AIModel | null = null;
     let buttonHTML = '';
 
-    AI_MODELS.forEach(model => {
+    for (const model of AI_MODELS) {
         const isKeySet = !!storedKeys[model.id];
         const isSelected = model.id === selectedModelId;
 
@@ -88,9 +81,8 @@ function updateAISettingsDisplay(selectedModelId: string | null) {
                 <span class="${statusClass} text-xs">${statusText}</span>
             </button>
         `;
-    });
+    }
     
-    // 在 '添加新的 AI' 按钮前插入模型列表
     const addAiBtn = document.getElementById('add-ai-btn');
     if(addAiBtn) {
         addAiBtn.insertAdjacentHTML('beforebegin', buttonHTML);
@@ -103,57 +95,41 @@ function updateAISettingsDisplay(selectedModelId: string | null) {
     }
 }
 
-
-/**
- * 设置 AI 聊天界面的显示，并在聊天侧边栏打开时运行。
- * @param selectedModelId 当前选中的模型ID
- */
 function setupChatDisplay(selectedModelId: string | null) {
     const currentModelDisplay = document.getElementById('current-ai-model');
     const chatMessages = document.getElementById('chat-messages');
     const sendButton = document.getElementById('send-ai-message') as HTMLButtonElement;
     const chatInput = document.getElementById('ai-chat-input') as HTMLTextAreaElement;
-    const switchButton = document.getElementById('chat-model-switch-btn'); // 获取切换按钮
+    const switchButton = document.getElementById('chat-model-switch-btn');
 
-    // 检查所有元素是否存在，如果侧边栏内容未加载，则退出
     if (!currentModelDisplay || !chatMessages || !sendButton || !chatInput || !switchButton) return; 
 
     const selectedModel = AI_MODELS.find(m => m.id === selectedModelId);
-    // 从 localStorage 获取 API Key
     const apiKey = selectedModelId ? localStorage.getItem(`${AI_KEY_STORAGE_PREFIX}${selectedModelId}`) : null;
 
-    // 定义跳转到 AI 设置的逻辑
     const goToSettings = () => {
-         // 模拟点击设置按钮
          (document.getElementById("settings-btn") as HTMLElement)?.click();
          
-         // 更新右侧侧边栏和主工作区的 HTML 内容
          const rightSidebar = document.getElementById("right-sidebar") as HTMLElement;
          const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
          
          rightSidebar.innerHTML = sidebarContent.settings;
          mainWorkspace.innerHTML = workspaceContent.aiSettings;
          
-         // 激活 AI 设置逻辑
          aichat.setupAISettings();
          
-         // 关闭聊天侧边栏 (假设 conponents.hideRightSlidebar 存在并已导入)
          conponents.hideRightSlidebar(); 
     }
     
-    // 绑定切换按钮的监听器：点击后跳转到设置界面
     switchButton.onclick = goToSettings;
 
-
     if (selectedModel && apiKey) {
-        // 配置完整且有效
         currentModelDisplay.textContent = selectedModel.name;
         chatMessages.innerHTML = `<div class="text-center text-gray-500 text-sm py-2">您正在与 ${selectedModel.name} 对话</div>`;
         sendButton.disabled = false;
         chatInput.disabled = false;
         chatInput.placeholder = "输入你的问题...";
     } else {
-        // 配置缺失或无效
         currentModelDisplay.textContent = '未选择或 Key 未设置';
         
         chatMessages.innerHTML = `
@@ -166,15 +142,79 @@ function setupChatDisplay(selectedModelId: string | null) {
         chatInput.disabled = true;
         chatInput.placeholder = "请先选择并配置 AI 模型";
 
-        // 绑定错误提示链接的监听器
         document.getElementById('go-to-ai-settings-link')?.addEventListener('click', goToSettings);
     }
 }
 
+const renderer = new marked.Renderer();
+renderer.code = (code:any, language:any) => {
+    const codeString = typeof code === 'string' ? code : String(code);
+    // 📢 解决方案：直接调用 hljs 进行高亮，避免依赖 marked.options.highlight
+    const lang = language && hljs.getLanguage(language) ? language : 'plaintext';
+    const highlightedCode = hljs.highlight(codeString, { language: lang }).value;
+    
+    // ... (你的自定义 HTML 结构保持不变)
+    return `
+        <div class="code-block-container relative group">
+            <div class="code-header flex justify-between items-center text-xs text-gray-400 bg-[#282c34] px-4 pt-2 rounded-t-lg">
+                <span class="language-name">${language || 'Code'}</span>
+                <button 
+                    class="copy-code-btn flex items-center p-1 rounded hover:bg-[#3a3f41] transition-colors"
+                    data-code="${encodeURIComponent(codeString)}"
+                    title="复制"
+                >
+                    <svg class="w-4 h-4 text-gray-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5h8m-8 0h4m-4 4h8m-4 4h4m-4 4h8"></path></svg>
+                    <span class="text-xs ml-1 copy-text">复制</span>
+                </button>
+            </div>
+            <pre><code class="language-${language}">${highlightedCode}</code></pre>
+        </div>
+    `;
+};
+
+// 确保所有选项一次性设置，并将 highlight 函数移除，因为它不再需要被marked调用
+marked.setOptions({
+    gfm: true,
+    breaks: true,
+    sanitize: true,
+    renderer: renderer, // 确保自定义渲染器被设置
+    // ❗ 移除 highlight 选项，因为高亮逻辑已转移到 renderer.code 中
+    // highlight: function(code: string, lang: string) { ... }
+});
+
 const aichat = {
-    /**
-     * 设置 AI 设置界面的事件监听。
-     */
+
+bindCopyButtons() {
+        const copyButtons = document.querySelectorAll('.copy-code-btn');
+        copyButtons.forEach(button => {
+            // 确保只绑定一次事件
+            if (button.getAttribute('data-listener-added') === 'true') {
+                return;
+            }
+            button.setAttribute('data-listener-added', 'true');
+
+            button.addEventListener('click', () => {
+                const codeElement = button.closest('.code-block-container')?.querySelector('code');
+                const codeToCopy = codeElement ? codeElement.textContent : ''; // 优先从 code 元素获取，因为它更直接
+                // 或者从 data 属性获取原始未转义的代码
+                // const encodedCode = button.getAttribute('data-code');
+                // const codeToCopy = encodedCode ? decodeURIComponent(encodedCode) : '';
+
+                if (codeToCopy) {
+                    navigator.clipboard.writeText(codeToCopy).then(() => {
+                        const originalText = button.querySelector('.copy-text')!.textContent;
+                        button.querySelector('.copy-text')!.textContent = '已复制!';
+                        
+                        setTimeout(() => {
+                            button.querySelector('.copy-text')!.textContent = originalText;
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('复制失败: ', err);
+                    });
+                }
+            });
+        });
+    },
     setupAISettings() {
         const dropdownButton = document.getElementById('ai-dropdown-button');
         const dropdownMenu = document.getElementById('ai-dropdown-menu');
@@ -182,20 +222,17 @@ const aichat = {
         const addAiBtn = document.getElementById('add-api-key-btn') as HTMLButtonElement;
         const newApiKeyInput = document.getElementById('new-api-key-input') as HTMLInputElement;
         const aiKeyMessage = document.getElementById('ai-key-message') as HTMLElement;
-        const newAiNameInput = document.getElementById('new-ai-name-input') as HTMLInputElement; // 用于显示选择的模型名
+        const newAiNameInput = document.getElementById('new-ai-name-input') as HTMLInputElement;
 
         let selectedModelForConfig: { id: string, name: string } | null = null;
         const currentSelectedModelId = getSelectedModelId();
         
-        // 初始显示
         updateAISettingsDisplay(currentSelectedModelId);
         
-        // 绑定下拉菜单开关
         dropdownButton?.addEventListener('click', () => {
             dropdownMenu?.classList.toggle('hidden');
         });
 
-        // 绑定模型选择和配置逻辑
         dropdownMenu?.addEventListener('click', (e) => {
             const target = e.target as HTMLElement;
             const modelButton = target.closest('.ai-model-select-btn');
@@ -205,36 +242,30 @@ const aichat = {
                 const model = AI_MODELS.find(m => m.id === modelId);
                 if (!model) return;
 
-                // 1. 选中模型
                 setSelectedModelId(modelId);
                 
-                // 2. 更新显示
                 updateAISettingsDisplay(modelId);
                 dropdownMenu?.classList.add('hidden');
 
-                // 3. 准备配置输入
                 selectedModelForConfig = model;
                 const storedKey = localStorage.getItem(`${AI_KEY_STORAGE_PREFIX}${modelId}`) || '';
 
                 (document.getElementById('ai-input-title') as HTMLElement).textContent = `配置 ${model.name} 的 API Key`;
                 newAiNameInput.value = model.name;
-                newAiNameInput.disabled = true; // 模型名称不可编辑
+                newAiNameInput.disabled = true;
                 newApiKeyInput.value = storedKey;
-                newApiKeyInput.type = 'password'; // 隐藏 Key
+                newApiKeyInput.type = 'password';
                 addAiBtn.textContent = storedKey ? '更新 Key' : '添加 Key';
-                addAiBtn.style.display = 'block'; // 显示添加/更新按钮
+                addAiBtn.style.display = 'block';
                 aiKeyMessage.classList.add('hidden');
                 addAiSection?.classList.remove('hidden');
 
             } else if (target.closest('#add-ai-btn')) {
-                 // '添加新的 AI' 按钮 - 此时应引导用户在下拉菜单中选择一个模型
-                 // 因为所有模型都是预定义的，不接受自定义模型，这个按钮现在应作为提示
                  aiKeyMessage.textContent = '请在上方列表中选择一个 AI 模型进行配置。';
                  aiKeyMessage.classList.remove('hidden');
             }
         });
 
-        // 绑定 Key 提交逻辑
         addAiBtn.addEventListener('click', () => {
             if (!selectedModelForConfig) {
                 aiKeyMessage.textContent = '请先在下拉菜单中选择一个 AI 模型。';
@@ -249,28 +280,22 @@ const aichat = {
                 return;
             }
 
-            // 保存 Key
             saveApiKey(selectedModelForConfig.id, apiKey);
             
-            // 更新 UI 状态
             updateAISettingsDisplay(selectedModelForConfig.id);
-            addAiSection?.classList.add('hidden'); // 隐藏配置区
+            addAiSection?.classList.add('hidden');
             aiKeyMessage.classList.remove('text-red-400');
             aiKeyMessage.classList.add('text-green-400');
             aiKeyMessage.textContent = `${selectedModelForConfig.name} 的 Key 已成功保存!`;
             aiKeyMessage.classList.remove('hidden');
 
-            // 2秒后清除提示
             setTimeout(() => {
                 aiKeyMessage.classList.add('hidden');
             }, 2000);
         });
     },
 
-    /**
-     * 处理聊天提交的逻辑。
-     */
-    async handleChatSubmit() {
+async handleChatSubmit() {
         const chatInput = document.getElementById('ai-chat-input') as HTMLTextAreaElement;
         const chatMessages = document.getElementById('chat-messages') as HTMLElement;
         const sendButton = document.getElementById('send-ai-message') as HTMLButtonElement;
@@ -283,17 +308,14 @@ const aichat = {
         const modelConfig = AI_MODELS.find(m => m.id === selectedModelId);
 
         if (!modelConfig || !apiKey) {
-             // 理论上在 setupChatDisplay 中已禁用，这里是安全检查
              alert('请先在 AI 设置中选择模型并设置 API Key。');
              return;
         }
 
-        // 禁用输入和发送按钮
         chatInput.value = '';
         sendButton.disabled = true;
         chatInput.disabled = true;
 
-        // 1. 显示用户消息
         const userMsgHtml = `
             <div class="flex justify-end">
                 <div class="bg-blue-600 text-white p-3 rounded-lg max-w-xs md:max-w-md break-words">${userMessage}</div>
@@ -302,79 +324,66 @@ const aichat = {
         chatMessages.innerHTML += userMsgHtml;
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        // 2. 显示 AI 占位符
         let aiMsgElement = document.createElement('div');
         aiMsgElement.className = 'flex justify-start';
-        aiMsgElement.innerHTML = `
-            <div class="bg-[#3a3f41] text-gray-200 p-3 rounded-lg max-w-xs md:max-w-md break-words">
-                <span id="ai-typing-${Date.now()}">AI 正在思考...</span>
-            </div>
-        `;
+        let aiContentContainer = document.createElement('div');
+        aiContentContainer.className = 'bg-[#3a3f41] text-gray-200 p-3 rounded-lg max-w-xs md:max-w-md break-words';
+        aiContentContainer.innerHTML = '<span id="ai-typing-temp">AI 正在思考...</span>';
+        
+        aiMsgElement.appendChild(aiContentContainer);
         chatMessages.appendChild(aiMsgElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        // const aiTypingTempSpan = aiContentContainer.querySelector('#ai-typing-temp')!;
 
         try {
-            const headers: Record<string, string> = {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-            };
-            
-            // 针对千问 (Qwen) 的特殊处理：使用 X-DashScope-Apikey
-            if (modelConfig.id === 'qwen') {
-                delete headers['Authorization']; // 删除通用授权头
-                headers['X-DashScope-ApiKey'] = apiKey; // 使用千问专用 Key 头
-            }
+            const openai = new OpenAI({
+                apiKey: apiKey,
+                baseURL: modelConfig.base_url,
+                dangerouslyAllowBrowser: true
+            });
 
-            const body = JSON.stringify({
-                // 通用 ChatCompletions API 格式
+            const stream = await openai.chat.completions.create({
                 model: modelConfig.model,
                 messages: [{ role: 'user', content: userMessage }],
-                // 其他参数可根据需要添加，例如 temperature, max_tokens 等
+                stream: true,
             });
 
-            const response = await fetch(modelConfig.endpoint, {
-                method: 'POST',
-                headers: headers,
-                body: body,
-            });
+            let aiResponseText = '';
+            
+            for await (const chunk of stream) {
+                const content = chunk.choices[0]?.delta?.content || '';
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(`API 错误: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
+                if (content) {
+                    aiResponseText +=content;
+                    // aiTypingTempSpan.textContent =await marked(aiResponseText);
+                    // aiContentContainer.innerHTML = aiTypingTempSpan.textContent;
+                    const renderedHtml = marked(aiResponseText);
+                    aiContentContainer.innerHTML = renderedHtml;
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
             }
-
-            const data = await response.json();
-            let aiResponseText = '未能获取到响应文本。';
-
-            // 提取响应文本
-            if (data.choices && data.choices.length > 0 && data.choices[0].message) {
-                aiResponseText = data.choices[0].message.content.trim();
-            } else if (data.output && data.output.choices && data.output.choices.length > 0) {
-                 // 适配阿里云千问的响应结构
-                aiResponseText = data.output.choices[0].message.content.trim();
-            }
-
-            // 3. 更新 AI 消息
-            aiMsgElement.querySelector('span')!.textContent = aiResponseText;
+            //以下内容应该不使用了，使用上面的循环插入渲染来实现实时的markdown的渲染与显示
+            // const finalResponse = aiResponseText || '未能获取到响应文本。';
+            // const renderedHtml = await marked(finalResponse); 
+            // aiContentContainer.innerHTML = renderedHtml;
 
         } catch (error) {
             console.error('AI 聊天请求失败:', error);
-            aiMsgElement.querySelector('span')!.textContent = `[错误] AI 响应失败: ${error instanceof Error ? error.message : '未知错误'}`;
-            aiMsgElement.querySelector('div')!.classList.remove('bg-[#3a3f41]');
-            aiMsgElement.querySelector('div')!.classList.add('bg-red-800'); // 红色背景表示错误
+            aiContentContainer.textContent = `[错误] AI 响应失败: ${error instanceof Error ? error.message : '未知错误'}`;
+            aiContentContainer.classList.remove('bg-[#3a3f41]');
+            aiContentContainer.classList.add('bg-red-800');
         } finally {
-            // 重新启用输入和发送按钮
             sendButton.disabled = false;
             chatInput.disabled = false;
             chatInput.focus();
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+             chatMessages.scrollTop = chatMessages.scrollHeight;
+
+             this.bindCopyButtons();
         }
     },
     
-    // 导出 setupChatDisplay 供其他模块（如 main.ts）在打开聊天侧边栏时调用
     setupChatDisplay: setupChatDisplay,
-    // 导出 AI_MODELS 列表
     AI_MODELS: AI_MODELS,
 };
-
 export default aichat;
