@@ -295,7 +295,12 @@ ai_generated: `
                         class="flex-1 p-3 rounded-lg bg-[#2B2F31] border border-[#3a3f41] focus:border-[#4a4f52] focus:outline-none resize-none"
                         style="max-height: 150px;" disabled></textarea>
               <button id="send-ai-message" class="w-12 h-12 flex items-center justify-center bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors" disabled>
-                  <svg class="w-6 h-6 transform rotate-90 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                  <svg id="ai-send-icon" class="w-6 h-6 transform rotate-90 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                  </svg>
+                  <svg id="ai-stop-icon" class="w-6 h-6 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M5 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V6a1 1 0 00-1-1H5z" clip-rule="evenodd"></path>
+                  </svg>
               </button>
           </div>
       </div>

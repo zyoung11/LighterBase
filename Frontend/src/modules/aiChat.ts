@@ -25,6 +25,8 @@ const AI_MODELS: AIModel[] = [
 
 let chatHistory: Array<{ role: 'user' | 'assistant' | 'system'; content: string }> = [];
 
+let currentStreamController: AbortController | null = null;
+
 const AI_KEY_STORAGE_PREFIX = 'ai_api_key_';
 const SELECTED_MODEL_STORAGE_KEY = 'selected_ai_model_id';
 
@@ -161,7 +163,7 @@ renderer.code = (code:any) => {
     }else{
         codeString = "";
     }
-    // 📢 解决方案：直接调用 hljs 进行高亮，避免依赖 marked.options.highlight
+    
     const lang = code.lang && hljs.getLanguage(code.lang) ? code.lang : 'plaintext';
     const highlightedCode = hljs.highlight(codeString, { language: lang }).value;
     const resultHTML =  `
@@ -183,12 +185,11 @@ renderer.code = (code:any) => {
 return resultHTML
 };
 
-// 确保所有选项一次性设置，并将 highlight 函数移除，因为它不再需要被marked调用
 marked.setOptions({
     gfm: true,
     breaks: true,
     sanitize: true,
-    renderer: renderer, // 确保自定义渲染器被设置
+    renderer: renderer, 
 });
 
 const aichat = {
@@ -196,7 +197,7 @@ const aichat = {
 bindCopyButtons() {
         const copyButtons = document.querySelectorAll('.copy-code-btn');
         copyButtons.forEach(button => {
-            // 确保只绑定一次事件
+            
             if (button.getAttribute('data-listener-added') === 'true') {
                 return;
             }
@@ -204,8 +205,8 @@ bindCopyButtons() {
 
             button.addEventListener('click', () => {
                 const codeElement = button.closest('.code-block-container')?.querySelector('code');
-                const codeToCopy = codeElement ? codeElement.textContent : ''; // 优先从 code 元素获取，因为它更直接
-                // 或者从 data 属性获取原始未转义的代码
+                const codeToCopy = codeElement ? codeElement.textContent : ''; 
+                
                 // const encodedCode = button.getAttribute('data-code');
                 // const codeToCopy = encodedCode ? decodeURIComponent(encodedCode) : '';
 
@@ -304,10 +305,41 @@ bindCopyButtons() {
         });
     },
 
+    _updateSendButtonState(isSending: boolean) {
+        const sendButton = document.getElementById('send-ai-message') as HTMLButtonElement;
+        const sendIcon = document.getElementById('ai-send-icon');
+        const stopIcon = document.getElementById('ai-stop-icon');
+        const chatInput = document.getElementById('ai-chat-input') as HTMLTextAreaElement;
+
+        if (!sendButton || !sendIcon || !stopIcon || !chatInput) return;
+
+        if (isSending) {
+            sendButton.disabled = false; 
+            sendButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            sendButton.classList.add('bg-red-600', 'hover:bg-red-700'); 
+            sendIcon.classList.add('hidden');
+            stopIcon.classList.remove('hidden');
+            chatInput.disabled = true;
+        } else {
+            currentStreamController = null; 
+            sendButton.disabled = false;
+            sendButton.classList.remove('bg-red-600', 'hover:bg-red-700');
+            sendButton.classList.add('bg-blue-600', 'hover:bg-blue-700'); 
+            sendIcon.classList.remove('hidden');
+            stopIcon.classList.add('hidden');
+            chatInput.disabled = false;
+        }
+    },
+
 async handleChatSubmit() {
+        if (currentStreamController) {
+            console.log('用户请求停止生成...');
+            currentStreamController.abort();
+            return;
+        }
+        
         const chatInput = document.getElementById('ai-chat-input') as HTMLTextAreaElement;
         const chatMessages = document.getElementById('chat-messages') as HTMLElement;
-        const sendButton = document.getElementById('send-ai-message') as HTMLButtonElement;
 
         const userMessage = chatInput.value.trim();
         if (!userMessage) return;
@@ -322,8 +354,8 @@ async handleChatSubmit() {
         }
 
         chatInput.value = '';
-        sendButton.disabled = true;
-        chatInput.disabled = true;
+        
+        this._updateSendButtonState(true);
 
         chatHistory.push({role:'user',content:userMessage});
 
@@ -345,7 +377,7 @@ async handleChatSubmit() {
         chatMessages.appendChild(aiMsgElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         
-        // const aiTypingTempSpan = aiContentContainer.querySelector('#ai-typing-temp')!;
+        currentStreamController = new AbortController();
 
         try {
             const openai = new OpenAI({
@@ -358,6 +390,8 @@ async handleChatSubmit() {
                 model: modelConfig.model,
                 messages: chatHistory,
                 stream: true,
+            }, {
+                signal: currentStreamController.signal 
             });
 
             let aiResponseText = '';
@@ -374,7 +408,7 @@ async handleChatSubmit() {
                     chatMessages.scrollTop = chatMessages.scrollHeight;
                 }
             }
-            //以下内容应该不使用了，使用上面的循环插入渲染来实现实时的markdown的渲染与显示
+            
             // const finalResponse = aiResponseText || '未能获取到响应文本。';
             // const renderedHtml = await marked(finalResponse); 
             // aiContentContainer.innerHTML = renderedHtml;
@@ -384,13 +418,17 @@ async handleChatSubmit() {
             }
 
         } catch (error) {
-            console.error('AI 聊天请求失败:', error);
-            aiContentContainer.textContent = `[错误] AI 响应失败: ${error instanceof Error ? error.message : '未知错误'}`;
-            aiContentContainer.classList.remove('bg-[#3a3f41]');
-            aiContentContainer.classList.add('bg-red-800');
+            if (error instanceof Error && error.name === 'AbortError') {
+                console.log('AI 响应被用户终止。');
+                aiContentContainer.innerHTML += '<em class="text-xs text-gray-400"><br>[已终止]</em>';
+            } else {
+                console.error('AI 聊天请求失败:', error);
+                aiContentContainer.textContent = `[错误] AI 响应失败: ${error instanceof Error ? error.message : '未知错误'}`;
+                aiContentContainer.classList.remove('bg-[#3a3f41]');
+                aiContentContainer.classList.add('bg-red-800');
+            }
         } finally {
-            sendButton.disabled = false;
-            chatInput.disabled = false;
+            this._updateSendButtonState(false);
             chatInput.focus();
              chatMessages.scrollTop = chatMessages.scrollHeight;
 
