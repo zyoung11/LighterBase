@@ -4,6 +4,8 @@ import OpenAI from "openai";
 import type { ChatCompletionChunk } from "openai/resources";
 import { marked } from 'marked';
 import hljs from 'highlight.js';
+import type { shrink } from "bun";
+import { Assistants } from "openai/resources/beta.mjs";
 declare const marked: any;
 declare const hljs: any;
 
@@ -20,6 +22,8 @@ const AI_MODELS: AIModel[] = [
     { id: 'qwen', name: '千问 (Qwen)', base_url: 'https://dashscope.aliyuncs.com/api/v1/services/aigc/chat', model: 'qwen-turbo' },
     { id: 'glm', name: 'GLM (Zhipu)', base_url: 'https://open.bigmodel.cn/api/paas/v4', model: 'glm-4' },
 ];
+
+let chatHistory: Array<{ role: 'user' | 'assistant' | 'system'; content: string }> = [];
 
 const AI_KEY_STORAGE_PREFIX = 'ai_api_key_';
 const SELECTED_MODEL_STORAGE_KEY = 'selected_ai_model_id';
@@ -125,6 +129,7 @@ function setupChatDisplay(selectedModelId: string | null) {
 
     if (selectedModel && apiKey) {
         currentModelDisplay.textContent = selectedModel.name;
+        chatHistory = [];
         chatMessages.innerHTML = `<div class="text-center text-gray-500 text-sm py-2">您正在与 ${selectedModel.name} 对话</div>`;
         sendButton.disabled = false;
         chatInput.disabled = false;
@@ -147,17 +152,22 @@ function setupChatDisplay(selectedModelId: string | null) {
 }
 
 const renderer = new marked.Renderer();
-renderer.code = (code:any, language:any) => {
-    const codeString = typeof code === 'string' ? code : String(code);
+renderer.code = (code:any) => {
+    // console.log("显示原始数据：",code)
+    let codeString = code.raw;
+    const lines = codeString.split('\n')
+    if(lines.length >2){
+        codeString = lines.slice(1,-1).join('\n');
+    }else{
+        codeString = "";
+    }
     // 📢 解决方案：直接调用 hljs 进行高亮，避免依赖 marked.options.highlight
-    const lang = language && hljs.getLanguage(language) ? language : 'plaintext';
+    const lang = code.lang && hljs.getLanguage(code.lang) ? code.lang : 'plaintext';
     const highlightedCode = hljs.highlight(codeString, { language: lang }).value;
-    
-    // ... (你的自定义 HTML 结构保持不变)
-    return `
+    const resultHTML =  `
         <div class="code-block-container relative group">
             <div class="code-header flex justify-between items-center text-xs text-gray-400 bg-[#282c34] px-4 pt-2 rounded-t-lg">
-                <span class="language-name">${language || 'Code'}</span>
+                <span class="language-name">${code.lang || 'Code'}</span>
                 <button 
                     class="copy-code-btn flex items-center p-1 rounded hover:bg-[#3a3f41] transition-colors"
                     data-code="${encodeURIComponent(codeString)}"
@@ -167,9 +177,10 @@ renderer.code = (code:any, language:any) => {
                     <span class="text-xs ml-1 copy-text">复制</span>
                 </button>
             </div>
-            <pre><code class="language-${language}">${highlightedCode}</code></pre>
+            <pre class = "bg-[#15151D] whitespace-pre overflow-x-auto"><code class="language-${lang} over">${highlightedCode}</code></pre>
         </div>
     `;
+return resultHTML
 };
 
 // 确保所有选项一次性设置，并将 highlight 函数移除，因为它不再需要被marked调用
@@ -178,8 +189,6 @@ marked.setOptions({
     breaks: true,
     sanitize: true,
     renderer: renderer, // 确保自定义渲染器被设置
-    // ❗ 移除 highlight 选项，因为高亮逻辑已转移到 renderer.code 中
-    // highlight: function(code: string, lang: string) { ... }
 });
 
 const aichat = {
@@ -316,6 +325,8 @@ async handleChatSubmit() {
         sendButton.disabled = true;
         chatInput.disabled = true;
 
+        chatHistory.push({role:'user',content:userMessage});
+
         const userMsgHtml = `
             <div class="flex justify-end">
                 <div class="bg-blue-600 text-white p-3 rounded-lg max-w-xs md:max-w-md break-words">${userMessage}</div>
@@ -345,7 +356,7 @@ async handleChatSubmit() {
 
             const stream = await openai.chat.completions.create({
                 model: modelConfig.model,
-                messages: [{ role: 'user', content: userMessage }],
+                messages: chatHistory,
                 stream: true,
             });
 
@@ -367,6 +378,10 @@ async handleChatSubmit() {
             // const finalResponse = aiResponseText || '未能获取到响应文本。';
             // const renderedHtml = await marked(finalResponse); 
             // aiContentContainer.innerHTML = renderedHtml;
+
+            if(aiResponseText){
+                chatHistory.push({role:'assistant',content:aiResponseText})
+            }
 
         } catch (error) {
             console.error('AI 聊天请求失败:', error);
