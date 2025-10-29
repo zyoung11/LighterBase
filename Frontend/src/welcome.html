@@ -6,6 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="./icons/LOGOW.png" />
   <title>lighterBase</title>
+  <style id="fouc-fix">
+    body {
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out; /* 增加渐变效果，更平滑 */
+    }
+  </style>
+  <script src="./tailwind.js"></script>
 </head>
 
 <body class="h-screen w-screen flex overflow-hidden bg-[#121414] text-gray-200">
@@ -74,8 +81,17 @@
 
     </div>
   </aside>
-  <script src="./tailwind.js"></script>
   <script src="./welcome.ts"></script>
+  <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    document.body.style.opacity = '1'; 
+
+    const styleTag = document.getElementById('fouc-fix');
+    if (styleTag) {
+      styleTag.remove();
+    }
+  });
+  </script>
 </body>
 
 </html>

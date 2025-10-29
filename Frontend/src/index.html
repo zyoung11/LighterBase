@@ -6,17 +6,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="./icons/LOGOW.png" />
   <title>lighterBase</title>
-  <style>
+  <style id="fouc-fix">
     :root {
       --test-color: #ffffff;
       --work-bg-color: #1B1E1F;
     }
 
     .sidebar-transition {
-      transition: transform 0.3s ease-in-out;
-    }
+       transition: transform 0.3s ease-in-out;
+     }
 
-    .bottom-modal {
+     .bottom-modal {
       transform: translateY(100%);
       transition: transform 0.3s ease-in-out;
     }
@@ -24,7 +24,15 @@
     .bottom-modal.show {
       transform: translateY(0);
     }
+
+    body {
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+      /* 增加渐变效果，更平滑 */
+    }
   </style>
+  <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+  <script src="./tailwind.js"></script>
 </head>
 
 <body class="bg-[#121414] text-gray-200 h-screen overflow-hidden">
@@ -63,7 +71,7 @@
     <!-- 主要内容区域 -->
     <div class="flex-1 flex relative">
       <!-- 右侧边栏 -->
-      <div id="right-sidebar" class="w-[10%] bg-[#181A1B] p-4 flex flex-col sidebar-transition"></div>
+      <div id="right-sidebar" class="w-[10%] bg-[#181A1B] p-4 flex flex-col"></div>
 
       <!-- 主工作区 -->
       <div id="main-workspace" class="bg-[--work-bg-color] flex-1 flex flex-col">
@@ -87,16 +95,21 @@
         <h3 id="slidebar-title" class="text-lg font-semibold"></h3>
     </div> -->
 
-        <div id="slidebar-content" class="flex-1 h-full rounded-lg overflow-y-auto items-center ml-6"></div>
+        <div id="slidebar-content" class="flex-1 h-full rounded-lg overflow-y-auto items-center ml-6">
+        </div>
       </div>
     </div>
   </div>
 
-  <script src="./tailwind.js"></script>
   <script src="main.ts"></script>
   <script>
-    document.getElementById('logo-btn').addEventListener('click', () => {
-      window.location.href = '/welcome';
+    document.addEventListener('DOMContentLoaded', function () {
+      document.body.style.opacity = '1';
+
+      const styleTag = document.getElementById('fouc-fix');
+      if (styleTag) {
+        styleTag.remove(); // 移除后 transition 效果会消失，可以保留
+      }
     });
   </script>
 </body>

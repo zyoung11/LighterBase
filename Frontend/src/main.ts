@@ -3,14 +3,15 @@ import conponents from "./utils/conponents";
 import gojsER from "./utils/gojsER";
 // import sql from "./apis/sql";
 import sqliteParser from "sqlite-parser";
-import {authToken,URL} from "./apis/api"; 
+import {authToken,URL} from "./apis/api";
 import blocks from "./modules/blocks";
 import admin from "./apis/admin";
 import sql from "./apis/sql";
 console.log('authToken:', authToken);
 import {jwtDecode} from "jwt-decode"
-import auth from "./apis/auth" 
+import auth from "./apis/auth"
 import aichat from "./modules/aiChat";
+import lighterBase from "./apis/auto";
 
 // 认证检查函数
 function checkAuthentication() {
@@ -92,10 +93,11 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
     rightSidebar.addEventListener('click', (e) => { 
         const target = e.target as HTMLElement;
         
-      if (target.closest('#account-settings')) {
-        mainWorkspace.innerHTML = workspaceContent.accountSettings;
-          return;
-      }
+       if (target.closest('#account-settings')) {
+         mainWorkspace.innerHTML = workspaceContent.accountSettings;
+         setupAccountSettings();
+           return;
+       }
       if (target.closest('#ai-settings')) {
           mainWorkspace.innerHTML = workspaceContent.aiSettings; //
           aichat.setupAISettings(); // 重新设置 AI 设置
@@ -265,37 +267,21 @@ document.addEventListener('DOMContentLoaded', () => {
   mainWorkspace.addEventListener('click', async(e) => { 
     const target = e.target as HTMLElement;
 
-    if (target.closest('#api-docs-btn')) {
-      conponents.showRightSlidebar("API 文档", slideBarContent.api_md);
-      await conponents.setupTableButtons();
-      return;
-    }
-if (target.closest('#ai-generated')) {
-      const selectedModelId = localStorage.getItem('selected_ai_model_id');
-      const apiKey = selectedModelId ? localStorage.getItem(`ai_api_key_${selectedModelId}`) : null;
-      
-      if (!selectedModelId || !apiKey) {
-        // 如果没有选中模型或 Key 未设置，则跳转到 AI 设置
-        alert('请先在 AI 设置中选择模型并设置 API Key！');
-        
-        // 模拟点击设置按钮
-        (document.getElementById("settings-btn") as HTMLElement)?.click();
-        
-        // 确保显示 AI Settings 界面
-        rightSidebar.classList.remove("hidden"); // 侧边栏是 settings
-        rightSidebar.innerHTML = sidebarContent.settings; //
-        mainWorkspace.innerHTML = workspaceContent.aiSettings; //
-        aichat.setupAISettings();
-        return;
-      }
+     if (target.closest('#api-docs-btn')) {
+       console.log('API docs button clicked');
+       conponents.showRightSlidebar("API 文档", slideBarContent.api_md);
+       await conponents.setupTableButtons();
+       return;
+     }
+     if (target.closest('#ai-generated')) {
+       console.log('AI generated button clicked');
+       conponents.showRightSlidebar("AI 助手", slideBarContent.ai_generated);
+       aichat.setupChatDisplay();
 
-      conponents.showRightSlidebar("AI 助手", slideBarContent.ai_generated);
-      aichat.setupChatDisplay(selectedModelId); 
-      
-      setupAIChatListeners(); // <--- 关键修复：在这里绑定事件
+       setupAIChatListeners(); // <--- 关键修复：在这里绑定事件
 
-      return;
-    }
+       return;
+     }
 
     if(target.closest('#sql-send')){
       const success = await blocks.popupConfirm("提交后将不能修改")
@@ -379,8 +365,8 @@ document.getElementById('full-sql-modal')?.addEventListener('click', (e) => {
     }
 });
 function setupAIChatListeners() {
-    const sendButton = document.getElementById('send-ai-message') as HTMLButtonElement; 
-    const chatInput = document.getElementById('ai-chat-input') as HTMLTextAreaElement; 
+    const sendButton = document.getElementById('send-ai-message') as HTMLButtonElement;
+    const chatInput = document.getElementById('ai-chat-input') as HTMLTextAreaElement;
 
     sendButton?.addEventListener('click', () => {
         aichat.handleChatSubmit();
@@ -393,3 +379,60 @@ function setupAIChatListeners() {
         }
     });
 }
+
+function setupAccountSettings() {
+    const changePasswordBtn = document.getElementById('change-password-btn') as HTMLButtonElement;
+    const logoutBtn = document.getElementById('logout-btn') as HTMLButtonElement;
+
+    changePasswordBtn?.addEventListener('click', async () => {
+        const currentPassword = (document.getElementById('current-password') as HTMLInputElement).value;
+        const newPassword = (document.getElementById('new-password') as HTMLInputElement).value;
+        const confirmPassword = (document.getElementById('confirm-password') as HTMLInputElement).value;
+
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            alert('Please fill in all fields.');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            alert('New passwords do not match.');
+            return;
+        }
+
+        // Get user ID from token
+        let userId: string | null = null;
+        try {
+            const decoded = jwtDecode(authToken);
+            userId = (decoded as any).id || '1'; // Assuming id is in token
+        } catch (e) {
+            alert('Invalid token.');
+            return;
+        }
+
+        const payload = {
+            set: { password_hash: newPassword }, // Assuming password is hashed, but for demo, plain text
+            WHERE: `id = ${userId}`
+        };
+
+        try {
+            const lb = new lighterBase(URL);
+            await lb.updateTable(payload, 'users');
+            alert('Password changed successfully.');
+        } catch (error) {
+            console.error('Error changing password:', error);
+            alert('Failed to change password.');
+        }
+    });
+
+    logoutBtn?.addEventListener('click', async () => {
+        const confirmed = await blocks.popupConfirm('Are you sure you want to logout?');
+        if (confirmed) {
+            // Clear token
+            document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+            // Redirect to welcome
+            window.location.href = '/welcome';
+        }
+    });
+}
+
+

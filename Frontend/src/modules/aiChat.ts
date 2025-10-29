@@ -6,8 +6,6 @@ import { marked } from 'marked';
 import hljs from 'highlight.js';
 import type { shrink } from "bun";
 import { Assistants } from "openai/resources/beta.mjs";
-declare const marked: any;
-declare const hljs: any;
 
 type AIModel = {
     id: string;
@@ -17,119 +15,54 @@ type AIModel = {
 };
 
 const AI_MODELS: AIModel[] = [
-    { id: 'deepseek', name: 'DeepSeek', base_url: 'https://api.deepseek.com/v1', model: 'deepseek-chat' },
-    { id: 'kimi', name: 'Kimi', base_url: 'https://api.moonshot.cn/v1', model: 'moonshot-v1-8k' },
-    { id: 'qwen', name: '千问 (Qwen)', base_url: 'https://dashscope.aliyuncs.com/api/v1/services/aigc/chat', model: 'qwen-turbo' },
     { id: 'glm', name: 'GLM (Zhipu)', base_url: 'https://open.bigmodel.cn/api/paas/v4', model: 'glm-4' },
 ];
+
+const FIXED_MODEL_ID = 'glm';
+const FIXED_API_KEY = '7ad1a9308d61469d82112c6463294884.YxmHtpe1vKgTnBDy'; // Replace with your actual API key
 
 let chatHistory: Array<{ role: 'user' | 'assistant' | 'system'; content: string }> = [];
 
 let currentStreamController: AbortController | null = null;
 
-const AI_KEY_STORAGE_PREFIX = 'ai_api_key_';
-const SELECTED_MODEL_STORAGE_KEY = 'selected_ai_model_id';
-
-function getStoredApiKeys(): Record<string, string> {
-    const keys: Record<string, string> = {};
-    for (const model of AI_MODELS) {
-        const apiKey = localStorage.getItem(`${AI_KEY_STORAGE_PREFIX}${model.id}`);
-        if (apiKey) {
-            keys[model.id] = apiKey;
-        }
-    }
-    return keys;
-}
-
-function saveApiKey(modelId: string, apiKey: string) {
-    localStorage.setItem(`${AI_KEY_STORAGE_PREFIX}${modelId}`, apiKey);
-}
-
-function getSelectedModelId(): string | null {
-    return localStorage.getItem(SELECTED_MODEL_STORAGE_KEY);
-}
-
-function setSelectedModelId(modelId: string | null) {
-    if (modelId) {
-        localStorage.setItem(SELECTED_MODEL_STORAGE_KEY, modelId);
-    } else {
-        localStorage.removeItem(SELECTED_MODEL_STORAGE_KEY);
-    }
-}
-
-function updateAISettingsDisplay(selectedModelId: string | null) {
-    const dropdownMenu = document.getElementById('ai-dropdown-menu');
+function updateAISettingsDisplay() {
     const selectedNameSpan = document.getElementById('selected-ai-name');
-    if (!dropdownMenu || !selectedNameSpan) return;
+    if (!selectedNameSpan) return;
 
-    const storedKeys = getStoredApiKeys();
-    
-    const existingModelButtons = dropdownMenu.querySelectorAll('.ai-model-select-btn');
-    existingModelButtons.forEach(btn => btn.remove());
-
-    let selectedModel: AIModel | null = null;
-    let buttonHTML = '';
-
-    for (const model of AI_MODELS) {
-        const isKeySet = !!storedKeys[model.id];
-        const isSelected = model.id === selectedModelId;
-
-        if (isSelected) {
-            selectedModel = model;
-        }
-
-        const statusClass = isKeySet ? 'text-green-400' : 'text-red-400';
-        const statusText = isKeySet ? ' (已设置 Key)' : ' (未设置 Key)';
-        
-        buttonHTML += `
-            <button data-model-id="${model.id}" class="ai-model-select-btn w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-[#3a3f41] flex justify-between items-center transition-colors">
-                <span>${model.name}</span>
-                <span class="${statusClass} text-xs">${statusText}</span>
-            </button>
-        `;
-    }
-    
-    const addAiBtn = document.getElementById('add-ai-btn');
-    if(addAiBtn) {
-        addAiBtn.insertAdjacentHTML('beforebegin', buttonHTML);
-    }
-
-    if (selectedModel) {
-        selectedNameSpan.textContent = `${selectedModel.name} ${storedKeys[selectedModel.id] ? '(已启用)' : '(未设置 Key)'}`;
-    } else {
-        selectedNameSpan.textContent = '点击选择 AI 模型';
+    const model = AI_MODELS.find(m => m.id === FIXED_MODEL_ID);
+    if (model) {
+        selectedNameSpan.textContent = `${model.name} (已启用)`;
     }
 }
 
-function setupChatDisplay(selectedModelId: string | null) {
+function setupChatDisplay() {
     const currentModelDisplay = document.getElementById('current-ai-model');
     const chatMessages = document.getElementById('chat-messages');
     const sendButton = document.getElementById('send-ai-message') as HTMLButtonElement;
     const chatInput = document.getElementById('ai-chat-input') as HTMLTextAreaElement;
     const switchButton = document.getElementById('chat-model-switch-btn');
 
-    if (!currentModelDisplay || !chatMessages || !sendButton || !chatInput || !switchButton) return; 
+    if (!currentModelDisplay || !chatMessages || !sendButton || !chatInput || !switchButton) return;
 
-    const selectedModel = AI_MODELS.find(m => m.id === selectedModelId);
-    const apiKey = selectedModelId ? localStorage.getItem(`${AI_KEY_STORAGE_PREFIX}${selectedModelId}`) : null;
+    const selectedModel = AI_MODELS.find(m => m.id === FIXED_MODEL_ID);
 
     const goToSettings = () => {
          (document.getElementById("settings-btn") as HTMLElement)?.click();
-         
+
          const rightSidebar = document.getElementById("right-sidebar") as HTMLElement;
          const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
-         
+
          rightSidebar.innerHTML = sidebarContent.settings;
          mainWorkspace.innerHTML = workspaceContent.aiSettings;
-         
+
          aichat.setupAISettings();
-         
-         conponents.hideRightSlidebar(); 
+
+         conponents.hideRightSlidebar();
     }
-    
+
     switchButton.onclick = goToSettings;
 
-    if (selectedModel && apiKey) {
+    if (selectedModel && FIXED_API_KEY) {
         currentModelDisplay.textContent = selectedModel.name;
         chatHistory = [];
         chatMessages.innerHTML = `<div class="text-center text-gray-500 text-sm py-2">您正在与 ${selectedModel.name} 对话</div>`;
@@ -137,19 +70,17 @@ function setupChatDisplay(selectedModelId: string | null) {
         chatInput.disabled = false;
         chatInput.placeholder = "输入你的问题...";
     } else {
-        currentModelDisplay.textContent = '未选择或 Key 未设置';
-        
+        currentModelDisplay.textContent = '模型未配置';
+
         chatMessages.innerHTML = `
             <div class="text-center text-red-400 text-sm py-2">
-                请先在 <a href="javascript:void(0)" id="go-to-ai-settings-link" class="underline hover:text-red-300">AI 设置界面</a> 选择模型并设置 API Key。
+                模型配置错误。
             </div>
         `;
-        
+
         sendButton.disabled = true;
         chatInput.disabled = true;
-        chatInput.placeholder = "请先选择并配置 AI 模型";
-
-        document.getElementById('go-to-ai-settings-link')?.addEventListener('click', goToSettings);
+        chatInput.placeholder = "模型未配置";
     }
 }
 
@@ -188,8 +119,7 @@ return resultHTML
 marked.setOptions({
     gfm: true,
     breaks: true,
-    sanitize: true,
-    renderer: renderer, 
+    renderer: renderer,
 });
 
 const aichat = {
@@ -226,83 +156,9 @@ bindCopyButtons() {
         });
     },
     setupAISettings() {
-        const dropdownButton = document.getElementById('ai-dropdown-button');
-        const dropdownMenu = document.getElementById('ai-dropdown-menu');
-        const addAiSection = document.getElementById('add-ai-key-section');
-        const addAiBtn = document.getElementById('add-api-key-btn') as HTMLButtonElement;
-        const newApiKeyInput = document.getElementById('new-api-key-input') as HTMLInputElement;
-        const aiKeyMessage = document.getElementById('ai-key-message') as HTMLElement;
-        const newAiNameInput = document.getElementById('new-ai-name-input') as HTMLInputElement;
-
-        let selectedModelForConfig: { id: string, name: string } | null = null;
-        const currentSelectedModelId = getSelectedModelId();
-        
-        updateAISettingsDisplay(currentSelectedModelId);
-        
-        dropdownButton?.addEventListener('click', () => {
-            dropdownMenu?.classList.toggle('hidden');
-        });
-
-        dropdownMenu?.addEventListener('click', (e) => {
-            const target = e.target as HTMLElement;
-            const modelButton = target.closest('.ai-model-select-btn');
-
-            if (modelButton) {
-                const modelId = modelButton.getAttribute('data-model-id')!;
-                const model = AI_MODELS.find(m => m.id === modelId);
-                if (!model) return;
-
-                setSelectedModelId(modelId);
-                
-                updateAISettingsDisplay(modelId);
-                dropdownMenu?.classList.add('hidden');
-
-                selectedModelForConfig = model;
-                const storedKey = localStorage.getItem(`${AI_KEY_STORAGE_PREFIX}${modelId}`) || '';
-
-                (document.getElementById('ai-input-title') as HTMLElement).textContent = `配置 ${model.name} 的 API Key`;
-                newAiNameInput.value = model.name;
-                newAiNameInput.disabled = true;
-                newApiKeyInput.value = storedKey;
-                newApiKeyInput.type = 'password';
-                addAiBtn.textContent = storedKey ? '更新 Key' : '添加 Key';
-                addAiBtn.style.display = 'block';
-                aiKeyMessage.classList.add('hidden');
-                addAiSection?.classList.remove('hidden');
-
-            } else if (target.closest('#add-ai-btn')) {
-                 aiKeyMessage.textContent = '请在上方列表中选择一个 AI 模型进行配置。';
-                 aiKeyMessage.classList.remove('hidden');
-            }
-        });
-
-        addAiBtn.addEventListener('click', () => {
-            if (!selectedModelForConfig) {
-                aiKeyMessage.textContent = '请先在下拉菜单中选择一个 AI 模型。';
-                aiKeyMessage.classList.remove('hidden');
-                return;
-            }
-
-            const apiKey = newApiKeyInput.value.trim();
-            if (!apiKey) {
-                aiKeyMessage.textContent = 'API Key 不能为空。';
-                aiKeyMessage.classList.remove('hidden');
-                return;
-            }
-
-            saveApiKey(selectedModelForConfig.id, apiKey);
-            
-            updateAISettingsDisplay(selectedModelForConfig.id);
-            addAiSection?.classList.add('hidden');
-            aiKeyMessage.classList.remove('text-red-400');
-            aiKeyMessage.classList.add('text-green-400');
-            aiKeyMessage.textContent = `${selectedModelForConfig.name} 的 Key 已成功保存!`;
-            aiKeyMessage.classList.remove('hidden');
-
-            setTimeout(() => {
-                aiKeyMessage.classList.add('hidden');
-            }, 2000);
-        });
+        // Since the UI is now static and doesn't need dynamic updates,
+        // this function mainly ensures the page is properly initialized
+        updateAISettingsDisplay();
     },
 
     _updateSendButtonState(isSending: boolean) {
@@ -344,12 +200,11 @@ async handleChatSubmit() {
         const userMessage = chatInput.value.trim();
         if (!userMessage) return;
 
-        const selectedModelId = getSelectedModelId();
-        const apiKey = selectedModelId ? localStorage.getItem(`${AI_KEY_STORAGE_PREFIX}${selectedModelId}`) : null;
-        const modelConfig = AI_MODELS.find(m => m.id === selectedModelId);
+        const modelConfig = AI_MODELS.find(m => m.id === FIXED_MODEL_ID);
+        const apiKey = FIXED_API_KEY;
 
         if (!modelConfig || !apiKey) {
-             alert('请先在 AI 设置中选择模型并设置 API Key。');
+             alert('模型配置错误。');
              return;
         }
 
@@ -403,8 +258,8 @@ async handleChatSubmit() {
                     aiResponseText +=content;
                     // aiTypingTempSpan.textContent =await marked(aiResponseText);
                     // aiContentContainer.innerHTML = aiTypingTempSpan.textContent;
-                    const renderedHtml = marked(aiResponseText);
-                    aiContentContainer.innerHTML = renderedHtml;
+                     const renderedHtml = await marked(aiResponseText);
+                     aiContentContainer.innerHTML = renderedHtml;
                     chatMessages.scrollTop = chatMessages.scrollHeight;
                 }
             }

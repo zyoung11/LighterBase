@@ -205,89 +205,115 @@ const workspaceContent = {
     </div>
   </div>
 </div>`,
-aiSettings: `
-    <div class="p-6 h-full flex flex-col space-y-6">
-        <h2 class="text-xl font-semibold border-b border-gray-700 pb-3">AI 助手设置</h2>
-        
-        <div class="flex items-center space-x-4">
-            <label class="text-sm font-medium w-24">选择 AI 模型:</label>
-            <div class="relative w-80">
-                <button id="ai-dropdown-button" class="w-full px-4 py-2 text-left bg-[#2B2F31] rounded-lg border border-[#3a3f41] hover:border-[#4a4f52] focus:outline-none flex justify-between items-center">
-                    <span id="selected-ai-name">点击选择 AI 模型</span>
-                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </button>
-                
-                <div id="ai-dropdown-menu" class="hidden absolute z-10 w-full mt-1 bg-[#2B2F31] rounded-lg shadow-lg border border-[#3a3f41] max-h-60 overflow-y-auto">
-                    <button id="add-ai-btn" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-[#3a3f41] flex items-center">
-                        <span class="text-lg mr-2">+</span>
-                        添加新的 AI (请在上方列表选择)
-                    </button>
+ aiSettings: `
+    <div class="p-6 h-full flex flex-col space-y-6 bg-gradient-to-br from-[#1B1E1F] to-[#2B2F31] rounded-lg shadow-xl">
+        <div id="ai-settings-container" class="space-y-6">
+            <div class="bg-[#2B2F31] rounded-xl p-6 border border-gray-600 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-[#2B2F31] rounded-full flex items-center justify-center shadow-md">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-1">当前模型</h3>
+                            <p class="text-sm text-gray-400">AI 对话使用的模型配置</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400 border border-green-500/30">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                            已启用
+                        </span>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-600">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-300">模型名称:</span>
+                        <span id="selected-ai-name" class="text-sm font-semibold text-white bg-gradient-to-r from-blue-400 to-purple-500 px-3 py-1 rounded-lg">GLM (Zhipu)</span>
+                    </div>
+                    <div class="flex items-center justify-between mt-2">
+                        <span class="text-sm font-medium text-gray-300">模型 ID:</span>
+                        <span class="text-sm text-gray-400 bg-[#3a3f41] px-3 py-1 rounded-lg">glm-4</span>
+                    </div>
+                    <div class="flex items-center justify-between mt-2">
+                        <span class="text-sm font-medium text-gray-300">状态:</span>
+                        <span class="text-sm text-green-400 bg-green-500/10 px-3 py-1 rounded-lg border border-green-500/20">正常运行</span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div id="add-ai-key-section" class="hidden flex flex-col space-y-4 border border-gray-700 p-4 rounded-lg">
-            <h3 class="text-lg font-medium text-white" id="ai-input-title">配置 AI Key</h3>
-            
-            <div class="flex items-center space-x-4">
-                <label class="text-sm font-medium w-24">AI 名称:</label>
-                <input id="new-ai-name-input" type="text" placeholder="例如: OpenAI, Gemini"
-                       class="flex-1 px-3 py-2 rounded bg-[#2B2F31] border border-[#3a3f41] focus:border-[#4a4f52] focus:outline-none" disabled />
-            </div>
-
-            <div class="flex items-center space-x-4">
-                <label class="text-sm font-medium w-24">API Key:</label>
-                <div class="flex-1 flex">
-                    <input id="new-api-key-input" type="password" placeholder="请输入 API Key"
-                           class="flex-1 px-3 py-2 rounded-l-lg bg-[#2B2F31] border border-[#3a3f41] focus:border-[#4a4f52] focus:outline-none" />
-                    <button id="add-api-key-btn" class="hidden px-4 py-2 bg-[#3a3f41] hover:bg-[#4a4f52] rounded-r-lg text-white transition-colors">
-                        添加 Key
-                    </button>
+            <div class="bg-[#2B2F31] rounded-xl p-6 border border-gray-600 shadow-lg">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-8 h-8 bg-[#2B2F31] rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-white">配置说明</h3>
+                </div>
+                <div class="space-y-3 text-sm text-gray-300">
+                    <p>• 当前系统已固定使用 GLM-4 模型进行 AI 对话</p>
+                    <p>• API Key 已内置配置，无需手动设置</p>
                 </div>
             </div>
-            <p id="ai-key-message" class="text-sm text-red-400 hidden ml-28"></p>
         </div>
 
     </div>
     `,
 
-     accountSettings: `
+      accountSettings: `
                 <div class="flex-1 bg-[#1B1E1F] p-6">
-                <h3 class="text-lg font-semibold mb-4">Account</h3>
                 <div class="space-y-4">
-                    <div class="flex">
-                        <label class="block text-gray-300 mb-2">Password changing</label>
-                        <input type="password" placeholder="New password" class="w-full px-3 py-2 bg-[#2A2D30] text-gray-200 rounded border border-gray-600 focus:outline-none focus:border-blue-500">
+                    <div class="flex flex-col">
+                        <label class="block text-gray-300 mb-2">当前密码</label>
+                        <input id="current-password" type="password" placeholder="输入当前密码" class="w-full px-3 py-2 bg-[#2A2D30] text-gray-200 rounded border border-gray-600 focus:outline-none focus:border-blue-500">
                     </div>
-                    <div class="flex">
-                        <label class="block text-gray-300 mb-2">Password confirming</label>
-                        <input type="password" placeholder="Confirm password" class="w-full px-3 py-2 bg-[#2A2D30] text-gray-200 rounded border border-gray-600 focus:outline-none focus:border-blue-500">
+                    <div class="flex flex-col">
+                        <label class="block text-gray-300 mb-2">新密码</label>
+                        <input id="new-password" type="password" placeholder="输入新密码" class="w-full px-3 py-2 bg-[#2A2D30] text-gray-200 rounded border border-gray-600 focus:outline-none focus:border-blue-500">
                     </div>
-                    <button class=" px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 ml-auto">确认</button>
+                    <div class="flex flex-col">
+                        <label class="block text-gray-300 mb-2">确认新密码</label>
+                        <input id="confirm-password" type="password" placeholder="确认新密码" class="w-full px-3 py-2 bg-[#2A2D30] text-gray-200 rounded border border-gray-600 focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div class="flex justify-between">
+                        <button id="change-password-btn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">修改密码</button>
+                        <button id="logout-btn" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">退出登录</button>
+                    </div>
                 </div>
                 </div>
             `,
 };
 
 const slideBarContent = {
-  api_md: `
-     <div id="tables-api" class="flex flex-col h-full w-full bg-[#2B2F31] items-center overflow-y-auto">        
-    </div>    
-
-
-  `,
+   api_md: `
+      <div id="tables-api" class="flex h-full w-full bg-[#2B2F31]">
+        <div class="w-16 bg-[#1B1E1F] flex flex-col items-center py-4 space-y-4 sticky top-0 h-full">
+          <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg flex items-center justify-center transition-colors text-white text-sm" data-nav="create">增</button>
+          <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg flex items-center justify-center transition-colors text-white text-sm" data-nav="delete">删</button>
+          <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg flex items-center justify-center transition-colors text-white text-sm" data-nav="update">改</button>
+          <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg flex items-center justify-center transition-colors text-white text-sm" data-nav="search">查</button>
+        </div>
+        <div id="api-content" class="flex-1 flex flex-col items-center overflow-y-auto">
+        </div>
+      </div>
+   `,
 ai_generated: `
     <div id="ai-chat-box" class="flex flex-col flex-1 h-full p-4">
-      <div class="pb-3 border-b border-gray-700 mb-3">
-          <label class="text-sm text-gray-400">当前模型:</label>
-          <button id="chat-model-switch-btn" class="px-3 py-1 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-sm transition-colors ml-2">
-              <span id="current-ai-model">未选择</span> (点击切换/配置)
-          </button>
-      </div>
+       <div class="pb-3 border-b border-gray-700 mb-3">
+           <label class="text-sm text-gray-400">当前模型:</label>
+           <button id="chat-model-switch-btn" class="px-3 py-1 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-sm transition-colors ml-2">
+               <span id="current-ai-model">GLM (Zhipu)</span> (点击查看信息)
+           </button>
+       </div>
 
-      <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4 pb-4">
-          <div class="text-center text-gray-500 text-sm py-2">请选择一个 AI 模型开始对话</div>
-      </div>
+       <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4 pb-4">
+           <div class="text-center text-gray-500 text-sm py-2">您正在与 GLM (Zhipu) 对话</div>
+       </div>
       
       <div id="chat-input-area" class="border-t border-gray-700 pt-4 mt-auto">
           <div class="flex space-x-2">

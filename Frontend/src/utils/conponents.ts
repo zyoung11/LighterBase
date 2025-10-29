@@ -46,7 +46,6 @@ function extractStatusCode(logText: string): number | null {
     return null;
 }
 
-// 2. 根据状态码获取日志级别和样式
 interface LogDisplay {
     level: string; // 日志级别名称 (e.g., INFO, WARN, ERROR)
     color: string; // 样式类 (e.g., Tailwind CSS class for color)
@@ -54,32 +53,44 @@ interface LogDisplay {
 
 function getLogLevelDisplay(statusCode: number): LogDisplay {
     if (statusCode >= 200 && statusCode < 300) {
-        // 2xx 成功：正常操作
         return { level: 'INFO', color: 'text-green-400' }; 
     } else if (statusCode >= 300 && statusCode < 400) {
-        // 3xx 重定向：需要注意
         return { level: 'WARN', color: 'text-yellow-400' }; 
     } else if (statusCode >= 400 && statusCode < 500) {
-        // 4xx 客户端错误：需要警告
         return { level: 'WARN', color: 'text-orange-400' }; 
     } else if (statusCode >= 500 && statusCode < 600) {
-        // 5xx 服务器错误：严重错误
         return { level: 'ERROR', color: 'text-red-500' }; 
     } else {
-        // 其他/未知：默认级别
         return { level: 'DEBUG', color: 'text-gray-400' }; 
     }
 }
 
 const conponents = {
+  justOpened: false,
+
   hideRightSlidebar() {
-    rightSlidebar.classList.add("translate-x-[110%]");
-  },
+     console.log('Hiding right slidebar');
+     rightSlidebar.classList.add("translate-x-[110%]");
+   },
 
   showRightSlidebar(title: string, content: string) {
-    // slidebarTitle.textContent = title;
-    slidebarContent.innerHTML = content;
-    rightSlidebar.classList.remove("translate-x-[110%]");
+     console.log('Showing right slidebar with title:', title);
+     // slidebarTitle.textContent = title;
+     slidebarContent.innerHTML = content;
+     rightSlidebar.classList.remove("translate-x-[110%]");
+     conponents.justOpened = true;
+     setTimeout(() => conponents.justOpened = false, 0); // Reset after current event loop
+   },
+
+  initRightSlidebarClose() {
+     document.addEventListener('click', (e) => {
+        const rightSlidebar = document.getElementById('right-slidebar') as HTMLElement;
+        if (rightSlidebar && !rightSlidebar.classList.contains('translate-x-[110%]') && !conponents.justOpened) {
+           if (!rightSlidebar.contains(e.target as Node)) {
+              conponents.hideRightSlidebar();
+           }
+        }
+     });
   },
 
 async showPermissions() {
@@ -222,10 +233,11 @@ async showTableMdContent() {
   const patterns = ['create', 'delete', 'update', 'search'];
   const apiMarkedMap: { [key: string]: string } = apiMarked; 
 
-  patterns.forEach(pattern => {
+   patterns.forEach(pattern => {
 
-    const block = document.createElement('div');
-    block.className = 'w-full h-auto mb-4';
+     const block = document.createElement('div');
+     block.className = 'w-full h-auto mb-4';
+     block.setAttribute('data-pattern', pattern);
 
     const btnBar = document.createElement('div');
     btnBar.className = 'flex gap-2';
@@ -332,23 +344,35 @@ setupResponseToggle() {
 },
 
 
-async setupTableButtons() {
-  const container = document.getElementById('tables-api');
-  if (!container) return;
-  container.innerHTML = '';
+  async setupTableButtons() {
+   const container = document.getElementById('api-content');
+   if (!container) return;
+   container.innerHTML = '';
 
-  const tables = await sql.getTableAll();
+   const tables = await sql.getTableAll();
 
-  // 不创建 tableBar，也不插入 DOM
-  const contentDiv = document.createElement('div');
-  contentDiv.className = 'table-md w-[90%] h-full items-center justify-center p-4'; 
-  container.appendChild(contentDiv);
-  // console.log("查看tables:",tables)
-  // 手动传入默认 tableId
-  if (tables.length > 0) {
-    this.showTableMdContent();
-  }
-},
+   // 不创建 tableBar，也不插入 DOM
+   const contentDiv = document.createElement('div');
+   contentDiv.className = 'table-md w-full h-full p-4';
+   container.appendChild(contentDiv);
+   // console.log("查看tables:",tables)
+   // 手动传入默认 tableId
+   if (tables.length > 0) {
+     this.showTableMdContent();
+   }
+
+   // 添加导航点击事件
+   const navButtons = document.querySelectorAll('#tables-api .nav-btn');
+   navButtons.forEach(btn => {
+     btn.addEventListener('click', () => {
+       const nav = btn.getAttribute('data-nav');
+       const targetBlock = document.querySelector(`[data-pattern="${nav}"]`);
+       if (targetBlock) {
+         targetBlock.scrollIntoView({ behavior: 'smooth' });
+       }
+     });
+   });
+ },
 
  _showLogsPage: 1,
  selectedIds: [] as number[],
@@ -437,7 +461,6 @@ const tbody = document.getElementById('logs-tbody') as HTMLElement;
     if(right<total-1) pag.appendChild(dots());
     if(total>1) pag.appendChild(make(total,cur===total));
 
-    // 绑定行点击事件
     tbody.querySelectorAll('tr').forEach((tr) => {
       tr.addEventListener('click', (e) => {
         if ((e.target as HTMLElement).tagName === 'INPUT') return;
@@ -579,7 +602,6 @@ async showFolderTables() {
     sidebarBox.appendChild(btn);
   });
 
-  /* 点击表名 -> 主区渲染数据 */
   sidebarBox.addEventListener('click', async (e) => {
     const tgt = e.target as HTMLElement;
     const table = tgt.dataset.table;
@@ -595,7 +617,6 @@ async showFolderTables() {
     }
   });
 
-  /* 主区渲染函数（Tailwind 表格） */
   function renderTableInMain(items: any[], table: string) {
     const main = document.getElementById('main-workspace');
     if (!items.length) {
@@ -656,5 +677,8 @@ async showFolderTables() {
 };
 
 
+
+// 初始化右侧滑入栏外部点击关闭功能
+conponents.initRightSlidebarClose();
 
 export default conponents;
