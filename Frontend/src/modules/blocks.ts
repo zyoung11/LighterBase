@@ -8,13 +8,13 @@ popupConfirm(text: string): Promise<boolean> {
 
     const panel = document.createElement('div');
     panel.className =
-      'min-w-[280px] rounded-xl bg-[#1a1a1a] text-gray-200 shadow-2xl p-6 border border-gray-700';
+      'min-w-[280px] justify-center items-center rounded-xl bg-[#1a1a1a] text-gray-200 shadow-2xl p-6 border border-gray-700';
 
     panel.innerHTML = `
       <p class="mb-5 text-center">${text}</p>
-      <div class="flex justify-end gap-3">
-        <button id="cancelBtn" class="px-4 py-2 rounded-md bg-gray-700 hover:bg-gray-600 transition">取消</button>
-        <button id="okBtn" class="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-500 transition">确认</button>
+      <div class="flex justify-center gap-3">
+        <button id="cancelBtn" class="px-4 py-2 rounded-md border border-gray-400 hover:bg-gray-600/50 transition">取消</button>
+        <button id="okBtn" class="text-black px-4 py-2 rounded-md bg-white transition">确认</button>
       </div>
     `;
 
