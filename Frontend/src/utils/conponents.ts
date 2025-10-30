@@ -640,14 +640,14 @@ async showFolderTables() {
     const cols = Object.keys(items[0]);
     const headHTML = cols.map(k => {
       const displayK = k.length > 15 ? k.substring(0,15) + '...' : k;
-      return `<th class="w-full px-4 py-2 text-left truncate" title="${k}">${displayK}</th>`;
+      return `<th class=" px-4 py-2 text-left truncate" title="${k}">${displayK}</th>`;
     }).join('');
     const bodyHTML = items.map(row =>
       '<tr class="w-full border-t border-gray-700">' +
       cols.map(k => {
         const val = row[k] ?? '';
         const displayVal = val.length > 15 ? val.substring(0,15) + '...' : val;
-        return `<td class="px-4 py-2 truncate" title="${val}">${displayVal}</td>`;
+        return `<td class="px-4 py-2 text-left truncate" title="${val}">${displayVal}</td>`;
       }).join('') +
       '</tr>'
     ).join('');

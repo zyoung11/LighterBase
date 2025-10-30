@@ -108,7 +108,7 @@ showTooltipWithCopy(content: string, left: number, top: number) {
   copyBtn.addEventListener('click', () => {
     navigator.clipboard.writeText(content).then(() => {
       copyBtn.innerHTML = '✅';
-      setTimeout(() => copyBtn.innerHTML = copyIcon, 2000);
+      setTimeout(() => copyBtn.innerHTML = copyIcon, 200);
     });
   });
 

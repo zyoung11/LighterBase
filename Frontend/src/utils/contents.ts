@@ -124,10 +124,10 @@ const workspaceContent = {
             <h3 class="text-lg font-semibold mb-4">数据库表权限管理</h3>
 
             <div class="h-2/3 bg-[#15151D] overflow-y-auto mb-4 border rounded-lg border-gray-700" >
-                <table id="permissions-table" class="min-w-full bg-[#2B2F31] rounded-lg">
+                <table id="permissions-table" class="min-w-full bg-[#2B2F31] rounded-lg" style="table-layout: fixed;">
                     <thead>
                         <tr class="border-b border-gray-600">
-                            <th class="px-4 py-3 text-left w-1/5">Table</th>
+                            <th class="px-4 py-3 text-left">Table</th>
                             <th class="px-4 py-3 text-left">Create</th>
                             <th class="px-4 py-3 text-left">Delete</th>
                             <th class="px-4 py-3 text-left">Update</th>
