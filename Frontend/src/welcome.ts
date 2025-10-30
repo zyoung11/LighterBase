@@ -11,7 +11,7 @@ let isEmpty = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
   isEmpty = await auth.isLogin();
-  if (isEmpty) {
+  if (!isEmpty) {
     emailField.style.display = 'block';
     emailInput.required = true;
   } else {
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 formLogin.addEventListener("submit", async(e) => {
   e.preventDefault();
-  if (isEmpty) {
+  if (!isEmpty) {
     // 设置注册输入
     (document.getElementById("username") as HTMLInputElement).value = loginUsernameInput.value;
     (document.getElementById("password") as HTMLInputElement).value = loginPasswordInput.value;

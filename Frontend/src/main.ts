@@ -90,17 +90,29 @@ const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
     mainWorkspace.innerHTML =workspaceContent.aiSettings; //
 
     aichat.setupAISettings(); // 调用 aichat 中的设置逻辑
-    rightSidebar.addEventListener('click', (e) => { 
+    const aiBtn = document.getElementById('ai-settings') as HTMLElement;
+    if (aiBtn) {
+      aiBtn.style.backgroundColor = '#2B2F31';
+    }
+    rightSidebar.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
-        
+
        if (target.closest('#account-settings')) {
          mainWorkspace.innerHTML = workspaceContent.accountSettings;
          setupAccountSettings();
+         document.querySelectorAll('#right-sidebar button').forEach(btn => {
+           (btn as HTMLElement).style.backgroundColor = '';
+         });
+          (target.closest('#account-settings') as HTMLElement).style.backgroundColor = '#2B2F31';
            return;
        }
       if (target.closest('#ai-settings')) {
           mainWorkspace.innerHTML = workspaceContent.aiSettings; //
           aichat.setupAISettings(); // 重新设置 AI 设置
+          document.querySelectorAll('#right-sidebar button').forEach(btn => {
+            (btn as HTMLElement).style.backgroundColor = '';
+          });
+          (target.closest('#ai-settings') as HTMLElement).style.backgroundColor = '#2B2F31';
           return;
       }
     });
@@ -246,6 +258,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
   initializeDatabaseView();
+  // 设置默认选中Create DB
+  const createDbBtn = document.getElementById('create-db') as HTMLElement;
+  if (createDbBtn) {
+    createDbBtn.style.backgroundColor = '#2B2F31';
+  }
 
   rightSidebar.addEventListener('click', async(e) => {
     const target = e.target as HTMLElement;
@@ -254,12 +271,22 @@ document.addEventListener('DOMContentLoaded', () => {
       currentSection = "permissions";
       mainWorkspace.innerHTML = workspaceContent.permissions;
       await conponents.showPermissions();
+      // 切换选中状态
+      document.querySelectorAll('#right-sidebar button').forEach(btn => {
+        (btn as HTMLElement).style.backgroundColor = '';
+      });
+      (target.closest('#permissions') as HTMLElement).style.backgroundColor = '#2B2F31';
       return;
     }
-  
+
     if (target.closest('#create-db')) {
       mainWorkspace.innerHTML = workspaceContent.database;
       initializeDatabaseView();
+      // 切换选中状态
+      document.querySelectorAll('#right-sidebar button').forEach(btn => {
+        (btn as HTMLElement).style.backgroundColor = '';
+      });
+      (target.closest('#create-db') as HTMLElement).style.backgroundColor = '#2B2F31';
       return;
     }
   });
@@ -390,37 +417,36 @@ function setupAccountSettings() {
         const confirmPassword = (document.getElementById('confirm-password') as HTMLInputElement).value;
 
         if (!currentPassword || !newPassword || !confirmPassword) {
-            alert('Please fill in all fields.');
+            await blocks.popupConfirm('请填入所以内容');
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            alert('New passwords do not match.');
-            return;
+           await blocks.popupConfirm('新密码不相同')
+           return;
         }
 
-        // Get user ID from token
         let userId: string | null = null;
         try {
             const decoded = jwtDecode(authToken);
-            userId = (decoded as any).id || '1'; // Assuming id is in token
+            userId = (decoded as any).id; 
         } catch (e) {
-            alert('Invalid token.');
+            await blocks.popupConfirm('token无效')
             return;
         }
 
+
         const payload = {
-            set: { password_hash: newPassword }, // Assuming password is hashed, but for demo, plain text
+            set: { password_hash: newPassword },
             WHERE: `id = ${userId}`
         };
 
         try {
             const lb = new lighterBase(URL);
             await lb.updateTable(payload, 'users');
-            alert('Password changed successfully.');
-        } catch (error) {
-            console.error('Error changing password:', error);
-            alert('Failed to change password.');
+            await blocks.popupConfirm('密码更新成功')
+            } catch (error) {
+              await blocks.popupConfirm('更新失败')
         }
     });
 

@@ -44,7 +44,7 @@ bottomPopupConfirm(text: string): Promise<boolean> {
     // 创建底部弹窗
     const modal = document.createElement('div');
     modal.className = 'fixed bottom-4 left-0 right-0  bg-[#181A1B] p-6 shadow-lg transform translate-y-full transition-transform duration-300 w-[30%] h-[8%] mx-auto rounded-xl';
-    
+
     modal.innerHTML = `
       <div class="flex justify-between items-center">
         <span id="modal-message" class="text-gray-200">${text}</span>
@@ -81,9 +81,39 @@ bottomPopupConfirm(text: string): Promise<boolean> {
 
     // 事件监听
     // backdrop.addEventListener('click', () => clean(false));
-    
+
     (modal.querySelector('#modal-cancel') as HTMLButtonElement).addEventListener('click', () => clean(false));
     (modal.querySelector('#modal-confirm') as HTMLButtonElement).addEventListener('click', () => clean(true));
+  });
+},
+
+showTooltipWithCopy(content: string, left: number, top: number) {
+  const copyIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+  </svg>`;
+  const tooltip = document.createElement('div');
+  tooltip.className = 'fixed z-50 bg-[#2B2F31] text-gray-200 p-4 rounded-lg shadow-lg flex flex-col';
+  tooltip.style.left = left + 'px';
+  tooltip.style.top = top + 'px';
+  tooltip.style.width = '300px'; // 固定宽度
+  tooltip.style.whiteSpace = 'normal'; // 自动换行
+  tooltip.style.overflowWrap = 'break-word'; // 长单词换行
+  tooltip.innerHTML = `
+    <button class="text-white self-end hover:text-gray-300 flex " id="copy-btn">${copyIcon}</button>
+    <div class="mb-2">${content}</div>
+  `;
+  document.body.appendChild(tooltip);
+
+  const copyBtn = tooltip.querySelector('#copy-btn') as HTMLButtonElement;
+  copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(content).then(() => {
+      copyBtn.innerHTML = '✅';
+      setTimeout(() => copyBtn.innerHTML = copyIcon, 2000);
+    });
+  });
+
+  tooltip.addEventListener('mouseleave', () => {
+    tooltip.remove();
   });
 }
 

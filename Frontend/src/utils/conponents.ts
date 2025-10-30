@@ -139,10 +139,10 @@ async showPermissions() {
     let selectedCell: HTMLTableCellElement | null = null;
     const selectCell = (cell: HTMLTableCellElement) => {
       if (selectedCell) {
-        selectedCell.classList.remove('bg-blue-800');
+        selectedCell.style.backgroundColor = '';
       }
       selectedCell = cell;
-      cell.classList.add('bg-blue-800');
+      cell.style.backgroundColor = '#2B2F31';
     };
 
     const newListener = async (e: Event) => {
@@ -207,7 +207,7 @@ async showPermissions() {
       const inTable = (e.target as HTMLElement).closest('#permissions-table');
       const inInput = (e.target as HTMLElement).closest('#permissions-input-area');
       if (!inTable && !inInput && selectedCell) {
-        selectedCell.classList.remove('bg-blue-800');
+        selectedCell.style.backgroundColor = '';
         selectedCell = null;
         permissionsInputArea.innerHTML = '<p class="text-gray-400">请先选择一个单元格</p>';
       }
@@ -592,11 +592,13 @@ async showFolderTables() {
   if (!sidebarBox) return;
   sidebarBox.innerHTML = '';
 
+  let selectedTableBtn: HTMLElement | null = null;
+
   const tables = await sql.getTableAll();
   tables.forEach((t: string) => {
     const btn = document.createElement('button');
     btn.className =
-      'w-full text-left px-3 py-2 rounded hover:bg-[#2B2F31] transition-colors text-sm';
+      'w-full text-left px-3 py-2 rounded hover:bg-[#2B2F31] transition-colors text-base font-medium truncate';
     btn.textContent = t;
     btn.dataset.table = t;
     sidebarBox.appendChild(btn);
@@ -607,10 +609,18 @@ async showFolderTables() {
     const table = tgt.dataset.table;
     if (!table) return;
 
-    const payload = { "SELECT": ['*'],"WHERE":'' };
+    // 切换选中状态
+    if (selectedTableBtn) {
+      selectedTableBtn.style.backgroundColor = '';
+    }
+    selectedTableBtn = tgt;
+    tgt.style.backgroundColor = '#2B2F31';
+
+    const payload = { SELECT: [],WHERE:'' };
     try {
       const lb = new lighterBase('http://localhost:8080');
       const res = await lb.searchTable(payload, table, 1, 30);
+      console.log("查看表的响应res:",res)
       renderTableInMain(res.items || [], table);
     } catch (err) {
       console.error(`查询表 ${table} 失败：`, err);
@@ -628,10 +638,17 @@ async showFolderTables() {
     }
 
     const cols = Object.keys(items[0]);
-    const headHTML = cols.map(k => `<th class="px-4 py-2 text-left">${k}</th>`).join('');
+    const headHTML = cols.map(k => {
+      const displayK = k.length > 15 ? k.substring(0,15) + '...' : k;
+      return `<th class="w-full px-4 py-2 text-left truncate" title="${k}">${displayK}</th>`;
+    }).join('');
     const bodyHTML = items.map(row =>
-      '<tr class="border-t border-gray-700">' +
-      cols.map(k => `<td class="px-4 py-2">${row[k] ?? ''}</td>`).join('') +
+      '<tr class="w-full border-t border-gray-700">' +
+      cols.map(k => {
+        const val = row[k] ?? '';
+        const displayVal = val.length > 15 ? val.substring(0,15) + '...' : val;
+        return `<td class="px-4 py-2 truncate" title="${val}">${displayVal}</td>`;
+      }).join('') +
       '</tr>'
     ).join('');
 
@@ -639,7 +656,7 @@ async showFolderTables() {
       <div class="flex-1 bg-[#1B1E1F] p-6 flex flex-col">
         <h3 class="text-base font-semibold mb-4 text-gray-200">表：${table}</h3>
         <div class="flex-1 overflow-auto rounded-lg border border-gray-700">
-          <table class="min-w-full bg-[#2B2F31] text-sm text-gray-300">
+          <table class="min-w-full bg-[#2B2F31] text-sm text-gray-300" style="table-layout: fixed;">
             <thead class="sticky top-0 bg-[#2B2F31]">
               <tr>${headHTML}</tr>
             </thead>
@@ -654,23 +671,13 @@ async showFolderTables() {
     (sidebarBox.querySelector('button') as HTMLButtonElement).click();
   }
 
-
-  const tip=document.createElement('div');
-  tip.className='fixed hidden backdrop-blur-md bg-black/60 text-white text-xs rounded px-2 py-1 pointer-events-none transition-opacity';
-  document.body.appendChild(tip);
-  document.getElementById('main-workspace')!.addEventListener('mouseover',e=>{
-    const cel=(e.target as HTMLElement).closest('td');
-    if(!cel) return;
-    const full=cel.textContent??'';
-    if(full.length<20) return;   
-    tip.textContent=full;
-    tip.classList.remove('hidden');
-    const rect=cel.getBoundingClientRect();
-    tip.style.left=rect.left+'px';
-    tip.style.top =(rect.top -28)+'px';
-  });
-  document.getElementById('main-workspace')!.addEventListener('mouseout',e=>{
-    if(!(e.relatedTarget as HTMLElement)?.closest('td')) tip.classList.add('hidden');
+  document.getElementById('main-workspace')!.addEventListener('mouseover', e => {
+    const cel = (e.target as HTMLElement).closest('td');
+    if (!cel) return;
+    const full = cel.getAttribute('title') || '';
+    if (!full || full.length <= 15) return;
+    const rect = cel.getBoundingClientRect();
+    blocks.showTooltipWithCopy(full, rect.left, rect.top - 10);
   });
 }
 

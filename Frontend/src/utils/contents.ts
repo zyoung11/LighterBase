@@ -17,7 +17,7 @@ const sidebarContent = {
             `,
   settings: `
                 <div class="space-y-3">
-                    <button id="ai-settings" class="w-full px-4 py-3 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-left transition-colors">
+                    <button id="ai-settings" class="w-full px-4 py-3 bg-[#1B1E1F] hover:bg-[#3a3f41] rounded-lg text-left transition-colors">
                         AI
                     </button>
                     <button id="account-settings" class="w-full px-4 py-3 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg text-left transition-colors">
@@ -39,7 +39,6 @@ const sidebarContent = {
   //                         `,
   folder: `
     <div class="flex flex-col h-full">
-      <div class="text-xs uppercase tracking-wide text-gray-500 mb-3">表列表</div>
       <div id="folder-table-list" class="flex-1 overflow-y-auto space-y-1 pr-1">
         <!-- 动态表名按钮会插到这里 -->
       </div>
@@ -47,7 +46,7 @@ const sidebarContent = {
   `,
   database: `
                 <div class="space-y-3">
-                    <button id="create-db" class="w-full mb-3 px-4 py-3 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-left transition-colors">
+                    <button id="create-db" class="w-full mb-3 px-4 py-3 bg-[#1B1E1F] hover:bg-[#3a3f41] rounded-lg text-left transition-colors">
                         Create DB
                     </button>
                     <button id="permissions" class="w-full px-4 py-3 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg text-left transition-colors">
@@ -124,7 +123,7 @@ const workspaceContent = {
         <div class="bg-[#1B1E1F] p-6 h-full flex flex-col">
             <h3 class="text-lg font-semibold mb-4">数据库表权限管理</h3>
 
-            <div class="h-2/3 overflow-y-auto mb-4 border rounded-lg border-gray-700" >
+            <div class="h-2/3 bg-[#15151D] overflow-y-auto mb-4 border rounded-lg border-gray-700" >
                 <table id="permissions-table" class="min-w-full bg-[#2B2F31] rounded-lg">
                     <thead>
                         <tr class="border-b border-gray-600">
@@ -155,7 +154,7 @@ const workspaceContent = {
   <!-- 顶部搜索 -->
   <div class="p-4 border-b border-gray-700">
     <input id="logs-search" type="text" placeholder="搜索 id 或日志内容…"
-           class="w-full px-4 py-2 bg-[#2B2F31] rounded focus:outline-none focus:border-[#4a4f52] border border-transparent">
+           class="w-full px-4 py-2 bg-[#2B2F31] rounded-full focus:outline-none focus:border-[#4a4f52] border border-transparent">
   </div>
 
   <!-- 表格区域 -->

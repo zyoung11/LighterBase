@@ -76,18 +76,14 @@ async userRegister(): Promise<boolean> {
 
 async isLogin(){
     try{
-        const res = await fetch(`${URL}/api/auto/check/users/empty`,{
+        const res = await fetch(`${URL}/api/auth/init`,{
             method:"GET",
             headers:{
                 "Content-Type":"application/json"
             }
         });
-        if(res.ok){
-            const data = await res.json();
-            return data.empty;
-        }else{
-            return false;
-        }
+        const data = await res.json()
+        return data.init
     }catch(e){
         console.log(e);
         return false;
