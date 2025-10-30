@@ -417,7 +417,7 @@ function setupAccountSettings() {
         const confirmPassword = (document.getElementById('confirm-password') as HTMLInputElement).value;
 
         if (!currentPassword || !newPassword || !confirmPassword) {
-            await blocks.popupConfirm('请填入所以内容');
+            await blocks.popupConfirm('请填入所有内容');
             return;
         }
 
@@ -426,19 +426,9 @@ function setupAccountSettings() {
            return;
         }
 
-        let userId: string | null = null;
-        try {
-            const decoded = jwtDecode(authToken);
-            userId = (decoded as any).id; 
-        } catch (e) {
-            await blocks.popupConfirm('token无效')
-            return;
-        }
-
-
         const payload = {
             set: { password_hash: newPassword },
-            WHERE: `id = ${userId}`
+            WHERE: `id = 1`
         };
 
         try {

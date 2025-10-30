@@ -280,8 +280,8 @@ const workspaceContent = {
                         <input id="confirm-password" type="password" placeholder="确认新密码" class="w-full px-3 py-2 bg-[#2A2D30] text-gray-200 rounded border border-gray-600 focus:outline-none focus:border-blue-500">
                     </div>
                     <div class="flex justify-between">
-                        <button id="change-password-btn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">修改密码</button>
-                        <button id="logout-btn" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">退出登录</button>
+                        <button id="change-password-btn" class="px-4 py-2  text-white border border-gray-400 rounded hover:bg-gray-700/50">修改密码</button>
+                        <button id="logout-btn" class="px-4 py-2  text-white border border-gray-400 rounded hover:bg-gray-700/50">退出登录</button>
                     </div>
                 </div>
                 </div>

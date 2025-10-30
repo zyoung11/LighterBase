@@ -13,7 +13,7 @@ popupConfirm(text: string): Promise<boolean> {
     panel.innerHTML = `
       <p class="mb-5 text-center">${text}</p>
       <div class="flex justify-center gap-3">
-        <button id="cancelBtn" class="px-4 py-2 rounded-md border border-gray-400 hover:bg-gray-600/50 transition">取消</button>
+        <button id="cancelBtn" class="px-4 py-2 rounded-md border border-gray-400 hover:bg-gray-600 transition">取消</button>
         <button id="okBtn" class="text-black px-4 py-2 rounded-md bg-white transition">确认</button>
       </div>
     `;
@@ -37,32 +37,25 @@ popupConfirm(text: string): Promise<boolean> {
 
 bottomPopupConfirm(text: string): Promise<boolean> {
   return new Promise((resolve) => {
-    // // 创建背景遮罩
+    // 创建背景遮罩
     // const backdrop = document.createElement('div');
-    // backdrop.className = 'fixed inset-0 z-[9999] bg-black/50';
+    // backdrop.className = 'fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm';
 
     // 创建底部弹窗
     const modal = document.createElement('div');
-    modal.className = 'fixed bottom-4 left-0 right-0  bg-[#181A1B] p-6 shadow-lg transform translate-y-full transition-transform duration-300 w-[30%] h-[8%] mx-auto rounded-xl';
+    modal.className = 'max-w-[35%] flex fixed bottom-4 left-4 mx-auto justify-center right-4 bg-[#1a1a1a] p-6 shadow-2xl rounded-xl border border-gray-700';
 
     modal.innerHTML = `
-      <div class="flex justify-between items-center">
-        <span id="modal-message" class="text-gray-200">${text}</span>
-        <div class="space-x-4">
-          <button id="modal-cancel" class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] text-gray-200 rounded transition-colors">
-            取消
-          </button>
-          <button id="modal-confirm" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors">
-            确认
-          </button>
-        </div>
+      <p class="mb-5 text-gray-200">${text}</p>
+      <div class="flex gap-3">
+        <button id="modal-cancel" class="px-4 py-2 rounded-md border border border-gray-400 hover:bg-gray-600 transition">取消</button>
+        <button id="modal-confirm" class="text-white px-4 py-2 rounded-md border border-gray-400 hover:bg-gray-600 transition">确认</button>
       </div>
     `;
 
     // 添加到DOM
     // document.body.appendChild(backdrop);
     document.body.appendChild(modal);
-    // document.body.appendChild(modal);
 
     // 触发显示动画
     setTimeout(() => {
@@ -95,7 +88,7 @@ showTooltipWithCopy(content: string, left: number, top: number) {
   tooltip.className = 'fixed z-50 bg-[#2B2F31] text-gray-200 p-4 rounded-lg shadow-lg flex flex-col';
   tooltip.style.left = left + 'px';
   tooltip.style.top = top + 'px';
-  tooltip.style.width = '300px'; // 固定宽度
+  tooltip.style.width = '250px'; // 固定宽度
   tooltip.style.whiteSpace = 'normal'; // 自动换行
   tooltip.style.overflowWrap = 'break-word'; // 长单词换行
   tooltip.innerHTML = `

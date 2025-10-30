@@ -231,19 +231,18 @@ async showTableMdContent() {
 
   const tables = await sql.getTableAll();
   const patterns = ['create', 'delete', 'update', 'search'];
-  const apiMarkedMap: { [key: string]: string } = apiMarked; 
+  const apiMarkedMap: { [key: string]: string } = apiMarked;
 
-   patterns.forEach(pattern => {
-
-     const block = document.createElement('div');
-     block.className = 'w-full h-auto mb-4';
-     block.setAttribute('data-pattern', pattern);
+  patterns.forEach(pattern => {
+    const block = document.createElement('div');
+    block.className = 'w-full h-auto mb-4';
+    block.setAttribute('data-pattern', pattern);
 
     const btnBar = document.createElement('div');
     btnBar.className = 'flex gap-2';
     tables.forEach(t => {
       const btn = document.createElement('button');
-      btn.className = 'px-3 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-t transition-colors'; 
+      btn.className = 'px-3 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-t transition-colors';
       btn.textContent = t;
       btn.dataset.table = t;
       btn.dataset.pattern = pattern;
@@ -251,9 +250,11 @@ async showTableMdContent() {
     });
 
     const contentBox = document.createElement('div');
-    contentBox.className = ' w-full h-[90%] bg-[#3a3f41] rounded-b text-gray-300 p-4 whitespace-normal overflow-y-auto'; 
-    contentBox.innerHTML = ``; 
+    contentBox.className = 'w-full h-[90%] bg-[#3a3f41] rounded-b text-gray-300 p-4 whitespace-normal overflow-y-auto';
+    contentBox.innerHTML = '';
 
+    const responseDiv = document.createElement('div');
+    responseDiv.className = 'w-full bg-[#3a3f41] text-gray-300 p-4';
     btnBar.addEventListener('click', async(e) => {
       const target = e.target as HTMLElement;
       if (target.dataset.table && target.dataset.pattern) {
@@ -262,71 +263,76 @@ async showTableMdContent() {
           b.classList.add('bg-[#2B2F31]');
         });
         target.classList.remove('bg-[#2B2F31]');
-        target.classList.add('bg-[#3a3f41]');      
+        target.classList.add('bg-[#3a3f41]');
 
         const selectedPattern = target.dataset.pattern as keyof typeof apiMarked;
-        
+
         const markdownContent = apiMarkedMap[selectedPattern] || '';
-        
+
         const table = target.dataset.table;
         const finalMarkdown = markdownContent.replace(/table_name/g, table || '');
 
-        const htmlContent = await marked.parse(finalMarkdown);   
+        const htmlContent = await marked.parse(finalMarkdown);
         contentBox.innerHTML = htmlContent;
       }
+  this.setupResponseToggle();
     });
-    
+
     block.appendChild(btnBar);
     block.appendChild(contentBox);
+    block.appendChild(responseDiv);
     tableMd.appendChild(block);
 
+    if (tables.length > 0) {
+      const firstBtn = btnBar.querySelector('button') as HTMLButtonElement;
+      if (firstBtn) {
+        const renderFirstTable = async () => {
+          const selectedPattern = firstBtn.dataset.pattern as keyof typeof apiMarked;
+          const markdownContent = apiMarkedMap[selectedPattern] || '';
+          const table = firstBtn.dataset.table || '';
+          const finalMarkdown = markdownContent.replace(/table_name/g, table);
+          const htmlContent = await marked.parse(finalMarkdown);
+          contentBox.innerHTML = htmlContent;
 
-    
-if (tables.length > 0) {
-  const firstBtn = btnBar.querySelector('button') as HTMLButtonElement;
-  if (firstBtn) {
+          firstBtn.classList.remove('bg-[#2B2F31]');
+          firstBtn.classList.add('bg-[#3a3f41]');
+  this.setupResponseToggle();
+        };
+        renderFirstTable();
 
-    const renderFirstTable = async () => {
-      const selectedPattern = firstBtn.dataset.pattern as keyof typeof apiMarked;
-      const markdownContent = apiMarkedMap[selectedPattern] || '';
-      const table = firstBtn.dataset.table || '';
-      const finalMarkdown = markdownContent.replace(/table_name/g, table);
-      const htmlContent = await marked.parse(finalMarkdown);
-      contentBox.innerHTML = htmlContent;
-      this.setupResponseToggle()
-
-      firstBtn.classList.remove('bg-[#2B2F31]');
-      firstBtn.classList.add('bg-[#3a3f41]');
-    };
-    renderFirstTable();
-  }
-}
+      }
+    }
   });
+  this.setupResponseToggle();
 },
 
-setupResponseToggle() {
-  const btnBars = document.querySelectorAll('.response-btn-bar');
-  if (!btnBars.length) return;
+// 响应部分的按钮点击切换功能，与table的切换逻辑独立，不会互相影响
+ setupResponseToggle() {
+   const btnBars = document.querySelectorAll('.response-btn-bar');
+   if (!btnBars.length) return;
 
-  btnBars.forEach(btnBar => {
-    btnBar.addEventListener('click', (e) => {
-      const target = e.target as HTMLButtonElement;
-      if (!target.classList.contains('response-btn')) return;
+   btnBars.forEach(btnBar => {
+     const bar = btnBar as HTMLElement;
+     if (bar.dataset.bound === 'true') return; // 防止重复绑定
+      bar.dataset.bound = 'true';
+      bar.addEventListener('click', (e) => {
+       const target = e.target as HTMLButtonElement;
+       if (!target.classList.contains('response-btn')) return;
 
-      const status = target.dataset.status;
-      if (!status) return;
+       const status = target.dataset.status;
+       if (!status) return;
 
-      // 只操作当前btnBar内的按钮
-      btnBar.querySelectorAll('.response-btn').forEach(btn => {
-        btn.classList.remove('bg-[#DCEEF3]', 'active');
-        btn.classList.add('bg-gray-300', 'hover:bg-gray-400');
-      });
-      
-      target.classList.remove('bg-gray-300', 'hover:bg-gray-400');
-      target.classList.add('bg-[#DCEEF3]', 'active');
+       // 只操作当前btnBar内的按钮
+       bar.querySelectorAll('.response-btn').forEach(btn => {
+         btn.classList.remove('bg-[#DCEEF3]', 'active');
+         btn.classList.add('bg-gray-300', 'hover:bg-gray-400');
+       });
 
-      // 查找与当前btnBar关联的内容区域
-      const contentBox = btnBar.nextElementSibling as HTMLElement;
+       target.classList.remove('bg-gray-300', 'hover:bg-gray-400');
+       target.classList.add('bg-[#DCEEF3]', 'active');
+
+       // 查找与当前btnBar关联的内容区域
+       const contentBox = bar.nextElementSibling as HTMLElement;
       if (contentBox && contentBox.classList.contains('response-content-box')) {
         contentBox.querySelectorAll('.response-content-item').forEach(item => {
           item.classList.add('hidden');
