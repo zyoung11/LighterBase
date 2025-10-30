@@ -3,7 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "s": "bun run **/*.html"
+    "s": "bun run **/*.html **/hub/*.html"
   },
   "private": true,
   "devDependencies": {

@@ -407,6 +407,7 @@ const insertData = await lb.insertTable(payload, "table_name");
     "id": "id"
 }
 \`\`\`
+
   </div>
   <div data-status-content="insert-400" class="response-content-item hidden">
 
@@ -422,6 +423,7 @@ const insertData = await lb.insertTable(payload, "table_name");
   }
 }
 \`\`\`
+
   </div>
   <div data-status-content="insert-403" class="response-content-item hidden">
 
@@ -432,6 +434,7 @@ const insertData = await lb.insertTable(payload, "table_name");
   "data": {}
 }
 \`\`\`
+
   </div>
 </div>
 `,
@@ -493,6 +496,7 @@ const deleteData = await lb.deleteTable(payload, "table_name");
 \`\`\`json
 null
 \`\`\`
+
   </div>
   <div data-status-content="delete-400" class="response-content-item hidden">
 
@@ -503,6 +507,7 @@ null
   "data": {}
 }
 \`\`\`
+
   </div>
   <div data-status-content="delete-403" class="response-content-item hidden">
 
@@ -513,6 +518,7 @@ null
   "data": {}
 }
 \`\`\`
+
   </div>
   <div data-status-content="delete-404" class="response-content-item hidden">
 
@@ -523,6 +529,7 @@ null
   "data": {}
 }
 \`\`\`
+
   </div>
 </div>
 `,
@@ -592,6 +599,7 @@ const updateData = await lb.updateTable(payload, "table_name");
 \`\`\`json
 null
 \`\`\`
+
   </div>
   <div data-status-content="update-400" class="response-content-item hidden">
 
@@ -607,6 +615,7 @@ null
   }
 }
 \`\`\`
+
   </div>
   <div data-status-content="update-403" class="response-content-item hidden">
 
@@ -617,6 +626,7 @@ null
   "data": {}
 }
 \`\`\`
+
   </div>
   <div data-status-content="update-404" class="response-content-item hidden">
   
@@ -627,6 +637,7 @@ null
   "data": {}
 }
 \`\`\`
+
   </div>
 </div>
 `,
@@ -707,6 +718,7 @@ const searchData = await lb.searchTable(payload, "table_name", 1, 30);
   ]
 }
 \`\`\`
+
   </div>
   <div data-status-content="search-400" class="response-content-item hidden">
 
@@ -717,6 +729,7 @@ const searchData = await lb.searchTable(payload, "table_name", 1, 30);
   "data": {}
 }
 \`\`\`
+
   </div>
   <div data-status-content="search-403" class="response-content-item hidden">
 
@@ -727,6 +740,7 @@ const searchData = await lb.searchTable(payload, "table_name", 1, 30);
   "data": {}
 }
 \`\`\`
+
   </div>
   <div data-status-content="search-404" class="response-content-item hidden">
 
@@ -737,6 +751,7 @@ const searchData = await lb.searchTable(payload, "table_name", 1, 30);
   "data": {}
 }
 \`\`\`
+
   </div>
 </div>
 `,

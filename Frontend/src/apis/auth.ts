@@ -73,6 +73,17 @@ async userRegister(): Promise<boolean> {
         blocks.popupConfirm("登录失败，请检查网络连接"); // 登录失败时弹出窗口
      }
    },
+
+async isLogin(){
+    try{
+        const res = await fetch(`URL/api/auth`,{
+            method:"GET",
+            headers:{
+                "Content-Type":"applicationg"
+            }
+        })
+    }
+}
 async reflashToken(url:string,currentToken:string) : Promise<any> {
     try{
         console.log("开始刷新token")

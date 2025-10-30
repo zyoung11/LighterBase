@@ -425,7 +425,7 @@ function setupAccountSettings() {
     });
 
     logoutBtn?.addEventListener('click', async () => {
-        const confirmed = await blocks.popupConfirm('Are you sure you want to logout?');
+        const confirmed = await blocks.popupConfirm('确定要登出吗？');
         if (confirmed) {
             // Clear token
             document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';

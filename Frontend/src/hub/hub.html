@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="../icons/LOGOW.png" />
+  <title>LighterBase Hub</title>
+  <script src="../tailwind.js"></script>
+</head>
+
+<body class="bg-[#121414] text-gray-200 h-screen overflow-hidden flex flex-col">
+  <!-- 顶部导航栏 -->
+  <nav class="flex justify-between items-center px-6 py-4 bg-[#181A1B]">
+    <!-- 左侧：Logo、名称、Pricing、Docs -->
+    <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-3">
+        <img src="../icons/LOGOW.png" alt="Logo" class="w-8 h-8">
+        <span class="text-xl font-bold">LighterBase</span>
+      </div>
+      <a href="pricing"
+        class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg transition-colors inline-block">Pricing</a>
+      <a href="docs"
+        class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg transition-colors inline-block">Docs</a>
+    </div>
+    <!-- 右侧：Login in -->
+    <div>
+      <a href="login"
+        class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] text-[#46A3FF] rounded-lg transition-colors inline-block">Login
+        in</a>
+    </div>
+  </nav>
+
+  <!-- 中间内容 -->
+  <div class="flex-1 flex items-center justify-center">
+    <div class="text-center space-y-6">
+      <!-- 三组不同大小的字 -->
+      <div class="space-y-2">
+        <h1 class="text-5xl font-bold text-[#46A3FF]">Build in a Lighter Way</h1>
+        <h2 class="text-3xl font-semibold">Just in minutes</h2>
+        <p class="text-lg">Lighterbase is the Postgres development platform.</p>
+        <p class="text-lg">Backend editing in a new way than the past altogether.</p>
+      </div>
+      <!-- Get Start 按钮 -->
+      <a href="/"
+        class="px-8 py-3 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-lg text-[#46A3FF] font-semibold transition-colors inline-block">Get
+        Start</a>
+      <!-- 一行小字 -->
+      <p class="text-sm text-gray-400">Trusted by ourselves</p>
+    </div>
+  </div>
+
+  <!-- 左下角 GitHub 图标 -->
+  <div class="absolute bottom-4 left-4">
+    <img src="../icons/github白.svg" alt="GitHub" class="w-8 h-8">
+  </div>
+
+  <script src="../utils/hubConponents.ts"></script>
+</body>
+
+</html>
