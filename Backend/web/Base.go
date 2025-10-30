@@ -507,3 +507,12 @@ func deleteUser(c *fiber.Ctx) error {
 
 	return c.SendStatus(fiber.StatusNoContent)
 }
+
+func checkInit(c *fiber.Ctx) error {
+	count, err := queries.CountUsers(c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to check init status"})
+	}
+
+	return c.JSON(fiber.Map{"init": count > 0})
+}

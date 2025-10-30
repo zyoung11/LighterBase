@@ -43,6 +43,7 @@ var routes = []Route{
 	// --- JWT 认证 API ---
 	{Method: "POST", Path: "/api/auth/login", Handler: login},
 	{Method: "POST", Path: "/api/auth/refresh", Handler: refreshToken},
+	{Method: "GET", Path: "/api/auth/init", Handler: checkInit},
 
 	// --- BaaS SQL API ---
 	{Method: "POST", Path: "/api/create-table/create/", Handler: execSQL},
@@ -1698,5 +1699,23 @@ func searchLogs(c *fiber.Ctx) error {
 		"totalItems": total,
 		"query":      body.Query,
 		"logs":       formattedLogs,
+	})
+}
+
+// checkInit 检查 users 表中是否有数据，用于前端判断是否需要初始化
+func checkInit(c *fiber.Ctx) error {
+	var count int
+	err := dataDB.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
+	if err != nil {
+		// 如果错误是 "no such table: users"，这表示表还未创建，是正常的初始化流程
+		// 在这种情况下，我们应该返回 false
+		if strings.Contains(err.Error(), "no such table") {
+			return c.JSON(fiber.Map{"init": false})
+		}
+		return sendError(c, 500, "Failed to check init status.", fiber.Map{"database_error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{
+		"init": count > 0,
 	})
 }

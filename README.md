@@ -356,6 +356,25 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
+### 7. 检查是否已经注册
+
+- http方法：GET
+
+- URL：http://localhost:8080/api/users/check/init
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  {
+      "init": true
+  }
+  ```
+
+  http状态码：500
 
 
 ## 二、项目API
@@ -1446,3 +1465,23 @@ cd LighterBase/Backend/web/LighterBaseHub
       ]
   }
   ```
+
+### 4. 检查是否已经注册
+
+- http方法：GET
+
+- URL：http://localhost:8080/api/auth/init
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  {
+      "init": true
+  }
+  ```
+
+  http状态码：500
