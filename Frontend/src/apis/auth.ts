@@ -76,14 +76,24 @@ async userRegister(): Promise<boolean> {
 
 async isLogin(){
     try{
-        const res = await fetch(`URL/api/auth`,{
+        const res = await fetch(`${URL}/api/auto/check/users/empty`,{
             method:"GET",
             headers:{
-                "Content-Type":"applicationg"
+                "Content-Type":"application/json"
             }
-        })
+        });
+        if(res.ok){
+            const data = await res.json();
+            return data.empty;
+        }else{
+            return false;
+        }
+    }catch(e){
+        console.log(e);
+        return false;
     }
-}
+},
+
 async reflashToken(url:string,currentToken:string) : Promise<any> {
     try{
         console.log("开始刷新token")

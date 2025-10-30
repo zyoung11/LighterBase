@@ -607,7 +607,7 @@ async showFolderTables() {
     const table = tgt.dataset.table;
     if (!table) return;
 
-    const payload = { SELECT: ['*'], WHERE: '' };
+    const payload = { "SELECT": ['*'],"WHERE":'' };
     try {
       const lb = new lighterBase('http://localhost:8080');
       const res = await lb.searchTable(payload, table, 1, 30);
