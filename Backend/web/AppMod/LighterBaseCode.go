@@ -539,7 +539,7 @@ func autoFillTimeFields(body map[string]any) {
 // 是否为系统保留列（内置用户已有的列）
 func isSystemColumn(col string) bool {
 	switch col {
-	case "id", "name", "password_hash", "email", "avatar", "create_at", "update_at":
+	case "id", "email", "create_at", "update_at":
 		return true
 	}
 	return false
@@ -989,10 +989,10 @@ func updateRecord(c *fiber.Ctx) error {
 	}
 
 	if tableName == "users" {
-		// 禁止改 users表 id=1 的记录
-		if touchingRootUser(body.WHERE, nil) {
-			return sendError(c, 403, "System user (id=1) is read-only.", nil)
-		}
+		// // 禁止改 users表 id=1 的记录
+		// if touchingRootUser(body.WHERE, nil) {
+		// 	return sendError(c, 403, "System user (id=1) is read-only.", nil)
+		// }
 		// 禁止改 users表 系统保留列
 		for col := range body.Set {
 			if isSystemColumn(col) {
