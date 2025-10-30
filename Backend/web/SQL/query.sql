@@ -77,3 +77,6 @@ UPDATE projects SET project_size = ?, update_at = datetime('now') WHERE project_
 
 -- name: UpdateProjectPID :exec
 UPDATE projects SET pid = ? WHERE project_id = ?;
+
+-- name: CountUsers :one
+SELECT count(*) FROM users;

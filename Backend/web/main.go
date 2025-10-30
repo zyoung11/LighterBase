@@ -31,12 +31,11 @@ var routes = []Route{
 	// 用户相关
 	{Method: "POST", Path: "/api/users/register", Handler: register, AuthRequired: false},
 	{Method: "POST", Path: "/api/users/login", Handler: login, AuthRequired: false},
-
-	// 用户相关
 	{Method: "GET", Path: "/api/users", Handler: listUsers, AuthRequired: true},
 	{Method: "GET", Path: "/api/users/:id", Handler: getUser, AuthRequired: true},
 	{Method: "PUT", Path: "/api/users/:id", Handler: updateUser, AuthRequired: true},
 	{Method: "DELETE", Path: "/api/users/:id", Handler: deleteUser, AuthRequired: true},
+	{Method: "GET", Path: "/api/users/check/init", Handler: checkInit, AuthRequired: false},
 
 	// 项目相关
 	{Method: "POST", Path: "/api/projects", Handler: createProject, AuthRequired: true},
@@ -547,4 +546,13 @@ func baasProxyHandler(c *fiber.Ctx) error {
 	}
 
 	return nil
+}
+
+func checkInit(c *fiber.Ctx) error {
+	count, err := queries.CountUsers(c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to check init status"})
+	}
+
+	return c.JSON(fiber.Map{"init": count > 0})
 }
