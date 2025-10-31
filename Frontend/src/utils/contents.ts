@@ -92,7 +92,7 @@ const workspaceContent = {
             class="absolute top-2 right-2 px-3 py-1 bg-[#3a3f41] hover:bg-[#4a4f52] rounded text-xs text-gray-300 transition-colors"
             title="查看完整SQL"
         >
-            <img src="${magnify}" class="w-6 h-6 object-contain" alt="查看完整SQL">
+            <img src="${magnify}" class="w-6 h-6 object-contain" alt="放大修改">
         </button>
     </div>
     <div class="flex flex-col">
@@ -107,15 +107,15 @@ const workspaceContent = {
 
 <!-- 弹出窗口模态框 -->
 <div id="full-sql-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-[#2B2F31] rounded-lg p-6 w-[80%] max-w-4xl max-h-[80%] overflow-hidden">
+    <div class="bg-[#2B2F31] rounded-lg p-6 w-[90%] max-w-6xl h-[85%] overflow-hidden">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold text-gray-200">完整SQL语句</h3>
             <button id="close-full-sql-modal" class="text-gray-400 hover:text-gray-200 text-2xl">
                 ×
             </button>
         </div>
-        <div class="overflow-auto max-h-[60vh]">
-            <pre id="full-sql-content" class="bg-[#1B1E1F] p-4 rounded text-gray-300 text-sm whitespace-pre-wrap overflow-x-auto"></pre>
+        <div class="overflow-auto h-[85%]">
+            <textarea id="full-sql-content" class="w-full h-full bg-[#1B1E1F] p-4 rounded text-gray-300 text-sm whitespace-pre-wrap overflow-x-auto resize-none focus:outline-none focus:border-[#4a4f52] border border-[#2B2F31]"></textarea>
         </div>
         <div class="mt-4 flex justify-end">
             <button id="copy-full-sql" class="px-4 py-2 bg-[#4a4f52] hover:bg-[#5a5f62] rounded text-sm text-gray-200 transition-colors mr-2">

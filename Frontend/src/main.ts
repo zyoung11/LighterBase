@@ -334,15 +334,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target.closest( '#view-full-sql-btn')) {
         const textarea = document.getElementById('sql-input') as HTMLTextAreaElement;
         const fullSQL = textarea.value;
-        
+
         if (fullSQL.trim()) {
             // 显示模态框
             const modal = document.getElementById('full-sql-modal') as HTMLElement;
-            const content = document.getElementById('full-sql-content') as HTMLElement;
-            
-            content.textContent = fullSQL;
+            const content = document.getElementById('full-sql-content') as HTMLTextAreaElement;
+
+            content.value = fullSQL;
             modal.classList.remove('hidden');
             modal.classList.add('flex');
+
+            // 自动同步输入
+            content.addEventListener('input', () => {
+                textarea.value = content.value;
+            });
         } else {
             alert('SQL语句为空！');
         }
