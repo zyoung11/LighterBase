@@ -5,6 +5,9 @@ import magnify from "../icons/扩大白.svg";
 import level from "../icons/level白.svg";
 import logcontent from "../icons/page白.svg";
 import date from "../icons/date白.svg";
+import create from "../icons/create白.svg"
+import permission from "../icons/权限白.svg"
+import account from "../icons/用户白.svg"
 const sidebarContent = {
   logo: `
                 <div class="space-y-3">
@@ -17,11 +20,13 @@ const sidebarContent = {
             `,
   settings: `
                 <div class="space-y-3">
-                    <button id="ai-settings" class="w-full px-4 py-3 bg-[#1B1E1F] hover:bg-[#3a3f41] rounded-lg text-left transition-colors">
-                        AI
+                    <button id="ai-settings" class="w-full flex px-4 py-3 bg-[#1B1E1F] hover:bg-[#3a3f41] rounded-lg text-left transition-colors">
+                       <img src ="${message_light}" class ="w-[15%] object-contain mr-2" alt="表的创建">
+                       <p>AI</p>
                     </button>
-                    <button id="account-settings" class="w-full px-4 py-3 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg text-left transition-colors">
-                        Account
+                    <button id="account-settings" class="w-full flex px-4 py-3 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg text-left transition-colors">
+                       <img src ="${account}" class ="w-[15%] object-contain mr-2" alt="表的创建">
+                       <p>Account</p>
                     </button>
                 </div>
             `,
@@ -46,11 +51,13 @@ const sidebarContent = {
   `,
   database: `
                 <div class="space-y-3">
-                    <button id="create-db" class="w-full mb-3 px-4 py-3 bg-[#1B1E1F] hover:bg-[#3a3f41] rounded-lg text-left transition-colors">
-                        Create DB
+                    <button id="create-db" class="w-full flex mb-3 px-4 py-3 bg-[#1B1E1F] hover:bg-[#3a3f41] rounded-lg text-left transition-colors">
+                       <img src ="${create}" class ="w-[15%] object-contain mr-2" alt="表的创建">
+                       <p>Create DB</p>
                     </button>
-                    <button id="permissions" class="w-full px-4 py-3 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg text-left transition-colors">
-                        Permissions
+                    <button id="permissions" class="w-full flex px-4 py-3 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg text-left transition-colors">
+                       <img src ="${permission}" class ="w-[15%] object-contain mr-2" alt="权限">
+                       <p>Permission</p>
                     </button>
                 </div>
             `,
@@ -65,8 +72,8 @@ const workspaceContent = {
                             
                         </div>
                         <!-- API文档按钮 -->
-                        <button id="api-docs-btn" class="absolute right-4 top-1/2 transform -translate-y-1/2 px-3 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded transition-colors z-10">
-                            <img src ="${apiIcon}" class ="w-8 h-6 object-contain" alt="API文档">
+                        <button id="api-docs-btn" class="absolute w-12 h-12 right-10 top-1/2 transform -translate-y-1/2 px-3 py-2 rounded transition-colors z-10">
+                            <img src ="${apiIcon}" class ="object-contain" alt="API文档">
                         </button>
                     </div>
 
@@ -89,11 +96,11 @@ const workspaceContent = {
         </button>
     </div>
     <div class="flex flex-col">
-        <button id="ai-generated" class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-sm transition-colors mb-4">
-            <img src="${message_light}" class="w-8 h-8 object-contain" alt="AI-generated">
+        <button id="ai-generated" class="w-12 h-12 px-2 py-2 hover:bg-[#3a3f41] rounded-full text-sm transition-colors mb-4">
+            <img src="${message_light}" class=" object-contain" alt="AI-generated">
         </button>
-        <button id="sql-send" class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a4f41] rounded-lg text-sm transition-colors">
-            <img src="${confirm}" class="w-8 h-8 object-contain" alt="确认">
+        <button id="sql-send" class="w-12 h-12 px-1 py-1 rounded-full text-sm transition-colors">
+            <img src="${confirm}" class=" object-contain" alt="确认">
         </button>
     </div>
 </div>

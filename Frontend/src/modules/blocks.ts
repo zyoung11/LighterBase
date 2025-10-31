@@ -43,13 +43,13 @@ bottomPopupConfirm(text: string): Promise<boolean> {
 
     // 创建底部弹窗
     const modal = document.createElement('div');
-    modal.className = 'max-w-[35%] flex fixed bottom-4 left-4 mx-auto justify-center right-4 bg-[#1a1a1a] p-6 shadow-2xl rounded-xl border border-gray-700';
+    modal.className = 'max-w-[30%] flex fixed bottom-4 left-4 mx-auto justify-center items-center right-4 bg-[#1a1a1a] p-3 shadow-2xl rounded-full border border-gray-700';
 
     modal.innerHTML = `
-      <p class="mb-5 text-gray-200">${text}</p>
+      <p id="modal-message" class=" text-gray-200">${text}</p>
       <div class="flex gap-3">
-        <button id="modal-cancel" class="px-4 py-2 rounded-md border border border-gray-400 hover:bg-gray-600 transition">取消</button>
-        <button id="modal-confirm" class="text-white px-4 py-2 rounded-md border border-gray-400 hover:bg-gray-600 transition">确认</button>
+        <button id="modal-cancel" class="px-2 py-2 rounded-md border border border-gray-400 hover:bg-gray-600 transition">取消</button>
+        <button id="modal-confirm" class="text-white px-2 py-2 rounded-md border border-gray-400 hover:bg-gray-600 transition">确认</button>
       </div>
     `;
 

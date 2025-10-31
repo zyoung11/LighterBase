@@ -9,6 +9,7 @@ import 'highlight.js/styles/vs2015.css';
 // import 'highlight.js/styles/rainbow.css'
 import lighterBase from "../apis/auto";
 import blocks from "../modules/blocks";
+import manageIcon from "../icons/管理_manage白.svg"
 
 let logDeletePopup: {
   element: HTMLElement | null;
@@ -243,7 +244,7 @@ async showTableMdContent() {
     tables.forEach(t => {
       const btn = document.createElement('button');
       btn.className = 'px-3 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-t transition-colors';
-      btn.textContent = t;
+      btn.innerHTML = `<img src="../icons/管理_manage白.svg" alt="管理" style="width:16px; height:16px; margin-right:4px;">${t}`;
       btn.dataset.table = t;
       btn.dataset.pattern = pattern;
       btnBar.appendChild(btn);
@@ -528,7 +529,7 @@ const updateBottom = () => {
             const csvRows = selectedLogs.map((l: any) => {
               const statusCode = extractStatusCode(l.log_text || '');
               const logDisplay = getLogLevelDisplay(statusCode ?? 0);
-              return `${l.id},"${logDisplay.level}","${l.log_text.replace(/"/g, '""')}","${l.created_at}"`;
+              return `${l.id},${logDisplay.level},${l.log_text.replace(/"/g, '""')},${l.created_at.replace(/\n/g, ' ').replace(/\r/g, '')}`;
             }).join('\n');
             const csvContent = csvHeader + csvRows;
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -604,8 +605,8 @@ async showFolderTables() {
   tables.forEach((t: string) => {
     const btn = document.createElement('button');
     btn.className =
-      'w-full text-left px-3 py-2 rounded hover:bg-[#2B2F31] transition-colors text-base font-medium truncate';
-    btn.textContent = t;
+      'w-full text-left flex px-2 py-2 rounded hover:bg-[#2B2F31] transition-colors items-center text-base font-medium truncate';
+    btn.innerHTML = `<img src="${manageIcon}" alt="管理" class="w-[10%] mr-3">${t}`;
     btn.dataset.table = t;
     sidebarBox.appendChild(btn);
   });
