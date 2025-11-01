@@ -1,21 +1,38 @@
 // hubConponents.ts
 
-document.addEventListener('DOMContentLoaded', () => {
-  const loginForm = document.querySelector('form') as HTMLFormElement;
-  if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const username = (document.querySelector('input[type="text"]') as HTMLInputElement).value;
-      const password = (document.querySelector('input[type="password"]') as HTMLInputElement).value;
+import blocks from "../modules/blocks";
+import auth from "../apis/auth";
 
-      // 简单检查：用户名和密码不为空
-      if (username.trim() && password.trim()) {
-        // 登录成功，跳转到hub页面
-        window.location.href = 'hub';
-      } else {
-        // 可选：显示错误，但用户说不要弹窗，所以或许什么都不做或轻微提示
-        // 这里不做任何事
-      }
-    });
+const formLogin = document.getElementById("form-login") as HTMLFormElement;
+const loginUsernameInput = document.getElementById("login-username") as HTMLInputElement;
+const loginPasswordInput = document.getElementById("login-password") as HTMLInputElement;
+const emailInput = document.getElementById("email") as HTMLInputElement;
+const emailField = document.getElementById("email-field") as HTMLDivElement;
+
+let isEmpty = false;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  isEmpty = await auth.isLogin();
+  if (!isEmpty) {
+    emailField.style.display = 'block';
+    emailInput.required = true;
+  } else {
+    emailField.style.display = 'none';
+    emailInput.required = false;
+  }
+});
+
+formLogin.addEventListener("submit", async(e) => {
+  e.preventDefault();
+  if (!isEmpty) {
+    // 设置注册输入
+    (document.getElementById("username") as HTMLInputElement).value = loginUsernameInput.value;
+    (document.getElementById("password") as HTMLInputElement).value = loginPasswordInput.value;
+    const success = await auth.userRegister();
+    if (success) {
+      await auth.userLogin();
+    }
+  } else {
+    await auth.userLogin();
   }
 });
