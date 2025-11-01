@@ -6,16 +6,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="../icons/LOGOW.png" />
   <title>LighterBase Hub</title>
+  <style>
+    .fouc-fix {
+      visibility: hidden;
+    }
+  </style>
   <script src="../tailwind.js"></script>
 </head>
 
-<body class="bg-[#121414] text-gray-200 h-screen overflow-hidden flex flex-col">
+<body class="fouc-fix bg-[#121414] text-gray-200 h-screen overflow-hidden flex flex-col"
+  style="background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 20px 20px;">
   <!-- 顶部导航栏 -->
-  <nav class="flex justify-between items-center px-6 py-4 bg-[#181A1B]">
+  <nav class="flex justify-between items-center px-6 py-2 rounded-lg bg-[#181A1B]">
     <!-- 左侧：Logo、名称、Pricing、Docs -->
     <div class="flex items-center space-x-4">
-      <div class="flex items-center space-x-3">
-        <img src="../icons/LOGOW.png" alt="Logo" class="w-8 h-8">
+      <div class="flex items-center space-x-2">
+        <img src="../icons/LOGOW.png" alt="Logo" class="w-12 h-12">
         <span class="text-xl font-bold">LighterBase</span>
       </div>
       <a href="pricing"
@@ -32,18 +38,25 @@
   </nav>
 
   <!-- 中间内容 -->
-  <div class="flex-1 flex items-center justify-center">
-    <div class="text-center space-y-6">
+  <div class="flex-1 flex items-center justify-center relative">
+    <div class="text-center space-y-6 relative">
       <!-- 三组不同大小的字 -->
-      <div class="space-y-2">
-        <h1 class="text-5xl font-bold text-[#46A3FF]">Build in a Lighter Way</h1>
-        <h2 class="text-3xl font-semibold">Just in minutes</h2>
-        <p class="text-lg">Lighterbase is the Postgres development platform.</p>
-        <p class="text-lg">Backend editing in a new way than the past altogether.</p>
+      <div class="space-y-2 relative" id="hover-area">
+        <h1 class="text-8xl font-bold text-[#46A3FF]">Build in a Lighter Way</h1>
+        <h2 class="text-6xl font-semibold">Just in minutes</h2>
+        <p class="text-2xl">Lighterbase is the Postgres development platform.</p>
+        <p class="text-2xl">Backend editing in a new way than the past altogether.</p>
+        <!-- 重叠层 -->
+        <div class="absolute -inset-y-2 space-y-2 opacity-0" id="overlay">
+          <h1 class="text-8xl font-bold text-[#FF6B46]">Build in a Lighter Way</h1>
+          <h2 class="text-6xl font-semibold text-gray-200">Just in minutes</h2>
+          <p class="text-2xl text-gray-200">Lighterbase is the Postgres development platform.</p>
+          <p class="text-2xl text-gray-200">Backend editing in a new way than the past altogether.</p>
+        </div>
       </div>
       <!-- Get Start 按钮 -->
       <a href="/"
-        class="px-8 py-3 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-lg text-[#46A3FF] font-semibold transition-colors inline-block">Get
+        class="px-6 py-2 bg-[#46A3FF] hover:bg-[#14AFF7] border border-[#44F6FF] hover:border-[#1FF4FF] rounded-lg text-xl text-white font-semibold transition-colors inline-block">Get
         Start</a>
       <!-- 一行小字 -->
       <p class="text-sm text-gray-400">Trusted by ourselves</p>
@@ -52,10 +65,16 @@
 
   <!-- 左下角 GitHub 图标 -->
   <div class="absolute bottom-4 left-4">
-    <img src="../icons/github白.svg" alt="GitHub" class="w-8 h-8">
+    <a href="https://github.com/zyoung11/LighterBase" class="flex items-center">
+      <img src="../icons/github白.svg" alt="GitHub" class="w-8 h-8 mr-2">
+      <div>LighterBase</div>
+    </a>
+    <!-- <img src="../icons/github白.svg" alt="GitHub" class="w-8 h-8 mr-2"> -->
+    <!-- <p>LighterBase</p> -->
   </div>
 
   <script src="../utils/hubConponents.ts"></script>
+  <script>document.body.classList.remove('fouc-fix');</script>
 </body>
 
 </html>

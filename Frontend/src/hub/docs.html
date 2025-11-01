@@ -6,32 +6,159 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="../icons/LOGOW.png" />
   <title>Docs - LighterBase</title>
+  <style id="fouc-fix">
+    body {
+      background: #1B1E1F;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+    }
+  </style>
   <script src="../tailwind.js"></script>
 </head>
 
-<body class="h-screen w-screen flex overflow-hidden bg-[#121414] text-gray-200">
-
-  <!-- 左侧 70%：文档内容 -->
-  <section class="w-[70%] flex items-center justify-center relative p-8">
-    <div class="max-w-4xl">
-      <h1 class="text-4xl font-bold mb-6">Documentation</h1>
-      <p class="text-lg mb-4">Welcome to the LighterBase documentation. Here you can find guides, tutorials, and API references to help you get started with our platform.</p>
-      <h2 class="text-2xl font-semibold mb-4">Getting Started</h2>
-      <p class="mb-4">Learn how to set up your first database and start building applications.</p>
-      <h2 class="text-2xl font-semibold mb-4">API Reference</h2>
-      <p class="mb-4">Detailed API documentation for developers.</p>
-      <h2 class="text-2xl font-semibold mb-4">Tutorials</h2>
-      <p>Step-by-step guides to common tasks.</p>
+<body class="bg-[#121414] text-gray-200 h-screen overflow-hidden flex flex-col">
+  <!-- 顶部导航栏 -->
+  <nav class="flex justify-between items-center px-6 py-2 bg-[#181A1B]">
+    <!-- 左侧：Logo、名称、Pricing、Docs -->
+    <div class="flex items-center space-x-4">
+      <a href="hub" class="flex items-center space-x-3">
+        <img src="../icons/LOGOW.png" alt="Logo" class="w-8 h-8">
+        <span class="text-xl font-bold">LighterBase</span>
+      </a>
+      <a href="pricing"
+        class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg transition-colors inline-block">Pricing</a>
+      <a href="docs"
+        class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg transition-colors inline-block">Docs</a>
     </div>
-  </section>
-
-  <!-- 右侧 30%：导航或空白 -->
-  <aside class="w-[30%] bg-[#181A1B] flex items-center justify-center p-8 shadow-2xl">
-    <div class="text-center">
-      <p class="text-gray-400">Navigate to other sections</p>
-      <a href="hub.html" class="block mt-4 px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg transition-colors">Back to Hub</a>
+    <!-- 右侧：Login in -->
+    <div>
+      <a href="login"
+        class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] text-[#46A3FF] rounded-lg transition-colors inline-block">Login
+        in</a>
     </div>
-  </aside>
+  </nav>
+
+  <!-- 中间内容 -->
+  <div class="flex-1 flex overflow-hidden">
+    <!-- 左侧侧边栏 -->
+    <aside class="w-1/4 bg-[#181A1B] p-4 overflow-y-auto">
+      <h3 class="text-lg font-semibold mb-4">Chapters</h3>
+      <ul class="space-y-2">
+        <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded" data-section="intro">Introduction</a></li>
+        <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded" data-section="getting-started">Getting Started</a>
+        </li>
+        <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded" data-section="api-reference">API Reference</a></li>
+        <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded" data-section="tutorials">Tutorials</a></li>
+      </ul>
+    </aside>
+
+    <!-- 中间显示区域 -->
+    <main class="flex-1 overflow-y-auto p-8 relative">
+      <div id="content">
+        <section id="intro" class="content-section">
+          <h1 class="text-4xl font-bold mb-6">Documentation</h1>
+          <p class="text-lg mb-4">Welcome to the LighterBase documentation. Here you can find guides, tutorials, and API
+            references to help you get started with our platform.</p>
+        </section>
+        <section id="getting-started" class="content-section hidden">
+          <h2 class="text-2xl font-semibold mb-4">Getting Started</h2>
+          <p class="mb-4">Learn how to set up your first database and start building applications.</p>
+          <p>More details here...</p>
+        </section>
+        <section id="api-reference" class="content-section hidden">
+          <h2 class="text-2xl font-semibold mb-4">API Reference</h2>
+          <p class="mb-4">Detailed API documentation for developers.</p>
+          <p>More details here...</p>
+        </section>
+        <section id="tutorials" class="content-section hidden">
+          <h2 class="text-2xl font-semibold mb-4">Tutorials</h2>
+          <p>Step-by-step guides to common tasks.</p>
+          <p>More details here...</p>
+        </section>
+      </div>
+      <!-- 底部导航按钮 -->
+      <div class="absolute bottom-0 left-0 right-0 flex justify-between items-center px-6 py-4 bg-[#181A1B]">
+        <button id="prev-btn"
+          class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg transition-colors">上一页</button>
+        <button id="next-btn"
+          class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg transition-colors">下一页</button>
+      </div>
+    </main>
+
+    <!-- 右侧跳转栏 -->
+    <aside class="w-1/4 bg-[#181A1B] p-4 overflow-y-auto">
+      <h3 class="text-lg font-semibold mb-4">Jump to</h3>
+      <ul class="space-y-2">
+        <li><a href="#intro" class="block p-2 hover:bg-[#2B2F31] rounded">Introduction</a></li>
+        <li><a href="#getting-started" class="block p-2 hover:bg-[#2B2F31] rounded">Getting Started</a></li>
+        <li><a href="#api-reference" class="block p-2 hover:bg-[#2B2F31] rounded">API Reference</a></li>
+        <li><a href="#tutorials" class="block p-2 hover:bg-[#2B2F31] rounded">Tutorials</a></li>
+      </ul>
+    </aside>
+  </div>
+
+
+
+  <script>
+    const sections = ['intro', 'getting-started', 'api-reference', 'tutorials'];
+    let currentSection = 'intro';
+
+    function showSection(sectionId) {
+      document.querySelectorAll('.content-section').forEach(sec => sec.classList.add('hidden'));
+      document.getElementById(sectionId).classList.remove('hidden');
+      currentSection = sectionId;
+    }
+
+    // 侧边栏点击
+    document.querySelectorAll('aside:first-of-type a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const section = e.target.dataset.section;
+        showSection(section);
+      });
+    });
+
+    // 跳转栏点击
+    document.querySelectorAll('aside:last-of-type a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = e.target.getAttribute('href').substring(1);
+        const main = document.querySelector('main');
+        const element = document.getElementById(target);
+        if (element) {
+          main.scrollTop = element.offsetTop - main.offsetTop;
+        }
+      });
+    });
+
+    // 上一页
+    document.getElementById('prev-btn').addEventListener('click', () => {
+      const index = sections.indexOf(currentSection);
+      if (index > 0) {
+        showSection(sections[index - 1]);
+      }
+    });
+
+    // 下一页
+    document.getElementById('next-btn').addEventListener('click', () => {
+      const index = sections.indexOf(currentSection);
+      if (index < sections.length - 1) {
+        showSection(sections[index + 1]);
+      }
+    });
+
+    // 初始化显示 intro
+    showSection('intro');
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.body.style.opacity = '1';
+      const styleTag = document.getElementById('fouc-fix');
+      if (styleTag) {
+        styleTag.remove();
+      }
+    });
+  </script>
 
 </body>
 
