@@ -286,8 +286,9 @@ const workspaceContent = {
                         <label class="block text-gray-300 mb-2">确认新密码</label>
                         <input id="confirm-password" type="password" placeholder="确认新密码" class="w-full px-3 py-2 bg-[#2A2D30] text-gray-200 rounded border border-gray-600 focus:outline-none focus:border-blue-500">
                     </div>
-                    <div class="flex justify-between">
-                        <button id="change-password-btn" class="px-4 py-2  text-white border border-gray-400 rounded hover:bg-gray-700/50">修改密码</button>
+                    <div>
+                        <button id="change-password-btn" class="px-4 py-2 mb-2 text-white border border-gray-400 rounded hover:bg-gray-700/50">修改密码</button>
+                        <p class = "border-b border-gray-200 mb-2"></p>
                         <button id="logout-btn" class="px-4 py-2  text-white border border-gray-400 rounded hover:bg-gray-700/50">退出登录</button>
                     </div>
                 </div>
@@ -385,7 +386,7 @@ const insertData = await lb.insertTable(payload, "table_name");
   "Content-Type": "application/json",
   "Authorization": "Bearer <jwt_token>"
 }
-> 当 table_name 为 users 时，无需 Authorization。
+> 当 table 为 users 时，无需 Authorization。
 \`\`\`
 
 <span class ="text-xl">请求体:</span>

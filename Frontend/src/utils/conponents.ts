@@ -244,7 +244,7 @@ async showTableMdContent() {
     tables.forEach(t => {
       const btn = document.createElement('button');
       btn.className = 'px-3 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-t transition-colors';
-      btn.innerHTML = `<img src="../icons/管理_manage白.svg" alt="管理" style="width:16px; height:16px; margin-right:4px;">${t}`;
+      btn.textContent = t
       btn.dataset.table = t;
       btn.dataset.pattern = pattern;
       btnBar.appendChild(btn);
