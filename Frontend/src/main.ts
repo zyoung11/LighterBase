@@ -18,7 +18,7 @@ function checkAuthentication() {
   // 检查是否有token
   if (!authToken) {
     console.log("没有找到JWT token，跳转到登录页面");
-    window.location.href = "/welcome";
+    window.location.href = "welcome";
     return false;
   }
 

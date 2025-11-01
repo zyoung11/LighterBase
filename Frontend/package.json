@@ -3,7 +3,8 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "s": "bun run **/*.html **/hub/*.html"
+    "s": "bun run **/*.html **/hub/*.html",
+    "d": "bun run server.ts"
   },
   "private": true,
   "devDependencies": {
@@ -19,6 +20,7 @@
     "marked": "^16.4.0",
     "marked-highlight": "^2.2.2",
     "openai": "^6.7.0",
+    "open": "^10.0.0",
     "sqlite-parser": "^1.0.1"
   }
 }
