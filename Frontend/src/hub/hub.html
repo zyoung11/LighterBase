@@ -29,11 +29,14 @@
       <a href="docs"
         class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg transition-colors inline-block">Docs</a>
     </div>
-    <!-- 右侧：Login in -->
-    <div>
-      <a href="login"
+    <!-- 右侧：Login in 或 用户名 -->
+    <div class="relative">
+      <a id="user-link" href="login"
         class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] text-[#46A3FF] rounded-lg transition-colors inline-block">Login
         in</a>
+      <div id="logout-menu" class="absolute top-full mt-1 bg-[#2B2F31] rounded-lg shadow-lg hidden z-10">
+        <button id="logout-btn" class="px-4 py-2 text-white hover:bg-[#3a3f41] rounded-lg w-16 text-center">登出</button>
+      </div>
     </div>
   </nav>
 
@@ -74,7 +77,49 @@
   </div>
 
   <script src="../utils/hubConponents.ts"></script>
-  <script>document.body.classList.remove('fouc-fix');</script>
+  <script>
+    document.body.classList.remove('fouc-fix');
+
+    // 检查登录状态
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    const token = getCookie('hubAuthToken');
+    const username = localStorage.getItem('username');
+    const userLink = document.getElementById('user-link');
+    const logoutMenu = document.getElementById('logout-menu');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    if (token && username) {
+      userLink.textContent = username;
+      userLink.href = '#';
+
+      // 点击用户名显示/隐藏登出菜单
+      userLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        logoutMenu.classList.toggle('hidden');
+      });
+
+      // 点击登出清除token
+      logoutBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        document.cookie = 'hubAuthToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        localStorage.removeItem('username');
+        window.location.reload();
+      });
+
+      // 点击其他地方隐藏菜单
+      document.addEventListener('click', function (e) {
+        if (!userLink.contains(e.target) && !logoutMenu.contains(e.target)) {
+          logoutMenu.classList.add('hidden');
+        }
+      });
+    }
+  </script>
 </body>
 
 </html>
