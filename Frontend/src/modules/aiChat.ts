@@ -1,11 +1,11 @@
 import { slideBarContent, workspaceContent, sidebarContent } from "../utils/contents";
 import conponents from "../utils/conponents";
 import OpenAI from "openai";
-import type { ChatCompletionChunk } from "openai/resources";
+// import type { ChatCompletionChunk } from "openai/resources";
 import { marked } from 'marked';
 import hljs from 'highlight.js';
-import type { shrink } from "bun";
-import { Assistants } from "openai/resources/beta.mjs";
+// import type { shrink } from "bun";
+// import { Assistants } from "openai/resources/beta.mjs";
 
 type AIModel = {
     id: string;
@@ -20,6 +20,57 @@ const AI_MODELS: AIModel[] = [
 
 const FIXED_MODEL_ID = 'glm';
 const FIXED_API_KEY = '7ad1a9308d61469d82112c6463294884.YxmHtpe1vKgTnBDy'; // Replace with your actual API key
+
+const CHAT_HISTORY_KEY = 'aiChatHistory';
+
+function loadChatHistory() {
+    const stored = localStorage.getItem(CHAT_HISTORY_KEY);
+    if (stored) {
+        try {
+            chatHistory = JSON.parse(stored);
+        } catch (e) {
+            console.error('Failed to parse chat history:', e);
+            chatHistory = [];
+        }
+    }
+}
+
+function saveChatHistory() {
+    localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(chatHistory));
+}
+
+function clearChatHistory() {
+    chatHistory = [];
+    localStorage.removeItem(CHAT_HISTORY_KEY);
+}
+
+function renderChatHistory(chatMessages: HTMLElement) {
+    chatMessages.innerHTML = '';
+    if (chatHistory.length === 0) {
+        chatMessages.innerHTML = `<div class="text-center text-gray-500 text-sm py-2">您正在与 GLM (Zhipu) 对话</div>`;
+        return;
+    }
+    for (const msg of chatHistory) {
+        if (msg.role === 'user') {
+            const userMsgHtml = `
+                <div class="flex justify-end">
+                    <div class="bg-blue-600 text-white p-3 rounded-lg max-w-xs md:max-w-md break-words">${msg.content}</div>
+                </div>
+            `;
+            chatMessages.innerHTML += userMsgHtml;
+        } else if (msg.role === 'assistant') {
+            const renderedContent = marked.parse(msg.content);
+            const aiMsgHtml = `
+                <div class="flex justify-start">
+                    <div class="bg-[#3a3f41] text-gray-200 p-3 rounded-lg max-w-xs md:max-w-md break-words">${renderedContent}</div>
+                </div>
+            `;
+            chatMessages.innerHTML += aiMsgHtml;
+        }
+    }
+    // Bind copy buttons after rendering
+    setTimeout(() => aichat.bindCopyButtons(), 0);
+}
 
 let chatHistory: Array<{ role: 'user' | 'assistant' | 'system'; content: string }> = [];
 
@@ -44,6 +95,9 @@ function setupChatDisplay() {
 
     if (!currentModelDisplay || !chatMessages || !sendButton || !chatInput || !switchButton) return;
 
+    // Load chat history from localStorage
+    loadChatHistory();
+
     const selectedModel = AI_MODELS.find(m => m.id === FIXED_MODEL_ID);
 
     const goToSettings = () => {
@@ -64,8 +118,23 @@ function setupChatDisplay() {
 
     if (selectedModel && FIXED_API_KEY) {
         currentModelDisplay.textContent = selectedModel.name;
-        chatHistory = [];
-        chatMessages.innerHTML = `<div class="text-center text-gray-500 text-sm py-2">您正在与 ${selectedModel.name} 对话</div>`;
+        // Load and render chat history
+        loadChatHistory();
+        renderChatHistory(chatMessages);
+        // Add new chat button
+        const chatContainer = chatMessages.parentElement;
+        if (chatContainer) {
+            const newChatBtn = document.createElement('button');
+            newChatBtn.id = 'new-chat-btn';
+            newChatBtn.className = 'absolute top-2 right-2 bg-blue-200 text-blue-800 px-3 py-1 rounded hover:bg-blue-300 disabled:opacity-50 disabled:cursor-not-allowed';
+            newChatBtn.textContent = '新对话';
+            newChatBtn.onclick = () => {
+                clearChatHistory();
+                renderChatHistory(chatMessages);
+            };
+            chatContainer.style.position = 'relative';
+            chatContainer.appendChild(newChatBtn);
+        }
         sendButton.disabled = false;
         chatInput.disabled = false;
         chatInput.placeholder = "输入你的问题...";
@@ -166,24 +235,27 @@ bindCopyButtons() {
         const sendIcon = document.getElementById('ai-send-icon');
         const stopIcon = document.getElementById('ai-stop-icon');
         const chatInput = document.getElementById('ai-chat-input') as HTMLTextAreaElement;
+        const newChatBtn = document.getElementById('new-chat-btn') as HTMLButtonElement;
 
         if (!sendButton || !sendIcon || !stopIcon || !chatInput) return;
 
         if (isSending) {
-            sendButton.disabled = false; 
+            sendButton.disabled = false;
             sendButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-            sendButton.classList.add('bg-red-600', 'hover:bg-red-700'); 
+            sendButton.classList.add('bg-red-600', 'hover:bg-red-700');
             sendIcon.classList.add('hidden');
             stopIcon.classList.remove('hidden');
             chatInput.disabled = true;
+            if (newChatBtn) newChatBtn.disabled = true;
         } else {
-            currentStreamController = null; 
+            currentStreamController = null;
             sendButton.disabled = false;
             sendButton.classList.remove('bg-red-600', 'hover:bg-red-700');
-            sendButton.classList.add('bg-blue-600', 'hover:bg-blue-700'); 
+            sendButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
             sendIcon.classList.remove('hidden');
             stopIcon.classList.add('hidden');
             chatInput.disabled = false;
+            if (newChatBtn) newChatBtn.disabled = false;
         }
     },
 
@@ -285,9 +357,11 @@ async handleChatSubmit() {
         } finally {
             this._updateSendButtonState(false);
             chatInput.focus();
-             chatMessages.scrollTop = chatMessages.scrollHeight;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
 
-             this.bindCopyButtons();
+            this.bindCopyButtons();
+            // Save chat history after AI response
+            saveChatHistory();
         }
     },
     

@@ -504,7 +504,7 @@ const updateBottom = () => {
 
   if (checked.length > 0) {
     if (!logDeletePopup.isOpen) {
-      blocks.bottomPopupConfirm(`确定下载选中的 ${checked.length} 条日志为CSV文件吗？`)
+       blocks.bottomPopupConfirm(`确定下载选中的 ${checked.length} 条日志为CSV文件吗？`)
         .then(async (confirmed) => {
           logDeletePopup.isOpen = false;
           if (confirmed) {
@@ -539,6 +539,14 @@ const updateBottom = () => {
             a.download = 'logs.csv';
             a.click();
             globalThis.URL.revokeObjectURL(url);
+          } else {
+            // 如果取消，取消勾选内容，回复勾选框为初始状态
+            this.selectedIds = [];
+            tbody.querySelectorAll('.log-row-checkbox').forEach((checkbox: any) => {
+              checkbox.checked = false;
+            });
+            (document.getElementById('logs-select-all') as HTMLInputElement).checked = false;
+            updateBottom();
           }
         });
 

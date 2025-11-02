@@ -169,34 +169,37 @@ async function initializeDatabaseView() {
 
 `;
     
-    try {
-      const tableStatements = await sql.lastestSql();
-      const sqlSendBtn = document.getElementById('sql-send') as HTMLButtonElement;
-      if (tableStatements) {
-        // 如果有内容，使用返回的SQL语句
-        initialSQL += tableStatements + '\n';
-        // 禁用 sql-send 按钮
-        if (sqlSendBtn) {
-          sqlSendBtn.disabled = true;
-          sqlSendBtn.style.opacity = '0.5';
-        }
-      } else {
-        // 如果没有内容，启用 sql-send 按钮
-        if (sqlSendBtn) {
-          sqlSendBtn.disabled = false;
-          sqlSendBtn.style.opacity = '1';
-        }
-      }
-    } catch (error) {
-      console.warn("获取表数据失败，使用默认SQL:", error);
-      // 出错时启用按钮
-      const sqlSendBtn = document.getElementById('sql-send') as HTMLButtonElement;
-      if (sqlSendBtn) {
-        sqlSendBtn.disabled = false;
-        sqlSendBtn.style.opacity = '1';
-      }
-    }
-    textarea.value = initialSQL;
+     let hasExistingContent = false;
+     try {
+       const tableStatements = await sql.lastestSql();
+       const sqlSendBtn = document.getElementById('sql-send') as HTMLButtonElement;
+       if (tableStatements) {
+         // 如果有内容，使用返回的SQL语句
+         initialSQL += tableStatements + '\n';
+         hasExistingContent = true;
+         // 禁用 sql-send 按钮
+         if (sqlSendBtn) {
+           sqlSendBtn.disabled = true;
+           sqlSendBtn.style.opacity = '0.5';
+         }
+       } else {
+         // 如果没有内容，启用 sql-send 按钮
+         if (sqlSendBtn) {
+           sqlSendBtn.disabled = false;
+           sqlSendBtn.style.opacity = '1';
+         }
+       }
+     } catch (error) {
+       console.warn("获取表数据失败，使用默认SQL:", error);
+       // 出错时启用按钮
+       const sqlSendBtn = document.getElementById('sql-send') as HTMLButtonElement;
+       if (sqlSendBtn) {
+         sqlSendBtn.disabled = false;
+         sqlSendBtn.style.opacity = '1';
+       }
+     }
+     textarea.value = initialSQL;
+     textarea.readOnly = hasExistingContent;
     
     const initialLength = initialSQL.length;
     
@@ -359,13 +362,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const content = document.getElementById('full-sql-content') as HTMLTextAreaElement;
 
             content.value = fullSQL;
+            content.readOnly = true; // 放大窗口总是只读，不能修改内容
             modal.classList.remove('hidden');
             modal.classList.add('flex');
 
-            // 自动同步输入
-            content.addEventListener('input', () => {
-                textarea.value = content.value;
-            });
+            // 移除同步输入，因为总是只读
         } else {
             alert('SQL语句为空！');
         }
