@@ -1,0 +1,20 @@
+var C=Object.create;var{getPrototypeOf:D,defineProperty:A,getOwnPropertyNames:F}=Object;var G=Object.prototype.hasOwnProperty;var I=(j,w,g)=>{g=j!=null?C(D(j)):{};let q=w||!j||!j.__esModule?A(g,"default",{value:j,enumerable:!0}):g;for(let h of F(j))if(!G.call(q,h))A(q,h,{get:()=>j[h],enumerable:!0});return q};var J=(j,w)=>()=>(w||j((w={exports:{}}).exports,w),w.exports);var H={popupConfirm(j){return new Promise((w)=>{let g=document.createElement("div");g.className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm";let q=document.createElement("div");q.className="min-w-[280px] justify-center items-center rounded-xl bg-[#1a1a1a] text-gray-200 shadow-2xl p-6 border border-gray-700",q.innerHTML=`
+      <p class="mb-5 text-center">${j}</p>
+      <div class="flex justify-center gap-3">
+        <button id="cancelBtn" class="px-4 py-2 rounded-md border border-gray-400 hover:bg-gray-600 transition">取消</button>
+        <button id="okBtn" class="text-black px-4 py-2 rounded-md bg-white transition">确认</button>
+      </div>
+    `,g.appendChild(q),document.body.appendChild(g);let h=(z)=>{g.remove(),w(z)};g.addEventListener("click",(z)=>{if(z.target===g)h(!1)}),q.querySelector("#cancelBtn").addEventListener("click",()=>h(!1)),q.querySelector("#okBtn").addEventListener("click",()=>h(!0))})},bottomPopupConfirm(j){return new Promise((w)=>{let g=document.createElement("div");g.className="max-w-[30%] flex fixed bottom-4 left-4 mx-auto justify-center items-center right-4 bg-[#1a1a1a] p-3 shadow-2xl rounded-full border border-gray-700",g.innerHTML=`
+      <p id="modal-message" class=" text-gray-200">${j}</p>
+      <div class="flex gap-3">
+        <button id="modal-cancel" class="px-2 py-2 rounded-md border border border-gray-400 hover:bg-gray-600 transition">取消</button>
+        <button id="modal-confirm" class="text-white px-2 py-2 rounded-md border border-gray-400 hover:bg-gray-600 transition">确认</button>
+      </div>
+    `,document.body.appendChild(g),setTimeout(()=>{g.classList.remove("translate-y-full")},10);let q=(h)=>{g.classList.add("translate-y-full"),setTimeout(()=>{g.remove(),w(h)},300)};g.querySelector("#modal-cancel").addEventListener("click",()=>q(!1)),g.querySelector("#modal-confirm").addEventListener("click",()=>q(!0))})},showTooltipWithCopy(j,w,g){let h=document.createElement("div");h.className="fixed z-50 bg-[#2B2F31] text-gray-200 p-4 rounded-lg shadow-lg flex flex-col",h.style.left=w+"px",h.style.top=g+"px",h.style.width="250px",h.style.whiteSpace="normal",h.style.overflowWrap="break-word",h.innerHTML=`
+    <button class="text-white self-end hover:text-gray-300 flex " id="copy-btn"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+  </svg></button>
+    <div class="mb-2">${j}</div>
+  `,document.body.appendChild(h);let z=h.querySelector("#copy-btn");z.addEventListener("click",()=>{navigator.clipboard.writeText(j).then(()=>{z.innerHTML="✅",setTimeout(()=>z.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+  </svg>`,200)})}),h.addEventListener("mouseleave",()=>{h.remove()})}},N=H;export{N as default};
