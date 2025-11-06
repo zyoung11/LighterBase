@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="../icons/LOGOW.png" />
+  <title>LighterBase</title>
+  <style id="fouc-fix">
+    body {
+      background: #1B1E1F;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+      /* 增加渐变效果，更平滑 */
+    }
+  </style>
+  <script src="../tailwind.js"></script>
+</head>
+
+<body class="bg-[#121414] text-gray-200 h-screen overflow-hidden flex flex-col">
+  <!-- 顶部导航栏 -->
+  <nav class="flex justify-between items-center px-6 py-4 bg-[#181A1B]">
+    <!-- 左侧：Logo、名称、Pricing、Docs -->
+    <div class="flex items-center space-x-4">
+      <a href="hub" class="flex items-center space-x-3">
+        <img src="../icons/LOGOW.png" alt="Logo" class="w-8 h-8">
+        <span class="text-xl font-bold">LighterBase</span>
+      </a>
+      <a href="pricing"
+        class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg transition-colors inline-block">Pricing</a>
+      <a href="docs"
+        class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg transition-colors inline-block">Docs</a>
+    </div>
+    <!-- 右侧：Login in 或 用户名 -->
+    <div class="relative">
+      <a id="user-link" href="login"
+        class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] text-[#46A3FF] rounded-lg transition-colors inline-block">Login
+        in</a>
+      <div id="logout-menu" class="absolute top-full mt-1 bg-[#2B2F31] rounded-lg shadow-lg hidden z-10">
+        <button id="logout-btn" class="px-4 py-2 text-white hover:bg-[#3a3f41] rounded-lg w-16 text-center">登出</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 中间内容 -->
+  <div class="flex-1 flex overflow-hidden">
+    <!-- 左侧 70%：品牌区 -->
+    <section class="w-[70%] flex items-center justify-center relative"
+      style="background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 20px 20px;">
+      <!-- 中央文案 -->
+      <h1 class="text-3xl font-semibold tracking-wide select-none">
+        欢迎使用 LighterBase
+      </h1>
+    </section>
+
+    <!-- 右侧 30%：登录区 -->
+    <aside class="w-[30%] bg-[#181A1B] flex items-center justify-center p-8 shadow-2xl">
+      <div class="w-full max-sm:max-w-sm">
+
+        <!-- 切换按钮 -->
+        <div class="flex justify-center mb-6 w-full">
+          <button id="toggle-login"
+            class="w-[50%] px-2 py-2 bg-[#46A3FF] text-white rounded-l-lg transition-colors">登录</button>
+          <button id="toggle-register"
+            class="w-[50%] px-2 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] text-gray-200 rounded-r-lg transition-colors">注册</button>
+        </div>
+
+        <!-- 表单 -->
+        <form id="auth-form" novalidate class="space-y-4">
+          <div>
+            <label class="block mb-1 text-sm">用户名</label>
+            <input required id="username" type="text" placeholder="请输入用户名"
+              class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
+          </div>
+          <div>
+            <label class="block mb-1 text-sm">密码</label>
+            <input required id="password" type="password" placeholder="请输入密码"
+              class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
+          </div>
+          <div id="email-field" class="hidden">
+            <label class="block mb-1 text-sm">邮箱</label>
+            <input required id="email" type="email" placeholder="请输入邮箱"
+              class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
+          </div>
+          <button type="submit" id="submit-btn"
+            class="w-full py-2 mt-2 rounded bg-[#2B2F31] hover:bg-[#3a3f41] transition-colors">
+            登录
+          </button>
+        </form>
+
+      </div>
+    </aside>
+  </div>
+  <div class="absolute bottom-4 flex items-center left-4">
+    <img src="../icons/LOGOW.png" alt="GitHub" class="w-12 h-12">
+    <div class="font-bold">LighterBase</div>
+  </div>
+  <script src="../utils/hubConponents.js"></script>
+  <script>
+    // 检查登录状态
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    const token = getCookie('hubAuthToken');
+    const username = localStorage.getItem('username');
+    const userLink = document.getElementById('user-link');
+    const logoutMenu = document.getElementById('logout-menu');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    if (token && username) {
+      userLink.textContent = username;
+      userLink.href = '#';
+
+      // 点击用户名显示/隐藏登出菜单
+      userLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        logoutMenu.classList.toggle('hidden');
+      });
+
+      // 点击登出清除token
+      logoutBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        document.cookie = 'hubAuthToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        localStorage.removeItem('username');
+        window.location.reload();
+      });
+
+      // 点击其他地方隐藏菜单
+      document.addEventListener('click', function (e) {
+        if (!userLink.contains(e.target) && !logoutMenu.contains(e.target)) {
+          logoutMenu.classList.add('hidden');
+        }
+      });
+    }
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.body.style.opacity = '1';
+
+      const styleTag = document.getElementById('fouc-fix');
+      if (styleTag) {
+        styleTag.remove();
+      }
+
+      // 元素引用
+      const toggleLogin = document.getElementById('toggle-login');
+      const toggleRegister = document.getElementById('toggle-register');
+      const authForm = document.getElementById('auth-form');
+      const emailField = document.getElementById('email-field');
+      const submitBtn = document.getElementById('submit-btn');
+      const usernameInput = document.getElementById('username');
+      const passwordInput = document.getElementById('password');
+      const emailInput = document.getElementById('email');
+
+      let isLoginMode = true;
+
+      // 切换到登录模式
+      function switchToLogin() {
+        isLoginMode = true;
+        emailField.classList.add('hidden');
+        emailInput.required = false;
+        submitBtn.textContent = '登录';
+        toggleLogin.className = 'px-20 py-2 bg-[#46A3FF] text-white rounded-l-lg transition-colors';
+        toggleRegister.className = 'px-20 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] text-gray-200 rounded-r-lg transition-colors';
+      }
+
+      // 切换到注册模式
+      function switchToRegister() {
+        isLoginMode = false;
+        emailField.classList.remove('hidden');
+        emailInput.required = true;
+        submitBtn.textContent = '注册';
+        toggleLogin.className = 'px-20 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] text-gray-200 rounded-l-lg transition-colors';
+        toggleRegister.className = 'px-20 py-2 bg-[#46A3FF] text-white rounded-r-lg transition-colors';
+      }
+
+      // 事件监听器
+      toggleLogin.addEventListener('click', switchToLogin);
+      toggleRegister.addEventListener('click', switchToRegister);
+
+      // 表单提交
+      authForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
+        const email = emailInput.value.trim();
+
+        if (isLoginMode) {
+          if (!username || !password) {
+            alert('请填写用户名和密码');
+            return;
+          }
+          // 登录
+          try {
+            const response = await fetch('http://localhost:8080/api/users/login', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({user_name: username, password})
+            });
+            const data = await response.json();
+            if (response.ok) {
+              // 登录成功，存储token和username，重定向到/hub
+              document.cookie = `hubAuthToken=${data.token}; path=/;`;
+              localStorage.setItem('username', data.user.user_name);
+              window.location.href = '/hub';
+            } else {
+              alert(data.error || '登录失败');
+            }
+          } catch (error) {
+            alert('网络错误');
+          }
+        } else {
+          if (!username || !password || !email) {
+            alert('请填写用户名、密码和邮箱');
+            return;
+          }
+          // 注册
+          try {
+            const response = await fetch('http://localhost:8080/api/users/register', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({user_name: username, password, email})
+            });
+            const data = await response.json();
+            if (response.ok) {
+              // 注册成功，填充用户名和密码，切换到登录
+              usernameInput.value = username;
+              passwordInput.value = password;
+              switchToLogin();
+              alert('注册成功，请登录');
+            } else {
+              alert(data.error || '注册失败');
+            }
+          } catch (error) {
+            alert('网络错误');
+          }
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
