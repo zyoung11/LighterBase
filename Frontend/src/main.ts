@@ -334,6 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
      }
 
     if(target.closest('#sql-send')){
+       const sqlSendBtn = document.getElementById('sql-send') as HTMLButtonElement;
       const success = await blocks.popupConfirm("提交后将不能修改")
       if(success){
       const textarea = document.getElementById('sql-input') as HTMLTextAreaElement | null;
@@ -350,6 +351,10 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         console.log('payload:', payload);
         await sql.createSql(payload);
+         if (sqlSendBtn) {
+           sqlSendBtn.disabled = true;
+           sqlSendBtn.style.opacity = '0.5';
+         }
       }
       }
     }
