@@ -18,7 +18,7 @@ function checkAuthentication() {
   // 检查是否有token
   if (!authToken) {
     console.log("没有找到JWT token，跳转到登录页面");
-    window.location.href = "welcome";
+    window.location.href = "/welcome";
     return false;
   }
 
@@ -227,8 +227,8 @@ async function initializeDatabaseView() {
   }
 }
 
-
 mainWorkspace.addEventListener('keydown', async (e) => {
+const sqlNotice = document.getElementById('sql-notice') as HTMLElement;
   const target = e.target as HTMLElement;
 
   if (target.id === 'sql-input' && target.tagName === 'TEXTAREA') {
@@ -244,6 +244,8 @@ mainWorkspace.addEventListener('keydown', async (e) => {
         });
       } catch (error) {
         console.error("SQL解析错误:", error);
+        sqlNotice.style.color = "red"
+        sqlNotice.textContent = "请输入正确的SQL语句"
       }
     } else if (e.key === 'Enter' && e.shiftKey) {
       e.preventDefault();

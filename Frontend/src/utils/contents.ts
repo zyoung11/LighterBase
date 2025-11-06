@@ -79,7 +79,8 @@ const workspaceContent = {
 
                     <!-- 下部分：SQL输入区域 (40% 高度) -->
                     <!-- 在 sql-input 区域的右上角添加按钮 -->
-<div class="h-[40%] p-6 relative flex items-center space-x-4 justify-center"> 
+<div class="h-[40%] p-6 relative flex flex-col items-center space-x-4 justify-center">
+   <div class = "w-full h-full flex justify-center items-center">
     <div class="relative w-[80%] h-full">
         <textarea 
             id="sql-input"
@@ -103,6 +104,8 @@ const workspaceContent = {
             <img src="${confirm}" class=" object-contain" alt="确认">
         </button>
     </div>
+    </div>
+   <p id = "sql-notice" class = "mt-3">"enter"渲染E-R图，请注意SQL的大小写</p>
 </div>
 
 <!-- 弹出窗口模态框 -->
