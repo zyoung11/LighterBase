@@ -1,5 +1,7 @@
 const docs = {
-intro : `🚀 API 文档
+intro : `
+
+🚀 API 文档
 
     一站式后端即服务（BaaS）平台，支持多租户、自动 CRUD、JWT 认证、权限管理、SQL 执行与反向代理。
     前端只需丢进 dist/ 文件夹即可上线，后端一条命令即可启动整个服务。
@@ -30,6 +32,7 @@ cd LighterBase/Backend/app/LighterBase
 ./LighterBase
 \`\`\`
 
+\`\`\`bash
 # LighterBaseHub
 
 # 1. 下载 release 或直接 clone
@@ -38,11 +41,14 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 # 2. 一键启动（默认端口 8080 + 8090）
 ./LighterBaseHub
+\`\`\`
 
 服务就绪后
 
     管理后台 & 前端：http://localhost:8090
-    后端 API 入口：http://localhost:8080`  
+    后端 API 入口：http://localhost:8080
+
+    `  
 }
 
 
