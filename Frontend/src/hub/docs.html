@@ -30,52 +30,51 @@
       <a href="docs"
         class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg transition-colors inline-block">Docs</a>
     </div>
-     <!-- 右侧：Login in 或 用户名 -->
-     <div class="relative">
-       <a id="user-link" href="login"
-         class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] text-[#46A3FF] rounded-lg transition-colors inline-block">Login
-         in</a>
-       <div id="logout-menu" class="absolute top-full mt-1 bg-[#2B2F31] rounded-lg shadow-lg hidden z-10">
-         <button id="logout-btn" class="px-4 py-2 text-white hover:bg-[#3a3f41] rounded-lg w-16 text-center">登出</button>
-       </div>
-     </div>
+    <!-- 右侧：Login in 或 用户名 -->
+    <div class="relative">
+      <a id="user-link" href="login"
+        class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] text-[#46A3FF] rounded-lg transition-colors inline-block">Login
+        in</a>
+      <div id="logout-menu" class="absolute top-full mt-1 bg-[#2B2F31] rounded-lg shadow-lg hidden z-10">
+        <button id="logout-btn" class="px-4 py-2 text-white hover:bg-[#3a3f41] rounded-lg w-16 text-center">登出</button>
+      </div>
+    </div>
   </nav>
 
   <!-- 中间内容 -->
   <div class="flex-1 flex overflow-hidden">
     <!-- 左侧侧边栏 -->
-     <aside class="w-1/4 bg-[#181A1B] p-4 overflow-y-auto">
-       <h3 class="text-lg font-semibold mb-4">章节</h3>
-       <ul class="space-y-2">
-         <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded" data-section="intro">介绍</a></li>
-         <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded" data-section="getting-started">入门</a>
-         </li>
-         <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded" data-section="api-reference">API 参考</a></li>
-         <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded" data-section="tutorials">教程</a></li>
-       </ul>
+    <aside class="w-1/4 bg-[#181A1B] p-4 overflow-y-auto">
+      <h3 class="text-lg font-semibold mb-4">章节</h3>
+      <ul class="space-y-2">
+        <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded" data-section="intro">介绍</a></li>
+        <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded" data-section="getting-started">入门</a>
+        </li>
+        <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded" data-section="api-reference">API 参考</a></li>
+        <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded" data-section="tutorials">教程</a></li>
+      </ul>
     </aside>
 
     <!-- 中间显示区域 -->
     <main class="flex-1 overflow-y-auto p-8 relative">
       <div id="content">
-         <section id="intro" class="content-section">
-           <h1 class="text-4xl font-bold mb-6">文档</h1>
-           <p class="text-lg mb-4">欢迎使用 LighterBase 文档。在这里，您可以找到指南、教程和 API 参考，帮助您开始使用我们的平台。</p>
+        <section id="intro" class="content-section">
+          <div id="intro-cont"></div>
         </section>
-         <section id="getting-started" class="content-section hidden">
-           <h2 class="text-2xl font-semibold mb-4">入门</h2>
-           <p class="mb-4">学习如何设置您的第一个数据库并开始构建应用程序。</p>
-           <p>更多详情在这里...</p>
+        <section id="getting-started" class="content-section hidden">
+          <h2 class="text-2xl font-semibold mb-4">入门</h2>
+          <p class="mb-4">学习如何设置您的第一个数据库并开始构建应用程序。</p>
+          <p>更多详情在这里...</p>
         </section>
-         <section id="api-reference" class="content-section hidden">
-           <h2 class="text-2xl font-semibold mb-4">API 参考</h2>
-           <p class="mb-4">面向开发者的详细 API 文档。</p>
-           <p>更多详情在这里...</p>
+        <section id="api-reference" class="content-section hidden">
+          <h2 class="text-2xl font-semibold mb-4">API 参考</h2>
+          <p class="mb-4">面向开发者的详细 API 文档。</p>
+          <p>更多详情在这里...</p>
         </section>
-         <section id="tutorials" class="content-section hidden">
-           <h2 class="text-2xl font-semibold mb-4">教程</h2>
-           <p>常见任务的分步指南。</p>
-           <p>更多详情在这里...</p>
+        <section id="tutorials" class="content-section hidden">
+          <h2 class="text-2xl font-semibold mb-4">教程</h2>
+          <p>常见任务的分步指南。</p>
+          <p>更多详情在这里...</p>
         </section>
       </div>
       <!-- 底部导航按钮 -->
@@ -88,19 +87,19 @@
     </main>
 
     <!-- 右侧跳转栏 -->
-     <aside class="w-1/4 bg-[#181A1B] p-4 overflow-y-auto">
-       <h3 class="text-lg font-semibold mb-4">跳转到</h3>
-       <ul class="space-y-2">
-         <li><a href="#intro" class="block p-2 hover:bg-[#2B2F31] rounded">介绍</a></li>
-         <li><a href="#getting-started" class="block p-2 hover:bg-[#2B2F31] rounded">入门</a></li>
-         <li><a href="#api-reference" class="block p-2 hover:bg-[#2B2F31] rounded">API 参考</a></li>
-         <li><a href="#tutorials" class="block p-2 hover:bg-[#2B2F31] rounded">教程</a></li>
-       </ul>
+    <aside class="w-1/4 bg-[#181A1B] p-4 overflow-y-auto">
+      <h3 class="text-lg font-semibold mb-4">跳转到</h3>
+      <ul class="space-y-2">
+        <li><a href="#intro" class="block p-2 hover:bg-[#2B2F31] rounded">介绍</a></li>
+        <li><a href="#getting-started" class="block p-2 hover:bg-[#2B2F31] rounded">入门</a></li>
+        <li><a href="#api-reference" class="block p-2 hover:bg-[#2B2F31] rounded">API 参考</a></li>
+        <li><a href="#tutorials" class="block p-2 hover:bg-[#2B2F31] rounded">教程</a></li>
+      </ul>
     </aside>
   </div>
 
 
-
+  <script src="../utils/hubDoc.ts"></script>
   <script>
     const sections = ['intro', 'getting-started', 'api-reference', 'tutorials'];
     let currentSection = 'intro';
@@ -152,56 +151,56 @@
     // 初始化显示 intro
     showSection('intro');
   </script>
-   <script>
-     // 检查登录状态
-     function getCookie(name) {
-       const value = `; ${document.cookie}`;
-       const parts = value.split(`; ${name}=`);
-       if (parts.length === 2) return parts.pop().split(';').shift();
-     }
+  <script>
+    // 检查登录状态
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
 
-     const token = getCookie('hubAuthToken');
-     const username = localStorage.getItem('username');
-     const userLink = document.getElementById('user-link');
-     const logoutMenu = document.getElementById('logout-menu');
-     const logoutBtn = document.getElementById('logout-btn');
+    const token = getCookie('hubAuthToken');
+    const username = localStorage.getItem('username');
+    const userLink = document.getElementById('user-link');
+    const logoutMenu = document.getElementById('logout-menu');
+    const logoutBtn = document.getElementById('logout-btn');
 
-     if (token && username) {
-       userLink.textContent = username;
-       userLink.href = '#';
+    if (token && username) {
+      userLink.textContent = username;
+      userLink.href = '#';
 
-       // 点击用户名显示/隐藏登出菜单
-       userLink.addEventListener('click', function (e) {
-         e.preventDefault();
-         e.stopPropagation();
-         logoutMenu.classList.toggle('hidden');
-       });
+      // 点击用户名显示/隐藏登出菜单
+      userLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        logoutMenu.classList.toggle('hidden');
+      });
 
-       // 点击登出清除token
-       logoutBtn.addEventListener('click', function (e) {
-         e.stopPropagation();
-         document.cookie = 'hubAuthToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-         localStorage.removeItem('username');
-         window.location.reload();
-       });
+      // 点击登出清除token
+      logoutBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        document.cookie = 'hubAuthToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        localStorage.removeItem('username');
+        window.location.reload();
+      });
 
-       // 点击其他地方隐藏菜单
-       document.addEventListener('click', function (e) {
-         if (!userLink.contains(e.target) && !logoutMenu.contains(e.target)) {
-           logoutMenu.classList.add('hidden');
-         }
-       });
-     }
-   </script>
-   <script>
-     document.addEventListener('DOMContentLoaded', function () {
-       document.body.style.opacity = '1';
-       const styleTag = document.getElementById('fouc-fix');
-       if (styleTag) {
-         styleTag.remove();
-       }
-     });
-   </script>
+      // 点击其他地方隐藏菜单
+      document.addEventListener('click', function (e) {
+        if (!userLink.contains(e.target) && !logoutMenu.contains(e.target)) {
+          logoutMenu.classList.add('hidden');
+        }
+      });
+    }
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.body.style.opacity = '1';
+      const styleTag = document.getElementById('fouc-fix');
+      if (styleTag) {
+        styleTag.remove();
+      }
+    });
+  </script>
 
 </body>
 
