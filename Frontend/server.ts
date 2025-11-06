@@ -17,18 +17,23 @@ const server = Bun.serve({
 
     // Hub 页面
     "/hub": HubPage,
+    "/hub/hub.html": HubPage,
 
     // 登录页面
     "/login": LoginPage,
+    "/hub/login.html": LoginPage,
 
     // 定价页面
     "/pricing": PricingPage,
+    "/hub/pricing.html": PricingPage,
 
     // 文档页面
     "/docs": DocsPage,
+    "/hub/docs.html": DocsPage,
 
     // 欢迎页面
     "/welcome": WelcomePage,
+    "/welcome.html": WelcomePage,
   },
 
   // fetch 处理器处理未定义的请求

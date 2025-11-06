@@ -18,7 +18,7 @@ function checkAuthentication() {
   // 检查是否有token
   if (!authToken) {
     console.log("没有找到JWT token，跳转到登录页面");
-    window.location.href = "/welcome";
+    window.location.href = "/welcome.html";
     return false;
   }
 
@@ -35,7 +35,7 @@ function checkAuthentication() {
     return true; // token有效，继续执行
   } catch (e) {
     console.log("token解析失败，跳转到登录页面", e);
-    window.location.href = "/welcome";
+    window.location.href = "/welcome.html";
     return false;
   }
 }
@@ -477,7 +477,7 @@ function setupAccountSettings() {
             // Clear token
             document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
             // Redirect to welcome
-            window.location.href = '/welcome';
+            window.location.href = '/welcome.html';
         }
     });
 }
