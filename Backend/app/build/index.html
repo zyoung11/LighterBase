@@ -1,1 +1,124 @@
-<h1>LighterBase<h1>
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="./icons/LOGOW.png" />
+  <title>lighterBase</title>
+  <style id="fouc-fix">
+    :root {
+      --test-color: #ffffff;
+      --work-bg-color: #1B1E1F;
+    }
+
+    .sidebar-transition {
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .bottom-modal {
+      transform: translateY(100%);
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .bottom-modal.show {
+      transform: translateY(0);
+    }
+
+    body {
+      opacity: 0;
+      background: #1B1E1F;
+      transition: opacity 0.2s ease-in-out;
+      /* 增加渐变效果，更平滑 */
+    }
+  </style>
+  <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+  <script src="./tailwind.js"></script>
+</head>
+
+<body class="bg-[#121414] text-gray-200 h-screen overflow-hidden">
+  <div class="flex h-full">
+    <!-- 左侧边栏 -->
+    <div class="w-[5%] bg-[#121414] flex flex-col justify-between items-center py-4 ">
+      <!-- Logo -->
+      <div class="mb-8">
+        <button id="logo-btn"
+          class="w-15 h-15 mb-2 rounded-lg flex items-center justify-center text-white font-bold transition-colors">
+          <img src="./icons/LOGOW.png" alt="Logo" class="rounded-sm">
+        </button>
+      </div>
+
+      <!-- 导航按钮 -->
+      <div class="flex flex-col space-y-4 ">
+        <button id="database-btn"
+          class="nav-btn w-12 h-12 p-2 mb-1 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg flex items-center justify-center transition-colors">
+          <img src="./icons/database-2-line白.svg" alt="数据库">
+        </button>
+        <button id="folder-btn"
+          class="nav-btn w-12 h-12 p-2 mb-1 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg flex items-center justify-center transition-colors">
+          <img src="./icons/folder白.svg" alt="文件">
+        </button>
+        <button id="records-btn"
+          class="nav-btn w-12 h-12 p-2 mb-1 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg flex items-center justify-center transition-colors">
+          <img src="./icons/分析白.svg" alt="分析">
+        </button>
+        <button id="settings-btn"
+          class="nav-btn w-12 h-12 p-2 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg flex items-center justify-center transition-colors">
+          <img src="./icons/setting白.svg" alt="设置">
+        </button>
+      </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="flex-1 flex relative">
+      <!-- 右侧边栏 -->
+      <div id="right-sidebar" class="w-[16%] bg-[#181A1B] p-4 flex flex-col"></div>
+
+      <!-- 主工作区 -->
+      <div id="main-workspace" class="bg-[--work-bg-color] flex-1 flex flex-col">
+        <!-- 默认空白工作区 -->
+        <div id="default-workspace" class="flex-1 flex items-center justify-center">
+          <span class="text-gray-500 text-xl">欢迎使用 lighterBase</span>
+        </div>
+      </div>
+
+      <div id="right-slidebar"
+        class="w-[55%] bg-[#181A1B]  flex flex-col sidebar-transition transform translate-x-[110%] absolute right-0 top-0 h-full z-20">
+
+        <button id="close-slidebar"
+          class="absolute -left-6 top-4 text-gray-200 hover:text-white bg-[#F5F5F5]/60 backdrop-blur-md rounded-l-lg w-12 h-12 flex items-center justify-center transition-all duration-300">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+
+        <!-- <div class="flex justify-between items-center mb-4 ml-6">
+        <h3 id="slidebar-title" class="text-lg font-semibold"></h3>
+    </div> -->
+
+        <div id="slidebar-content" class="flex-1 h-full rounded-lg overflow-y-auto items-center ml-6">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.body.style.opacity = '1';
+
+      const styleTag = document.getElementById('fouc-fix');
+      if (styleTag) {
+        styleTag.remove(); // 移除后 transition 效果会消失，可以保留
+      }
+    });
+
+    const logoBtn = document.getElementById('logo-btn')
+
+    logoBtn.addEventListener('click', function () {
+      window.location.href = "/hub";
+    })
+  </script>
+</body>
+
+</html>
