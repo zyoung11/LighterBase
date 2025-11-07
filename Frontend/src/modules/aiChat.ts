@@ -158,10 +158,11 @@ renderer.code = (code:any) => {
     // console.log("显示原始数据：",code)
     let codeString = code.raw;
     const lines = codeString.split('\n')
-    if(lines.length >2){
+    const hasList = lines.some((line: string) => /^\d+\./.test(line.trim()));
+    if(lines.length >2 && !hasList){
         codeString = lines.slice(1,-1).join('\n');
-    }else{
-        codeString = "";
+    }else if(lines.length <=2){
+        codeString = code.raw;
     }
     
     const lang = code.lang && hljs.getLanguage(code.lang) ? code.lang : 'plaintext';

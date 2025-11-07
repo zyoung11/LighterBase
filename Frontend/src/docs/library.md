@@ -1,6 +1,6 @@
-## 库使用
+<h2 style="font-weight: bold; font-size: 1.5em;">📚 库使用</h2>
 
-### 安装
+<h3 style="font-weight: bold; font-size: 1.3em;">📦 安装</h3>
 
 ```javascript
 import LighterBase from 'lighter-base';
@@ -8,9 +8,9 @@ import LighterBase from 'lighter-base';
 const lb = new LighterBase('https://your-api-endpoint.com');
 ```
 
-### API 操作
+<h3 style="font-weight: bold; font-size: 1.3em;">🔧 API 操作</h3>
 
-#### ➕ 向 table_name 表中插入数据 {#install-create-section}
+<h4 id="install-create-section" style="font-weight: bold; font-size: 1.2em;">➕ 向 table_name 表中插入数据</h4>
 
 ```javascript
 const payload = {
@@ -79,7 +79,7 @@ const insertData = await lb.insertTable(payload, "table_name");
 }
 ```
 
-#### 🗑️ 从 table_name 表中删除数据 {#install-delete-section}
+<h4 id="install-delete-section" style="font-weight: bold; font-size: 1.2em;">🗑️ 从 table_name 表中删除数据</h4>
 
 ```javascript
 const payload = {
@@ -146,7 +146,7 @@ null
 }
 ```
 
-#### ✏️ 在 table_name 表中更新数据 {#install-update-section}
+<h4 id="install-update-section" style="font-weight: bold; font-size: 1.2em;">✏️ 在 table_name 表中更新数据</h4>
 
 ```javascript
 const payload = {
@@ -226,7 +226,7 @@ null
 }
 ```
 
-#### 🔍 从 table_name 表中查询数据 {#install-search-section}
+<h4 id="install-search-section" style="font-weight: bold; font-size: 1.2em;">🔍 从 table_name 表中查询数据</h4>
 
 ```javascript
 const payload = {

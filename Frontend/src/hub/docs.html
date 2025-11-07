@@ -142,19 +142,15 @@
         currentLink.classList.add('bg-[#3a3f41]');
       }
 
-      // Show submenu for install and tutorials, and scroll to top
-      document.getElementById('install-submenu').classList.add('hidden');
-      document.getElementById('tutorials-submenu').classList.add('hidden');
+      // Scroll to top
       const main = document.querySelector('main');
       if (sectionId === 'install') {
-        document.getElementById('install-submenu').classList.remove('hidden');
         // Scroll to top of install section
         const element = document.getElementById('install');
         if (element) {
           main.scrollTop = element.offsetTop - main.offsetTop;
         }
       } else if (sectionId === 'tutorials') {
-        document.getElementById('tutorials-submenu').classList.remove('hidden');
         // Scroll to top of tutorials section
         const element = document.getElementById('tutorials');
         if (element) {
@@ -170,12 +166,6 @@
         const section = e.target.dataset.section;
         if (section) {
           showSection(section);
-          // Show submenu for install
-          if (section === 'install') {
-            document.getElementById('install-submenu').classList.remove('hidden');
-          } else {
-            document.getElementById('install-submenu').classList.add('hidden');
-          }
         }
       });
     });

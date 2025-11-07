@@ -1,10 +1,10 @@
-## LighterBase 介绍
+<h2 style="font-weight: bold; font-size: 1.5em;">📖 LighterBase 介绍</h2>
 
 一站式后端即服务（BaaS）平台，支持多租户、自动 CRUD、JWT 认证、权限管理、SQL 执行与反向代理。前端只需丢进 dist/ 文件夹即可上线，后端一条命令即可启动整个服务。
 
 ---
 
-## 项目简介
+<h2 style="font-weight: bold; font-size: 1.5em;">📋 项目简介</h2>
 
 LighterBaseHub 是 LighterBase 的多租户管理面板：
 
@@ -17,7 +17,7 @@ LighterBaseHub 是 LighterBase 的多租户管理面板：
 
 ---
 
-## 启动指南
+<h2 style="font-weight: bold; font-size: 1.5em;">🚀 启动指南</h2>
 
 ```bash
 # LighterBase
