@@ -26,7 +26,7 @@ const insertData = await lb.insertTable(payload, "table_name");
 
 **请求头:**
 
-```
+```javascript
 {
   "Content-Type": "application/json",
   "Authorization": "Bearer <jwt_token>"
@@ -93,7 +93,7 @@ const deleteData = await lb.deleteTable(payload, "table_name");
 
 **请求头:**
 
-```
+```javascript
 {
   "Content-Type": "application/json",
   "Authorization": "Bearer <jwt_token>"
@@ -164,7 +164,7 @@ const updateData = await lb.updateTable(payload, "table_name");
 
 **请求头:**
 
-```
+```javascript
 {
   "Content-Type": "application/json",
   "Authorization": "Bearer <jwt_token>"
@@ -241,7 +241,7 @@ const searchData = await lb.searchTable(payload, "table_name", 1, 30);
 
 **请求头:**
 
-```
+```javascript
 {
   "Content-Type": "application/json",
   "Authorization": "Bearer <jwt_token>"
