@@ -52,7 +52,7 @@
         </li>
         <li>
           <a href="#" class="block p-2 hover:bg-[#2B2F31] rounded text-lg font-semibold" data-section="install">库调用</a>
-          <ul class="ml-4 space-y-1 hidden" id="install-submenu">
+          <ul class="ml-4 space-y-1" id="install-submenu">
             <li><a href="#install-create-section"
                 class="block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium">创建</a></li>
             <li><a href="#install-delete-section"
@@ -65,8 +65,18 @@
         </li>
         <!-- <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded text-lg font-semibold" -->
         <!-- data-section="api-reference">API 参考</a></li> -->
-        <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded text-lg font-semibold"
-            data-section="tutorials">教程</a></li>
+        <li>
+          <a href="#" class="block p-2 hover:bg-[#2B2F31] rounded text-lg font-semibold" data-section="tutorials">教程</a>
+          <ul class="ml-4 space-y-1" id="tutorials-submenu">
+            <li><a href="#database-management"
+                class="block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium">数据库管理</a></li>
+            <li><a href="#log-management"
+                class="block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium">日志管理</a></li>
+            <li><a href="#file-management"
+                class="block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium">文件管理</a></li>
+            <li><a href="#settings" class="block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium">设置</a></li>
+          </ul>
+        </li>
       </ul>
     </aside>
 
@@ -130,6 +140,26 @@
       const currentLink = document.querySelector(`aside a[data-section="${sectionId}"]`);
       if (currentLink) {
         currentLink.classList.add('bg-[#3a3f41]');
+      }
+
+      // Show submenu for install and tutorials, and scroll to top
+      document.getElementById('install-submenu').classList.add('hidden');
+      document.getElementById('tutorials-submenu').classList.add('hidden');
+      const main = document.querySelector('main');
+      if (sectionId === 'install') {
+        document.getElementById('install-submenu').classList.remove('hidden');
+        // Scroll to top of install section
+        const element = document.getElementById('install');
+        if (element) {
+          main.scrollTop = element.offsetTop - main.offsetTop;
+        }
+      } else if (sectionId === 'tutorials') {
+        document.getElementById('tutorials-submenu').classList.remove('hidden');
+        // Scroll to top of tutorials section
+        const element = document.getElementById('tutorials');
+        if (element) {
+          main.scrollTop = element.offsetTop - main.offsetTop;
+        }
       }
     }
 
@@ -251,7 +281,7 @@
         }
 
         // Submenu link click handlers
-        if (e.target.closest('#install-submenu a')) {
+        if (e.target.closest('#install-submenu a, #tutorials-submenu a')) {
           e.preventDefault();
           const target = e.target.getAttribute('href').substring(1);
           const main = document.querySelector('main');

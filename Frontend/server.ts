@@ -39,6 +39,15 @@ const server = Bun.serve({
   // fetch 处理器处理未定义的请求
   fetch(req) {
     const url = new URL(req.url);
+    if (url.pathname.startsWith('/docs/')) {
+      try {
+        const filePath = './src' + url.pathname;
+        const file = Bun.file(filePath);
+        return new Response(file);
+      } catch {
+        return new Response('404 Not Found', { status: 404 });
+      }
+    }
     return new Response(`404 Not Found for ${url.pathname}`, { status: 404 });
   },
 
