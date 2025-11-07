@@ -16,7 +16,9 @@
   <script src="../tailwind.js"></script>
 </head>
 
-<body class="bg-[#121414] text-gray-200 h-screen overflow-hidden flex flex-col">
+<body class="bg-[#121414] text-gray-200 h-screen overflow-hidden flex flex-col"
+  style="background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 20px 20px;">
+
   <!-- 顶部导航栏 -->
   <nav class="flex justify-between items-center px-6 py-2 bg-[#181A1B]">
     <!-- 左侧：Logo、名称、Pricing、Docs -->
@@ -42,29 +44,53 @@
   </nav>
 
   <!-- 中间内容 -->
-  <div class="flex-1 flex overflow-hidden">
+  <div class="w-full h-full flex overflow-hidden justify-center">
     <!-- 左侧侧边栏 -->
-    <aside class="w-1/4 bg-[#181A1B] p-4 overflow-y-auto">
-      <h3 class="text-lg font-semibold mb-4">章节</h3>
+    <aside class="w-1/6 h-full bg-[#181A1B] p-4 ">
       <ul class="space-y-2">
-        <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded" data-section="intro">介绍</a></li>
-        <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded" data-section="getting-started">入门</a>
+        <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded text-lg font-semibold" data-section="intro">介绍</a>
         </li>
-        <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded" data-section="api-reference">API 参考</a></li>
-        <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded" data-section="tutorials">教程</a></li>
+        <li>
+          <a href="#" class="block p-2 hover:bg-[#2B2F31] rounded text-lg font-semibold" data-section="install">库调用</a>
+          <ul class="ml-4 space-y-1 hidden" id="install-submenu">
+            <li><a href="#install-create-section"
+                class="block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium">创建</a></li>
+            <li><a href="#install-delete-section"
+                class="block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium">删除</a></li>
+            <li><a href="#install-update-section"
+                class="block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium">更新</a></li>
+            <li><a href="#install-search-section"
+                class="block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium">查询</a></li>
+          </ul>
+        </li>
+        <!-- <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded text-lg font-semibold" -->
+        <!-- data-section="api-reference">API 参考</a></li> -->
+        <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded text-lg font-semibold"
+            data-section="tutorials">教程</a></li>
       </ul>
     </aside>
 
     <!-- 中间显示区域 -->
-    <main class="flex-1 overflow-y-auto p-8 relative">
+    <main class="w-[65%] overflow-y-auto p-8 relative">
       <div id="content">
         <section id="intro" class="content-section">
           <div id="intro-cont"></div>
         </section>
-        <section id="getting-started" class="content-section hidden">
-          <h2 class="text-2xl font-semibold mb-4">入门</h2>
-          <p class="mb-4">学习如何设置您的第一个数据库并开始构建应用程序。</p>
-          <p>更多详情在这里...</p>
+        <section id="install" class="content-section hidden">
+          <h2 class="text-2xl font-semibold mb-4">使用</h2>
+          <div id="install-intro"></div>
+          <div id="install-create-section" class="mb-6">
+            <div id="install-create"></div>
+          </div>
+          <div id="install-delete-section" class="mb-6">
+            <div id="install-delete"></div>
+          </div>
+          <div id="install-update-section" class="mb-6">
+            <div id="install-update"></div>
+          </div>
+          <div id="install-search-section" class="mb-6">
+            <div id="install-search"></div>
+          </div>
         </section>
         <section id="api-reference" class="content-section hidden">
           <h2 class="text-2xl font-semibold mb-4">API 参考</h2>
@@ -72,13 +98,11 @@
           <p>更多详情在这里...</p>
         </section>
         <section id="tutorials" class="content-section hidden">
-          <h2 class="text-2xl font-semibold mb-4">教程</h2>
-          <p>常见任务的分步指南。</p>
-          <p>更多详情在这里...</p>
+          <div id="tutorials-cont"></div>
         </section>
       </div>
       <!-- 底部导航按钮 -->
-      <div class="absolute bottom-0 left-0 right-0 flex justify-between items-center px-6 py-4 bg-[#181A1B]">
+      <div class="flex justify-between items-center px-6 py-4">
         <button id="prev-btn"
           class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg transition-colors">上一页</button>
         <button id="next-btn"
@@ -86,28 +110,27 @@
       </div>
     </main>
 
-    <!-- 右侧跳转栏 -->
-    <aside class="w-1/4 bg-[#181A1B] p-4 overflow-y-auto">
-      <h3 class="text-lg font-semibold mb-4">跳转到</h3>
-      <ul class="space-y-2">
-        <li><a href="#intro" class="block p-2 hover:bg-[#2B2F31] rounded">介绍</a></li>
-        <li><a href="#getting-started" class="block p-2 hover:bg-[#2B2F31] rounded">入门</a></li>
-        <li><a href="#api-reference" class="block p-2 hover:bg-[#2B2F31] rounded">API 参考</a></li>
-        <li><a href="#tutorials" class="block p-2 hover:bg-[#2B2F31] rounded">教程</a></li>
-      </ul>
-    </aside>
+
   </div>
 
 
   <script src="../utils/hubDoc.ts"></script>
   <script>
-    const sections = ['intro', 'getting-started', 'api-reference', 'tutorials'];
+    const sections = ['intro', 'install', 'api-reference', 'tutorials'];
     let currentSection = 'intro';
 
     function showSection(sectionId) {
       document.querySelectorAll('.content-section').forEach(sec => sec.classList.add('hidden'));
       document.getElementById(sectionId).classList.remove('hidden');
       currentSection = sectionId;
+
+      // Remove highlight from all main links
+      document.querySelectorAll('aside a[data-section]').forEach(link => link.classList.remove('bg-[#3a3f41]'));
+      // Add highlight to current section link
+      const currentLink = document.querySelector(`aside a[data-section="${sectionId}"]`);
+      if (currentLink) {
+        currentLink.classList.add('bg-[#3a3f41]');
+      }
     }
 
     // 侧边栏点击
@@ -115,22 +138,19 @@
       link.addEventListener('click', (e) => {
         e.preventDefault();
         const section = e.target.dataset.section;
-        showSection(section);
-      });
-    });
-
-    // 跳转栏点击
-    document.querySelectorAll('aside:last-of-type a').forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const target = e.target.getAttribute('href').substring(1);
-        const main = document.querySelector('main');
-        const element = document.getElementById(target);
-        if (element) {
-          main.scrollTop = element.offsetTop - main.offsetTop;
+        if (section) {
+          showSection(section);
+          // Show submenu for install
+          if (section === 'install') {
+            document.getElementById('install-submenu').classList.remove('hidden');
+          } else {
+            document.getElementById('install-submenu').classList.add('hidden');
+          }
         }
       });
     });
+
+
 
     // 上一页
     document.getElementById('prev-btn').addEventListener('click', () => {
@@ -150,6 +170,11 @@
 
     // 初始化显示 intro
     showSection('intro');
+    // Initial highlight
+    const introLink = document.querySelector('aside a[data-section="intro"]');
+    if (introLink) {
+      introLink.classList.add('bg-[#3a3f41]');
+    }
   </script>
   <script>
     // 检查登录状态
@@ -199,6 +224,43 @@
       if (styleTag) {
         styleTag.remove();
       }
+
+      // Response button click handlers
+      document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('response-btn')) {
+          const status = e.target.getAttribute('data-status');
+          const bar = e.target.closest('.response-btn-bar');
+          const box = bar.nextElementSibling;
+
+          // Remove active class from all buttons in this bar
+          bar.querySelectorAll('.response-btn').forEach(btn => btn.classList.remove('active', 'bg-[#DCEEF3]'));
+          bar.querySelectorAll('.response-btn').forEach(btn => btn.classList.add('bg-gray-300', 'hover:bg-gray-400'));
+
+          // Add active class to clicked button
+          e.target.classList.add('active', 'bg-[#DCEEF3]');
+          e.target.classList.remove('bg-gray-300', 'hover:bg-gray-400');
+
+          // Hide all response contents in this box
+          box.querySelectorAll('.response-content-item').forEach(item => item.classList.add('hidden'));
+
+          // Show the corresponding content
+          const content = box.querySelector(`[data-status-content="${status}"]`);
+          if (content) {
+            content.classList.remove('hidden');
+          }
+        }
+
+        // Submenu link click handlers
+        if (e.target.closest('#install-submenu a')) {
+          e.preventDefault();
+          const target = e.target.getAttribute('href').substring(1);
+          const main = document.querySelector('main');
+          const element = document.getElementById(target);
+          if (element) {
+            main.scrollTop = element.offsetTop - main.offsetTop;
+          }
+        }
+      });
     });
   </script>
 
