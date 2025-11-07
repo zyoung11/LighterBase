@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="./LOGOW-z7cg21xb.png" />
+  <title>LighterBase</title>
+  <style id="fouc-fix">
+    body {
+      background: #1B1E1F;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+    }
+  </style>
+  
+<script type="module" crossorigin src="./hub-4ca1zvc4.js"></script></head>
+
+<body class="fouc-fix bg-[#121414] text-gray-200 h-screen overflow-hidden flex flex-col"
+  style="background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 20px 20px;">
+  <!-- 顶部导航栏 -->
+  <nav class="flex justify-between items-center px-6 py-2 rounded-lg bg-[#181A1B]">
+    <!-- 左侧：Logo、名称、Pricing、Docs -->
+    <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-2">
+        <img src="./LOGOW-z7cg21xb.png" alt="Logo" class="w-12 h-12">
+        <span class="text-xl font-bold">LighterBase</span>
+      </div>
+      <a href="pricing.html"
+        class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg transition-colors inline-block">Pricing</a>
+      <a href="docs.html"
+        class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg transition-colors inline-block">Docs</a>
+    </div>
+    <!-- 右侧：Login in 或 用户名 -->
+    <div class="relative">
+      <a id="user-link" href="login.html"
+        class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] text-[#46A3FF] rounded-lg transition-colors inline-block">Login
+        in</a>
+      <div id="logout-menu" class="absolute top-full mt-1 bg-[#2B2F31] rounded-lg shadow-lg hidden z-10">
+        <button id="logout-btn" class="px-4 py-2 text-white hover:bg-[#3a3f41] rounded-lg w-16 text-center">登出</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 中间内容 -->
+  <div id="slogan-block" class="flex-1 flex items-center justify-center relative">
+    <div class="text-center space-y-6 relative">
+      <!-- 三组不同大小的字 -->
+      <div class="space-y-2 relative" id="hover-area">
+        <h1 class="text-8xl font-bold text-[#46A3FF]">Build in a Lighter Way</h1>
+        <h2 class="text-6xl font-semibold">Just in minutes</h2>
+        <p class="text-2xl">Lighterbase is the Postgres development platform.</p>
+        <p class="text-2xl">Backend editing in a new way than the past altogether.</p>
+        <!-- 重叠层 -->
+        <div class="absolute -inset-y-2 space-y-2 opacity-0" id="overlay">
+          <h1 class="text-8xl font-bold text-[#FF6B46]">Build in a Lighter Way</h1>
+          <h2 class="text-6xl font-semibold text-white">Just in minutes</h2>
+          <p class="text-2xl text-white">Lighterbase is the Postgres development platform.</p>
+          <p class="text-2xl text-white">Backend editing in a new way than the past altogether.</p>
+        </div>
+      </div>
+      <!-- Get Start 按钮 -->
+      <a href="/"
+        class="px-6 py-2 bg-[#46A3FF] hover:bg-[#14AFF7] border border-[#44F6FF] hover:border-[#1FF4FF] rounded-lg text-xl text-white font-semibold transition-colors inline-block">Get
+        Start</a>
+      <!-- 一行小字 -->
+      <p class="text-sm text-gray-400">Trusted by ourselves</p>
+    </div>
+  </div>
+
+  <!-- 左下角 GitHub 图标 -->
+  <div class="fixed bottom-4 left-4">
+    <a href="https://github.com/zyoung11/LighterBase" class="flex items-center">
+      <img src="./github白-r79jz42a.svg" alt="GitHub" class="w-8 h-8 mr-2">
+      <div>LighterBase</div>
+    </a>
+    <!-- <img src="../icons/github白.svg" alt="GitHub" class="w-8 h-8 mr-2"> -->
+    <!-- <p>LighterBase</p> -->
+  </div>
+
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.body.style.opacity = '1';
+      const styleTag = document.getElementById('fouc-fix');
+      if (styleTag) {
+        styleTag.remove();
+      }
+    });
+
+    // 检查登录状态
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    const token = getCookie('hubAuthToken');
+    const username = localStorage.getItem('username');
+    const userLink = document.getElementById('user-link');
+    const logoutMenu = document.getElementById('logout-menu');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    if (token && username) {
+      userLink.textContent = username;
+      userLink.href = '#';
+
+      // 点击用户名显示/隐藏登出菜单
+      userLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        logoutMenu.classList.toggle('hidden');
+      });
+
+      // 点击登出清除token
+      logoutBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        document.cookie = 'hubAuthToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        localStorage.removeItem('username');
+        window.location.reload();
+      });
+
+      // 点击其他地方隐藏菜单
+      document.addEventListener('click', function (e) {
+        if (!userLink.contains(e.target) && !logoutMenu.contains(e.target)) {
+          logoutMenu.classList.add('hidden');
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>
