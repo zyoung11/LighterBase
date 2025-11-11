@@ -108,6 +108,43 @@ showTooltipWithCopy(content: string, left: number, top: number) {
   tooltip.addEventListener('mouseleave', () => {
     tooltip.remove();
   });
+},
+
+createButton(text: string): HTMLButtonElement {
+  const button = document.createElement('button');
+  button.innerText = text;
+  button.style.backgroundColor = 'white';
+  button.style.color = 'black';
+  button.style.borderRadius = '10em';
+  button.style.fontSize = '15px';
+  button.style.fontWeight = '600';
+  button.style.padding = '1em 2em';
+  button.style.cursor = 'pointer';
+  button.style.transition = 'all 0.3s ease-in-out';
+  button.style.border = '1px solid black';
+  button.style.boxShadow = '0 0 0 0 black';
+
+  button.addEventListener('mouseenter', () => {
+    button.style.transform = 'translateY(-4px) translateX(-2px)';
+    button.style.boxShadow = '2px 5px 0 0 black';
+  });
+
+  button.addEventListener('mouseleave', () => {
+    button.style.transform = 'translateY(0) translateX(0)';
+    button.style.boxShadow = '0 0 0 0 black';
+  });
+
+  button.addEventListener('mousedown', () => {
+    button.style.transform = 'translateY(2px) translateX(1px)';
+    button.style.boxShadow = '0 0 0 0 black';
+  });
+
+  button.addEventListener('mouseup', () => {
+    button.style.transform = 'translateY(-4px) translateX(-2px)';
+    button.style.boxShadow = '2px 5px 0 0 black';
+  });
+
+  return button;
 }
 
 

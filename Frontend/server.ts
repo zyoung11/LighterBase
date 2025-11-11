@@ -17,18 +17,22 @@ const server = Bun.serve({
 
     // Hub 页面
     "/hub": HubPage,
+    "/hub.html":HubPage,
     "/hub/hub.html": HubPage,
 
     // 登录页面
     "/login": LoginPage,
+    "/login.html":LoginPage,
     "/hub/login.html": LoginPage,
 
     // 定价页面
     "/pricing": PricingPage,
+    "/pricing.html":PricingPage,
     "/hub/pricing.html": PricingPage,
 
     // 文档页面
     "/docs": DocsPage,
+    "/docs.html":DocsPage,
     "/hub/docs.html": DocsPage,
 
     // 欢迎页面

@@ -1,9 +1,137 @@
 import auth from "../apis/auth";
+import blocks from "../modules/blocks";
+import logoIcon from "../icons/LOGOW.png"
 // hubConponents.ts
 
 let isEmpty = false;
 
+// 创建导航栏函数
+function createNavBar() {
+  const nav = document.createElement('nav');
+  nav.className = 'flex justify-between items-center px-6 py-2 rounded-lg bg-[#181A1B]';
+
+  // 左侧：Logo、Pricing、Docs
+  const leftDiv = document.createElement('div');
+  leftDiv.className = 'flex items-center space-x-4';
+
+  const logoBtn = document.createElement('button');
+  logoBtn.className = 'flex items-center space-x-2';
+  logoBtn.onclick = () => window.location.href = 'hub.html';
+  const logoImg = document.createElement('img');
+  logoImg.src = logoIcon;
+  logoImg.className = 'w-12 h-12';
+  logoImg.alt = 'Logo';
+  const logoSpan = document.createElement('span');
+  logoSpan.className = 'text-xl font-bold';
+  logoSpan.textContent = 'LighterBase';
+  logoBtn.appendChild(logoImg);
+  logoBtn.appendChild(logoSpan);
+  leftDiv.appendChild(logoBtn);
+
+  const pricingBtn = blocks.createButton('Pricing');
+  pricingBtn.style.backgroundColor = 'lightgray';
+  pricingBtn.style.color = 'gray';
+  pricingBtn.style.border = '1px solid gray';
+  pricingBtn.style.boxShadow = '0 0 0 0 gray';
+  pricingBtn.style.padding = '0.5rem 1rem';
+  pricingBtn.style.borderRadius = '0.5rem';
+  pricingBtn.onmouseenter = () => {
+    pricingBtn.style.transform = 'translateY(-4px) translateX(-2px)';
+    pricingBtn.style.boxShadow = '2px 5px 0 0 gray';
+  };
+  pricingBtn.onmouseleave = () => {
+    pricingBtn.style.transform = 'translateY(0) translateX(0)';
+    pricingBtn.style.boxShadow = '0 0 0 0 gray';
+  };
+  pricingBtn.onmousedown = () => {
+    pricingBtn.style.transform = 'translateY(2px) translateX(1px)';
+    pricingBtn.style.boxShadow = '0 0 0 0 gray';
+  };
+  pricingBtn.onmouseup = () => {
+    pricingBtn.style.transform = 'translateY(-4px) translateX(-2px)';
+    pricingBtn.style.boxShadow = '2px 5px 0 0 gray';
+  };
+  pricingBtn.onclick = () => window.location.href = 'pricing.html';
+  leftDiv.appendChild(pricingBtn);
+
+  const docsBtn = blocks.createButton('Docs');
+  docsBtn.style.backgroundColor = 'lightgray';
+  docsBtn.style.color = 'gray';
+  docsBtn.style.border = '1px solid gray';
+  docsBtn.style.boxShadow = '0 0 0 0 gray';
+  docsBtn.style.padding = '0.5rem 1rem';
+  docsBtn.style.borderRadius = '0.5rem';
+  docsBtn.onmouseenter = () => {
+    docsBtn.style.transform = 'translateY(-4px) translateX(-2px)';
+    docsBtn.style.boxShadow = '2px 5px 0 0 gray';
+  };
+  docsBtn.onmouseleave = () => {
+    docsBtn.style.transform = 'translateY(0) translateX(0)';
+    docsBtn.style.boxShadow = '0 0 0 0 gray';
+  };
+  docsBtn.onmousedown = () => {
+    docsBtn.style.transform = 'translateY(2px) translateX(1px)';
+    docsBtn.style.boxShadow = '0 0 0 0 gray';
+  };
+  docsBtn.onmouseup = () => {
+    docsBtn.style.transform = 'translateY(-4px) translateX(-2px)';
+    docsBtn.style.boxShadow = '2px 5px 0 0 gray';
+  };
+  docsBtn.onclick = () => window.location.href = 'docs.html';
+  leftDiv.appendChild(docsBtn);
+
+  nav.appendChild(leftDiv);
+
+  // 右侧：Login in 或 用户名
+  const rightDiv = document.createElement('div');
+  rightDiv.className = 'relative';
+  const userBtn = blocks.createButton('Login in');
+  userBtn.id = 'user-link';
+  userBtn.style.backgroundColor = 'lightgray';
+  userBtn.style.color = 'gray';
+  userBtn.style.border = '1px solid gray';
+  userBtn.style.boxShadow = '0 0 0 0 gray';
+  userBtn.style.padding = '0.5rem 1rem';
+  userBtn.style.borderRadius = '0.5rem';
+  userBtn.onmouseenter = () => {
+    userBtn.style.transform = 'translateY(-4px) translateX(-2px)';
+    userBtn.style.boxShadow = '2px 5px 0 0 gray';
+  };
+  userBtn.onmouseleave = () => {
+    userBtn.style.transform = 'translateY(0) translateX(0)';
+    userBtn.style.boxShadow = '0 0 0 0 gray';
+  };
+  userBtn.onmousedown = () => {
+    userBtn.style.transform = 'translateY(2px) translateX(1px)';
+    userBtn.style.boxShadow = '0 0 0 0 gray';
+  };
+  userBtn.onmouseup = () => {
+    userBtn.style.transform = 'translateY(-4px) translateX(-2px)';
+    userBtn.style.boxShadow = '2px 5px 0 0 gray';
+  };
+  userBtn.onclick = () => window.location.href = 'login.html';
+  rightDiv.appendChild(userBtn);
+
+  const logoutMenu = document.createElement('div');
+  logoutMenu.id = 'logout-menu';
+  logoutMenu.className = 'absolute top-full mt-1 bg-[#2B2F31] rounded-lg shadow-lg hidden z-10';
+  const logoutBtn = document.createElement('button');
+  logoutBtn.id = 'logout-btn';
+  logoutBtn.className = 'px-4 py-2 text-white hover:bg-[#3a3f41] rounded-lg w-16 text-center';
+  logoutBtn.textContent = '登出';
+  logoutMenu.appendChild(logoutBtn);
+  rightDiv.appendChild(logoutMenu);
+
+  nav.appendChild(rightDiv);
+
+  return nav;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
+  // 生成导航栏
+  const newNav = createNavBar();
+  document.body.insertBefore(newNav, document.body.firstChild);
+
   // 登录功能
   const formLogin = document.getElementById("form-login") as HTMLFormElement;
   const loginUsernameInput = document.getElementById("login-username") as HTMLInputElement;
