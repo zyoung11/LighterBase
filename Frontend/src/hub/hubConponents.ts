@@ -1,4 +1,5 @@
-import auth from "../apis/auth";
+// import auth from "../apis/auth";
+import  hubauth from "./hubAuth" 
 import blocks from "../modules/blocks";
 import logoIcon from "../icons/LOGOW.png"
 // hubConponents.ts
@@ -177,14 +178,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const emailField = document.getElementById("email-field") as HTMLDivElement;
 
   if (formLogin && loginUsernameInput && loginPasswordInput && emailInput && emailField) {
-    isEmpty = await auth.isLogin();
-    if (!isEmpty) {
-      emailField.style.display = 'block';
-      emailInput.required = true;
-    } else {
-      emailField.style.display = 'none';
-      emailInput.required = false;
-    }
+    // isEmpty = await auth.isLogin();
+    // if (!isEmpty) {
+    //   emailField.style.display = 'block';
+    //   emailInput.required = true;
+    // } else {
+    //   emailField.style.display = 'none';
+    //   emailInput.required = false;
+    // }
 
     formLogin.addEventListener("submit", async(e) => {
       e.preventDefault();
@@ -192,12 +193,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 设置注册输入
         (document.getElementById("username") as HTMLInputElement).value = loginUsernameInput.value;
         (document.getElementById("password") as HTMLInputElement).value = loginPasswordInput.value;
-        const success = await auth.userRegister();
+        const success = await hubauth.hubUserRegister();
         if (success) {
-          await auth.userLogin();
+          await hubauth.hubUserLogin();
         }
       } else {
-        await auth.userLogin();
+        await hubauth.hubUserLogin();
       }
     });
   }
