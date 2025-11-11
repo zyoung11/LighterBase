@@ -5,6 +5,7 @@ import LoginPage from './src/hub/login.html';
 import PricingPage from './src/hub/pricing.html';
 import DocsPage from './src/hub/docs.html';
 import WelcomePage from './src/welcome.html';
+import ProjectPage from './src/hub/projects.html'
 import open from 'open';
 
 const server = Bun.serve({
@@ -34,6 +35,11 @@ const server = Bun.serve({
     "/docs": DocsPage,
     "/docs.html":DocsPage,
     "/hub/docs.html": DocsPage,
+
+    //项目界面
+    "/projects":ProjectPage,
+    "/projects.html":ProjectPage,
+    "/hub/projects.html":ProjectPage,
 
     // 欢迎页面
     "/welcome": WelcomePage,

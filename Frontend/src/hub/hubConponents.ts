@@ -132,6 +132,43 @@ document.addEventListener('DOMContentLoaded', async () => {
   const newNav = createNavBar();
   document.body.insertBefore(newNav, document.body.firstChild);
 
+  // 检查登录状态
+  function getCookie(name: string) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift();
+  }
+
+  const token = getCookie('hubAuthToken');
+  const username = localStorage.getItem('username');
+  const userBtn = document.getElementById('user-link') as HTMLButtonElement;
+  const logoutMenu = document.getElementById('logout-menu') as HTMLDivElement;
+  const logoutBtn = document.getElementById('logout-btn') as HTMLButtonElement;
+
+  if (token && username && userBtn && logoutMenu && logoutBtn) {
+    userBtn.textContent = username;
+    userBtn.onclick = function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      logoutMenu.classList.toggle('hidden');
+    };
+
+    // 点击登出清除token
+    logoutBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      document.cookie = 'hubAuthToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+      localStorage.removeItem('username');
+      window.location.reload();
+    });
+
+    // 点击其他地方隐藏菜单
+    document.addEventListener('click', function (e) {
+      if (!userBtn.contains(e.target as Node) && !logoutMenu.contains(e.target as Node)) {
+        logoutMenu.classList.add('hidden');
+      }
+    });
+  }
+
   // 登录功能
   const formLogin = document.getElementById("form-login") as HTMLFormElement;
   const loginUsernameInput = document.getElementById("login-username") as HTMLInputElement;

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="../icons/LOGOW.png" />
+  <title>LighterBase - Projects</title>
+  <style id="fouc-fix">
+    body {
+      background: #1B1E1F;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+    }
+  </style>
+  <script src="../tailwind.js"></script>
+</head>
+
+<body class="bg-[#121414] text-gray-200 h-screen overflow-hidden flex flex-col"
+  style="background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 20px 20px;">
+
+  <!-- 中间内容 -->
+  <div class="flex-1 flex items-center justify-center relative">
+    <div class="text-center space-y-6">
+      <h1 class="text-4xl font-bold">Projects</h1>
+      <p class="text-xl">Manage your LighterBase projects here.</p>
+    </div>
+  </div>
+
+  <script src="hubConponents.ts"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.body.style.opacity = '1';
+      const styleTag = document.getElementById('fouc-fix');
+      if (styleTag) {
+        styleTag.remove();
+      }
+    });
+  </script>
+</body>
+
+</html>
