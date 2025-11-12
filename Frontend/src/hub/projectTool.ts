@@ -137,8 +137,16 @@ async function initializeBlocks() {
 function selectBlock(selectedId) {
   const selected = blocks.find(b => b.id === selectedId);
   if (!selected) return;
-console.log("查看选中的是什么？",selected.element.style)
-selected.element.style.border = '2px solid white'
+
+  // 移除所有项目的边框
+  blocks.forEach(block => {
+    if (block.element) {
+      block.element.style.border = 'none';
+    }
+  });
+
+  // 添加选中项目的边框
+  selected.element.style.border = '2px solid white';
 // selected.element.
   // 重新排列：selected to [0,0], others in order to [1,0], [2,0], etc.
   const others = blocks.filter(b => b.id !== selectedId);
@@ -149,7 +157,8 @@ selected.element.style.border = '2px solid white'
 
   // 更新容器高度
   const maxRow = Math.max(...blocks.map(b => b.position[0]));
-  gridContainer.style.height = `${(maxRow + 1) * (window.innerHeight * 0.25)}px`;
+  // gridContainer.style.height = `${(maxRow + 1) * (window.innerHeight * 0.25)}px`;
+  gridContainer.style.height = '90vh';
   // 启用y轴滚动
   gridContainer.style.overflowY = 'auto';
   // gridContainer.style.border = '2px solid white'---------------------------这个容器是id='app'下的容器
