@@ -16,14 +16,77 @@
   <script src="../tailwind.js"></script>
 </head>
 
-<body class="bg-[#121414] text-gray-200 h-screen overflow-hidden flex flex-col"
+<body class="bg-[#121414] text-gray-200 h-screen overflow flex flex-col"
   style="background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 20px 20px;">
 
-  <!-- 中间内容 -->
-  <div class="flex-1 flex items-center justify-center relative">
-    <div class="text-center space-y-6">
-      <h1 class="text-4xl font-bold">Projects</h1>
-      <p class="text-xl">Manage your LighterBase projects here.</p>
+  <!-- 项目网格 -->
+  <div id="projects-grid" class="flex-1 grid grid-cols-3 gap-4 p-6 overflow-auto"
+    style="grid-template-rows: repeat(auto-fill, 25%); min-height: 90vh;">
+    <!-- 项目将在这里动态添加 -->
+  </div>
+
+  <!-- 选中项目的布局 -->
+  <div id="selected-layout" class="hidden flex-1 flex transition-all duration-500">
+    <!-- 左侧边栏 -->
+    <div id="sidebar" class="w-1/3 bg-[#1B1E1F] p-4 overflow-auto transition-all duration-500">
+      <button id="back-btn" class="mb-4 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded">Back</button>
+      <div id="selected-project-card" class="bg-[#2B2F31] p-4 rounded-lg mb-4">
+        <!-- 选中的项目卡片 -->
+      </div>
+      <div id="other-projects" class="space-y-2">
+        <!-- 其他项目列表 -->
+      </div>
+    </div>
+    <!-- 右侧详情 -->
+    <div id="project-details" class="flex-1 bg-[#121414] p-6 flex flex-col transition-all duration-500">
+      <h2 id="detail-name" class="text-3xl font-bold mb-4"></h2>
+      <div id="detail-description" class="flex-1 text-lg mb-4"></div>
+      <button id="delete-project-btn" class="self-end bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">Delete
+        Project</button>
+    </div>
+  </div>
+
+  <!-- 底部栏 -->
+  <div class="fixed bottom-0 left-0 right-0 bg-transparent p-4 flex justify-center">
+    <button id="add-project-btn"
+      class="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center text-2xl transition-all duration-300 hover:scale-110">+</button>
+  </div>
+
+  <!-- 创建项目模态窗口 -->
+  <div id="create-modal"
+    class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 transition-opacity duration-300">
+    <div
+      class="bg-[#1B1E1F] p-6 rounded-lg shadow-lg w-full max-w-md transform transition-transform duration-300 scale-95">
+      <h2 class="text-2xl font-bold mb-4">Create New Project</h2>
+      <!-- 预览区域 -->
+      <div id="preview" class="mb-4 p-4 bg-[#2B2F31] rounded-lg">
+        <img id="preview-avatar" src="" alt="Avatar" class="w-16 h-16 rounded-full mb-2">
+        <h3 id="preview-name" class="text-xl font-bold"></h3>
+        <p id="preview-description"></p>
+      </div>
+      <form id="create-project-form">
+        <div class="mb-4">
+          <label for="project-name" class="block text-sm font-medium mb-2">Project Name</label>
+          <input type="text" id="project-name" name="project_name" required
+            class="w-full px-3 py-2 bg-[#2B2F31] border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="mb-4">
+          <label for="project-avatar" class="block text-sm font-medium mb-2">Project Avatar</label>
+          <input type="file" id="project-avatar" accept="image/*"
+            class="w-full px-3 py-2 bg-[#2B2F31] border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="mb-4">
+          <label for="project-description" class="block text-sm font-medium mb-2">Description</label>
+          <textarea id="project-description" name="project_description" rows="3"
+            class="w-full px-3 py-2 bg-[#2B2F31] border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+        </div>
+        <div class="flex space-x-4">
+          <button type="submit"
+            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Create</button>
+          <button type="button" id="cancel-create"
+            class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Cancel</button>
+        </div>
+      </form>
     </div>
   </div>
 

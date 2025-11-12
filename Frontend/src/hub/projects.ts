@@ -204,5 +204,7 @@ async deleteProject(id: number, hubAuthToken: string){
 }
 
 
-  
+
 }
+
+export default projects;

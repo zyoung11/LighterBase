@@ -1,7 +1,8 @@
 // import auth from "../apis/auth";
-import  hubauth from "./hubAuth" 
+import  hubauth from "./hubAuth"
 import blocks from "../modules/blocks";
 import logoIcon from "../icons/LOGOW.png"
+import projects from "./projects"
 // hubConponents.ts
 
 let isEmpty = false;
@@ -231,6 +232,233 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (animationId) cancelAnimationFrame(animationId);
       overlay.style.opacity = '0';
       overlay.style.clipPath = 'none';
+    });
+  }
+
+  // 定义 loadProjects 函数
+  function loadProjects(token: string) {
+    const projectsGrid = document.getElementById('projects-grid');
+    if (projectsGrid) {
+      projects.getAllProjects(token).then(data => {
+        if (data) {
+          projectsGrid.innerHTML = '';
+          data.forEach((project: any) => {
+            const projectDiv = document.createElement('div');
+            projectDiv.className = 'bg-[#2B2F31] p-4 rounded-lg cursor-pointer hover:bg-[#3a3f41] transition-colors';
+            projectDiv.setAttribute('data-id', project.id);
+            projectDiv.innerHTML = `
+              <img src="${project.project_avatar}" alt="Avatar" class="w-16 h-16 rounded-full mb-2">
+              <h3 class="text-xl font-bold mb-2">${project.project_name}</h3>
+              <p class="text-sm">${project.project_description}</p>
+            `;
+            projectDiv.addEventListener('click', () => selectProject(project, data, token));
+            projectsGrid.appendChild(projectDiv);
+          });
+        }
+      });
+    }
+  }
+
+  // 选择项目函数
+  function selectProject(selectedProject: any, allProjects: any[], token: string) {
+    const grid = document.getElementById('projects-grid');
+    const selectedLayout = document.getElementById('selected-layout');
+    const sidebar = document.getElementById('sidebar');
+    const selectedCard = document.getElementById('selected-project-card');
+    const otherProjects = document.getElementById('other-projects');
+    const detailName = document.getElementById('detail-name');
+    const detailDescription = document.getElementById('detail-description');
+    const deleteBtn = document.getElementById('delete-project-btn');
+    const backBtn = document.getElementById('back-btn');
+
+    if (grid && selectedLayout && sidebar && selectedCard && otherProjects && detailName && detailDescription && deleteBtn && backBtn) {
+      // 隐藏网格，显示选中布局
+      grid.classList.add('hidden');
+      selectedLayout.classList.remove('hidden');
+
+      // 设置选中项目卡片
+      selectedCard.innerHTML = `
+        <img src="${selectedProject.project_avatar}" alt="Avatar" class="w-12 h-12 rounded-full mb-2">
+        <h4 class="text-lg font-bold">${selectedProject.project_name}</h4>
+        <p class="text-sm">${selectedProject.project_description}</p>
+      `;
+
+      // 设置其他项目
+      otherProjects.innerHTML = '';
+      allProjects.filter(p => p.project_id !== selectedProject.project_id).forEach(project => {
+        const div = document.createElement('div');
+        div.className = 'bg-[#2B2F31] p-4 rounded cursor-pointer hover:bg-[#3a3f41]';
+        div.innerHTML = `
+          <img src="${project.project_avatar}" alt="Avatar" class="w-12 h-12 rounded-full mb-2">
+          <h4 class="text-lg font-bold mb-1">${project.project_name}</h4>
+          <p class="text-sm">${project.project_description}</p>
+        `;
+        div.addEventListener('click', () => selectProject(project, allProjects, token));
+        otherProjects.appendChild(div);
+      });
+
+      // 设置详情
+      detailName.textContent = selectedProject.project_name;
+      detailDescription.textContent = selectedProject.project_description;
+
+      // 删除按钮
+      deleteBtn.onclick = async () => {
+        await projects.deleteProject(selectedProject.id, token);
+        selectedLayout.classList.add('hidden');
+        grid.classList.remove('hidden');
+        loadProjects(token);
+      };
+
+      // 返回按钮
+      backBtn.onclick = () => {
+        selectedLayout.classList.add('hidden');
+        grid.classList.remove('hidden');
+      };
+    }
+  }
+
+  // 项目相关功能
+  if (token) {
+    loadProjects(token);
+  }
+
+  // 添加项目按钮
+  const addBtn = document.getElementById('add-project-btn');
+  const createModal = document.getElementById('create-modal');
+  const cancelBtn = document.getElementById('cancel-create');
+  if (addBtn && createModal && cancelBtn) {
+    addBtn.addEventListener('click', () => {
+      createModal.classList.remove('hidden');
+      createModal.classList.add('flex');
+    });
+    cancelBtn.addEventListener('click', () => {
+      createModal.classList.add('hidden');
+      createModal.classList.remove('flex');
+    });
+  }
+
+  // 创建项目表单
+  const createForm = document.getElementById('create-project-form') as HTMLFormElement;
+  const avatarInput = document.getElementById('project-avatar') as HTMLInputElement;
+  const nameInput = document.getElementById('project-name') as HTMLInputElement;
+  const descInput = document.getElementById('project-description') as HTMLTextAreaElement;
+  const previewAvatar = document.getElementById('preview-avatar') as HTMLImageElement;
+  const previewName = document.getElementById('preview-name');
+  const previewDesc = document.getElementById('preview-description');
+
+  if (createForm && avatarInput && nameInput && descInput && previewAvatar && previewName && previewDesc && token) {
+    // 实时预览
+    nameInput.addEventListener('input', () => {
+      previewName.textContent = nameInput.value;
+    });
+    descInput.addEventListener('input', () => {
+      previewDesc.textContent = descInput.value;
+    });
+    avatarInput.addEventListener('change', (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          previewAvatar.src = reader.result as string;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    createForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const file = avatarInput.files?.[0];
+      let avatarBase64 = '';
+      if (file) {
+        avatarBase64 = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+      }
+      const data = {
+        project_name: nameInput.value,
+        project_avatar: avatarBase64,
+        project_description: descInput.value,
+      };
+      const result = await projects.createProject(data, token);
+      if (result) {
+        loadProjects(token);
+        createForm.reset();
+        previewAvatar.src = '';
+        previewName.textContent = '';
+        previewDesc.textContent = '';
+        createModal?.classList.add('hidden');
+        createModal?.classList.remove('flex');
+      }
+    });
+  }
+
+  // 项目列表事件委托
+  const projectsList = document.getElementById('projects-list');
+  if (projectsList && token) {
+    projectsList.addEventListener('click', async (e) => {
+      const target = e.target as HTMLElement;
+      if (target.classList.contains('delete-btn')) {
+        const id = parseInt(target.getAttribute('data-id')!);
+        await projects.deleteProject(id, token);
+        loadProjects(token);
+      } else if (target.classList.contains('edit-btn')) {
+        const id = parseInt(target.getAttribute('data-id')!);
+        const newDesc = prompt('New description:');
+        if (newDesc) {
+          // 获取当前项目以保留其他字段
+          const project = await projects.getSingleProject(id, token);
+          if (project) {
+            await projects.updateProject(id, {
+              project_name: project.project_name,
+              project_avatar: project.project_avatar,
+              project_description: newDesc
+            }, token);
+            loadProjects(token);
+          }
+        }
+      }
+    });
+  }
+
+
+
+  // 获取单个用户功能
+  const getUserBtn = document.getElementById('get-user-btn');
+  if (getUserBtn && token) {
+    getUserBtn.addEventListener('click', async () => {
+      const userId = parseInt(prompt('Enter user ID:') || '0');
+      if (userId) {
+        const user = await projects.getSingleUser(userId, token);
+        if (user) {
+          alert(`User: ${user.user_name}`);
+        }
+      }
+    });
+  }
+
+  // 获取单个项目功能
+  const getSingleProjectBtn = document.getElementById('get-single-project-btn');
+  const singleProjectIdInput = document.getElementById('single-project-id') as HTMLInputElement;
+  const singleProjectDisplay = document.getElementById('single-project-display');
+  if (getSingleProjectBtn && singleProjectIdInput && singleProjectDisplay && token) {
+    getSingleProjectBtn.addEventListener('click', async () => {
+      const id = parseInt(singleProjectIdInput.value);
+      if (id) {
+        const project = await projects.getSingleProject(id, token);
+        if (project) {
+          singleProjectDisplay.innerHTML = `
+            <h3 class="text-xl font-bold">${project.project_name}</h3>
+            <p>Description: ${project.project_description}</p>
+            <p>Avatar: ${project.project_avatar}</p>
+          `;
+          singleProjectDisplay.classList.remove('hidden');
+        } else {
+          singleProjectDisplay.innerHTML = '<p>Project not found.</p>';
+          singleProjectDisplay.classList.remove('hidden');
+        }
+      }
     });
   }
 });
