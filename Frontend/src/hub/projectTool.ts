@@ -79,9 +79,15 @@ function renderBlock(block) {
     block.element.style.height = '22vh';
     block.element.style.transitionDuration = `${ANIMATION_DURATION}ms`;
     block.element.innerHTML = `
-      <img src="${block.project.project_avatar || ''}" class="w-12 h-12 rounded-full mb-1" onerror="this.style.display='none'">
-      <div class="text-white text-sm font-bold truncate">${block.project.project_name}</div>
-      <div class="text-gray-300 text-xs truncate">${block.project.project_description}</div>
+      <div class="flex items-center mr-3">
+        <img src="${block.project.project_avatar || ''}" class="w-12 h-12 rounded-full mr-2" onerror="this.style.display='none'">
+        <div>
+          <p class="text-gray-400 text-xs">Created: ${block.project.create_at}</p>
+          <p class="text-gray-400 text-xs">Updated: ${block.project.update_at}</p>
+        </div>
+      </div>
+      <h3 class="text-white text-sm font-bold truncate">${block.project.project_name}</h3>
+      <p class="text-gray-300 text-xs truncate">${block.project.project_description}</p>
     `;
     block.element.addEventListener('click', () => selectBlock(block.id));
     gridContainer.appendChild(block.element);
@@ -131,7 +137,9 @@ async function initializeBlocks() {
 function selectBlock(selectedId) {
   const selected = blocks.find(b => b.id === selectedId);
   if (!selected) return;
-
+console.log("查看选中的是什么？",selected.element.style)
+selected.element.style.border = '2px solid white'
+// selected.element.
   // 重新排列：selected to [0,0], others in order to [1,0], [2,0], etc.
   const others = blocks.filter(b => b.id !== selectedId);
   selected.position = [0, 0];
@@ -144,6 +152,7 @@ function selectBlock(selectedId) {
   gridContainer.style.height = `${(maxRow + 1) * (window.innerHeight * 0.25)}px`;
   // 启用y轴滚动
   gridContainer.style.overflowY = 'auto';
+  // gridContainer.style.border = '2px solid white'---------------------------这个容器是id='app'下的容器
 
   // 显示详情
   const detailName = projectDetails.querySelector('#detail-name') as HTMLElement;
