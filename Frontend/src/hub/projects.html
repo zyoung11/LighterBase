@@ -16,40 +16,21 @@
   <script src="../tailwind.js"></script>
 </head>
 
-<body class="bg-[#121414] text-gray-200 h-screen overflow flex flex-col"
+<body class="bg-[#121414] text-gray-200 h-screen overflow-hidden flex flex-col"
   style="background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 20px 20px;">
 
-  <!-- 项目网格 -->
-  <div id="projects-grid" class="flex-1 grid grid-cols-3 gap-4 p-6 overflow-auto"
-    style="grid-template-rows: repeat(auto-fill, 25%); min-height: 90vh;">
-    <!-- 项目将在这里动态添加 -->
+  <div id="app">
+    <!-- Grid container will be generated here -->
   </div>
 
-  <!-- 选中项目的布局 -->
-  <div id="selected-layout" class="hidden flex-1 flex transition-all duration-500">
-    <!-- 左侧边栏 -->
-    <div id="sidebar" class="w-1/3 bg-[#1B1E1F] p-4 overflow-auto transition-all duration-500">
-      <button id="back-btn" class="mb-4 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded">Back</button>
-      <div id="selected-project-card" class="bg-[#2B2F31] p-4 rounded-lg mb-4">
-        <!-- 选中的项目卡片 -->
-      </div>
-      <div id="other-projects" class="space-y-2">
-        <!-- 其他项目列表 -->
-      </div>
-    </div>
-    <!-- 右侧详情 -->
-    <div id="project-details" class="flex-1 bg-[#121414] p-6 flex flex-col transition-all duration-500">
-      <h2 id="detail-name" class="text-3xl font-bold mb-4"></h2>
-      <div id="detail-description" class="flex-1 text-lg mb-4"></div>
-      <button id="delete-project-btn" class="self-end bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">Delete
-        Project</button>
-    </div>
-  </div>
+
+
+
 
   <!-- 底部栏 -->
   <div class="fixed bottom-0 left-0 right-0 bg-transparent p-4 flex justify-center">
     <button id="add-project-btn"
-      class="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center text-2xl transition-all duration-300 hover:scale-110">+</button>
+      class="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-10 h-10 flex items-center justify-center text-2xl transition-all duration-300 hover:scale-110">+</button>
   </div>
 
   <!-- 创建项目模态窗口 -->
@@ -90,7 +71,9 @@
     </div>
   </div>
 
+
   <script src="hubConponents.ts"></script>
+  <script src="projectTool.ts"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       document.body.style.opacity = '1';
