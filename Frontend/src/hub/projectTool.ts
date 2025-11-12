@@ -27,8 +27,9 @@ const projectDetails = document.createElement('div');
 projectDetails.className = 'absolute right-[5%] top-[12%] w-3/5 h-4/5 bg-gray-800 p-4 hidden z-5';
 projectDetails.innerHTML = `
   <h2 id="detail-name" class="text-2xl font-bold mb-4"></h2>
-  <div id="detail-description" class="text-lg"></div>
-`;
+  <div id="detail-description" class="text-lg mb-4"></div>
+  <button id="delete-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Delete</button>
+ `;
 app.appendChild(projectDetails);
 
 // 创建返回按钮
@@ -147,9 +148,53 @@ function selectBlock(selectedId) {
   // 显示详情
   const detailName = projectDetails.querySelector('#detail-name') as HTMLElement;
   const detailDescription = projectDetails.querySelector('#detail-description') as HTMLElement;
+  const deleteBtn = projectDetails.querySelector('#delete-btn') as HTMLButtonElement;
   if (detailName && detailDescription) {
     detailName.textContent = selected.project.project_name;
     detailDescription.textContent = selected.project.project_description;
+  }
+  // 添加删除事件
+  if (deleteBtn) {
+    deleteBtn.onclick = async () => {
+      // 获取token
+      function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift();
+      }
+      const token = getCookie('hubAuthToken');
+      if (!token) return;
+
+      // 删除项目
+      await projects.deleteProject(selectedId, token);
+
+      // 移除DOM元素
+      const removedBlock = blocks.find(b => b.id === selectedId);
+      if (removedBlock && removedBlock.element) {
+        gridContainer.removeChild(removedBlock.element);
+      }
+
+      // 移除block
+      blocks = blocks.filter(b => b.id !== selectedId);
+
+      // 重新排列到第一列
+      blocks.forEach((b, index) => b.position = [index, 0]);
+
+      // 更新高度
+      gridContainer.style.height = `${blocks.length * (window.innerHeight * 0.25)}px`;
+
+      // 如果有blocks，选择第一个
+      if (blocks.length > 0) {
+        selectBlock(blocks[0].id);
+      } else {
+        // 无项目，隐藏详情和按钮
+        projectDetails.classList.add('hidden');
+        backBtn.classList.add('hidden');
+      }
+
+      // 重新render
+      blocks.forEach(renderBlock);
+    };
   }
   projectDetails.classList.remove('hidden');
 
