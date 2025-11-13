@@ -1,9 +1,10 @@
 [project]
-name = "test"
-version = "0.1.0"
-description = "Add your description here"
+name = "PAT"
+version = "0.2.0"
+description = "PAT 是一个用于简化API接口测试的Python迷你库。它基于 requests 和 rich 库，为您的API测试提供美观、易读的终端输出。"
 readme = "README.md"
-requires-python = "==3.9.19"
+requires-python = ">=3.13"
 dependencies = [
     "requests>=2.32.5",
+    "rich>=14.2.0"
 ]

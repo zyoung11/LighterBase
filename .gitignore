@@ -1,2 +1,4 @@
 Backend/web/LighterBaseHubData
 Backend/app/LighterBaseDate
+TEST/__pycache__
+TEST/uv.lock
