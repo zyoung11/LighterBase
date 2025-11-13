@@ -30,6 +30,9 @@ import (
 //go:embed SQL/schema.sql
 var schemaFS embed.FS
 
+//go:embed LighterBase
+var lighterBaseBinary []byte
+
 var (
 	queries *database.Queries
 	db      *sql.DB
@@ -515,4 +518,51 @@ func checkInit(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{"init": count > 0})
+}
+
+// startEmbeddedLighterBase 启动嵌入的LighterBase可执行文件
+func startEmbeddedLighterBase() error {
+	// 创建临时文件来存储可执行文件
+	tmpFile, err := os.CreateTemp("", "LighterBase-*.tmp")
+	if err != nil {
+		return fmt.Errorf("failed to create temp file: %w", err)
+	}
+	tmpPath := tmpFile.Name()
+	defer os.Remove(tmpPath) // 确保程序退出时删除临时文件
+
+	// 写入嵌入的二进制数据
+	if _, err := tmpFile.Write(lighterBaseBinary); err != nil {
+		tmpFile.Close()
+		return fmt.Errorf("failed to write binary to temp file: %w", err)
+	}
+	tmpFile.Close()
+
+	// 设置可执行权限
+	if err := os.Chmod(tmpPath, 0755); err != nil {
+		return fmt.Errorf("failed to set executable permission: %w", err)
+	}
+
+	// 启动LighterBase进程
+	cmd := exec.Command(tmpPath)
+	cmd.Dir = "." // 确保在当前目录下运行，这样路径就能对应上
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	// 启动进程
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("failed to start LighterBase: %w", err)
+	}
+
+	log.Printf("LighterBase started with PID: %d", cmd.Process.Pid)
+
+	// 设置进程清理，当LighterBaseHub退出时也终止LighterBase
+	go func() {
+		// 等待LighterBaseHub退出
+		time.Sleep(100 * time.Millisecond)
+		// 如果LighterBaseHub还在运行，这个goroutine会一直等待
+		// 当LighterBaseHub退出时，操作系统会清理子进程
+		cmd.Wait()
+	}()
+
+	return nil
 }
