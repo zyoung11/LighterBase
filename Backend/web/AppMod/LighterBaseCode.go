@@ -6,16 +6,11 @@ import (
 	"embed"
 	"errors"
 	"fmt"
-	"io/fs"
+
 	"log"
-	"net/http"
 	"os"
-	"os/exec"
-	"os/user"
-	"path"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	// "strconv"
 	"strings"
 	"time"
@@ -549,118 +544,6 @@ func isSystemColumn(col string) bool {
 func touchingRootUser(where string, args []any) bool {
 	return strings.Contains(where, "id=1") ||
 		(strings.Contains(where, "id=@uid") && len(args) > 0 && args[0] == int64(1))
-}
-
-//------------------------------------------------------------------------------
-
-//------------------------------------web---------------------------------------
-
-func web() {
-	buildPath := "./dist"
-
-	if _, err := os.Stat(buildPath); os.IsNotExist(err) {
-		fmt.Printf("Directory %s does not exist", buildPath)
-		return
-	}
-
-	fileServer := http.FileServer(http.Dir(buildPath))
-
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		requestedPath := path.Join(buildPath, path.Clean(r.URL.Path))
-		if _, err := os.Stat(requestedPath); os.IsNotExist(err) {
-			r.URL.Path = "/"
-		}
-		fileServer.ServeHTTP(w, r)
-	})
-
-	port := "8090"
-	if envPort := os.Getenv("PORT"); envPort != "" {
-		port = envPort
-	}
-
-	go func() {
-		time.Sleep(500 * time.Millisecond)
-		openBrowser("http://localhost:8090")
-	}()
-
-	log.Printf("Server starting on port %s...", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
-		log.Fatal("Server failed:", err)
-	}
-}
-
-//go:embed build/*
-var embeddedFiles embed.FS
-
-func webEmbed() {
-	buildFS, err := fs.Sub(embeddedFiles, "build")
-	if err != nil {
-		log.Fatal("Failed to create sub filesystem:", err)
-	}
-
-	fileServer := http.FileServer(http.FS(buildFS))
-
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		_, err := buildFS.Open(path.Clean(r.URL.Path))
-		if os.IsNotExist(err) {
-			r.URL.Path = "/"
-		}
-		fileServer.ServeHTTP(w, r)
-	})
-
-	port := "8070"
-	if envPort := os.Getenv("PORT"); envPort != "" {
-		port = envPort
-	}
-
-	go func() {
-		time.Sleep(500 * time.Millisecond)
-		openBrowser("http://localhost:8070")
-	}()
-
-	log.Printf("Server starting on port %s...", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
-		log.Fatal("Server failed:", err)
-	}
-}
-
-func openBrowser(url string) error {
-	var cmd string
-	var args []string
-
-	currentUser, _ := user.Current()
-	if currentUser != nil && currentUser.Uid == "0" {
-		if sudoUser := os.Getenv("SUDO_USER"); sudoUser != "" {
-			return exec.Command("sudo", "-u", sudoUser, "xdg-open", url).Start()
-		} else {
-			env := os.Environ()
-			env = append(env, "DISPLAY=:0")
-
-			if xdgCurrentDesktop := os.Getenv("XDG_CURRENT_DESKTOP"); xdgCurrentDesktop != "" {
-				env = append(env, "XDG_CURRENT_DESKTOP="+xdgCurrentDesktop)
-			}
-			if xdgSessionType := os.Getenv("XDG_SESSION_TYPE"); xdgSessionType != "" {
-				env = append(env, "XDG_SESSION_TYPE="+xdgSessionType)
-			}
-
-			command := exec.Command("xdg-open", url)
-			command.Env = env
-			return command.Start()
-		}
-	}
-
-	switch runtime.GOOS {
-	case "windows":
-		cmd = "cmd"
-		args = []string{"/c", "start"}
-	case "darwin":
-		cmd = "open"
-	default:
-		cmd = "xdg-open"
-	}
-	args = append(args, url)
-
-	return exec.Command(cmd, args...).Start()
 }
 
 //------------------------------------------------------------------------------

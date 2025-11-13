@@ -17,6 +17,7 @@ const app = document.getElementById('app');
 const gridContainer = document.createElement('div');
 gridContainer.className = `relative`;
 gridContainer.style.width = '100%';
+gridContainer.style.height = '90vh';
 gridContainer.style.padding = '2%';
 gridContainer.style.justifyContent = 'center';
 gridContainer.style.background = 'transparent';
@@ -26,6 +27,7 @@ app.appendChild(gridContainer);
 const projectDetails = document.createElement('div');
 projectDetails.className = 'absolute right-[5%] top-[12%] w-3/5 h-4/5 bg-gray-800 p-4 hidden z-5';
 projectDetails.innerHTML = `
+  <img id="detail-avatar" class="w-[40%] h-[50%] mb-4" onerror="this.style.display='none'">
   <h2 id="detail-name" class="text-2xl font-bold mb-4"></h2>
   <div id="detail-description" class="text-lg mb-4"></div>
   <button id="delete-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Delete</button>
@@ -45,7 +47,8 @@ backBtn.addEventListener('click', () => {
   });
   // 更新容器高度
   const rows = Math.ceil(blocks.length / GRID_SIZE);
-  gridContainer.style.height = `${rows * (window.innerHeight * 0.25)}px`;
+  // gridContainer.style.height = `${rows * (window.innerHeight * 0.25)}px`;
+  gridContainer.style.height = '90vh';
   // 禁用y轴滚动
   gridContainer.style.overflowY = 'hidden';
   // 隐藏详情和按钮
@@ -74,20 +77,20 @@ function renderBlock(block) {
   if (!block.element) {
     // 首次创建元素
     block.element = document.createElement('div');
-    block.element.className = `absolute bg-gray-700 rounded-md shadow-lg p-2 transition-all ease-in-out cursor-pointer`;
+    block.element.className = `absolute flex bg-gray-700 rounded-md shadow-lg p-2 transition-all ease-in-out cursor-pointer`;
     block.element.style.width = '28%';
     block.element.style.height = '22vh';
     block.element.style.transitionDuration = `${ANIMATION_DURATION}ms`;
     block.element.innerHTML = `
-      <div class="flex items-center mr-3">
-        <img src="${block.project.project_avatar || ''}" class="w-12 h-12 rounded-full mr-2" onerror="this.style.display='none'">
+        <img src="${block.project.project_avatar || ''}" class="w-[16vh] h-[16vh] mr-2" onerror="this.style.display='none'">
+       <div class = "flex flex-col">
+       <h3 class="text-white text-sm font-bold break-words">${block.project.project_name}</h3>
+       <p class="text-gray-300 text-xs break-words">${block.project.project_description}</p>
         <div>
           <p class="text-gray-400 text-xs">Created: ${block.project.create_at}</p>
           <p class="text-gray-400 text-xs">Updated: ${block.project.update_at}</p>
         </div>
-      </div>
-      <h3 class="text-white text-sm font-bold truncate">${block.project.project_name}</h3>
-      <p class="text-gray-300 text-xs truncate">${block.project.project_description}</p>
+</div>
     `;
     block.element.addEventListener('click', () => selectBlock(block.id));
     gridContainer.appendChild(block.element);
@@ -130,7 +133,8 @@ async function initializeBlocks() {
 
   // 设置容器高度
   const rows = Math.ceil(projectsData.length / GRID_SIZE);
-  gridContainer.style.height = `${rows * (window.innerHeight * 0.25)}px`;
+  // gridContainer.style.height = `${rows * (window.innerHeight * 0.25)}px`;
+    gridContainer.style.height = '90vh';
 }
 
 // 选择区块的函数
@@ -164,10 +168,12 @@ function selectBlock(selectedId) {
   // gridContainer.style.border = '2px solid white'---------------------------这个容器是id='app'下的容器
 
   // 显示详情
+  const detailAvatar = projectDetails.querySelector('#detail-avatar') as HTMLImageElement;
   const detailName = projectDetails.querySelector('#detail-name') as HTMLElement;
   const detailDescription = projectDetails.querySelector('#detail-description') as HTMLElement;
   const deleteBtn = projectDetails.querySelector('#delete-btn') as HTMLButtonElement;
-  if (detailName && detailDescription) {
+  if (detailAvatar && detailName && detailDescription) {
+    detailAvatar.src = selected.project.project_avatar || '';
     detailName.textContent = selected.project.project_name;
     detailDescription.textContent = selected.project.project_description;
   }
