@@ -190,7 +190,6 @@ cd LighterBase/Backend/web/LighterBaseHub
 - 请求头：
 
   ```
-  Content-Type: application/json
   Authorization: Bearer <jwt_token>
   ```
 
