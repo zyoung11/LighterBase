@@ -215,7 +215,7 @@ function selectBlock(selectedId) {
       }
 
       const projectId = selected.project.project_id;
-      const newUrl = `http://localhost:8081/${userId}/${projectId}`;
+      const newUrl = `http://localhost:8080/${userId}/${projectId}`;
       console.log(newUrl)
       setBaseUrl(newUrl);
 
