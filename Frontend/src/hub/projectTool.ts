@@ -220,7 +220,8 @@ function selectBlock(selectedId) {
       setBaseUrl(newUrl);
 
       // 跳转到/目录页面，附加 URL 参数
-      window.location.href = `/?apiUrl=${encodeURIComponent(newUrl)}`;
+      // window.location.href = `/?apiUrl=${encodeURIComponent(newUrl)}`;
+      window.location.href = `/welcome?apiUrl=${encodeURIComponent(newUrl)}`;
     };
   }
 
