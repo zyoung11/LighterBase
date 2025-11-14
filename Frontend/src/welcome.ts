@@ -1,5 +1,6 @@
 import blocks from "./modules/blocks";
 import auth from "./apis/auth";
+import { setBaseUrl } from "./apis/api";
 
 const formLogin = document.getElementById("form-login") as HTMLFormElement;
 const loginUsernameInput = document.getElementById("login-username") as HTMLInputElement;
@@ -10,6 +11,13 @@ const emailField = document.getElementById("email-field") as HTMLDivElement;
 let isEmpty = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // 检查 URL 参数并设置 URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const apiUrlParam = urlParams.get('apiUrl');
+  if (apiUrlParam) {
+    setBaseUrl(decodeURIComponent(apiUrlParam));
+  }
+
   isEmpty = await auth.isLogin();
   if (!isEmpty) {
     emailField.style.display = 'block';

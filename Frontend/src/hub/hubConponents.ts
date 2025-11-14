@@ -16,9 +16,9 @@ function createNavBar() {
   const leftDiv = document.createElement('div');
   leftDiv.className = 'flex items-center space-x-4';
 
-  const logoBtn = document.createElement('button');
-  logoBtn.className = 'flex items-center space-x-2';
-  logoBtn.onclick = () => window.location.href = 'hub.html';
+   const logoBtn = document.createElement('button');
+   logoBtn.className = 'flex items-center space-x-2';
+   logoBtn.onclick = () => window.location.href = 'hub.html';
   const logoImg = document.createElement('img');
   logoImg.src = logoIcon;
   logoImg.className = 'w-12 h-12';

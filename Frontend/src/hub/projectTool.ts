@@ -6,6 +6,7 @@ const GAP = 20; // 项目间隔 (px)
 
 // --- 导入 ---
 import projects from "./projects";
+import { setBaseUrl } from "../apis/api";
 
 // --- 状态管理 ---
 let blocks = [];
@@ -30,7 +31,10 @@ projectDetails.innerHTML = `
   <img id="detail-avatar" class="w-[40%] h-[50%] mb-4" onerror="this.style.display='none'">
   <h2 id="detail-name" class="text-2xl font-bold mb-4"></h2>
   <div id="detail-description" class="text-lg mb-4"></div>
-  <button id="delete-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Delete</button>
+  <div class="flex space-x-4">
+    <button id="start-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">开始</button>
+    <button id="delete-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Delete</button>
+  </div>
  `;
 app.appendChild(projectDetails);
 
@@ -177,6 +181,50 @@ function selectBlock(selectedId) {
     detailName.textContent = selected.project.project_name;
     detailDescription.textContent = selected.project.project_description;
   }
+  // 添加开始事件
+  const startBtn = projectDetails.querySelector('#start-btn') as HTMLButtonElement;
+  if (startBtn) {
+    startBtn.onclick = () => {
+      // 获取token
+      function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift();
+      }
+      const token = getCookie('hubAuthToken');
+      if (!token) return;
+
+      // 解析token获取userId
+      function parseJwt(token) {
+        try {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          }).join(''));
+          return JSON.parse(jsonPayload);
+        } catch (e) {
+          console.error('Token parsing failed:', e);
+          return null;
+        }
+      }
+      const payload = parseJwt(token);
+      const userId = payload ? payload.user_id || payload.id : null;
+      if (!userId) {
+        console.error('Unable to get userId from token');
+        return;
+      }
+
+      const projectId = selected.project.project_id;
+      const newUrl = `http://localhost:8080/${userId}/${projectId}`;
+      console.log(newUrl)
+      setBaseUrl(newUrl);
+
+      // 跳转到/目录页面，附加 URL 参数
+      window.location.href = `/?apiUrl=${encodeURIComponent(newUrl)}`;
+    };
+  }
+
   // 添加删除事件
   if (deleteBtn) {
     deleteBtn.onclick = async () => {
@@ -224,6 +272,9 @@ function selectBlock(selectedId) {
 
   // 显示返回按钮
   backBtn.classList.remove('hidden');
+
+  // 滚动到顶部
+  gridContainer.scrollTop = 0;
 
   // 重新render所有
   blocks.forEach(renderBlock);

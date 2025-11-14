@@ -116,7 +116,9 @@
     const logoBtn = document.getElementById('logo-btn')
 
     logoBtn.addEventListener('click', function () {
-      window.location.href = "/hub/hub.html";
+      const urlParams = new URLSearchParams(window.location.search);
+      const apiUrlParam = urlParams.get('apiUrl');
+      window.location.href = `/hub/hub.html${apiUrlParam ? `?apiUrl=${encodeURIComponent(apiUrlParam)}` : ''}`;
     })
   </script>
 </body>

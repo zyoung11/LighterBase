@@ -1,4 +1,4 @@
-import { URL ,authToken} from "./api.ts";
+import { URL ,authToken,hubAuthToken} from "./api.ts";
 import blocks from "../modules/blocks.ts";
 
 
@@ -7,7 +7,6 @@ async userRegister(): Promise<boolean> {
     const username = (document.getElementById("username") as HTMLInputElement).value;
     const password = (document.getElementById("password") as HTMLInputElement).value;
     const email = (document.getElementById("email") as HTMLInputElement).value;
-    
     if (!email) {
         blocks.popupConfirm("邮箱不能为空");
         return false;
@@ -21,7 +20,8 @@ async userRegister(): Promise<boolean> {
         const res = await fetch(`${URL}/api/auto/create/users`, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization":`Bearer ${hubAuthToken}`
             },
             body: JSON.stringify({
                 "name": username,
@@ -29,7 +29,7 @@ async userRegister(): Promise<boolean> {
                 "email": email 
             })
         });
-        
+        console.log("查看现在的url:",URL)
         if (res.ok) {
             return true;
         } else {
@@ -52,7 +52,8 @@ async userRegister(): Promise<boolean> {
             const res = await fetch(`${URL}/api/auth/login`, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization":`Bearer ${hubAuthToken}`
                 },
                 body: JSON.stringify({
                     "name":loginusername,
@@ -63,7 +64,8 @@ async userRegister(): Promise<boolean> {
               const token = data.token;
             if (res.ok) {
                document.cookie = `authToken=${token}; path=/;`;
-               window.location.href = "/";
+               window.location.href = `/?apiUrl=${encodeURIComponent(URL)}`;
+               // window.location.href = "/";
             } else {
                 const errorData = await res.json().catch(() => ({}));
                 blocks.popupConfirm(errorData.message || "登录失败");
@@ -79,7 +81,9 @@ async isLogin(){
         const res = await fetch(`${URL}/api/auth/init`,{
             method:"GET",
             headers:{
-                "Content-Type":"application/json"
+                "Content-Type":"application/json",
+                "Authorization":`Bearer ${hubAuthToken}`
+
             }
         });
         const data = await res.json()

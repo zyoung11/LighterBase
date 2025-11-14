@@ -131,8 +131,10 @@ async getAllProjects(hubAuthToken: string){
       }
     });
 
+    console.log(hubAuthToken)
     if(res.ok){
       const data =await res.json()
+      console.log(data)
       return data
     }
 
