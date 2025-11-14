@@ -1,4 +1,4 @@
-let URL ="http://localhost:8081"
+let URL ="http://localhost:3000/api"
 const cookies = document.cookie;
 let authToken = "";
 const authTokenMatch = cookies.match(/authToken=([^;]*)/);
@@ -21,7 +21,7 @@ function setBaseUrl(url?: string): void {
   if (url && typeof url === 'string' && url.trim()) {
     URL = url.trim();
   } else {
-    URL = "http://localhost:8081";
+    URL = "http://localhost:3000/api";
   }
 }
 
