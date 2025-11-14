@@ -1,18 +1,3 @@
-// --- 配置 ---
-const GRID_SIZE = 3; // 3列
-const CELL_SIZE = 100; // 每个格子的大小 (px)
-const ANIMATION_DURATION = 500; // 动画持续时间 (ms)
-const GAP = 20; // 项目间隔 (px)
-
-// --- 导入 ---
-import projects from "./projects";
-import { setBaseUrl } from "../apis/api";
-
-// --- 状态管理 ---
-let blocks = [];
-
-// --- DOM 操作 ---
-const app = document.getElementById('app');
 
 // 创建网格容器
 const gridContainer = document.createElement('div');
