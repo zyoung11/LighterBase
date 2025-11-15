@@ -1,21 +1,20 @@
 package main
 
 import (
+	"LighterBase/database"
 	"context"
 	"database/sql"
 	"embed"
 	"errors"
 	"fmt"
-
 	"log"
 	"os"
 	"path/filepath"
 	"regexp"
-	// "strconv"
 	"strings"
 	"time"
 
-	"LighterBase/database"
+	// "strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -700,7 +699,7 @@ func createRecord(c *fiber.Ctx) error {
 
 	// 权限检查
 	canCreate, err := checkPermission("create", tableName, userID, isGuest)
-	if err != nil {
+	if err != nil && tableName != "users" {
 		switch err.Error() {
 		case "TABLE_EMPTY":
 			return sendError(c, 400, "Table is empty", nil)

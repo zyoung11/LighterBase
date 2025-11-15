@@ -1,6 +1,7 @@
 package main
 
 import (
+	"LighterBaseHub/database"
 	"context"
 	"database/sql"
 	_ "embed"
@@ -12,8 +13,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-
-	"LighterBaseHub/database"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/proxy"
@@ -45,7 +44,7 @@ var routes = []Route{
 	{Method: "DELETE", Path: "/api/projects/:id", Handler: deleteProject, AuthRequired: true},
 
 	// BaaS API 反向代理
-	{Method: "USE", Path: "/:userId/:projectId/*", Handler: baasProxyHandler, AuthRequired: true},
+	{Method: "USE", Path: "/:userId/:projectId/*", Handler: baasProxyHandler, AuthRequired: false},
 }
 
 //-------------------------------------------------------------------------------------
