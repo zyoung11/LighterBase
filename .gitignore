@@ -2,3 +2,10 @@ Backend/web/LighterBaseHubData
 Backend/app/LighterBaseDate
 TEST/__pycache__
 TEST/uv.lock
+Backend/web-beta/LighterBaseHubData
+Backend/web-beta/LighterBaseHubData/data.db
+Backend/web-beta/LighterBaseHubData/data.db-shm
+Backend/web-beta/LighterBaseHubData/data.db-wal
+Backend/web-beta/Test/__pycache__
+Backend/web-beta/Test/uv.lock
+Backend/web-beta/LighterBaseHubData

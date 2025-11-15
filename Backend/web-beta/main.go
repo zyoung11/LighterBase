@@ -41,24 +41,13 @@ var routes = []Route{
 	{Method: "DELETE", Path: "/api/projects/:id", Handler: deleteProject, AuthRequired: true},
 
 	// BaaS API 反向代理
-	{Method: "USE", Path: "/:userId/:projectId/*", Handler: baasProxyHandler, AuthRequired: true},
+	{Method: "USE", Path: "/:userId/:projectId/*", Handler: baasProxyHandler, AuthRequired: false},
 }
 
 //-------------------------------------------------------------------------------------
 
 func main() {
 	initDB("LighterBaseHub")
-
-	// 在单独的goroutine中启动嵌入的LighterBase
-	go func() {
-		if err := startEmbeddedLighterBase(); err != nil {
-			log.Printf("ERROR: Failed to start embedded LighterBase: %v", err)
-		}
-	}()
-
-	// 等待一下让LighterBase启动
-	time.Sleep(2 * time.Second)
-
 	initBackend("LighterBaseHub", "build", 8080, 8090)
 }
 
@@ -360,31 +349,31 @@ func baasProxyHandler(c *fiber.Ctx) error {
 	}
 
 	// 2. 验证用户权限
-	currentUserID, ok := c.Locals("userID").(int64)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
-	}
+	// currentUserID, ok := c.Locals("userID").(int64)
+	// if !ok {
+	// 	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	// }
 
 	// 转换ID
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid user ID"})
-	}
+	// userID, err := strconv.ParseInt(userIDStr, 10, 64)
+	// if err != nil {
+	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid user ID"})
+	// }
 
-	projectID, err := strconv.ParseInt(projectIDStr, 10, 64)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid project ID"})
-	}
+	// projectID, err := strconv.ParseInt(projectIDStr, 10, 64)
+	// if err != nil {
+	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid project ID"})
+	// }
 
 	// 检查项目是否存在且用户有权限
-	project, err := queries.GetProjectByID(c.Context(), projectID)
-	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Project not found"})
-	}
+	// project, err := queries.GetProjectByID(c.Context(), projectID)
+	// if err != nil {
+	// 	return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Project not found"})
+	// }
 
-	if project.UserID != userID && currentUserID != 1 {
-		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Forbidden"})
-	}
+	// if project.UserID != userID && currentUserID != 1 {
+	// 	return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Forbidden"})
+	// }
 
 	// 3. 构建目标URL
 	targetURL := fmt.Sprintf("http://localhost:8081/%s/%s/%s", userIDStr, projectIDStr, c.Params("*"))

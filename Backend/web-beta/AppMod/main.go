@@ -142,26 +142,35 @@ func NewApp(name string, routes []Route) *fiber.App {
 	}))
 
 	// 创建日志文件
-	logFile, err := os.OpenFile("./LighterBaseDate/app.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0o666)
-	if err != nil {
-		log.Fatalf("error opening log file: %v", err)
-	}
+	// logFile, err := os.OpenFile("./LighterBaseDate/app.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0o666)
+	// if err != nil {
+	// 	log.Fatalf("error opening log file: %v", err)
+	// }
 
-	app.Use(logger.New(logger.Config{
-		Format:     "${time} ${ip}:${port} ${status} - ${method} ${path}\n",
-		TimeFormat: "2006-01-02 15:04:05",
-		Output:     logFile,
-		Done: func(c *fiber.Ctx, logString []byte) {
-			go func() {
-				if set, ok := c.Locals("dbSet").(*DBSet); ok && set.LogFn != nil {
-					set.LogFn(string(logString))
-				}
-			}()
-		},
-	}))
+	// app.Use(logger.New(logger.Config{
+	// 	Format:     "${time} ${ip}:${port} ${status} - ${method} ${path}\n",
+	// 	TimeFormat: "2006-01-02 15:04:05",
+	// 	Output:     logFile,
+	// 	Done: func(c *fiber.Ctx, logString []byte) {
+	// 		go func() {
+	// 			if set, ok := c.Locals("dbSet").(*DBSet); ok && set.LogFn != nil {
+	// 				set.LogFn(string(logString))
+	// 			}
+	// 		}()
+	// 	},
+	// }))
+
+	app.Use(logger.New())
 
 	for _, r := range routes {
-		app.Add(strings.ToUpper(r.Method), r.Path, r.Handler)
+		// 检查路由是否需要 projectMiddleware（包含 :userId 和 :projectId 参数）
+		if !strings.Contains(r.Path, "/:userId/:projectId/init") && strings.Contains(r.Path, ":userId") && strings.Contains(r.Path, ":projectId") {
+			// 应用 projectMiddleware 和处理器
+			app.Add(strings.ToUpper(r.Method), r.Path, projectMiddleware, r.Handler)
+		} else {
+			// 直接添加不需要 middleware 的路由
+			app.Add(strings.ToUpper(r.Method), r.Path, r.Handler)
+		}
 	}
 
 	return app
@@ -719,7 +728,7 @@ func createRecord(c *fiber.Ctx) error {
 
 	// 权限检查
 	canCreate, err := checkPermission(dataDB, queries, "create", tableName, userID, isGuest)
-	if err != nil {
+	if err != nil && tableName != "users" {
 		switch err.Error() {
 		case "TABLE_EMPTY":
 			return sendError(c, 400, "Table is empty", nil)
