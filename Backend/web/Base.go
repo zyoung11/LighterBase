@@ -1,6 +1,7 @@
 package main
 
 import (
+	"LighterBaseHub/database"
 	"database/sql"
 	"embed"
 	"errors"
@@ -16,8 +17,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"LighterBaseHub/database"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -113,7 +112,14 @@ func JWTMiddleware(c *fiber.Ctx) error {
 func NewApp(name string, routes []Route) *fiber.App {
 	app := fiber.New(fiber.Config{AppName: name})
 
-	app.Use(cors.New())
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "http://localhost:3000,http://localhost:8080,http://localhost:8090",
+		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS,HEAD,PATCH",
+		AllowHeaders:     "*",
+		ExposeHeaders:    "*",
+		AllowCredentials: true,
+		MaxAge:           86400,
+	}))
 	app.Use(logger.New())
 
 	for _, r := range routes {

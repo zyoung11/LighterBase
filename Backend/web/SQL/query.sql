@@ -65,18 +65,11 @@ RETURNING *;
 -- name: DeleteProject :exec
 DELETE FROM projects WHERE project_id = ?;
 
--- name: UpdateProjectPort :exec
-UPDATE projects SET port = ? WHERE project_id = ?;
-
-
 -- name: ListAllProjectsForRestore :many
 SELECT * FROM projects WHERE port IS NOT NULL;
 
 -- name: UpdateProjectSize :exec
 UPDATE projects SET project_size = ?, update_at = datetime('now') WHERE project_id = ?;
-
--- name: UpdateProjectPID :exec
-UPDATE projects SET pid = ? WHERE project_id = ?;
 
 -- name: CountUsers :one
 SELECT count(*) FROM users;
