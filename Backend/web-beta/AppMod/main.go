@@ -141,25 +141,6 @@ func NewApp(name string, routes []Route) *fiber.App {
 		MaxAge:           86400,
 	}))
 
-	// 创建日志文件
-	// logFile, err := os.OpenFile("./LighterBaseDate/app.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0o666)
-	// if err != nil {
-	// 	log.Fatalf("error opening log file: %v", err)
-	// }
-
-	// app.Use(logger.New(logger.Config{
-	// 	Format:     "${time} ${ip}:${port} ${status} - ${method} ${path}\n",
-	// 	TimeFormat: "2006-01-02 15:04:05",
-	// 	Output:     logFile,
-	// 	Done: func(c *fiber.Ctx, logString []byte) {
-	// 		go func() {
-	// 			if set, ok := c.Locals("dbSet").(*DBSet); ok && set.LogFn != nil {
-	// 				set.LogFn(string(logString))
-	// 			}
-	// 		}()
-	// 	},
-	// }))
-
 	app.Use(logger.New())
 
 	for _, r := range routes {

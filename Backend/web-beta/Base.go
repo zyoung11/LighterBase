@@ -29,9 +29,6 @@ import (
 //go:embed SQL/schema.sql
 var schemaFS embed.FS
 
-//go:embed LighterBase
-var lighterBaseBinary []byte
-
 var (
 	queries *database.Queries
 	db      *sql.DB

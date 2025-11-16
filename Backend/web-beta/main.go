@@ -10,16 +10,27 @@ import (
 	"math"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/proxy"
 )
 
+//go:embed LighterBase
+var lighterBaseBinary []byte
+
 // 用户数据库路径
 const baseDir string = "./LighterBaseHubData/Apps"
+
+var (
+	lighterBaseProcess *os.Process
+	processMutex       sync.Mutex
+	lighterBasePath    string
+)
 
 var routes = []Route{
 	{Method: "GET", Path: "/health", Handler: health, AuthRequired: false},
@@ -46,7 +57,141 @@ var routes = []Route{
 
 //-------------------------------------------------------------------------------------
 
+// extractLighterBase 提取嵌入的LighterBase可执行文件到临时位置
+func extractLighterBase() (string, error) {
+	// 创建临时文件
+	tempFile, err := os.CreateTemp("", "LighterBase-*")
+	if err != nil {
+		return "", fmt.Errorf("failed to create temp file: %w", err)
+	}
+	defer tempFile.Close()
+
+	// 写入嵌入的二进制数据
+	if _, err := tempFile.Write(lighterBaseBinary); err != nil {
+		os.Remove(tempFile.Name())
+		return "", fmt.Errorf("failed to write embedded binary: %w", err)
+	}
+
+	// 设置可执行权限
+	if err := os.Chmod(tempFile.Name(), 0755); err != nil {
+		os.Remove(tempFile.Name())
+		return "", fmt.Errorf("failed to set executable permission: %w", err)
+	}
+
+	return tempFile.Name(), nil
+}
+
+// startLighterBase 启动LighterBase程序
+func startLighterBase() error {
+	processMutex.Lock()
+	defer processMutex.Unlock()
+
+	// 如果进程已经在运行，先停止它
+	if lighterBaseProcess != nil {
+		log.Println("Stopping existing LighterBase process...")
+		if err := lighterBaseProcess.Kill(); err != nil {
+			log.Printf("Warning: failed to kill existing process: %v", err)
+		}
+		lighterBaseProcess.Wait()
+		lighterBaseProcess = nil
+	}
+
+	// 提取嵌入的二进制文件
+	if lighterBasePath == "" {
+		path, err := extractLighterBase()
+		if err != nil {
+			return fmt.Errorf("failed to extract LighterBase: %w", err)
+		}
+		lighterBasePath = path
+		log.Printf("Extracted LighterBase to: %s", lighterBasePath)
+	}
+
+	// 获取当前工作目录
+	workDir, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("failed to get current working directory: %w", err)
+	}
+
+	log.Printf("Starting LighterBase with working directory: %s", workDir)
+
+	// 创建命令
+	cmd := exec.Command(lighterBasePath)
+	cmd.Dir = workDir // 设置工作目录为当前目录
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	// 启动进程
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("failed to start LighterBase: %w", err)
+	}
+
+	lighterBaseProcess = cmd.Process
+	log.Printf("LighterBase started with PID: %d", lighterBaseProcess.Pid)
+
+	// 在后台监控进程
+	go func() {
+		if err := cmd.Wait(); err != nil {
+			log.Printf("LighterBase process exited with error: %v", err)
+		} else {
+			log.Println("LighterBase process exited normally")
+		}
+
+		processMutex.Lock()
+		if lighterBaseProcess == cmd.Process {
+			lighterBaseProcess = nil
+		}
+		processMutex.Unlock()
+	}()
+
+	return nil
+}
+
+// monitorLighterBase 监控LighterBase进程，如果崩溃则重启
+func monitorLighterBase() {
+	ticker := time.NewTicker(10 * time.Second)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		processMutex.Lock()
+		running := lighterBaseProcess != nil
+		processMutex.Unlock()
+
+		if !running {
+			log.Println("LighterBase is not running, attempting to restart...")
+			if err := startLighterBase(); err != nil {
+				log.Printf("Failed to restart LighterBase: %v", err)
+			}
+		}
+	}
+}
+
 func main() {
+	// 启动LighterBase
+	if err := startLighterBase(); err != nil {
+		log.Fatalf("Failed to start LighterBase: %v", err)
+	}
+
+	// 启动监控goroutine
+	go monitorLighterBase()
+
+	// 确保清理资源
+	defer func() {
+		processMutex.Lock()
+		if lighterBaseProcess != nil {
+			log.Println("Stopping LighterBase process...")
+			lighterBaseProcess.Kill()
+		}
+		processMutex.Unlock()
+
+		// 清理临时文件
+		if lighterBasePath != "" {
+			os.Remove(lighterBasePath)
+		}
+	}()
+
+	// 给LighterBase一点启动时间
+	time.Sleep(2 * time.Second)
+
 	initDB("LighterBaseHub")
 	initBackend("LighterBaseHub", "build", 8080, 8090)
 }
