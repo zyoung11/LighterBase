@@ -15,7 +15,7 @@ type AIModel = {
 };
 
 const AI_MODELS: AIModel[] = [
-    { id: 'glm', name: 'GLM (Zhipu)', base_url: 'https://open.bigmodel.cn/api/paas/v4', model: 'glm-4' },
+    { id: 'glm', name: 'GLM-4.5-flash (Zhipu)', base_url: 'https://open.bigmodel.cn/api/paas/v4', model: 'glm-4.5-flash' },
 ];
 
 const FIXED_MODEL_ID = 'glm';
