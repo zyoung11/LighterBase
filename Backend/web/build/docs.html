@@ -14,34 +14,12 @@
     }
   </style>
   
-<link rel="stylesheet" crossorigin href="./docs-cxv53dzv.css"><script type="module" crossorigin src="./docs-016ntyyw.js"></script></head>
+<link rel="stylesheet" crossorigin href="./docs-cxv53dzv.css"><script type="module" crossorigin src="./docs-p2ens4hn.js"></script></head>
 
 <body class="bg-[#121414] text-gray-200 h-screen overflow-hidden flex flex-col"
   style="background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 20px 20px;">
 
-  <!-- 顶部导航栏 -->
-  <nav class="flex justify-between items-center px-6 py-2 bg-[#181A1B]">
-    <!-- 左侧：Logo、名称、Pricing、Docs -->
-    <div class="flex items-center space-x-4">
-      <a href="hub.html" class="flex items-center space-x-3">
-        <img src="./LOGOW-z7cg21xb.png" alt="Logo" class="w-8 h-8">
-        <span class="text-xl font-bold">LighterBase</span>
-      </a>
-      <a href="pricing.html"
-        class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg transition-colors inline-block">Pricing</a>
-      <a href="docs.html"
-        class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg transition-colors inline-block">Docs</a>
-    </div>
-    <!-- 右侧：Login in 或 用户名 -->
-    <div class="relative">
-      <a id="user-link" href="login.html"
-        class="px-4 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] text-[#46A3FF] rounded-lg transition-colors inline-block">Login
-        in</a>
-      <div id="logout-menu" class="absolute top-full mt-1 bg-[#2B2F31] rounded-lg shadow-lg hidden z-10">
-        <button id="logout-btn" class="px-4 py-2 text-white hover:bg-[#3a3f41] rounded-lg w-16 text-center">登出</button>
-      </div>
-    </div>
-  </nav>
+
 
   <!-- 中间内容 -->
   <div class="w-full h-full flex overflow-hidden justify-center">
@@ -125,6 +103,7 @@
 
 
   
+  
   <script>
     const sections = ['intro', 'install', 'api-reference', 'tutorials'];
     let currentSection = 'intro';
@@ -196,47 +175,7 @@
       introLink.classList.add('bg-[#3a3f41]');
     }
   </script>
-  <script>
-    // 检查登录状态
-    function getCookie(name) {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
-    }
 
-    const token = getCookie('hubAuthToken');
-    const username = localStorage.getItem('username');
-    const userLink = document.getElementById('user-link');
-    const logoutMenu = document.getElementById('logout-menu');
-    const logoutBtn = document.getElementById('logout-btn');
-
-    if (token && username) {
-      userLink.textContent = username;
-      userLink.href = '#';
-
-      // 点击用户名显示/隐藏登出菜单
-      userLink.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        logoutMenu.classList.toggle('hidden');
-      });
-
-      // 点击登出清除token
-      logoutBtn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        document.cookie = 'hubAuthToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-        localStorage.removeItem('username');
-        window.location.reload();
-      });
-
-      // 点击其他地方隐藏菜单
-      document.addEventListener('click', function (e) {
-        if (!userLink.contains(e.target) && !logoutMenu.contains(e.target)) {
-          logoutMenu.classList.add('hidden');
-        }
-      });
-    }
-  </script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       document.body.style.opacity = '1';

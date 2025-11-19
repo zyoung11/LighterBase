@@ -32,6 +32,32 @@
       /* 增加渐变效果，更平滑 */
     }
   </style>
+  <style>
+    ::-webkit-scrollbar {
+      width: 0 !important;
+      /* Webkit 浏览器（Chrome, Safari）*/
+      height: 0 !important;
+      display: none !important;
+      /* 备用 */
+    }
+
+    /* 【新增或修改】针对 Firefox 滚动条的隐藏规则 */
+    .scrollbar-hide {
+      -ms-overflow-style: none !important;
+      scrollbar-width: none !important;
+      /* Firefox */
+    }
+
+    /* 为所有带 overflow 的元素应用 Firefox 隐藏 */
+    html,
+    body,
+    .overflow-y-auto,
+    .overflow-y-scroll,
+    .overflow-auto,
+    .overflow-scroll {
+      scrollbar-width: none;
+    }
+  </style>
   <!-- <script src="https://cdn.tailwindcss.com"></script> -->
   <script src="./tailwind.js"></script>
 </head>

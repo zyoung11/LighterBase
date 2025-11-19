@@ -44,20 +44,20 @@ const sidebarContent = {
   //                         `,
   folder: `
     <div class="flex flex-col h-full">
-      <div id="folder-table-list" class="flex-1 overflow-y-auto space-y-1 pr-1">
+      <div id="folder-table-list" class="flex-1 overflow-y-auto scrollbar-hide space-y-1 pr-1">
         <!-- 动态表名按钮会插到这里 -->
       </div>
     </div>
   `,
   database: `
                 <div class="space-y-3">
-                    <button id="create-db" class="w-full flex mb-3 px-4 py-3 bg-[#1B1E1F] hover:bg-[#3a3f41] rounded-lg text-left transition-colors">
+                    <button id="create-db" class="w-full flex mb-3 px-4 py-3 bg-[#1B1E1F] hover:bg-[#3a3f41] rounded-lg items-center text-left transition-colors">
                        <img src ="${create}" class ="w-[15%] object-contain mr-2" alt="表的创建">
-                       <p>Create DB</p>
+                       <p class = "ml-[10%]">Create DB</p>
                     </button>
-                    <button id="permissions" class="w-full flex px-4 py-3 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg text-left transition-colors">
+                    <button id="permissions" class="w-full flex px-4 py-3 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg items-center text-left transition-colors">
                        <img src ="${permission}" class ="w-[15%] object-contain mr-2" alt="权限">
-                       <p>Permission</p>
+                       <p class = "ml-[10%]">Permission</p>
                     </button>
                 </div>
             `,
@@ -84,7 +84,7 @@ const workspaceContent = {
     <div class="relative w-[80%] h-full">
         <textarea 
             id="sql-input"
-            class="w-full h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg p-4 text-gray-200 placeholder-gray-500 resize-none focus:outline-none focus:border-[#4a4f52]"
+            class="**scrollbar-hide** overflow-y-auto w-full h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg p-4 text-gray-200 placeholder-gray-500 resize-none focus:outline-none focus:border-[#4a4f52]"
             placeholder="在这里输入SQL查询..."
         ></textarea>
         <!-- 查看完整SQL按钮 -->
@@ -118,7 +118,7 @@ const workspaceContent = {
             </button>
         </div>
         <div class="overflow-auto h-[85%]">
-            <textarea id="full-sql-content" class="w-full h-full bg-[#1B1E1F] p-4 rounded text-gray-300 text-sm whitespace-pre-wrap overflow-x-auto resize-none focus:outline-none focus:border-[#4a4f52] border border-[#2B2F31]"></textarea>
+            <textarea id="full-sql-content" class="**scrollbar-hide** overflow-y-auto w-full h-full bg-[#1B1E1F] p-4 rounded text-gray-300 text-sm whitespace-pre-wrap overflow-x-auto resize-none focus:outline-none focus:border-[#4a4f52] border border-[#2B2F31]"></textarea>
         </div>
         <div class="mt-4 flex justify-end">
             <button id="copy-full-sql" class="px-4 py-2 bg-[#4a4f52] hover:bg-[#5a5f62] rounded text-sm text-gray-200 transition-colors mr-2">
@@ -133,7 +133,7 @@ const workspaceContent = {
         <div class="bg-[#1B1E1F] p-6 h-full flex flex-col">
             <h3 class="text-lg font-semibold mb-4">数据库表权限管理</h3>
 
-            <div class="h-2/3 bg-[#15151D] overflow-y-auto mb-4 border rounded-lg border-gray-700" >
+            <div class="h-2/3 bg-[#15151D] overflow-y-auto scrollbar-hide mb-4 border rounded-lg border-gray-700" >
                 <table id="permissions-table" class="min-w-full bg-[#2B2F31] rounded-lg" style="table-layout: fixed;">
                     <thead>
                         <tr class="border-b border-gray-600">
@@ -168,7 +168,7 @@ const workspaceContent = {
   </div>
 
   <!-- 表格区域 -->
-  <div class="h-[90%] overflow-y-auto p-4">
+   <div class="h-[90%] overflow-y-auto scrollbar-hide p-4">
     <table class="min-w-full bg-[#2B2F31] rounded-lg text-sm">
       <thead>
         <tr class="border-b border-gray-600">
@@ -308,7 +308,7 @@ const slideBarContent = {
           <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg flex items-center justify-center transition-colors text-white text-sm" data-nav="update">改</button>
           <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg flex items-center justify-center transition-colors text-white text-sm" data-nav="search">查</button>
         </div>
-        <div id="api-content" class="flex-1 flex flex-col items-center overflow-y-auto">
+         <div id="api-content" class="flex-1 flex flex-col items-center overflow-y-auto scrollbar-hide">
         </div>
       </div>
    `,
@@ -321,7 +321,7 @@ ai_generated: `
            </button>
        </div>
 
-       <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4 pb-4">
+        <div id="chat-messages" class="flex-1 overflow-y-auto scrollbar-hide space-y-4 pb-4">
            <div class="text-center text-gray-500 text-sm py-2">您正在与 GLM (Zhipu) 对话</div>
        </div>
       
