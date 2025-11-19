@@ -154,6 +154,13 @@ func NewApp(name string, routes []Route) *fiber.App {
 		log.Fatalf("error opening log file: %v", err)
 	}
 
+	// 确保在Windows上文件不是只读的
+	if runtime.GOOS == "windows" {
+		if err := os.Chmod("./LighterBaseDate/app.log", 0o666); err != nil {
+			log.Printf("warning: failed to set file permissions on Windows: %v", err)
+		}
+	}
+
 	// 自定义logger配置
 	app.Use(logger.New(logger.Config{
 		Format:     "${time} ${ip}:${port} ${status} - ${method} ${path}\n",
