@@ -34,7 +34,7 @@
   </style>
   <!-- <script src="https://cdn.tailwindcss.com"></script> -->
   
-<link rel="stylesheet" crossorigin href="./index-cxv53dzv.css"><script type="module" crossorigin src="./index-yk2xec0s.js"></script></head>
+<link rel="stylesheet" crossorigin href="./index-cxv53dzv.css"><script type="module" crossorigin src="./index-egkppp17.js"></script></head>
 
 <body class="bg-[#121414] text-gray-200 h-screen overflow-hidden">
   <div class="flex h-full">
@@ -116,7 +116,9 @@
     const logoBtn = document.getElementById('logo-btn')
 
     logoBtn.addEventListener('click', function () {
-      window.location.href = "/hub/hub.html";
+      const urlParams = new URLSearchParams(window.location.search);
+      const apiUrlParam = urlParams.get('apiUrl');
+      window.location.href = `/hub/hub.html${apiUrlParam ? `?apiUrl=${encodeURIComponent(apiUrlParam)}` : ''}`;
     })
   </script>
 </body>
