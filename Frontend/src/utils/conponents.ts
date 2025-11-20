@@ -599,10 +599,22 @@ const updateBottom = () => {
     this._showLogsPage = 1;
     render();
   });
-},
+  },
 
+  showImageTooltip(imageSrc: string, left: number, top: number) {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'fixed z-50 bg-[#2B2F31] text-gray-200 p-4 rounded-lg shadow-lg';
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = top + 'px';
+    tooltip.innerHTML = `<img src="${imageSrc}" alt="图片" style="max-width: 300px; max-height: 300px;">`;
+    document.body.appendChild(tooltip);
 
-async showFolderTables() {
+    tooltip.addEventListener('mouseleave', () => {
+      tooltip.remove();
+    });
+  },
+
+  async showFolderTables() {
   const sidebarBox = document.getElementById('folder-table-list');
   if (!sidebarBox) return;
   sidebarBox.innerHTML = '';
@@ -692,7 +704,14 @@ async showFolderTables() {
     const full = cel.getAttribute('title') || '';
     if (!full || full.length <= 15) return;
     const rect = cel.getBoundingClientRect();
-    blocks.showTooltipWithCopy(full, rect.left, rect.top - 10);
+
+    if (full.startsWith('data:image/')) {
+      // 显示图片tooltip
+      this.showImageTooltip(full, rect.left, rect.top - 10);
+    } else {
+      // 显示文本tooltip
+      blocks.showTooltipWithCopy(full, rect.left, rect.top - 10);
+    }
   });
 }
 

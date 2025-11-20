@@ -96,8 +96,8 @@ const workspaceContent = {
             <img src="${magnify}" class="w-6 h-6 object-contain" alt="放大修改">
         </button>
     </div>
-    <div class="flex flex-col">
-        <button id="ai-generated" class="w-12 h-12 px-2 py-2 hover:bg-[#3a3f41] rounded-full text-sm transition-colors mb-4">
+    <div class="flex relative">
+        <button id="ai-generated" class="absolute left-[170%] w-12 h-12 px-2 py-2 hover:bg-[#3a3f41] rounded-full text-sm transition-colors mb-4">
             <img src="${message_light}" class=" object-contain" alt="AI-generated">
         </button>
         <button id="sql-send" class="w-12 h-12 px-1 py-1 rounded-full text-sm transition-colors">
@@ -105,7 +105,7 @@ const workspaceContent = {
         </button>
     </div>
     </div>
-   <p id = "sql-notice" class = "mt-3">"enter"渲染E-R图，请注意SQL的大小写</p>
+   <p id = "sql-notice" class = "mt-3">请输入大写SQLite语句,"enter"渲染E-R图,点击右侧确认按钮提交</p>
 </div>
 
 <!-- 弹出窗口模态框 -->
