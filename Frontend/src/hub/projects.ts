@@ -1,4 +1,5 @@
-const URL = "http://localhost:8080"
+// const URL = "http://localhost:8080"
+const URL ="http://www.smallwoodice.cn:8080"
 const projects = {
 
 async getAllUsers(hubAuthToken:string){
