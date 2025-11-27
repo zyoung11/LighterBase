@@ -193,7 +193,7 @@ func main() {
 	time.Sleep(2 * time.Second)
 
 	initDB("LighterBaseHub")
-	initBackend("LighterBaseHub", "build", 8080, 80)
+	initBackend("LighterBaseHub", "build", 8080, 8090)
 }
 
 //-------------------------------------helper-func-------------------------------------
