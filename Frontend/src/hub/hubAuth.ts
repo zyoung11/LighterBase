@@ -1,6 +1,6 @@
 import blocks from "../modules/blocks";
-
-const URL = "htt[://localhost:8080"
+import { URL } from "../apis/api";
+// const URL = "htt[://localhost:8080"
 
 const hubauth = {
 async hubUserRegister(): Promise<boolean> {

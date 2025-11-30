@@ -53,7 +53,7 @@ function createNavBar() {
     pricingBtn.style.transform = 'translateY(-4px) translateX(-2px)';
     pricingBtn.style.boxShadow = '2px 5px 0 0 gray';
   };
-  pricingBtn.onclick = () => window.location.href = 'pricing';
+  pricingBtn.onclick = () => window.location.href = 'pricing.html';
   leftDiv.appendChild(pricingBtn);
 
   const docsBtn = blocks.createButton('Docs');

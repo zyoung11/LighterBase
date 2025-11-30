@@ -1,19 +1,13 @@
-// --- 配置 ---
 const GRID_SIZE = 3; // 3列
 const CELL_SIZE = 100; // 每个格子的大小 (px)
 const ANIMATION_DURATION = 500; // 动画持续时间 (ms)
 const GAP = 20; // 项目间隔 (px)
-//
-// // --- 导入 ---
 import projects from "./projects";
 import { setBaseUrl } from "../apis/api";
-//
-// // --- 状态管理 ---
+
+
 let blocks = [];
-//
-// // --- DOM 操作 ---
 const app = document.getElementById('app');
-// 创建网格容器
 const gridContainer = document.createElement('div');
 gridContainer.className = `relative`;
 gridContainer.style.width = '100%';
@@ -114,7 +108,10 @@ async function initializeBlocks() {
     if (parts.length === 2) return parts.pop()?.split(';').shift();
   }
   const token = getCookie('hubAuthToken');
-  if (!token) return;
+  if (!token) {
+    window.location.href = 'login.html';
+    return;
+  }
 
   // 获取项目数据
   const projectsData = await projects.getAllProjects(token);
@@ -216,8 +213,8 @@ function selectBlock(selectedId) {
 
       const projectId = selected.project.project_id;
       // const newUrl = `http://localhost:8080/${userId}/${projectId}`;
-      // let URL ="http://www.smallwoodice.cn:8080"
-      const newUrl = `http://www.smallwoodice.cn:8080/${userId}/${projectId}`;
+      const URL ="http://www.smallwoodice.cn:8080"
+      // const newUrl = `http://39.96.210.68:8080/${userId}/${projectId}`;
       console.log(newUrl)
       setBaseUrl(newUrl);
 

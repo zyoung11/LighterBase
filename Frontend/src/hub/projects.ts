@@ -1,5 +1,6 @@
 // const URL = "http://localhost:8080"
-const URL ="http://www.smallwoodice.cn:8080"
+// const URL ="http://www.smallwoodice.cn:8080"
+import { URL } from "../apis/api";
 const projects = {
 
 async getAllUsers(hubAuthToken:string){
