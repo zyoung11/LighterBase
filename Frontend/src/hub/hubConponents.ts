@@ -1,5 +1,5 @@
 // import auth from "../apis/auth";
-import  hubauth from "./hubAuth"
+import hubauth from "./hubAuth"
 import blocks from "../modules/blocks";
 import logoIcon from "../icons/LOGOW.png"
 import projects from "./projects"
@@ -142,7 +142,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   const token = getCookie('hubAuthToken');
+  // console.log(token)
   const username = localStorage.getItem('username');
+  // console.log(username)
   const userBtn = document.getElementById('user-link') as HTMLButtonElement;
   const logoutMenu = document.getElementById('logout-menu') as HTMLDivElement;
   const logoutBtn = document.getElementById('logout-btn') as HTMLButtonElement;
