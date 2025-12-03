@@ -9,11 +9,11 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
-	"os/user"
+	// "os/exec"
+	// "os/user"
 	"path"
 	"path/filepath"
-	"runtime"
+	// "runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -204,7 +204,7 @@ func web(buildPath string, port int) {
 
 	go func() {
 		time.Sleep(500 * time.Millisecond)
-		openBrowser(fmt.Sprintf("http://localhost:%v", port))
+		// openBrowser(fmt.Sprintf("http://localhost:%v", port))
 	}()
 
 	log.Printf("Server starting on port %d...", port)
@@ -213,44 +213,44 @@ func web(buildPath string, port int) {
 	}
 }
 
-func openBrowser(url string) error {
-	var cmd string
-	var args []string
+// func openBrowser(url string) error {
+// 	var cmd string
+// 	var args []string
 
-	currentUser, _ := user.Current()
-	if currentUser != nil && currentUser.Uid == "0" {
-		if sudoUser := os.Getenv("SUDO_USER"); sudoUser != "" {
-			return exec.Command("sudo", "-u", sudoUser, "xdg-open", url).Start()
-		} else {
-			env := os.Environ()
-			env = append(env, "DISPLAY=:0")
+// 	currentUser, _ := user.Current()
+// 	if currentUser != nil && currentUser.Uid == "0" {
+// 		if sudoUser := os.Getenv("SUDO_USER"); sudoUser != "" {
+// 			return exec.Command("sudo", "-u", sudoUser, "xdg-open", url).Start()
+// 		} else {
+// 			env := os.Environ()
+// 			env = append(env, "DISPLAY=:0")
 
-			if xdgCurrentDesktop := os.Getenv("XDG_CURRENT_DESKTOP"); xdgCurrentDesktop != "" {
-				env = append(env, "XDG_CURRENT_DESKTOP="+xdgCurrentDesktop)
-			}
-			if xdgSessionType := os.Getenv("XDG_SESSION_TYPE"); xdgSessionType != "" {
-				env = append(env, "XDG_SESSION_TYPE="+xdgSessionType)
-			}
+// 			if xdgCurrentDesktop := os.Getenv("XDG_CURRENT_DESKTOP"); xdgCurrentDesktop != "" {
+// 				env = append(env, "XDG_CURRENT_DESKTOP="+xdgCurrentDesktop)
+// 			}
+// 			if xdgSessionType := os.Getenv("XDG_SESSION_TYPE"); xdgSessionType != "" {
+// 				env = append(env, "XDG_SESSION_TYPE="+xdgSessionType)
+// 			}
 
-			command := exec.Command("xdg-open", url)
-			command.Env = env
-			return command.Start()
-		}
-	}
+// 			command := exec.Command("xdg-open", url)
+// 			command.Env = env
+// 			return command.Start()
+// 		}
+// 	}
 
-	switch runtime.GOOS {
-	case "windows":
-		cmd = "cmd"
-		args = []string{"/c", "start"}
-	case "darwin":
-		cmd = "open"
-	default:
-		cmd = "xdg-open"
-	}
-	args = append(args, url)
+// 	switch runtime.GOOS {
+// 	case "windows":
+// 		cmd = "cmd"
+// 		args = []string{"/c", "start"}
+// 	case "darwin":
+// 		cmd = "open"
+// 	default:
+// 		cmd = "xdg-open"
+// 	}
+// 	args = append(args, url)
 
-	return exec.Command(cmd, args...).Start()
-}
+// 	return exec.Command(cmd, args...).Start()
+// }
 
 //------------------------------------------------------------------------------
 
