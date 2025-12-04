@@ -7,14 +7,14 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"net/http"
+	// "net/http"
 	"os"
 	// "os/exec"
 	// "os/user"
-	"path"
+	// "path"
 	"path/filepath"
 	// "runtime"
-	"strconv"
+	// "strconv"
 	"strings"
 	"time"
 
@@ -181,40 +181,40 @@ func initDB(projectName string) {
 
 //------------------------------------web---------------------------------------
 
-func web(buildPath string, port int) {
-	if _, err := os.Stat(buildPath); os.IsNotExist(err) {
-		fmt.Printf("Directory %s does not exist", buildPath)
-		return
-	}
+// func web(buildPath string, port int) {
+// 	if _, err := os.Stat(buildPath); os.IsNotExist(err) {
+// 		fmt.Printf("Directory %s does not exist", buildPath)
+// 		return
+// 	}
 
-	fileServer := http.FileServer(http.Dir(buildPath))
+// 	fileServer := http.FileServer(http.Dir(buildPath))
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		requestedPath := path.Join(buildPath, path.Clean(r.URL.Path))
-		if _, err := os.Stat(requestedPath); os.IsNotExist(err) {
-			r.URL.Path = "/"
-		}
-		fileServer.ServeHTTP(w, r)
-	})
+// 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+// 		requestedPath := path.Join(buildPath, path.Clean(r.URL.Path))
+// 		if _, err := os.Stat(requestedPath); os.IsNotExist(err) {
+// 			r.URL.Path = "/"
+// 		}
+// 		fileServer.ServeHTTP(w, r)
+// 	})
 
-	if envPort := os.Getenv("PORT"); envPort != "" {
-		if p, err := strconv.Atoi(envPort); err == nil {
-			port = p
-		} else {
-			log.Printf("Invalid PORT environment variable: %s, using default %d", envPort, port)
-		}
-	}
+// 	if envPort := os.Getenv("PORT"); envPort != "" {
+// 		if p, err := strconv.Atoi(envPort); err == nil {
+// 			port = p
+// 		} else {
+// 			log.Printf("Invalid PORT environment variable: %s, using default %d", envPort, port)
+// 		}
+// 	}
 
-	go func() {
-		time.Sleep(500 * time.Millisecond)
-		// openBrowser(fmt.Sprintf("http://localhost:%v", port))
-	}()
+// 	go func() {
+// 		time.Sleep(500 * time.Millisecond)
+// 		// openBrowser(fmt.Sprintf("http://localhost:%v", port))
+// 	}()
 
-	log.Printf("Server starting on port %d...", port)
-	if err := http.ListenAndServe(":"+strconv.Itoa(port), nil); err != nil {
-		log.Fatal("Server failed:", err)
-	}
-}
+// 	log.Printf("Server starting on port %d...", port)
+// 	if err := http.ListenAndServe(":"+strconv.Itoa(port), nil); err != nil {
+// 		log.Fatal("Server failed:", err)
+// 	}
+// }
 
 // func openBrowser(url string) error {
 // 	var cmd string
@@ -260,9 +260,9 @@ func web(buildPath string, port int) {
 func initBackend(projectName string, frontendDir string, backendPort int, frontendPort int) {
 	initDB(projectName)
 
-	go func() {
-		web(frontendDir, frontendPort)
-	}()
+	// go func() {
+	// 	web(frontendDir, frontendPort)
+	// }()
 
 	Run(projectName, backendPort, routes)
 }
