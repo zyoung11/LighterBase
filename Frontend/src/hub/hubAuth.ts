@@ -163,7 +163,7 @@ init() {
                 // 登录
                 const success = await self.hubUserLogin();
                 if (success) {
-                    window.location.href = '/hub.html';
+                    window.location.href = '/';
                 }
             } else {
                 if (!username || !password || !email) {

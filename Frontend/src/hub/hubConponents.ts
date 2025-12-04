@@ -3,10 +3,11 @@ import hubauth from "./hubAuth"
 import blocks from "../modules/blocks";
 import logoIcon from "../icons/LOGOW.png"
 import projects from "./projects"
+import office from './office.jpg'
+import githubImg from '../icons/git.svg'
 // hubConponents.ts
 
 let isEmpty = false;
-
 // 创建导航栏函数
 function createNavBar() {
   const nav = document.createElement('nav');
@@ -130,6 +131,10 @@ function createNavBar() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  const officeImg = document.getElementById('officeSrc') as HTMLImageElement
+  const gitImg = document.getElementById('gitImg') as HTMLImageElement
+  officeImg.src = office;
+  gitImg.src = githubImg;
   // 生成导航栏
   const newNav = createNavBar();
   document.body.insertBefore(newNav, document.body.firstChild);

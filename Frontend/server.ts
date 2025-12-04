@@ -9,8 +9,8 @@ import ProjectPage from './src/hub/projects.html'
 import open from 'open';
 
 const server = Bun.serve({
-  port: 8080,
-
+  port: 80,
+  // port: 3000,
   // 使用 routes 选项定义自定义 URL 路径
   routes: {
     // // 根路径
