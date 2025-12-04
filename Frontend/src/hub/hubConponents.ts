@@ -18,7 +18,7 @@ function createNavBar() {
 
    const logoBtn = document.createElement('button');
    logoBtn.className = 'flex items-center space-x-2';
-   logoBtn.onclick = () => window.location.href = 'hub.html';
+   logoBtn.onclick = () => window.location.href = '/';
   const logoImg = document.createElement('img');
   logoImg.src = logoIcon;
   logoImg.className = 'w-12 h-12';
@@ -53,7 +53,7 @@ function createNavBar() {
     pricingBtn.style.transform = 'translateY(-4px) translateX(-2px)';
     pricingBtn.style.boxShadow = '2px 5px 0 0 gray';
   };
-  pricingBtn.onclick = () => window.location.href = 'pricing.html';
+   pricingBtn.onclick = () => window.location.href = '/pricing';
   leftDiv.appendChild(pricingBtn);
 
   const docsBtn = blocks.createButton('Docs');
@@ -79,7 +79,7 @@ function createNavBar() {
     docsBtn.style.transform = 'translateY(-4px) translateX(-2px)';
     docsBtn.style.boxShadow = '2px 5px 0 0 gray';
   };
-  docsBtn.onclick = () => window.location.href = 'docs.html';
+   docsBtn.onclick = () => window.location.href = '/docs';
   leftDiv.appendChild(docsBtn);
 
   nav.appendChild(leftDiv);
@@ -111,7 +111,7 @@ function createNavBar() {
     userBtn.style.transform = 'translateY(-4px) translateX(-2px)';
     userBtn.style.boxShadow = '2px 5px 0 0 gray';
   };
-  userBtn.onclick = () => window.location.href = 'login.html';
+   userBtn.onclick = () => window.location.href = '/login';
   rightDiv.appendChild(userBtn);
 
   const logoutMenu = document.createElement('div');
