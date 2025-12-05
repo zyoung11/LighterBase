@@ -29,7 +29,7 @@ async userRegister(): Promise<boolean> {
                 "email": email 
             })
         });
-        console.log("查看现在的url:",URL)
+        // console.log("查看现在的url:",URL)
         if (res.ok) {
             return true;
         } else {

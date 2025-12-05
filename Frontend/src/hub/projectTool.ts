@@ -213,7 +213,7 @@ function selectBlock(selectedId) {
 
       const projectId = selected.project.project_id;
       // const newUrl = `http://localhost:8080/${userId}/${projectId}`;
-      const URL ="http://www.smallwoodice.cn:8080"
+      const newUrl ="http://www.smallwoodice.cn:8080"
       // const newUrl = `http://39.96.210.68:8080/${userId}/${projectId}`;
       console.log(newUrl)
       setBaseUrl(newUrl);

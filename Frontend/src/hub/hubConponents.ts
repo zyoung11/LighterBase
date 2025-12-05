@@ -133,8 +133,10 @@ function createNavBar() {
 document.addEventListener('DOMContentLoaded', async () => {
   const officeImg = document.getElementById('officeSrc') as HTMLImageElement
   const gitImg = document.getElementById('gitImg') as HTMLImageElement
+  if(officeImg && gitImg){
   officeImg.src = office;
   gitImg.src = githubImg;
+}
   // 生成导航栏
   const newNav = createNavBar();
   document.body.insertBefore(newNav, document.body.firstChild);
