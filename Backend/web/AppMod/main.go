@@ -132,14 +132,7 @@ func ParseJWT(tokenString string) (int64, error) {
 func NewApp(name string, routes []Route) *fiber.App {
 	app := fiber.New(fiber.Config{AppName: name})
 
-	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3000,http://localhost:8080,http://localhost:8090",
-		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS,HEAD,PATCH",
-		AllowHeaders:     "*",
-		ExposeHeaders:    "*",
-		AllowCredentials: true,
-		MaxAge:           86400,
-	}))
+	app.Use(cors.New())
 
 	app.Use(logger.New())
 
