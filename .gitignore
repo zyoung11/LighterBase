@@ -11,3 +11,5 @@ Backend/web-beta/Test/uv.lock
 Backend/web-beta/LighterBaseHubData
 TEST
 Frontend/lighterBaseWeb
+Backend/web/test/__pycache__
+Backend/web/test/uv.lock
