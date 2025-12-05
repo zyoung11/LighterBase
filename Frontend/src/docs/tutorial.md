@@ -35,7 +35,6 @@ CREATE TABLE users (
 <h4 style="font-weight: bold; font-size: 1.2em;">🔒 权限管理模块</h4>
 
 ![权限管理界面](/docs/imgs/Database_permission.png)
-
 1. 在权限管理界面，选择要设置权限的表和字段。
 
 **2.** 点击相应的单元格，在弹出的输入框中输入权限设置。

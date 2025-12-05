@@ -115,6 +115,7 @@ async function initializeBlocks() {
 
   // 获取项目数据
   const projectsData = await projects.getAllProjects(token);
+  await projects.getAllUsers(token)
   if (!projectsData) return;
 
   // 创建blocks
