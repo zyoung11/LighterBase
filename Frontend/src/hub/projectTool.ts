@@ -6,7 +6,7 @@ import projects from "./projects";
 import { setBaseUrl } from "../apis/api";
 
 
-let blocks = [];
+let blocks:any[] = [];
 const app = document.getElementById('app');
 const gridContainer = document.createElement('div');
 gridContainer.className = `relative`;
@@ -15,6 +15,7 @@ gridContainer.style.height = '90vh';
 gridContainer.style.padding = '2%';
 gridContainer.style.justifyContent = 'center';
 gridContainer.style.background = 'transparent';
+if(app)
 app.appendChild(gridContainer);
 
 // 创建项目详情区域
@@ -29,6 +30,7 @@ projectDetails.innerHTML = `
     <button id="delete-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Delete</button>
   </div>
  `;
+if(app)
 app.appendChild(projectDetails);
 
 // 创建返回按钮
@@ -54,11 +56,12 @@ backBtn.addEventListener('click', () => {
   // 重新render
   blocks.forEach(renderBlock);
 });
+if(app)
 app.appendChild(backBtn);
 
 // --- 辅助函数 ---
 // 将网格坐标转换为像素坐标
-function gridToPixel(position) {
+function gridToPixel(position:any) {
   const [row, col] = position;
   const containerWidth = window.innerWidth;
   const blockWidth = containerWidth * 0.28;
@@ -70,7 +73,7 @@ function gridToPixel(position) {
 }
 
 // 创建或更新一个区块的 DOM 元素
-function renderBlock(block) {
+function renderBlock(block:any) {
   if (!block.element) {
     // 首次创建元素
     block.element = document.createElement('div');
@@ -102,7 +105,7 @@ function renderBlock(block) {
 // 初始化区块
 async function initializeBlocks() {
   // 获取token
-  function getCookie(name) {
+  function getCookie(name:string) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop()?.split(';').shift();
@@ -139,7 +142,7 @@ async function initializeBlocks() {
 }
 
 // 选择区块的函数
-function selectBlock(selectedId) {
+function selectBlock(selectedId:Int8Array) {
   const selected = blocks.find(b => b.id === selectedId);
   if (!selected) return;
 
@@ -183,7 +186,7 @@ function selectBlock(selectedId) {
   if (startBtn) {
     startBtn.onclick = () => {
       // 获取token
-      function getCookie(name) {
+      function getCookie(name:string) {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
         if (parts.length === 2) return parts.pop()?.split(';').shift();
@@ -208,15 +211,15 @@ function selectBlock(selectedId) {
       const payload = parseJwt(token);
       const userId = payload ? payload.user_id || payload.id : null;
       if (!userId) {
-        console.error('Unable to get userId from token');
+        console.error('无法从token上获取到userid');
         return;
       }
 
       const projectId = selected.project.project_id;
       // const newUrl = `http://localhost:8080/${userId}/${projectId}`;
-      const newUrl ="http://www.smallwoodice.cn:8080"
-      // const newUrl = `http://39.96.210.68:8080/${userId}/${projectId}`;
-      console.log(newUrl)
+      // const newUrl ="http://www.smallwoodice.cn:8080"
+      const newUrl = `http://www.smallwoodice.cn:8080/${userId}/${projectId}`;
+      // console.log(newUrl)
       setBaseUrl(newUrl);
 
       // 跳转到/目录页面，附加 URL 参数
@@ -281,7 +284,7 @@ function selectBlock(selectedId) {
 }
 
 // 移动区块的函数
-function moveBlock(blockId, targetPosition) {
+function moveBlock(blockId:Int8Array, targetPosition:any) {
   const blockToMove = blocks.find(b => b.id === blockId);
 
   if (blockToMove) {

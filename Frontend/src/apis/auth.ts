@@ -21,7 +21,7 @@ async userRegister(): Promise<boolean> {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization":`Bearer ${hubAuthToken}`
+                // "Authorization":`Bearer ${hubAuthToken}`
             },
             body: JSON.stringify({
                 "name": username,
@@ -64,7 +64,7 @@ async userRegister(): Promise<boolean> {
               const token = data.token;
             if (res.ok) {
                document.cookie = `authToken=${token}; path=/;`;
-               window.location.href = `/?apiUrl=${encodeURIComponent(URL)}`;
+               window.location.href = `/index?apiUrl=${encodeURIComponent(URL)}`;
                // window.location.href = "/";
             } else {
                 const errorData = await res.json().catch(() => ({}));
