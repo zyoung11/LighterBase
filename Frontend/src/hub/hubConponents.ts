@@ -1,10 +1,11 @@
 // import auth from "../apis/auth";
 import hubauth from "./hubAuth"
 import blocks from "../modules/blocks";
-import logoIcon from "../icons/LOGOW.png"
+import logoIcon from "../icons/logoWhite.png"
 import projects from "./projects"
 import office from './office.jpg'
 import githubImg from '../icons/git.svg'
+import { createLoader } from "../modules/loader";
 // hubConponents.ts
 
 let isEmpty = false;
@@ -317,3 +318,18 @@ document.addEventListener('DOMContentLoaded', async () => {
      });
    }
  });
+
+
+window.addEventListener('load', () => {
+    // 确保加载器存在，并在所有资源（包括 hubDoc.ts 中的 marked.parse）完成后隐藏
+    // const loader = (window as any).myLoader; // 假设通过全局变量访问
+    // if (loader) {
+    //     loader.hide(); 
+    // }
+    // 执行 docs.html 中原有的 FOUC 修复，显示页面内容
+    document.body.style.opacity = '1';
+    const styleTag = document.getElementById('fouc-fix');
+    if (styleTag) {
+        styleTag.remove();
+    }
+});

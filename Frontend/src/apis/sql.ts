@@ -79,7 +79,7 @@ const sql = {
         );
         if (!res.ok) throw new Error(`logs ${res.status}`);
         const data = await res.json();
-        // console.log(data);
+        console.log("测试",URL);
         return data;
 
     } catch (e) {

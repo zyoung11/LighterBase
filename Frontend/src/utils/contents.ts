@@ -1,13 +1,13 @@
-import apiIcon from "../icons/api白.svg";
-import message_light from "../icons/message_light.svg";
-import confirm from "../icons/勾白.svg";
-import magnify from "../icons/扩大白.svg";
-import level from "../icons/level白.svg";
-import logcontent from "../icons/page白.svg";
-import date from "../icons/date白.svg";
-import create from "../icons/create白.svg"
-import permission from "../icons/权限白.svg"
-import account from "../icons/用户白.svg"
+import apiIcon from "../icons/apiWhite.svg";
+import messageLight from "../icons/messageLight.svg";
+import check from "../icons/checkWhite.svg";
+import expand from "../icons/expandWhite.svg";
+import level from "../icons/levelWhite.svg";
+import logcontent from "../icons/pageWhite.svg";
+import date from "../icons/dateWhite.svg";
+import create from "../icons/createWhite.svg"
+import permission from "../icons/permissionWhite.svg"
+import account from "../icons/userWhite.svg"
 const sidebarContent = {
   logo: `
                 <div class="space-y-3">
@@ -21,7 +21,7 @@ const sidebarContent = {
   settings: `
                 <div class="space-y-3">
                     <button id="ai-settings" class="w-full flex px-4 py-3 bg-[#1B1E1F] hover:bg-[#3a3f41] rounded-lg text-left transition-colors">
-                       <img src ="${message_light}" class ="w-[15%] object-contain mr-2" alt="表的创建">
+                        <img src ="${messageLight}" class ="w-[15%] object-contain mr-2" alt="表的创建">
                        <p>AI</p>
                     </button>
                     <button id="account-settings" class="w-full flex px-4 py-3 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg text-left transition-colors">
@@ -93,15 +93,15 @@ const workspaceContent = {
             class="absolute top-2 right-2 px-3 py-1 bg-[#3a3f41] hover:bg-[#4a4f52] rounded text-xs text-gray-300 transition-colors"
             title="查看完整SQL"
         >
-            <img src="${magnify}" class="w-6 h-6 object-contain" alt="放大修改">
+             <img src="${expand}" class="w-6 h-6 object-contain" alt="放大修改">
         </button>
     </div>
     <div class="flex relative">
         <button id="ai-generated" class="absolute left-[170%] w-12 h-12 px-2 py-2 hover:bg-[#3a3f41] rounded-full text-sm transition-colors mb-4">
-            <img src="${message_light}" class=" object-contain" alt="AI-generated">
+             <img src="${messageLight}" class=" object-contain" alt="AI-generated">
         </button>
         <button id="sql-send" class="w-12 h-12 px-1 py-1 rounded-full text-sm transition-colors">
-            <img src="${confirm}" class=" object-contain" alt="确认">
+             <img src="${check}" class=" object-contain" alt="确认">
         </button>
     </div>
     </div>

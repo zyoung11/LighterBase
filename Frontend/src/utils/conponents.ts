@@ -9,7 +9,7 @@ import 'highlight.js/styles/vs2015.css';
 // import 'highlight.js/styles/rainbow.css'
 import lighterBase from "../apis/auto";
 import blocks from "../modules/blocks";
-import manageIcon from "../icons/管理_manage白.svg"
+import manageIcon from "../icons/manageWhite.svg"
 
 let logDeletePopup: {
   element: HTMLElement | null;

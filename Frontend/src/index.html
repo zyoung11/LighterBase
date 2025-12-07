@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="./icons/LOGOW.png" />
+  <link id="favicon-link" rel="icon" />
   <title>lighterBase</title>
   <style id="fouc-fix">
     :root {
@@ -70,7 +70,7 @@
       <div class="mb-8">
         <button id="logo-btn"
           class="w-15 h-15 mb-2 rounded-lg flex items-center justify-center text-white font-bold transition-colors">
-          <img src="./icons/LOGOW.png" alt="Logo" class="rounded-sm">
+          <img id="logo-img" alt="Logo" class="rounded-sm">
         </button>
       </div>
 
@@ -78,19 +78,19 @@
       <div class="flex flex-col space-y-4 ">
         <button id="database-btn"
           class="nav-btn w-12 h-12 p-2 mb-1 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg flex items-center justify-center transition-colors">
-          <img src="./icons/database-2-line白.svg" alt="数据库">
+          <img id="database-img" alt="数据库">
         </button>
         <button id="folder-btn"
           class="nav-btn w-12 h-12 p-2 mb-1 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg flex items-center justify-center transition-colors">
-          <img src="./icons/folder白.svg" alt="文件">
+          <img id="folder-img" alt="文件">
         </button>
         <button id="records-btn"
           class="nav-btn w-12 h-12 p-2 mb-1 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg flex items-center justify-center transition-colors">
-          <img src="./icons/分析白.svg" alt="分析">
+          <img id="records-img" alt="分析">
         </button>
         <button id="settings-btn"
           class="nav-btn w-12 h-12 p-2 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg flex items-center justify-center transition-colors">
-          <img src="./icons/setting白.svg" alt="设置">
+          <img id="settings-img" alt="设置">
         </button>
       </div>
     </div>
@@ -144,7 +144,8 @@
     logoBtn.addEventListener('click', function () {
       const urlParams = new URLSearchParams(window.location.search);
       const apiUrlParam = urlParams.get('apiUrl');
-      window.location.href = `/hub/hub.html${apiUrlParam ? `?apiUrl=${encodeURIComponent(apiUrlParam)}` : ''}`;
+      <!-- window.location.href = `/${apiUrlParam ? `?apiUrl=${encodeURIComponent(apiUrlParam)}` : ''}`; -->
+      window.location.href = '/';
     })
   </script>
 </body>

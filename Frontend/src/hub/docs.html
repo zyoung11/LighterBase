@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="../icons/LOGOW.png" />
+  <link rel="icon" href="../icons/logoWhite.png" />
   <title>LighterBase</title>
   <link rel="stylesheet" href="./vs2015.css">
   <style id="fouc-fix">
@@ -19,9 +19,6 @@
 
 <body class="bg-[#121414] text-gray-200 h-screen overflow-hidden flex flex-col"
   style="background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 20px 20px;">
-
-
-
   <!-- 中间内容 -->
   <div class="w-full h-full flex overflow-hidden justify-center">
     <!-- 左侧侧边栏 -->
@@ -175,54 +172,45 @@
     if (introLink) {
       introLink.classList.add('bg-[#3a3f41]');
     }
-  </script>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      document.body.style.opacity = '1';
-      const styleTag = document.getElementById('fouc-fix');
-      if (styleTag) {
-        styleTag.remove();
+
+    document.addEventListener('click', function (e) {
+      if (e.target.classList.contains('response-btn')) {
+        const status = e.target.getAttribute('data-status');
+        const bar = e.target.closest('.response-btn-bar');
+        const box = bar.nextElementSibling;
+
+        // Remove active class from all buttons in this bar
+        bar.querySelectorAll('.response-btn').forEach(btn => btn.classList.remove('active', 'bg-[#DCEEF3]'));
+        bar.querySelectorAll('.response-btn').forEach(btn => btn.classList.add('bg-gray-300', 'hover:bg-gray-400'));
+
+        // Add active class to clicked button
+        e.target.classList.add('active', 'bg-[#DCEEF3]');
+        e.target.classList.remove('bg-gray-300', 'hover:bg-gray-400');
+
+        // Hide all response contents in this box
+        box.querySelectorAll('.response-content-item').forEach(item => item.classList.add('hidden'));
+
+        // Show the corresponding content
+        const content = box.querySelector(`[data-status-content="${status}"]`);
+        if (content) {
+          content.classList.remove('hidden');
+        }
       }
 
-      // Response button click handlers
-      document.addEventListener('click', function (e) {
-        if (e.target.classList.contains('response-btn')) {
-          const status = e.target.getAttribute('data-status');
-          const bar = e.target.closest('.response-btn-bar');
-          const box = bar.nextElementSibling;
-
-          // Remove active class from all buttons in this bar
-          bar.querySelectorAll('.response-btn').forEach(btn => btn.classList.remove('active', 'bg-[#DCEEF3]'));
-          bar.querySelectorAll('.response-btn').forEach(btn => btn.classList.add('bg-gray-300', 'hover:bg-gray-400'));
-
-          // Add active class to clicked button
-          e.target.classList.add('active', 'bg-[#DCEEF3]');
-          e.target.classList.remove('bg-gray-300', 'hover:bg-gray-400');
-
-          // Hide all response contents in this box
-          box.querySelectorAll('.response-content-item').forEach(item => item.classList.add('hidden'));
-
-          // Show the corresponding content
-          const content = box.querySelector(`[data-status-content="${status}"]`);
-          if (content) {
-            content.classList.remove('hidden');
-          }
+      // Submenu link click handlers
+      if (e.target.closest('#install-submenu a, #tutorials-submenu a')) {
+        e.preventDefault();
+        const target = e.target.getAttribute('href').substring(1);
+        const main = document.querySelector('main');
+        const element = document.getElementById(target);
+        if (element) {
+          main.scrollTop = element.offsetTop - main.offsetTop;
         }
-
-        // Submenu link click handlers
-        if (e.target.closest('#install-submenu a, #tutorials-submenu a')) {
-          e.preventDefault();
-          const target = e.target.getAttribute('href').substring(1);
-          const main = document.querySelector('main');
-          const element = document.getElementById(target);
-          if (element) {
-            main.scrollTop = element.offsetTop - main.offsetTop;
-          }
-        }
-      });
+      }
     });
   </script>
+
 
 </body>
 

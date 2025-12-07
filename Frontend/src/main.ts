@@ -13,6 +13,13 @@ import auth from "./apis/auth"
 import aichat from "./modules/aiChat";
 import lighterBase from "./apis/auto";
 
+// Import images
+import logoImg from './icons/logoWhite.png';
+import databaseImg from './icons/databaseWhite.svg';
+import folderImg from './icons/folderWhite.svg';
+import recordsImg from './icons/analysisWhite.svg';
+import settingsImg from './icons/settingsWhite.svg';
+
 // 认证检查函数
 function checkAuthentication() {
   // 检查是否有token
@@ -66,6 +73,29 @@ async function initializeApp() {
 
 // 启动应用
 initializeApp();
+
+// Set imported images
+function setImportedImages() {
+  const logoImgEl = document.getElementById('logo-img') as HTMLImageElement;
+  if (logoImgEl) logoImgEl.src = logoImg;
+
+  const databaseImgEl = document.getElementById('database-img') as HTMLImageElement;
+  if (databaseImgEl) databaseImgEl.src = databaseImg;
+
+  const folderImgEl = document.getElementById('folder-img') as HTMLImageElement;
+  if (folderImgEl) folderImgEl.src = folderImg;
+
+  const recordsImgEl = document.getElementById('records-img') as HTMLImageElement;
+  if (recordsImgEl) recordsImgEl.src = recordsImg;
+
+  const settingsImgEl = document.getElementById('settings-img') as HTMLImageElement;
+  if (settingsImgEl) settingsImgEl.src = settingsImg;
+
+  const faviconLink = document.getElementById('favicon-link') as HTMLLinkElement;
+  if (faviconLink) faviconLink.href = logoImg;
+}
+
+setImportedImages();
 // 当前激活的部分
 let currentSection: string | null = null;
 const rightSidebar = document.getElementById("right-sidebar") as HTMLElement;

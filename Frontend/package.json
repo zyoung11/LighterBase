@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "s": "bun run **/*.html **/hub/*.html",
-    "d": "bun run server.ts"
+    "d": "bun run localServer.ts"
   },
   "private": true,
   "devDependencies": {
