@@ -2,7 +2,7 @@ import { marked } from "marked";
 import { markedHighlight } from "marked-highlight";
 import hljs from 'highlight.js';
 // import 'highlight.js/styles/vs2015.css';
-
+import { createLoader } from "../modules/loader";
 import { 
   intro_md_content, 
   library_md_content, 
@@ -23,19 +23,27 @@ marked.use(markedHighlight({
 // };
 
 (async () => {
+  // const loader = createLoader();
+  // loader.show();
+  
+  // try {
+    const introCont = document.getElementById('intro-cont') as HTMLElement;
+    if (introCont) {
+      introCont.innerHTML = await marked.parse(intro_md_content);
+    }
 
-  const introCont = document.getElementById('intro-cont') as HTMLElement;
-  if (introCont) {
-    introCont.innerHTML =await marked.parse(intro_md_content);
-  }
+    const installIntro = document.getElementById('install-intro') as HTMLElement;
+    if (installIntro) {
+      installIntro.innerHTML = await marked.parse(library_md_content);
+    }
 
-  const installIntro = document.getElementById('install-intro') as HTMLElement;
-  if (installIntro) {
-    installIntro.innerHTML =await marked.parse(library_md_content);
-  }
-
-  const tutorialsCont = document.getElementById('tutorials-cont') as HTMLElement;
-  if (tutorialsCont) {
-    tutorialsCont.innerHTML =await marked.parse(tutorial_md_content);
-  }
+    const tutorialsCont = document.getElementById('tutorials-cont') as HTMLElement;
+    if (tutorialsCont) {
+      tutorialsCont.innerHTML = await marked.parse(tutorial_md_content);
+    }
+  // } catch (error) {
+  //   console.error('Error rendering markdown content:', error);
+  // } finally {
+  //   loader.hide();
+  // }
 })();

@@ -6,7 +6,7 @@ import projects from "./projects"
 import office from './office.jpg'
 import githubImg from '../icons/git.svg'
 import { createLoader } from "../modules/loader";
-// hubConponents.ts
+import { compressImage } from "../modules/tools";
 
 let isEmpty = false;
 // 创建导航栏函数
@@ -82,6 +82,7 @@ function createNavBar() {
     docsBtn.style.boxShadow = '2px 5px 0 0 gray';
   };
    docsBtn.onclick = () => window.location.href = '/docs';
+
   leftDiv.appendChild(docsBtn);
 
   nav.appendChild(leftDiv);
@@ -288,34 +289,51 @@ document.addEventListener('DOMContentLoaded', async () => {
        }
      });
 
-     createForm.addEventListener('submit', async (e) => {
-       e.preventDefault();
-       const file = avatarInput.files?.[0];
-       let avatarBase64 = '';
-       if (file) {
-         avatarBase64 = await new Promise((resolve) => {
-           const reader = new FileReader();
-           reader.onload = () => resolve(reader.result as string);
-           reader.readAsDataURL(file);
-         });
-       }
-       const data = {
-         project_name: nameInput.value,
-         project_avatar: avatarBase64,
-         project_description: descInput.value,
-       };
-       const result = await projects.createProject(data, token);
-       if (result) {
-         // 重新加载项目，刷新网格
-         window.location.reload(); // 简单方式，重新加载页面
-         createForm.reset();
-         previewAvatar.src = '';
-         previewName.textContent = '';
-         previewDesc.textContent = '';
-         createModal?.classList.add('hidden');
-         createModal?.classList.remove('flex');
-       }
-     });
+createForm.addEventListener('submit', async (e) => {
+  const createModal = document.getElementById('create-modal');
+  if(createModal){
+    createModal.classList.add('hidden');
+    createModal.classList.remove('flex');
+  }
+  e.preventDefault();
+  const file = avatarInput.files?.[0];
+  let avatarBase64 = '';
+  if (file) {
+    const originalBase64 = await new Promise<string>((resolve: (value: string) => void) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          resolve(reader.result);
+        } else {
+          resolve('');
+        }
+      };
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(file);
+    });
+    if(originalBase64)
+    avatarBase64 = await compressImage(originalBase64, 400, 0.7);
+  }
+  const data = {
+    project_name: nameInput.value,
+    project_avatar: avatarBase64,
+    project_description: descInput.value,
+  };
+  const result = await projects.createProject(data, token);
+  if (result) {
+    // 重新加载项目，刷新网格
+    window.location.reload(); // 简单方式，重新加载页面
+    createForm.reset();
+    previewAvatar.src = '';
+    previewName.textContent = '';
+    previewDesc.textContent = '';
+    createModal?.classList.add('hidden');
+    createModal?.classList.remove('flex');
+  }
+});
+
+
+
    }
  });
 

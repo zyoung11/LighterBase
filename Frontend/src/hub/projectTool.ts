@@ -4,7 +4,7 @@ const ANIMATION_DURATION = 500; // 动画持续时间 (ms)
 const GAP = 20; // 项目间隔 (px)
 import projects from "./projects";
 import { setBaseUrl } from "../apis/api";
-
+import { compressImage } from "../modules/tools";
 
 let blocks:any[] = [];
 const app = document.getElementById('app');
@@ -73,16 +73,18 @@ function gridToPixel(position:any) {
 }
 
 // 创建或更新一个区块的 DOM 元素
-function renderBlock(block:any) {
+async function renderBlock(block:any) {
   if (!block.element) {
     // 首次创建元素
+    const originAvatar = block.project.project_avatar
+    const compressedAvatar = await compressImage(block.project.project_avatar || '', 120, 0.4);
     block.element = document.createElement('div');
     block.element.className = `absolute flex bg-gray-700 rounded-md shadow-lg p-2 transition-all ease-in-out cursor-pointer`;
     block.element.style.width = '28%';
     block.element.style.height = '22vh';
     block.element.style.transitionDuration = `${ANIMATION_DURATION}ms`;
     block.element.innerHTML = `
-        <img src="${block.project.project_avatar || ''}" class="w-[16vh] h-[16vh] mr-2" onerror="this.style.display='none'">
+        <img src="${originAvatar}" class="w-[16vh] h-[16vh] mr-2" onerror="this.style.display='none'">
        <div class = "flex flex-col">
        <h3 class="text-white text-sm font-bold break-words">${block.project.project_name}</h3>
        <p class="text-gray-300 text-xs break-words">${block.project.project_description}</p>
@@ -178,6 +180,9 @@ function selectBlock(selectedId:Int8Array) {
   const deleteBtn = projectDetails.querySelector('#delete-btn') as HTMLButtonElement;
   if (detailAvatar && detailName && detailDescription) {
     detailAvatar.src = selected.project.project_avatar || '';
+    // compressImage(selected.project.project_avatar || '', 300, 0.6).then(compressedSrc => {
+    //   detailAvatar.src = compressedSrc;
+    // });
     detailName.textContent = selected.project.project_name;
     detailDescription.textContent = selected.project.project_description;
   }
