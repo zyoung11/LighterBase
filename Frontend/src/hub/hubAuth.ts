@@ -74,7 +74,7 @@ async hubUserRegister(): Promise<boolean> {
               const token = data.token;
             if (res.ok) {
                 document.cookie = `hubAuthToken=${token}; path=/;`;
-                console.log(data.user)
+                // console.log(data.user)
                 localStorage.setItem('username',loginusername);
                 return true;
             } else {
@@ -163,7 +163,7 @@ init() {
                 // 登录
                 const success = await self.hubUserLogin();
                 if (success) {
-                    window.location.href = '/';
+                    window.location.href = '/projects';
                 }
             } else {
                 if (!username || !password || !email) {
