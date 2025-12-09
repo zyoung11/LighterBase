@@ -1,12 +1,27 @@
+// hubDoc.ts
+
 import { marked } from "marked";
 import { markedHighlight } from "marked-highlight";
-import hljs from 'highlight.js';
-import { createLoader } from "../modules/loader";
+import hljs from 'highlight.js/lib/core'; 
+import "./vs2015.css"
+import sql from 'highlight.js/lib/languages/sql'; 
+import plaintext from 'highlight.js/lib/languages/plaintext';
+import json from 'highlight.js/lib/languages/json'; 
+import bash from 'highlight.js/lib/languages/bash';
+import javascript from 'highlight.js/lib/languages/javascript';
+
+hljs.registerLanguage('sql', sql);
+hljs.registerLanguage('plaintext', plaintext);
+hljs.registerLanguage('json', json);
+hljs.registerLanguage('javascript', javascript);
+hljs.registerLanguage('js', javascript);
+hljs.registerLanguage('bash', bash);
+hljs.registerLanguage('shell', bash);
 
 marked.use(markedHighlight({
   langPrefix: 'hljs language-',
   highlight(code, lang) {
-    const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+    const language = hljs.getLanguage(lang) ? lang : 'plaintext'; 
     return hljs.highlight(code, { language }).value;
   }
 }));
@@ -21,10 +36,6 @@ const applyLazyLoading = (html: string): string => {
 };
 
 (async () => {
-  // const loader = createLoader();
-  // loader.show();
-  
-  // 移除 docs.html 中隐藏 body 的 FOUC 样式
   document.getElementById('fouc-fix')?.remove();
 
   // 动态导入并渲染 Intro 内容
@@ -50,7 +61,4 @@ const applyLazyLoading = (html: string): string => {
     const rawHtml = await marked.parse(tutorial_md_content);
     tutorialsCont.innerHTML = applyLazyLoading(rawHtml);
   }
-
-  // 所有内容加载和渲染完成后，隐藏加载器
-  // loader.hide(); 
 })();
