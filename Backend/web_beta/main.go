@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -39,7 +38,7 @@ var routes = []Route{
 	{Method: "DELETE", Path: "/api/projects/:id", Handler: deleteProject, AuthRequired: true},
 
 	// --- 初始化 API ---
-	{Method: "POST", Path: "/:userId/:projectId/init", Handler: initProject, AuthRequired: false},
+	// {Method: "POST", Path: "/:userId/:projectId/init", Handler: initProject, AuthRequired: false},
 
 	// --- JWT 认证 API ---
 	{Method: "POST", Path: "/:userId/:projectId/api/auth/login", Handler: login_app, AuthRequired: false},
@@ -135,66 +134,6 @@ func createUsersTable(db *sql.DB) error {
 	_, err := db.Exec(createTableSQL)
 	return err
 }
-
-func initProject(c *fiber.Ctx) error {
-	userId := c.Params("userId")
-	projectId := c.Params("projectId")
-	basePath := fmt.Sprintf("./LighterBaseHubData/Apps/%s/%s", userId, projectId)
-
-	// 创建目录
-	if err := os.MkdirAll(basePath, 0o755); err != nil {
-		return sendError(c, 500, "无法创建项目目录", nil)
-	}
-
-	metaDBPath := filepath.Join(basePath, "metaDate.db")
-	dataDBPath := filepath.Join(basePath, "data.db")
-
-	// 打开/初始化元数据库
-	metaDB, err := sql.Open("sqlite3", metaDBPath)
-	if err != nil {
-		return sendError(c, 500, "无法打开元数据库", nil)
-	}
-	if err := runSchema(metaDB); err != nil {
-		return sendError(c, 500, "无法初始化元数据库", nil)
-	}
-	queries := database.New(metaDB)
-
-	// 打开/初始化数据数据库
-	dataDB, err := sql.Open("sqlite3", dataDBPath)
-	if err != nil {
-		return sendError(c, 500, "无法打开数据数据库", nil)
-	}
-	if err := createUsersTable(dataDB); err != nil {
-		return sendError(c, 500, "无法创建用户表", nil)
-	}
-	if err := queries.CreateSecurity(context.Background(), database.CreateSecurityParams{
-		TableName:   "users",
-		CreateWhere: sql.NullString{Valid: false},
-		DeleteWhere: sql.NullString{Valid: false},
-		UpdateWhere: sql.NullString{Valid: false},
-		ViewWhere:   sql.NullString{Valid: false},
-	}); err != nil {
-		return sendError(c, 500, "无法创建默认权限", nil)
-	}
-
-	// 生成写日志闭包（捕获 queries）
-	logFn := func(logText string) {
-		// 忽略错误，纯异步日志
-		_ = queries.CreateLog(context.Background(), logText)
-	}
-
-	// 保存连接
-	key := fmt.Sprintf("%s/%s", userId, projectId)
-	dbMap[key] = &DBSet{
-		Queries: queries,
-		DataDB:  dataDB,
-		LogFn:   logFn, // 关键
-	}
-
-	return c.JSON(fiber.Map{"message": "项目初始化成功"})
-}
-
-//------------------------------------------------------------------------------
 
 //--------------------------------helper-func-----------------------------------
 

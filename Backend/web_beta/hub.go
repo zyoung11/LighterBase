@@ -7,11 +7,9 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -112,24 +110,76 @@ func createProject(c *fiber.Ctx) error {
 		// 即使目录创建失败，也不回滚数据库记录，因为项目已经创建
 	}
 
-	// 向LighterBase发送初始化请求
-	initURL := fmt.Sprintf("http://localhost:8081/%d/%d/init", userID, project.ProjectID)
-	httpReq, err := http.NewRequest("POST", initURL, nil)
+	// // 向LighterBase发送初始化请求
+	// initURL := fmt.Sprintf("http://localhost:8081/%d/%d/init", userID, project.ProjectID)
+	// httpReq, err := http.NewRequest("POST", initURL, nil)
+	// if err != nil {
+	// 	log.Printf("ERROR: Failed to create init request for project %d: %v", project.ProjectID, err)
+	// } else {
+	// 	client := &http.Client{Timeout: 10 * time.Second}
+	// 	resp, err := client.Do(httpReq)
+	// 	if err != nil {
+	// 		log.Printf("ERROR: Failed to send init request for project %d: %v", project.ProjectID, err)
+	// 	} else {
+	// 		defer resp.Body.Close()
+	// 		if resp.StatusCode != http.StatusOK {
+	// 			log.Printf("WARN: Init request for project %d returned status %d", project.ProjectID, resp.StatusCode)
+	// 		} else {
+	// 			log.Printf("Successfully initialized project %d", project.ProjectID)
+	// 		}
+	// 	}
+	// }
+
+	basePath := fmt.Sprintf("./LighterBaseHubData/Apps/%v/%v", userID, project.ProjectID)
+
+	// 创建目录
+	if err := os.MkdirAll(basePath, 0o755); err != nil {
+		return sendError(c, 500, "无法创建项目目录", nil)
+	}
+
+	metaDBPath := filepath.Join(basePath, "metaDate.db")
+	dataDBPath := filepath.Join(basePath, "data.db")
+
+	// 打开/初始化元数据库
+	metaDB, err := sql.Open("sqlite3", metaDBPath)
 	if err != nil {
-		log.Printf("ERROR: Failed to create init request for project %d: %v", project.ProjectID, err)
-	} else {
-		client := &http.Client{Timeout: 10 * time.Second}
-		resp, err := client.Do(httpReq)
-		if err != nil {
-			log.Printf("ERROR: Failed to send init request for project %d: %v", project.ProjectID, err)
-		} else {
-			defer resp.Body.Close()
-			if resp.StatusCode != http.StatusOK {
-				log.Printf("WARN: Init request for project %d returned status %d", project.ProjectID, resp.StatusCode)
-			} else {
-				log.Printf("Successfully initialized project %d", project.ProjectID)
-			}
-		}
+		return sendError(c, 500, "无法打开元数据库", nil)
+	}
+	if err := runSchema(metaDB); err != nil {
+		return sendError(c, 500, "无法初始化元数据库", nil)
+	}
+	queries := database.New(metaDB)
+
+	// 打开/初始化数据数据库
+	dataDB, err := sql.Open("sqlite3", dataDBPath)
+	if err != nil {
+		return sendError(c, 500, "无法打开数据数据库", nil)
+	}
+	if err := createUsersTable(dataDB); err != nil {
+		return sendError(c, 500, "无法创建用户表", nil)
+	}
+	if err := queries.CreateSecurity(context.Background(), database.CreateSecurityParams{
+		TableName:   "users",
+		CreateWhere: sql.NullString{Valid: false},
+		DeleteWhere: sql.NullString{Valid: false},
+		UpdateWhere: sql.NullString{Valid: false},
+		ViewWhere:   sql.NullString{Valid: false},
+	}); err != nil {
+		return sendError(c, 500, "无法创建默认权限", nil)
+	}
+
+	// 生成写日志闭包（捕获 queries）
+	logFn := func(logText string) {
+		// 忽略错误，纯异步日志
+		_ = queries.CreateLog(context.Background(), logText)
+	}
+
+	// 保存连接
+	key := fmt.Sprintf("%v/%v", userID, project.ProjectID)
+	dbMap[key] = &DBSet{
+		Queries: queries,
+		DataDB:  dataDB,
+		LogFn:   logFn, // 关键
 	}
 
 	response := ProjectResponse{

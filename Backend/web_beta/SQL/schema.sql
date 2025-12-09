@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS projects (
 
 
 
-CREATE TABLE _security_ (
+CREATE TABLE IF NOT EXISTS _security_ (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     table_name TEXT NOT NULL,
     create_where TEXT,
@@ -37,12 +37,12 @@ CREATE TABLE _security_ (
     view_where TEXT
 );
 
-CREATE TABLE _sqls_ (
+CREATE TABLE IF NOT EXISTS _sqls_ (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     sql TEXT NOT NULL
 );
 
-CREATE TABLE _log_ (
+CREATE TABLE IF NOT EXISTS _log_ (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     log_text TEXT NOT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
