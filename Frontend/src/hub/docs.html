@@ -199,9 +199,27 @@
       }
 
       // Submenu link click handlers
-      if (e.target.closest('#install-submenu a, #tutorials-submenu a')) {
+      if (e.target.closest('#install-submenu a')) {
         e.preventDefault();
         const target = e.target.getAttribute('href').substring(1);
+        // 确保切换到 install section
+        if (currentSection !== 'install') {
+          showSection('install');
+        }
+        // 滚动到对应锚点
+        const main = document.querySelector('main');
+        const element = document.getElementById(target);
+        if (element) {
+          main.scrollTop = element.offsetTop - main.offsetTop;
+        }
+      } else if (e.target.closest('#tutorials-submenu a')) {
+        e.preventDefault();
+        const target = e.target.getAttribute('href').substring(1);
+        // 确保切换到 tutorials section
+        if (currentSection !== 'tutorials') {
+          showSection('tutorials');
+        }
+        // 滚动到对应锚点
         const main = document.querySelector('main');
         const element = document.getElementById(target);
         if (element) {
