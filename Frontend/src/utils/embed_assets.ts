@@ -22,6 +22,7 @@ const getMimeType = (filePath: string): string => {
     case '.jpg':
     case '.jpeg': return 'image/jpeg';
     case '.gif': return 'image/gif';
+    case '.webp': return 'image/webp';
     default: return 'application/octet-stream';
   }
 };

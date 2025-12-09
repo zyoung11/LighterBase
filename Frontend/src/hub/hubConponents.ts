@@ -312,7 +312,7 @@ createForm.addEventListener('submit', async (e) => {
       reader.readAsDataURL(file);
     });
     if(originalBase64)
-    avatarBase64 = await compressImage(originalBase64, 400, 0.7);
+    avatarBase64 = await compressImage(originalBase64, 400, 0.8);
   }
   const data = {
     project_name: nameInput.value,
