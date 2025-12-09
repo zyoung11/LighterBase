@@ -10,7 +10,7 @@ const MD_FILES = ['intro.md', 'library.md', 'tutorial.md'];
 const IMAGES_DIR_NAME = 'imgs';
 const IMAGES_DIR = path.resolve(ASSETS_ROOT, IMAGES_DIR_NAME);
 // --- 新增配置：Base64 嵌入阈值 (10KB) ---
-const MAX_BASE64_SIZE_KB = 10;
+const MAX_BASE64_SIZE_KB = 150;
 const MAX_BASE64_SIZE_BYTES = MAX_BASE64_SIZE_KB * 1024;
 
 
@@ -71,7 +71,7 @@ async function embedAssets(): Promise<void> {
     }
 
     // 2b. 替换 Markdown 中的图片路径
-    mdContent = mdContent.replace(/!\\[.*?\\]\\((.*?)\\)/g, (match, url) => {
+    mdContent = mdContent.replace(/!\[.*?\]\((.*?)\)/g,(match, url) => {
       // url 是 Markdown 中原始的图片路径，例如 /docs/imgs/file.png 或 imgs/file.png
       const key = url.trim().replace('/docs/', ''); // 移除 /docs/ 前缀
       const base64Uri = imageMap[key];

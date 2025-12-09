@@ -3,8 +3,10 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "s": "bun run **/*.html **/hub/*.html",
-    "d": "bun run localServer.ts"
+    "d": "bun run localServer.ts",
+    "s": "scp lighterBaseWeb root@8.145.38.212:/root/lb",
+    "b": "bun build ./server.ts --compile --outfile lighterBaseWeb",
+    "bs": "bun build ./localServer.ts --compile --outfile testLighterBaseWeb"
   },
   "private": true,
   "devDependencies": {
