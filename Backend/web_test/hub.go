@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/proxy"
 )
 
 // 用户数据库路径
@@ -305,26 +304,4 @@ func deleteProject(c *fiber.Ctx) error {
 
 	log.Printf("Successfully deleted project %d and its resources.", projectID)
 	return c.SendStatus(fiber.StatusNoContent)
-}
-
-// baasProxyHandler 通用的BaaS反向代理处理器
-func baasProxyHandler(c *fiber.Ctx) error {
-	// 1. 从URL路径中获取参数
-	userIDStr := c.Params("userId")
-	projectIDStr := c.Params("projectId")
-
-	if userIDStr == "" || projectIDStr == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "User ID and Project ID are required"})
-	}
-
-	// 3. 构建目标URL
-	targetURL := fmt.Sprintf("http://localhost:8081/%s/%s/%s", userIDStr, projectIDStr, c.Params("*"))
-
-	// 4. 代理请求
-	if err := proxy.Do(c, targetURL); err != nil {
-		log.Printf("ERROR: Proxy request failed: %v", err)
-		return c.Status(fiber.StatusBadGateway).JSON(fiber.Map{"error": "Proxy request failed"})
-	}
-
-	return nil
 }

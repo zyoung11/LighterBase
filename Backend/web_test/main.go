@@ -1,7 +1,7 @@
 package main
 
 import (
-	"LighterBase/database"
+	"LighterBaseHub/database"
 	"context"
 	"database/sql"
 	"errors"
@@ -38,10 +38,6 @@ var routes = []Route{
 	{Method: "PUT", Path: "/api/projects/:id", Handler: updateProject, AuthRequired: true},
 	{Method: "DELETE", Path: "/api/projects/:id", Handler: deleteProject, AuthRequired: true},
 
-	// BaaS API 反向代理
-	{Method: "USE", Path: "/:userId/:projectId/*", Handler: baasProxyHandler, AuthRequired: false},
-
-	// AppMod
 	// --- 初始化 API ---
 	{Method: "POST", Path: "/:userId/:projectId/init", Handler: initProject, AuthRequired: false},
 
@@ -86,18 +82,27 @@ func NewApp(name string, routes []Route) *fiber.App {
 	app := fiber.New(fiber.Config{AppName: name})
 
 	app.Use(cors.New())
-
 	app.Use(logger.New())
 
 	for _, r := range routes {
-		// 检查路由是否需要 projectMiddleware（包含 :userId 和 :projectId 参数）
-		if !strings.Contains(r.Path, "/:userId/:projectId/init") && strings.Contains(r.Path, ":userId") && strings.Contains(r.Path, ":projectId") {
-			// 应用 projectMiddleware 和处理器
-			app.Add(strings.ToUpper(r.Method), r.Path, projectMiddleware, r.Handler)
-		} else {
-			// 直接添加不需要 middleware 的路由
-			app.Add(strings.ToUpper(r.Method), r.Path, r.Handler)
+		// 先收集需要用到的中间件
+		var mws []fiber.Handler
+
+		// 1. 如果路由需要 projectMiddleware
+		if !strings.Contains(r.Path, "/:userId/:projectId/init") &&
+			strings.Contains(r.Path, ":userId") &&
+			strings.Contains(r.Path, ":projectId") {
+			mws = append(mws, projectMiddleware)
 		}
+
+		// 2. 如果路由需要 JWT 鉴权
+		if r.AuthRequired {
+			mws = append(mws, JWTMiddleware)
+		}
+
+		// 把中间件和最终处理器一起展开
+		app.Add(strings.ToUpper(r.Method), r.Path,
+			append(mws, r.Handler)...)
 	}
 
 	return app
@@ -460,7 +465,7 @@ func touchingRootUser(where string, args []any) bool {
 
 func main() {
 	initDB("LighterBaseHub")
-	go Run("LighterBase", 8081, routes)
+	// go Run("LighterBase", 8081, routes)
 	initBackend("LighterBaseHub", "build", 8080, 80)
 }
 
