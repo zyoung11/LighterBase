@@ -209,6 +209,18 @@ func register(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
 	}
 
+	if req.UserName == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Username is required"})
+	}
+
+	if req.Password == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Password is required"})
+	}
+
+	if req.Email == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Email is required"})
+	}
+
 	// 检查用户是否已存在
 	_, err := queries.GetUserByEmail(c.Context(), req.Email)
 	if err == nil {
@@ -249,6 +261,14 @@ func login(c *fiber.Ctx) error {
 	var req LoginRequest
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
+	}
+
+	if req.UserName == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Username is required"})
+	}
+
+	if req.Password == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Password is required"})
 	}
 
 	// 获取用户
