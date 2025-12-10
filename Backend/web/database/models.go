@@ -8,6 +8,12 @@ import (
 	"database/sql"
 )
 
+type Log struct {
+	ID        int64
+	LogText   string
+	CreatedAt sql.NullString
+}
+
 type Project struct {
 	ProjectID          int64
 	UserID             int64
@@ -17,6 +23,20 @@ type Project struct {
 	ProjectSize        sql.NullInt64
 	CreateAt           sql.NullString
 	UpdateAt           sql.NullString
+}
+
+type Security struct {
+	ID          int64
+	TableName   string
+	CreateWhere sql.NullString
+	DeleteWhere sql.NullString
+	UpdateWhere sql.NullString
+	ViewWhere   sql.NullString
+}
+
+type Sqls struct {
+	ID  int64
+	Sql string
 }
 
 type User struct {

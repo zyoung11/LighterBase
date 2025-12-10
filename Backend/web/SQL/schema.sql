@@ -19,3 +19,31 @@ CREATE TABLE IF NOT EXISTS projects (
     update_at TEXT,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
+
+
+
+
+
+
+
+
+
+CREATE TABLE IF NOT EXISTS _security_ (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    table_name TEXT NOT NULL,
+    create_where TEXT,
+    delete_where TEXT,
+    update_where TEXT,
+    view_where TEXT
+);
+
+CREATE TABLE IF NOT EXISTS _sqls_ (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sql TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS _log_ (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    log_text TEXT NOT NULL,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);

@@ -7,20 +7,12 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	// "net/http"
 	"os"
-	// "os/exec"
-	// "os/user"
-	// "path"
 	"path/filepath"
-	// "runtime"
-	// "strconv"
 	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/golang-jwt/jwt/v5"
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
@@ -109,33 +101,6 @@ func JWTMiddleware(c *fiber.Ctx) error {
 
 //------------------------------------init--------------------------------------
 
-func NewApp(name string, routes []Route) *fiber.App {
-	app := fiber.New(fiber.Config{AppName: name})
-
-	// app.Use(cors.New(cors.Config{
-	// 	AllowOrigins:     "http://localhost:3000,http://localhost:8080,http://localhost:8090",
-	// 	AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS,HEAD,PATCH",
-	// 	AllowHeaders:     "*",
-	// 	ExposeHeaders:    "*",
-	// 	AllowCredentials: true,
-	// 	MaxAge:           86400,
-	// }))
-
-	app.Use(cors.New())
-
-	app.Use(logger.New())
-
-	for _, r := range routes {
-		if r.AuthRequired {
-			app.Add(strings.ToUpper(r.Method), r.Path, JWTMiddleware, r.Handler)
-		} else {
-			app.Add(strings.ToUpper(r.Method), r.Path, r.Handler)
-		}
-	}
-
-	return app
-}
-
 func Run(name string, port int, routes []Route) {
 	app := NewApp(name, routes)
 	log.Fatal(app.Listen(fmt.Sprintf(":%d", port)))
@@ -178,84 +143,6 @@ func initDB(projectName string) {
 	// 初始化sqlc查询
 	queries = database.New(db)
 }
-
-//------------------------------------web---------------------------------------
-
-// func web(buildPath string, port int) {
-// 	if _, err := os.Stat(buildPath); os.IsNotExist(err) {
-// 		fmt.Printf("Directory %s does not exist", buildPath)
-// 		return
-// 	}
-
-// 	fileServer := http.FileServer(http.Dir(buildPath))
-
-// 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-// 		requestedPath := path.Join(buildPath, path.Clean(r.URL.Path))
-// 		if _, err := os.Stat(requestedPath); os.IsNotExist(err) {
-// 			r.URL.Path = "/"
-// 		}
-// 		fileServer.ServeHTTP(w, r)
-// 	})
-
-// 	if envPort := os.Getenv("PORT"); envPort != "" {
-// 		if p, err := strconv.Atoi(envPort); err == nil {
-// 			port = p
-// 		} else {
-// 			log.Printf("Invalid PORT environment variable: %s, using default %d", envPort, port)
-// 		}
-// 	}
-
-// 	go func() {
-// 		time.Sleep(500 * time.Millisecond)
-// 		// openBrowser(fmt.Sprintf("http://localhost:%v", port))
-// 	}()
-
-// 	log.Printf("Server starting on port %d...", port)
-// 	if err := http.ListenAndServe(":"+strconv.Itoa(port), nil); err != nil {
-// 		log.Fatal("Server failed:", err)
-// 	}
-// }
-
-// func openBrowser(url string) error {
-// 	var cmd string
-// 	var args []string
-
-// 	currentUser, _ := user.Current()
-// 	if currentUser != nil && currentUser.Uid == "0" {
-// 		if sudoUser := os.Getenv("SUDO_USER"); sudoUser != "" {
-// 			return exec.Command("sudo", "-u", sudoUser, "xdg-open", url).Start()
-// 		} else {
-// 			env := os.Environ()
-// 			env = append(env, "DISPLAY=:0")
-
-// 			if xdgCurrentDesktop := os.Getenv("XDG_CURRENT_DESKTOP"); xdgCurrentDesktop != "" {
-// 				env = append(env, "XDG_CURRENT_DESKTOP="+xdgCurrentDesktop)
-// 			}
-// 			if xdgSessionType := os.Getenv("XDG_SESSION_TYPE"); xdgSessionType != "" {
-// 				env = append(env, "XDG_SESSION_TYPE="+xdgSessionType)
-// 			}
-
-// 			command := exec.Command("xdg-open", url)
-// 			command.Env = env
-// 			return command.Start()
-// 		}
-// 	}
-
-// 	switch runtime.GOOS {
-// 	case "windows":
-// 		cmd = "cmd"
-// 		args = []string{"/c", "start"}
-// 	case "darwin":
-// 		cmd = "open"
-// 	default:
-// 		cmd = "xdg-open"
-// 	}
-// 	args = append(args, url)
-
-// 	return exec.Command(cmd, args...).Start()
-// }
-
-//------------------------------------------------------------------------------
 
 func initBackend(projectName string, frontendDir string, backendPort int, frontendPort int) {
 	initDB(projectName)
