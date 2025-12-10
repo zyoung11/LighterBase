@@ -2,6 +2,9 @@ import blocks from "../modules/blocks";
 import { URL } from "../apis/api";
 // const URL = "http://localhost:8080"
 
+
+// export let hubToken:string
+
 const hubauth = {
 async hubUserRegister(): Promise<boolean> {
     const usernameInput = document.getElementById("username") as HTMLInputElement;
@@ -30,8 +33,8 @@ async hubUserRegister(): Promise<boolean> {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                "name": username,
-                "password_hash": password,
+                "user_name": username,
+                "password": password,
                 "email": email 
             })
         });
@@ -66,12 +69,13 @@ async hubUserRegister(): Promise<boolean> {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    "name":loginusername,
-                    "password_hash":loginpassword
+                    "user_name":loginusername,
+                    "password":loginpassword
                   })
               });
               const data = await res.json();
               const token = data.token;
+              // hubToken = token
             if (res.ok) {
                 document.cookie = `hubAuthToken=${token}; path=/;`;
                 // console.log(data.user)
@@ -164,6 +168,8 @@ init() {
                 const success = await self.hubUserLogin();
                 if (success) {
                     window.location.href = '/projects';
+                }else{
+                    console.log("失败")
                 }
             } else {
                 if (!username || !password || !email) {

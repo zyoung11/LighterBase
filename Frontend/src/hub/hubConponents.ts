@@ -1,5 +1,5 @@
 // import auth from "../apis/auth";
-import hubauth from "./hubAuth"
+// import { hubToken } from "./hubAuth"
 import blocks from "../modules/blocks";
 import logoIcon from "../icons/logoWhite.png"
 import projects from "./projects"
@@ -16,11 +16,11 @@ function getCookie(name: string) {
 
 let token = getCookie('hubAuthToken');
 
-
 //检查token
 if(token)
-await checkAuthentication(token,'/projects')
-
+await checkAuthentication(token,'login')
+// await checkAuthentication(hubToken,'login')
+// let token = hubToken
 let isEmpty = false;
 // 创建导航栏函数
 function createNavBar() {
