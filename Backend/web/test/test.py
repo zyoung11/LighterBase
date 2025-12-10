@@ -6,8 +6,8 @@ run_test(
     "注册用户 zy",
     post(f"{baseUrl}/api/users/register",
          body={
-             "user_name": "zy",
-             "password": "sbdlh",
+             "name": "zy",
+             "password_hash": "sbdlh",
              "email": "sbdlh@love.com"
          })
 )
@@ -16,8 +16,8 @@ run_test(
     "注册用户 yzm",
     post(f"{baseUrl}/api/users/register",
          body={
-             "user_name": "yzm",
-             "password": "yzm666",
+             "name": "yzm",
+             "password_hash": "yzm666",
              "email": "yzm@notgay.com"
          })
 )
@@ -26,8 +26,8 @@ zy_uid, zy_token = run_test(
     "zy 登录",
     post(f"{baseUrl}/api/users/login",
          body={
-             "user_name": "zy",
-             "password": "sbdlh"
+             "name": "zy",
+             "password_hash": "sbdlh"
          }),
     "user.user_id", "token"
 )
@@ -36,8 +36,8 @@ yzm_uid, yzm_token = run_test(
     "yzm 登录",
     post(f"{baseUrl}/api/users/login",
          body={
-             "user_name": "yzm",
-             "password": "yzm666"
+             "name": "yzm",
+             "password_hash": "yzm666"
          }),
     "user.user_id", "token"    
 )
