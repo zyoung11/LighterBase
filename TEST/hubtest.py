@@ -86,7 +86,7 @@ proj_id = run_test(
                   "Content-Type": "application/json"},
          body={
              "project_name": "blog",
-             "project_avatar": "",
+             "project_avatar": "123",
              "project_description": "this is a blog project"
          }),
     "project_id"
@@ -125,7 +125,7 @@ run_test(
     post(f"{baseUrl}/{zy_uid}/{proj_id}/api/create-table/create",
          headers={"Authorization": f"Bearer {proj_token}"},
          body={
-             "SQL": "CREATE TABLE articles (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, body TEXT)"
+             "SQL": "CREATE TABLE articles (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, yzmnb TEXT)"
          })
 )
 
@@ -174,19 +174,23 @@ run_test(
 article_id = run_test(
     "创建第一篇文章",
     post(f"{baseUrl}/{zy_uid}/{proj_id}/api/auto/create/articles",
-         headers={"Authorization": f"Bearer {proj_token}"},
-         body={
+        headers={"Authorization": f"Bearer {proj_token}"},
+        body={
              "title": "PAT入门",
-             "body": "一篇通过 PAT 自动创建的博客文章"
+             "yzmnb": "一篇通过 PAT 自动创建的博客文章"
          }),
-    "project_id"
+    "id"
 )
 
 run_test(
     "查询刚创建的文章",
-    get(f"{baseUrl}/{zy_uid}/{proj_id}/api/auto/view/articles",
+    get(f"{baseUrl}/{zy_uid}/{proj_id}/api/auto/view/articles?page=1&perpage=1",
         headers={"Authorization": f"Bearer {proj_token}"},
-        params={"page": 1, "perpage": 1})
+        body={
+            "SELECT" : ["id","title"],
+            "WHERE" : f"id = {article_id}"
+        }),
+    "0.items.id", "0.items.title"
 )
 
 run_test(
@@ -195,7 +199,7 @@ run_test(
         headers={"Authorization": f"Bearer {proj_token}"},
         body={
             "title": "PAT 框架全面指南",
-            "body": "内容已完全更新"
+            "yzmnb": "内容已完全更新"
         })
 )
 
