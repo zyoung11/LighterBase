@@ -2,44 +2,44 @@ from PAT import get, option, patch, post, put, delete, run_test, print_info
 
 baseUrl = "http://localhost:8080"
 
-zy_uid, zy_token = run_test(
+run_test(
     "注册用户 zy",
     post(f"{baseUrl}/api/users/register",
          body={
              "user_name": "zy",
              "password": "sbdlh",
              "email": "sbdlh@love.com"
-         }),
-    "user.user_id", "token"
+         })
 )
 
-yzm_uid, yzm_token = run_test(
+run_test(
     "注册用户 yzm",
     post(f"{baseUrl}/api/users/register",
          body={
              "user_name": "yzm",
              "password": "yzm666",
              "email": "yzm@notgay.com"
-         }),
-    "user.user_id", "token"
+         })
 )
 
-run_test(
+zy_uid, zy_token = run_test(
     "zy 登录",
     post(f"{baseUrl}/api/users/login",
          body={
              "user_name": "zy",
              "password": "sbdlh"
-         })
+         }),
+    "user.user_id", "token"
 )
 
-run_test(
+yzm_uid, yzm_token = run_test(
     "yzm 登录",
     post(f"{baseUrl}/api/users/login",
          body={
              "user_name": "yzm",
              "password": "yzm666"
-         })
+         }),
+    "user.user_id", "token"    
 )
 
 zy_proj_id1 = run_test(
