@@ -1,5 +1,5 @@
-// tools.ts
-
+import {URL} from "../apis/api";
+import {jwtDecode} from "jwt-decode"
 /**
  * 针对低带宽优化的图片压缩函数
  * @param imgSrc 图片源地址
@@ -65,3 +65,27 @@ export async function compressImage(
     // 上传时压缩：400px宽度，0.7质量（保证一定的图片质量）
     // 项目卡片：120px宽度，0.4质量（小图，激进压缩）
     // 详情页面：300px宽度，0.6质量（中等尺寸，平衡质量和大小）
+
+function checkAuthentication(token:string,targetPage:string) {
+  if (!token) {
+    // console.log("没有找到JWT token，跳转到登录页面");
+    window.location.href = `/${targetPage}?apiUrl=${encodeURIComponent(URL)}`;
+    return false;
+  }
+
+  try {
+    const decoded = jwtDecode(token);
+    const exp = Number(decoded.exp) * 1000;
+
+    if (exp && exp < Date.now()) {
+      console.log("token已经过期，尝试刷新");
+      return true; // 继续执行刷新逻辑
+    }
+
+    return true; // token有效，继续执行
+  } catch (e) {
+    // console.log("token解析失败，跳转到登录页面", e);
+    window.location.href = `/${targetPage}?apiUrl=${encodeURIComponent(URL)}`;
+    return false;
+  }
+}

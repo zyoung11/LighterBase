@@ -322,7 +322,7 @@ createForm.addEventListener('submit', async (e) => {
   const result = await projects.createProject(data, token);
   if (result) {
     // 重新加载项目，刷新网格
-    window.location.reload(); // 简单方式，重新加载页面
+    // window.location.reload(); // 简单方式，重新加载页面
     createForm.reset();
     previewAvatar.src = '';
     previewName.textContent = '';

@@ -7,7 +7,6 @@ import {authToken,URL} from "./apis/api";
 import blocks from "./modules/blocks";
 import admin from "./apis/admin";
 import sql from "./apis/sql";
-console.log('authToken:', authToken);
 import {jwtDecode} from "jwt-decode"
 import auth from "./apis/auth"
 import aichat from "./modules/aiChat";
