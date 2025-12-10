@@ -371,7 +371,11 @@ func checkPermission(dataDB *sql.DB, queries *database.Queries, operation, table
 		}
 
 		if count == 0 {
-			return false, fmt.Errorf("TABLE_EMPTY")
+			// 表为空时，允许创建操作，其他操作返回 false（但不是错误）
+			if operation == "create" {
+				return true, nil
+			}
+			return false, nil
 		}
 	}
 
@@ -608,10 +612,8 @@ func createRecord(c *fiber.Ctx) error {
 
 	// 权限检查
 	canCreate, err := checkPermission(dataDB, queries, "create", tableName, userID, isGuest)
-	if err != nil && tableName != "users" {
+	if err != nil {
 		switch err.Error() {
-		case "TABLE_EMPTY":
-			return sendError(c, 400, "Table is empty", nil)
 		case "AUTH_REQUIRED":
 			return sendError(c, 401, "Authentication required.", nil)
 		default:
@@ -687,8 +689,6 @@ func deleteRecord(c *fiber.Ctx) error {
 	canDelete, err := checkPermission(dataDB, queries, "delete", tableName, userID, isGuest)
 	if err != nil {
 		switch err.Error() {
-		case "TABLE_EMPTY":
-			return sendError(c, 400, "Table is empty", nil)
 		case "AUTH_REQUIRED":
 			return sendError(c, 401, "Authentication required.", nil)
 		default:
@@ -759,8 +759,6 @@ func updateRecord(c *fiber.Ctx) error {
 	canDelete, err := checkPermission(dataDB, queries, "update", tableName, userID, isGuest)
 	if err != nil {
 		switch err.Error() {
-		case "TABLE_EMPTY":
-			return sendError(c, 400, "Table is empty", nil)
 		case "AUTH_REQUIRED":
 			return sendError(c, 401, "Authentication required.", nil)
 		default:
@@ -851,8 +849,6 @@ func viewRecords(c *fiber.Ctx) error {
 	canDelete, err := checkPermission(dataDB, queries, "view", tableName, userID, isGuest)
 	if err != nil {
 		switch err.Error() {
-		case "TABLE_EMPTY":
-			return sendError(c, 400, "Table is empty", nil)
 		case "AUTH_REQUIRED":
 			return sendError(c, 401, "Authentication required.", nil)
 		default:
