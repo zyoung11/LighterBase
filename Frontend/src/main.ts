@@ -11,7 +11,7 @@ import {jwtDecode} from "jwt-decode"
 import auth from "./apis/auth"
 import aichat from "./modules/aiChat";
 import lighterBase from "./apis/auto";
-
+import { checkAuthentication } from "./modules/tools";
 // Import images
 import logoImg from './icons/logoWhite.png';
 import databaseImg from './icons/databaseWhite.svg';
@@ -19,59 +19,35 @@ import folderImg from './icons/folderWhite.svg';
 import recordsImg from './icons/analysisWhite.svg';
 import settingsImg from './icons/settingsWhite.svg';
 
-// 认证检查函数
-function checkAuthentication() {
-  // 检查是否有token
-  if (!authToken) {
-    console.log("没有找到JWT token，跳转到登录页面");
-    window.location.href = `/welcome.html?apiUrl=${encodeURIComponent(URL)}`;
-    return false;
-  }
+// function checkAuthentication() {
+//   if (!authToken) {
+//     console.log("没有找到JWT token，跳转到登录页面");
+//     window.location.href = `/welcome.html?apiUrl=${encodeURIComponent(URL)}`;
+//     return false;
+//   }
 
-  try {
-    const decoded = jwtDecode(authToken);
-    const exp = Number(decoded.exp) * 1000;
-
-    // 检查token是否过期
-    if (exp && exp < Date.now()) {
-      console.log("token已经过期，尝试刷新");
-      return true; // 继续执行刷新逻辑
-    }
-
-    return true; // token有效，继续执行
-  } catch (e) {
-    console.log("token解析失败，跳转到登录页面", e);
-    window.location.href = `/welcome.html?apiUrl=${encodeURIComponent(URL)}`;
-    return false;
-  }
-}
+//   try {
+//     const decoded = jwtDecode(authToken);
+//     const exp = Number(decoded.exp) * 1000;
+//     if (exp && exp < Date.now()) {
+//       console.log("token已经过期，尝试刷新");
+//       return true; // 继续执行刷新逻辑
+//     }
+//     return true; // token有效，继续执行
+//   } catch (e) {
+//     console.log("token解析失败，跳转到登录页面", e);
+//     window.location.href = `/welcome.html?apiUrl=${encodeURIComponent(URL)}`;
+//     return false;
+//   }
+// }
 
 // 初始化应用
-async function initializeApp() {
-  // 首先检查认证
-  if (!checkAuthentication()) {
-    return; // 认证失败，停止初始化
-  }
-
-  // 认证通过后，处理token刷新
-  const exp = Number(jwtDecode(authToken).exp)*1000;
-  try{
-    if(exp){
-     if(exp < Date.now()){
-     console.log("token已经过期",authToken);
-       const newToken = await auth.reflashToken(URL,authToken);
-      document.cookie = `authToken=${newToken}; path=/;`;
-       console.log("Token更新成功");
-     }
-    }
-   }catch(e){
-     window.location.href=`/welcome.html?apiUrl=${encodeURIComponent(URL)}`;
-     return;
-   }
-}
+// async function initializeApp() {
+await checkAuthentication(authToken,'welcome.html')
+// }
 
 // 启动应用
-initializeApp();
+// initializeApp();
 
 // Set imported images
 function setImportedImages() {

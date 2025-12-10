@@ -6,7 +6,20 @@ import projects from "./projects"
 import office from './office.jpg'
 import githubImg from '../icons/git.svg'
 import { createLoader } from "../modules/loader";
-import { compressImage } from "../modules/tools";
+import { compressImage,checkAuthentication } from "../modules/tools";
+
+function getCookie(name: string) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift();
+}
+
+let token = getCookie('hubAuthToken');
+
+
+//检查token
+if(token)
+await checkAuthentication(token,'/projects')
 
 let isEmpty = false;
 // 创建导航栏函数
@@ -144,13 +157,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.body.insertBefore(newNav, document.body.firstChild);
 
   // 检查登录状态
-  function getCookie(name: string) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop()?.split(';').shift();
-  }
+  // function getCookie(name: string) {
+  //   const value = `; ${document.cookie}`;
+  //   const parts = value.split(`; ${name}=`);
+  //   if (parts.length === 2) return parts.pop()?.split(';').shift();
+  // }
 
-  const token = getCookie('hubAuthToken');
+  // const token = getCookie('hubAuthToken');
   // console.log(token)
   const username = localStorage.getItem('username');
   // console.log(username)
