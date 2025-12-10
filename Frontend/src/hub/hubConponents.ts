@@ -5,7 +5,7 @@ import logoIcon from "../icons/logoWhite.png"
 import projects from "./projects"
 import office from './office.jpg'
 import githubImg from '../icons/git.svg'
-import { createLoader } from "../modules/loader";
+// import { createLoader } from "../modules/loader";
 import { compressImage,checkAuthentication } from "../modules/tools";
 
 function getCookie(name: string) {
@@ -335,7 +335,7 @@ createForm.addEventListener('submit', async (e) => {
   const result = await projects.createProject(data, token);
   if (result) {
     // 重新加载项目，刷新网格
-    // window.location.reload(); // 简单方式，重新加载页面
+    window.location.reload(); // 简单方式，重新加载页面
     createForm.reset();
     previewAvatar.src = '';
     previewName.textContent = '';

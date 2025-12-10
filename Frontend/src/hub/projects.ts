@@ -106,8 +106,8 @@ async createProject(data: {project_name: string, project_avatar: string, project
     const res = await fetch(`${URL}/api/projects`,{
       method:"POST",
       headers:{
-        "Content-Type":"application/json",
-        "Authorization":`Bearer ${hubAuthToken}`
+        "Authorization":`Bearer ${hubAuthToken}`,
+        "Content-Type":"application/json"
       },
       body: JSON.stringify(data)
     });

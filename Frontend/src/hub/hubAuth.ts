@@ -177,7 +177,10 @@ init() {
                     usernameInput.value = username;
                     passwordInput.value = password;
                     switchToLogin();
-                    alert('注册成功，请登录');
+                    // await hubauth.hubUserLogin(username,password)
+
+                    blocks.popupConfirm( "注册成功，请登录");
+                    // alert('注册成功，请登录');
                 }
             }
         });

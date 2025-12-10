@@ -94,4 +94,4 @@ run_test(
         key=yzm_token)
 )
 
-
+print('\n',zy_token,'\n',yzm_token)

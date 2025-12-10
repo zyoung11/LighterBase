@@ -4,7 +4,9 @@ const ANIMATION_DURATION = 500; // 动画持续时间 (ms)
 const GAP = 20; // 项目间隔 (px)
 import projects from "./projects";
 import { setBaseUrl } from "../apis/api";
-import { compressImage } from "../modules/tools";
+import { compressImage,getCookie } from "../modules/tools";
+
+let token = getCookie("hubAuthToken")
 
 let blocks:any[] = [];
 const app = document.getElementById('app');
@@ -107,12 +109,12 @@ async function renderBlock(block:any) {
 // 初始化区块
 async function initializeBlocks() {
   // 获取token
-  function getCookie(name:string) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop()?.split(';').shift();
-  }
-  const token = getCookie('hubAuthToken');
+  // function getCookie(name:string) {
+  //   const value = `; ${document.cookie}`;
+  //   const parts = value.split(`; ${name}=`);
+  //   if (parts.length === 2) return parts.pop()?.split(';').shift();
+  // }
+  // const token = getCookie('hubAuthToken');
   if (!token) {
     window.location.href = 'login.html';
     return;
@@ -148,12 +150,12 @@ async function initializeBlocks() {
 function selectBlock(selectedId:Int8Array) {
   const selected = blocks.find(b => b.id === selectedId);
   if (!selected) return;
-      function getCookie(name:string) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop()?.split(';').shift();
-      }
-      const token = getCookie('hubAuthToken');
+      // function getCookie(name:string) {
+      //   const value = `; ${document.cookie}`;
+      //   const parts = value.split(`; ${name}=`);
+      //   if (parts.length === 2) return parts.pop()?.split(';').shift();
+      // }
+      // const token = getCookie('hubAuthToken');
       function parseJwt(token) {
         try {
           const base64Url = token.split('.')[1];
@@ -230,7 +232,7 @@ function selectBlock(selectedId:Int8Array) {
           }).join(''));
           return JSON.parse(jsonPayload);
         } catch (e) {
-          console.error('Token parsing failed:', e);
+          console.error('Token解析失败:', e);
           return null;
         }
       }
@@ -246,10 +248,9 @@ function selectBlock(selectedId:Int8Array) {
       // const newUrl = `http://www.smallwoodice.cn:8080/${userId}/${projectId}`;
       // console.log(newUrl)
       setBaseUrl(newUrl);
+      console.log(newUrl)
 
-      // 跳转到/目录页面，附加 URL 参数
-      // window.location.href = `/?apiUrl=${encodeURIComponent(newUrl)}`;
-      window.location.href = `/welcome?apiUrl=${encodeURIComponent(newUrl)}`;
+      // window.location.href = `/welcome?apiUrl=${encodeURIComponent(newUrl)}`;
     };
   }
 
@@ -309,17 +310,17 @@ function selectBlock(selectedId:Int8Array) {
 }
 
 // 移动区块的函数
-function moveBlock(blockId:Int8Array, targetPosition:any) {
-  const blockToMove = blocks.find(b => b.id === blockId);
+// function moveBlock(blockId:Int8Array, targetPosition:any) {
+//   const blockToMove = blocks.find(b => b.id === blockId);
 
-  if (blockToMove) {
-    console.log(`Moving block ${blockId} from [${blockToMove.position}] to [${targetPosition}]`);
-    blockToMove.position = targetPosition;
-    renderBlock(blockToMove); // 重新渲染会触发 CSS transition
-  } else {
-    console.error(`Block with id "${blockId}" not found.`);
-  }
-}
+//   if (blockToMove) {
+//     console.log(`Moving block ${blockId} from [${blockToMove.position}] to [${targetPosition}]`);
+//     blockToMove.position = targetPosition;
+//     renderBlock(blockToMove); // 重新渲染会触发 CSS transition
+//   } else {
+//     console.error(`Block with id "${blockId}" not found.`);
+//   }
+// }
 
 // --- 启动 ---
 initializeBlocks();

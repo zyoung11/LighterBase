@@ -100,8 +100,17 @@ async function checkAuthentication(token:string,targetPage:string) {
 }
 
 
+
+ function getCookie(name:string) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift();
+  }
+
+
 export {
   compressImage,
-  checkAuthentication
+  checkAuthentication,
+  getCookie
   
 }
