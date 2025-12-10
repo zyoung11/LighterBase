@@ -302,11 +302,11 @@ const workspaceContent = {
 const slideBarContent = {
    api_md: `
       <div id="tables-api" class="flex h-full w-full bg-[#2B2F31]">
-        <div class="w-16 bg-[#1B1E1F] flex flex-col items-center py-4 space-y-4 sticky top-0 h-full">
-          <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg flex items-center justify-center transition-colors text-white text-sm" data-nav="create">增</button>
-          <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg flex items-center justify-center transition-colors text-white text-sm" data-nav="delete">删</button>
-          <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg flex items-center justify-center transition-colors text-white text-sm" data-nav="update">改</button>
-          <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg flex items-center justify-center transition-colors text-white text-sm" data-nav="search">查</button>
+        <div class="w-16 bg-[#1B1E1F] flex flex-col items-end py-4 space-y-4 sticky top-0 h-full">
+           <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] active:bg-[#5a5f61] rounded-l-lg flex items-center justify-center transition-colors text-white text-sm" data-nav="create">增</button>
+           <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] active:bg-[#5a5f61] rounded-l-lg flex items-center justify-center transition-colors text-white text-sm" data-nav="delete">删</button>
+           <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] active:bg-[#5a5f61] rounded-l-lg flex items-center justify-center transition-colors text-white text-sm" data-nav="update">改</button>
+           <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] active:bg-[#5a5f61] rounded-l-lg flex items-center justify-center transition-colors text-white text-sm" data-nav="search">查</button>
         </div>
          <div id="api-content" class="flex-1 flex flex-col items-center overflow-y-auto scrollbar-hide">
         </div>

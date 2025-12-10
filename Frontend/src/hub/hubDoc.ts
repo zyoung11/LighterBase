@@ -3,7 +3,6 @@
 import { marked } from "marked";
 import { markedHighlight } from "marked-highlight";
 import hljs from 'highlight.js/lib/core'; 
-import "./vs2015.css"
 import sql from 'highlight.js/lib/languages/sql'; 
 import plaintext from 'highlight.js/lib/languages/plaintext';
 import json from 'highlight.js/lib/languages/json'; 

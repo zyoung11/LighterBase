@@ -119,6 +119,7 @@ async function initializeBlocks() {
   }
 
   // 获取项目数据
+  console.log(token)
   const projectsData = await projects.getAllProjects(token);
   await projects.getAllUsers(token)
   if (!projectsData) return;
@@ -147,7 +148,27 @@ async function initializeBlocks() {
 function selectBlock(selectedId:Int8Array) {
   const selected = blocks.find(b => b.id === selectedId);
   if (!selected) return;
-
+      function getCookie(name:string) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift();
+      }
+      const token = getCookie('hubAuthToken');
+      function parseJwt(token) {
+        try {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          }).join(''));
+          return JSON.parse(jsonPayload);
+        } catch (e) {
+          console.error('Token parsing failed:', e);
+          return null;
+        }
+      }
+  const payload = parseJwt(token);
+  console.log(payload)
   // 移除所有项目的边框
   blocks.forEach(block => {
     if (block.element) {
@@ -221,9 +242,8 @@ function selectBlock(selectedId:Int8Array) {
       }
 
       const projectId = selected.project.project_id;
-      // const newUrl = `http://localhost:8080/${userId}/${projectId}`;
-      // const newUrl ="http://www.smallwoodice.cn:8080"
-      const newUrl = `http://www.smallwoodice.cn:8080/${userId}/${projectId}`;
+      const newUrl = `http://localhost:8080/${userId}/${projectId}`;
+      // const newUrl = `http://www.smallwoodice.cn:8080/${userId}/${projectId}`;
       // console.log(newUrl)
       setBaseUrl(newUrl);
 

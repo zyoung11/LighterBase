@@ -1,5 +1,3 @@
-// const URL = "http://localhost:8080"
-// const URL ="http://www.smallwoodice.cn:8080"
 import { URL } from "../apis/api";
 const projects = {
 
@@ -8,7 +6,7 @@ async getAllUsers(hubAuthToken:string){
     const res = await fetch(`${URL}/api/users`,{
       method:"GET",
       headers:{
-        "Content-Type":"application/json",
+        // "Content-Type":"application/json",
         "Authorization":`Bearer ${hubAuthToken}`
       }
     });
@@ -113,9 +111,9 @@ async createProject(data: {project_name: string, project_avatar: string, project
       },
       body: JSON.stringify(data)
     });
-
     if(res.ok){
       const data =await res.json()
+      console.log(data)
       return data
     }
 
@@ -133,7 +131,6 @@ async getAllProjects(hubAuthToken: string){
         "Authorization":`Bearer ${hubAuthToken}`
       }
     });
-
     console.log(hubAuthToken)
     if(res.ok){
       const data =await res.json()

@@ -183,37 +183,37 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // 登录功能
-  const formLogin = document.getElementById("form-login") as HTMLFormElement;
-  const loginUsernameInput = document.getElementById("login-username") as HTMLInputElement;
-  const loginPasswordInput = document.getElementById("login-password") as HTMLInputElement;
-  const emailInput = document.getElementById("email") as HTMLInputElement;
-  const emailField = document.getElementById("email-field") as HTMLDivElement;
+  // const formLogin = document.getElementById("form-login") as HTMLFormElement;
+  // const loginUsernameInput = document.getElementById("login-username") as HTMLInputElement;
+  // const loginPasswordInput = document.getElementById("login-password") as HTMLInputElement;
+  // const emailInput = document.getElementById("email") as HTMLInputElement;
+  // const emailField = document.getElementById("email-field") as HTMLDivElement;
 
-  if (formLogin && loginUsernameInput && loginPasswordInput && emailInput && emailField) {
-    // isEmpty = await auth.isLogin();
-    // if (!isEmpty) {
-    //   emailField.style.display = 'block';
-    //   emailInput.required = true;
-    // } else {
-    //   emailField.style.display = 'none';
-    //   emailInput.required = false;
-    // }
+  // if (formLogin && loginUsernameInput && loginPasswordInput && emailInput && emailField) {
+  //   // isEmpty = await auth.isLogin();
+  //   // if (!isEmpty) {
+  //   //   emailField.style.display = 'block';
+  //   //   emailInput.required = true;
+  //   // } else {
+  //   //   emailField.style.display = 'none';
+  //   //   emailInput.required = false;
+  //   // }
 
-    formLogin.addEventListener("submit", async(e) => {
-      e.preventDefault();
-      if (!isEmpty) {
-        // 设置注册输入
-        (document.getElementById("username") as HTMLInputElement).value = loginUsernameInput.value;
-        (document.getElementById("password") as HTMLInputElement).value = loginPasswordInput.value;
-        const success = await hubauth.hubUserRegister();
-        if (success) {
-          await hubauth.hubUserLogin();
-        }
-      } else {
-        await hubauth.hubUserLogin();
-      }
-    });
-  }
+  //   formLogin.addEventListener("submit", async(e) => {
+  //     e.preventDefault();
+  //     if (!isEmpty) {
+  //       // 设置注册输入
+  //       (document.getElementById("username") as HTMLInputElement).value = loginUsernameInput.value;
+  //       (document.getElementById("password") as HTMLInputElement).value = loginPasswordInput.value;
+  //       const success = await hubauth.hubUserRegister();
+  //       if (success) {
+  //         await hubauth.hubUserLogin();
+  //       }
+  //     } else {
+  //       await hubauth.hubUserLogin();
+  //     }
+  //   });
+  // }
 
    // 鼠标悬停效果功能
    const hoverArea = document.getElementById("hover-area") as HTMLElement;
