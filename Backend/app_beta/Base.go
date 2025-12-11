@@ -8,7 +8,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
+	"os/user"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -20,6 +23,9 @@ import (
 
 //go:embed SQL/schema.sql
 var schemaFS embed.FS
+
+//go:embed build/*
+var embeddedFiles embed.FS
 
 var (
 	queries *database.Queries
@@ -144,14 +150,58 @@ func initDB(projectName string) {
 	queries = database.New(db)
 }
 
-func initBackend(projectName string, frontendDir string, backendPort int, frontendPort int) {
+//------------------------------------web---------------------------------------
+
+func openBrowser(url string) error {
+	var cmd string
+	var args []string
+
+	currentUser, _ := user.Current()
+	if currentUser != nil && currentUser.Uid == "0" {
+		if sudoUser := os.Getenv("SUDO_USER"); sudoUser != "" {
+			return exec.Command("sudo", "-u", sudoUser, "xdg-open", url).Start()
+		} else {
+			env := os.Environ()
+			env = append(env, "DISPLAY=:0")
+
+			if xdgCurrentDesktop := os.Getenv("XDG_CURRENT_DESKTOP"); xdgCurrentDesktop != "" {
+				env = append(env, "XDG_CURRENT_DESKTOP="+xdgCurrentDesktop)
+			}
+			if xdgSessionType := os.Getenv("XDG_SESSION_TYPE"); xdgSessionType != "" {
+				env = append(env, "XDG_SESSION_TYPE="+xdgSessionType)
+			}
+
+			command := exec.Command("xdg-open", url)
+			command.Env = env
+			return command.Start()
+		}
+	}
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = "cmd"
+		args = []string{"/c", "start"}
+	case "darwin":
+		cmd = "open"
+	default:
+		cmd = "xdg-open"
+	}
+	args = append(args, url)
+
+	return exec.Command(cmd, args...).Start()
+}
+
+//------------------------------------------------------------------------------
+
+func initBackend(projectName string, Port int) {
 	initDB(projectName)
 
-	// go func() {
-	// 	web(frontendDir, frontendPort)
-	// }()
+	go func() {
+		time.Sleep(300 * time.Millisecond)
+		openBrowser(fmt.Sprintf("http://localhost:%v", Port))
+	}()
 
-	Run(projectName, backendPort, routes)
+	Run(projectName, Port, routes)
 }
 
 //--------------------------------helper-func-------------------------------------

@@ -6,13 +6,17 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/etag"
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
@@ -80,8 +84,22 @@ type DBSet struct {
 func NewApp(name string, routes []Route) *fiber.App {
 	app := fiber.New(fiber.Config{AppName: name})
 
+	app.Use(compress.New())
+	app.Use(etag.New())
+
 	app.Use(cors.New())
 	app.Use(logger.New())
+
+	app.Use("/", filesystem.New(filesystem.Config{
+		Root:       http.FS(embeddedFiles),
+		PathPrefix: "build",
+		Index:      "index.html",
+		MaxAge:     86400,
+	}))
+
+	app.Use("*", func(c *fiber.Ctx) error {
+		return filesystem.SendFile(c, http.FS(embeddedFiles), "build/index.html")
+	})
 
 	for _, r := range routes {
 		// 先收集需要用到的中间件
@@ -407,9 +425,8 @@ func touchingRootUser(where string, args []any) bool {
 //------------------------------------------------------------------------------
 
 func main() {
-	initDB("LighterBase")
-	// go Run("LighterBase", 8081, routes)
-	initBackend("LighterBase", "build", 8080, 80)
+	// initDB("LighterBase")
+	initBackend("LighterBase", 8080)
 }
 
 //----------------------------------routing--------------------------------------
