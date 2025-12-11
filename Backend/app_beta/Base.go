@@ -276,7 +276,7 @@ func register(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to check init status"})
 	}
 
-	if count != 0 {
+	if count >= 1 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Already registered"})
 	}
 

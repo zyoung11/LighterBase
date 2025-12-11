@@ -90,17 +90,6 @@ func NewApp(name string, routes []Route) *fiber.App {
 	app.Use(cors.New())
 	app.Use(logger.New())
 
-	app.Use("/", filesystem.New(filesystem.Config{
-		Root:       http.FS(embeddedFiles),
-		PathPrefix: "build",
-		Index:      "index.html",
-		MaxAge:     86400,
-	}))
-
-	app.Use("*", func(c *fiber.Ctx) error {
-		return filesystem.SendFile(c, http.FS(embeddedFiles), "build/index.html")
-	})
-
 	for _, r := range routes {
 		// 先收集需要用到的中间件
 		var mws []fiber.Handler
@@ -121,6 +110,17 @@ func NewApp(name string, routes []Route) *fiber.App {
 		app.Add(strings.ToUpper(r.Method), r.Path,
 			append(mws, r.Handler)...)
 	}
+
+	app.Use("/", filesystem.New(filesystem.Config{
+		Root:       http.FS(embeddedFiles),
+		PathPrefix: "build",
+		Index:      "index.html",
+		MaxAge:     86400,
+	}))
+
+	app.Use("*", func(c *fiber.Ctx) error {
+		return filesystem.SendFile(c, http.FS(embeddedFiles), "build/index.html")
+	})
 
 	return app
 }
