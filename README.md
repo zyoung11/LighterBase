@@ -9,7 +9,7 @@
 
 
 
-## 🔍 项目简介
+## 项目简介
 
 LighterBaseHub 是 **LighterBase** 的多租户管理面板：  
 1. 用户注册 / 登录 / JWT 续签  
@@ -21,7 +21,7 @@ LighterBaseHub 是 **LighterBase** 的多租户管理面板：
 
 ---
 
-## 🧭 启动指南
+## 启动指南
 
 ```bash
 # LighterBase
@@ -30,7 +30,7 @@ LighterBaseHub 是 **LighterBase** 的多租户管理面板：
 git clone https://github.com/zyoung11/LighterBase.git
 cd LighterBase/Backend/app/LighterBase
 
-# 2. 一键启动（默认端口 8080 + 8090）
+# 2. 一键启动（默认端口 8080）
 ./LighterBase
 ```
 
@@ -41,23 +41,12 @@ cd LighterBase/Backend/app/LighterBase
 git clone https://github.com/zyoung11/LighterBase.git
 cd LighterBase/Backend/web/LighterBaseHub
 
-# 2. 一键启动（默认端口 8080 + 8090）
+# 2. 一键启动（默认端口 8080）
 ./LighterBaseHub
 ```
 
 服务就绪后  
-- 管理后台 & 前端：`http://localhost:8090`  
 - 后端 API 入口：`http://localhost:8080`  
-
----
-
-## 🧩 架构速览
-| 组件     | 技术栈                        | 说明                                       |
-| -------- | ----------------------------- | ------------------------------------------ |
-| 主控后端 | Go + Fiber + SQLite           | 负责账号、项目、权限、代理                 |
-| 子实例   | 嵌入的 LighterBase 可执行文件 | 每个项目一份，独立端口                     |
-| 反向代理 | Fiber 中间件                  | 透明转发 `/uid/pid/*` → `localhost:port/*` |
-| 前端     | 任意静态文件                  | 丢进 `dist/` 即可，热加载无需重启          |
 
 
 
@@ -571,65 +560,9 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-## 三、Baas 反向代理 API
+## 三、Baas API
 
-> [!NOTE]
->
-> 通过 LighterBaseHub 操作的 **URL** 如下，详细信息请看下方 LighterBase 文档 
-
-### 1. 增
-
-- URL：/:userId/:projectId/api/auto/create/{table}
-
-### 2. 删
-
-- URL：/:userId/:projectId/api/auto/delete/{table}
-
-### 3. 改
-
-- URL：/:userId/:projectId/api/auto/update/{table}
-
-### 4. 查
-
-- URL：/:userId/:projectId/api/auto/view/{table}?page={x}&perpage={y}
-
-### 5. SQL 操作
-
-- URL：/:userld/:projectId/api/create-table/create
-
-### 6. 查看上一次SQL操作
-
-- URL：/:userld/:projectId/api/sqls/latest
-
-### 7. 登录
-
-- URL：/:userld/:projectId/api/auth/login
-
-### 8. 更新 token
-
-- URL：/:userld/:projectId/api/auth/refresh
-
-### 9. 获取所有权限状态
-
-- URL：/:userld/:projectId/api/security
-
-### 10. 更新权限规则
-
-- URL：/:userld/:projectId/api/security/{table}
-
-### 11. 查询所有表名
-
-- URL：/:userld/:projectId/api/query/tables
-
-### 12.  查询日志
-
-- URL：/:userld/:projectId/api/query/logs?page={x}&perpage={y}
-
-### 13.搜索日志
-
-- URL：/:userld/:projectId/api/search/logs?page={x}&perpage={y}
-
-
+**同 LighterBase**
 
 ------
 
@@ -639,7 +572,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 > [!NOTE]
 >
-> 1. BaseURL：http://localhost:8080
+> 1. BaseURL：http://localhost:8080/:user_id/:project_id
 > 2. 时间编码： **RFC3339 格式**
 > 3. 密码哈希：均由**后端**进行哈希操作
 > 4. 管理员账号：**id = 1，不能改 id ，不能删除**
@@ -668,7 +601,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：POST
 
-- URL：http://localhost:8080/api/auto/create/{table}
+- URL：`/api/auto/create/:table`
 
 - 请求头：
   ```
@@ -739,7 +672,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：DELETE
 
-- URL：http://localhost:8080/api/auto/delete/{table}
+- URL：`/api/auto/delete/:table`
 
 - 请求头：
 
@@ -812,7 +745,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：PUT
 
-- URL：http://localhost:8080/api/auto/update/{table}
+- URL：`/api/auto/update/:table`
 
 - 请求头：
 
@@ -889,7 +822,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：POST
 
-- URL：http://localhost:8080/api/auto/view/{table}?page={x}&perpage={y}
+- URL：`api/auto/view/:table?page={x}&perpage={y}`
 
 - 请求头：
 
@@ -983,7 +916,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：POST
 
-- URL：http://localhost:8080/api/create-table/create
+- URL：`/api/create-table/create`
 
 - 请求头：
 
@@ -1032,7 +965,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：GET
 
-- URL：http://localhost:8080/api/sqls/latest
+- URL：`/api/sqls/latest`
 
 - 请求头：
 
@@ -1063,7 +996,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：POST
 
-- URL：http://localhost:8080/api/auth/login
+- URL：`/api/auth/login`
 
 - 请求头：
 
@@ -1121,7 +1054,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：POST
 
-- URL：http://localhost:8080/api/auth/refresh
+- URL：`/api/auth/refresh`
 
 - 请求头：
 
@@ -1216,7 +1149,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：GET
 
-- URL：http://localhost:8080/api/security
+- URL：`/api/security`
 
 - 请求头：
 
@@ -1272,7 +1205,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：PUT
 
-- URL：http://localhost:8080/api/security/{table}
+- URL：`/api/security/:table`
 
 - 请求头：
 
@@ -1314,7 +1247,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：GET
 
-- URL：http://localhost:8080/api/query/tables
+- URL：`/api/query/tables`
 
 - 请求头：
 
@@ -1342,7 +1275,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：GET
 
-- URL：http://localhost:8080/api/query/logs?page={x}&perpage={y}
+- URL：`/api/query/logs?page={x}&perpage={y}`
 
 - 请求头：
 
@@ -1425,7 +1358,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：POST
 
-- URL：http://localhost:8080/api/search/logs?page={x}&perpage={y}
+- URL：`/api/search/logs?page={x}&perpage={y}`
 
 - 请求头：
 
@@ -1469,7 +1402,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：GET
 
-- URL：http://localhost:8080/api/auth/init
+- URL：`/api/auth/init`
 
 - 预期返回：
 
