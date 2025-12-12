@@ -1,7 +1,5 @@
 # API 文档
 
----
-
 ## 启动
 
 ```bash
@@ -15,6 +13,8 @@ cd LighterBase/Backend/app/LighterBase
 ./LighterBase
 ```
 
+
+
 ```bash
 # LighterBaseHub
 
@@ -25,8 +25,6 @@ cd LighterBase/Backend/web/LighterBaseHub
 # 2. 一键启动（默认端口 8080）
 ./LighterBaseHub
 ```
-
----
 
 
 
