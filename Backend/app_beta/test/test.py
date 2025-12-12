@@ -65,3 +65,35 @@ run_test(
         key=zy_token)
 )
 
+run_test(
+    "App 注册",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auto/create/users",
+         headers={"Content-Type": "application/json"},
+         body={
+             "name": "zy",
+             "password_hash": "zy",
+             "email": "zy@zy.com"
+         })
+)
+
+app_token = run_test(
+    "App 登录",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auth/login",
+         headers={"Content-Type": "application/json"},
+         body={
+             "name": "zy",
+             "password_hash": "zy"
+        }),
+    "token"
+)
+
+print_info(
+    "info",
+    {
+        "zy_uid": zy_uid,
+        "zy_token": zy_token,
+        "zy_pid_1": zy_proj_id1,
+        "zy_pid_2": zy_proj_id2,
+        "app_token": app_token
+    }
+)
