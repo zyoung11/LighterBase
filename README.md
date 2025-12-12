@@ -40,7 +40,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 1. 用户注册
 
-- http方法：POST
+- http方法：**POST**
 
 - URL：`/users/register`
 
@@ -94,7 +94,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 2. 用户登录
 
-- http方法：POST
+- http方法：**POST**
 
 - URL：`/users/login`
 
@@ -150,7 +150,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 >
 > 只有**管理员**可以使用这个API
 
-- http方法：GET
+- http方法：**GET**
 
 - URL：`/users`
 
@@ -201,7 +201,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 4. 获取单个用户
 
-- http方法：GET
+- http方法：**GET**
 
 - URL：`/users/:id`
 
@@ -241,7 +241,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 5. 更新用户
 
-- http方法：PUT
+- http方法：**PUT**
 
 - URL：`/users/:id`
 
@@ -292,7 +292,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 6. 删除用户
 
-- http方法：DELETE
+- http方法：**DELETE**
 
 - URL：`/users/:id`
 
@@ -324,7 +324,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 7. 检查是否已经注册
 
-- http方法：GET
+- http方法：**GET**
 
 - URL：`/users/check/init`
 
@@ -347,7 +347,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 1. 创建项目
 
-- http方法：POST  
+- http方法：**POST**  
 - URL：`/projects`
 
 - 请求头：
@@ -393,7 +393,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 2. 获取当前用户的所有项目
 
-- http方法：GET  
+- http方法：**GET**  
 - URL：`/projects`
 
 - 请求头：
@@ -431,7 +431,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 3. 获取单个项目
 
-- http方法：GET  
+- http方法：**GET**  
 - URL：`/projects/:id`
 
 - 请求头：
@@ -467,7 +467,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 4. 更新项目
 
-- http方法：PUT  
+- http方法：**PUT**  
 - URL：`/projects/:id`
 
 - 请求头：
@@ -513,7 +513,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 5. 删除项目
 
-- http方法：DELETE  
+- http方法：**DELETE**  
 - URL：`/projects/:id`
 
 - 请求头：
@@ -550,7 +550,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 > [!NOTE]
 >
-> 1. BaseURL：http://localhost:8080/:user_id/:project_id/api
+> 1. BaseURL：http://localhost:8080/1/:project_id/api
 > 2. 时间编码： **RFC3339 格式**
 > 3. 密码哈希：均由**后端**进行哈希操作
 > 4. 管理员账号：**id = 1，不能改 id ，不能删除**
@@ -577,7 +577,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 1. 增
 
-- http方法：POST
+- http方法：**POST**
 
 - URL：`/auto/create/:table`
 
@@ -648,7 +648,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 >
 > 禁止删除 **users表**  **id=1** 的记录
 
-- http方法：DELETE
+- http方法：**DELETE**
 
 - URL：`/auto/delete/:table`
 
@@ -721,7 +721,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 > 1. 禁止修改  **users表**  **id=1** 的记录
 > 2. 禁止修改 **users表 默认列**
 
-- http方法：PUT
+- http方法：**PUT**
 
 - URL：`/auto/update/:table`
 
@@ -798,7 +798,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 4. 查
 
-- http方法：POST
+- http方法：**POST**
 
 - URL：`/auto/view/:table?page={x}&perpage={y}`
 
@@ -892,7 +892,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 >
 > 只有**管理员**可以执行这个API
 
-- http方法：POST
+- http方法：**POST**
 
 - URL：`/create-table/create`
 
@@ -941,7 +941,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 >
 > 只有**管理员**可以执行这个API
 
-- http方法：GET
+- http方法：**GET**
 
 - URL：`/sqls/latest`
 
@@ -972,7 +972,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 1. 登录
 
-- http方法：POST
+- http方法：**POST**
 
 - URL：`/auth/login`
 
@@ -1030,7 +1030,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 2. 更新 token
 
-- http方法：POST
+- http方法：**POST**
 
 - URL：`/auth/refresh`
 
@@ -1125,7 +1125,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 1. 获取所有权限状态
 
-- http方法：GET
+- http方法：**GET**
 
 - URL：`/security`
 
@@ -1181,7 +1181,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 2. 更新权限规则
 
-- http方法：PUT
+- http方法：**PUT**
 
 - URL：`/security/:table`
 
@@ -1223,7 +1223,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 1. 查询所有表名
 
-- http方法：GET
+- http方法：**GET**
 
 - URL：`/query/tables`
 
@@ -1251,7 +1251,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 2. 查询日志
 
-- http方法：GET
+- http方法：**GET**
 
 - URL：`/query/logs?page={x}&perpage={y}`
 
@@ -1334,7 +1334,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 3. 搜索日志
 
-- http方法：POST
+- http方法：**POST**
 
 - URL：`/search/logs?page={x}&perpage={y}`
 
@@ -1378,7 +1378,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ### 4. 检查是否已经注册
 
-- http方法：GET
+- http方法：**GET**
 
 - URL：`/auth/init`
 
