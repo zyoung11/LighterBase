@@ -425,7 +425,7 @@ func touchingRootUser(where string, args []any) bool {
 //------------------------------------------------------------------------------
 
 func main() {
-	// initDB("LighterBase")
+	go web()
 	initBackend("LighterBase", 8080)
 }
 
