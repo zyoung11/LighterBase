@@ -30,6 +30,10 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 # LighterBaseHub API 文档
 
+> [!NOTE]
+>
+> BaseURL：http://localhost:8080/api
+
 
 
 ## 一、用户API
@@ -38,7 +42,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：POST
 
-- URL：http://localhost:8080/api/users/register
+- URL：`/users/register`
 
 - 请求头：
 
@@ -92,7 +96,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：POST
 
-- URL：http://localhost:8080/api/users/login
+- URL：`/users/login`
 
 - 请求头：
 
@@ -148,7 +152,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：GET
 
-- URL：http://localhost:8080/api/users
+- URL：`/users`
 
 - 请求头：
 
@@ -199,7 +203,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：GET
 
-- URL：http://localhost:8080/api/users/{id}
+- URL：`/users/:id`
 
 - 请求头：
 
@@ -239,7 +243,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：PUT
 
-- URL：http://localhost:8080/api/users/{id}
+- URL：`/users/:id`
 
 - 请求头：
 
@@ -290,7 +294,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：DELETE
 
-- URL：http://localhost:8080/api/users/{id}
+- URL：`/users/:id`
 
 - 请求头：
 
@@ -322,7 +326,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：GET
 
-- URL：http://localhost:8080/api/users/check/init
+- URL：`/users/check/init`
 
 - 预期返回：
 
@@ -344,7 +348,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 ### 1. 创建项目
 
 - http方法：POST  
-- URL：http://localhost:8080/api/projects  
+- URL：`/projects`
 
 - 请求头：
   ```
@@ -390,7 +394,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 ### 2. 获取当前用户的所有项目
 
 - http方法：GET  
-- URL：http://localhost:8080/api/projects  
+- URL：`/projects`
 
 - 请求头：
   ```
@@ -428,7 +432,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 ### 3. 获取单个项目
 
 - http方法：GET  
-- URL：http://localhost:8080/api/projects/{id}  
+- URL：`/projects/:id`
 
 - 请求头：
   ```
@@ -464,7 +468,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 ### 4. 更新项目
 
 - http方法：PUT  
-- URL：http://localhost:8080/api/projects/{id}  
+- URL：`/projects/:id`
 
 - 请求头：
   ```
@@ -510,7 +514,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 ### 5. 删除项目
 
 - http方法：DELETE  
-- URL：http://localhost:8080/api/projects/{id}  
+- URL：`/projects/:id`
 
 - 请求头：
   ```
@@ -546,7 +550,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 > [!NOTE]
 >
-> 1. BaseURL：http://localhost:8080/:user_id/:project_id
+> 1. BaseURL：http://localhost:8080/:user_id/:project_id/api
 > 2. 时间编码： **RFC3339 格式**
 > 3. 密码哈希：均由**后端**进行哈希操作
 > 4. 管理员账号：**id = 1，不能改 id ，不能删除**
@@ -575,7 +579,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：POST
 
-- URL：`/api/auto/create/:table`
+- URL：`/auto/create/:table`
 
 - 请求头：
   ```
@@ -646,7 +650,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：DELETE
 
-- URL：`/api/auto/delete/:table`
+- URL：`/auto/delete/:table`
 
 - 请求头：
 
@@ -719,7 +723,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：PUT
 
-- URL：`/api/auto/update/:table`
+- URL：`/auto/update/:table`
 
 - 请求头：
 
@@ -796,7 +800,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：POST
 
-- URL：`api/auto/view/:table?page={x}&perpage={y}`
+- URL：`/auto/view/:table?page={x}&perpage={y}`
 
 - 请求头：
 
@@ -890,7 +894,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：POST
 
-- URL：`/api/create-table/create`
+- URL：`/create-table/create`
 
 - 请求头：
 
@@ -939,7 +943,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：GET
 
-- URL：`/api/sqls/latest`
+- URL：`/sqls/latest`
 
 - 请求头：
 
@@ -970,7 +974,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：POST
 
-- URL：`/api/auth/login`
+- URL：`/auth/login`
 
 - 请求头：
 
@@ -1028,7 +1032,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：POST
 
-- URL：`/api/auth/refresh`
+- URL：`/auth/refresh`
 
 - 请求头：
 
@@ -1123,7 +1127,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：GET
 
-- URL：`/api/security`
+- URL：`/security`
 
 - 请求头：
 
@@ -1179,7 +1183,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：PUT
 
-- URL：`/api/security/:table`
+- URL：`/security/:table`
 
 - 请求头：
 
@@ -1221,7 +1225,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：GET
 
-- URL：`/api/query/tables`
+- URL：`/query/tables`
 
 - 请求头：
 
@@ -1249,7 +1253,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：GET
 
-- URL：`/api/query/logs?page={x}&perpage={y}`
+- URL：`/query/logs?page={x}&perpage={y}`
 
 - 请求头：
 
@@ -1332,7 +1336,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：POST
 
-- URL：`/api/search/logs?page={x}&perpage={y}`
+- URL：`/search/logs?page={x}&perpage={y}`
 
 - 请求头：
 
@@ -1376,7 +1380,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：GET
 
-- URL：`/api/auth/init`
+- URL：`/auth/init`
 
 - 预期返回：
 
