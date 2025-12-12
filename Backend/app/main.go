@@ -1,266 +1,128 @@
 package main
 
 import (
+	"LighterBase/database"
 	"context"
 	"database/sql"
-	"embed"
 	"errors"
 	"fmt"
-	"io/fs"
-	"log"
 	"net/http"
 	"os"
-	"os/exec"
-	"os/user"
-	"path"
-	"path/filepath"
 	"regexp"
-	"runtime"
-	// "strconv"
 	"strings"
 	"time"
 
-	"LighterBase/database"
-
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/etag"
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/golang-jwt/jwt/v5"
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
 )
 
-//go:embed SQL/schema.sql
-var schemaFS embed.FS
-
-var queries *database.Queries
-
-var dataDB *sql.DB
-
 var routes = []Route{
-	{Method: "GET", Path: "/health", Handler: health},
+	{Method: "GET", Path: "/health", Handler: health, AuthRequired: false},
+
+	// 用户相关
+	{Method: "POST", Path: "/api/users/register", Handler: register, AuthRequired: false},
+	{Method: "POST", Path: "/api/users/login", Handler: login, AuthRequired: false},
+	{Method: "GET", Path: "/api/users", Handler: listUsers, AuthRequired: true},
+	{Method: "GET", Path: "/api/users/:id", Handler: getUser, AuthRequired: true},
+	{Method: "PUT", Path: "/api/users/:id", Handler: updateUser, AuthRequired: true},
+	{Method: "DELETE", Path: "/api/users/:id", Handler: deleteUser, AuthRequired: true},
+	{Method: "GET", Path: "/api/users/check/init", Handler: checkInit, AuthRequired: false},
+
+	// 项目相关
+	{Method: "POST", Path: "/api/projects", Handler: createProject, AuthRequired: true},
+	{Method: "GET", Path: "/api/projects", Handler: listMyProjects, AuthRequired: true},
+	{Method: "GET", Path: "/api/projects/:id", Handler: getProject, AuthRequired: true},
+	{Method: "PUT", Path: "/api/projects/:id", Handler: updateProject, AuthRequired: true},
+	{Method: "DELETE", Path: "/api/projects/:id", Handler: deleteProject, AuthRequired: true},
+
+	// --- 初始化 API ---
+	// {Method: "POST", Path: "/:userId/:projectId/init", Handler: initProject, AuthRequired: false},
 
 	// --- JWT 认证 API ---
-	{Method: "POST", Path: "/api/auth/login", Handler: login},
-	{Method: "POST", Path: "/api/auth/refresh", Handler: refreshToken},
-	{Method: "GET", Path: "/api/auth/init", Handler: checkInit},
+	{Method: "POST", Path: "/:userId/:projectId/api/auth/login", Handler: login_app, AuthRequired: false},
+	{Method: "POST", Path: "/:userId/:projectId/api/auth/refresh", Handler: refreshToken, AuthRequired: false},
+	{Method: "GET", Path: "/:userId/:projectId/api/auth/init", Handler: checkInit_app, AuthRequired: false},
 
 	// --- BaaS SQL API ---
-	{Method: "POST", Path: "/api/create-table/create/", Handler: execSQL},
+	{Method: "POST", Path: "/:userId/:projectId/api/create-table/create/", Handler: execSQL, AuthRequired: false},
 
 	// --- BaaS 通用 CRUD API ---
-	{Method: "POST", Path: "/api/auto/create/:table", Handler: createRecord},
-	{Method: "DELETE", Path: "/api/auto/delete/:table", Handler: deleteRecord},
-	{Method: "PUT", Path: "/api/auto/update/:table", Handler: updateRecord},
-	{Method: "POST", Path: "/api/auto/view/:table", Handler: viewRecords},
+	{Method: "POST", Path: "/:userId/:projectId/api/auto/create/:table", Handler: createRecord, AuthRequired: false},
+	{Method: "DELETE", Path: "/:userId/:projectId/api/auto/delete/:table", Handler: deleteRecord, AuthRequired: false},
+	{Method: "PUT", Path: "/:userId/:projectId/api/auto/update/:table", Handler: updateRecord, AuthRequired: false},
+	{Method: "POST", Path: "/:userId/:projectId/api/auto/view/:table", Handler: viewRecords, AuthRequired: false},
 
 	// --- _sqls_ 表管理 API ---
-	{Method: "GET", Path: "/api/sqls/latest", Handler: getLatestSqlRecord},
-	// {Method: "POST", Path: "/api/sqls/", Handler: createSqlRecord},
-	// {Method: "DELETE", Path: "/api/sqls/:id", Handler: deleteSqlRecord},
-	// {Method: "PUT", Path: "/api/sqls/:id", Handler: updateSqlRecord},
+	{Method: "GET", Path: "/:userId/:projectId/api/sqls/latest", Handler: getLatestSqlRecord},
 
 	// --- _security_ 表管理 API (需要 JWT) ---
-	{Method: "GET", Path: "/api/security", Handler: getAllSecurity},
-	// {Method: "POST", Path: "/api/security/:table_name", Handler: createSecurityPolicy},
-	// {Method: "DELETE", Path: "/api/security/:table_name", Handler: deleteSecurityPolicy},
-	{Method: "PUT", Path: "/api/security/:table_name", Handler: updateSecurityPolicy},
+	{Method: "GET", Path: "/:userId/:projectId/api/security", Handler: getAllSecurity},
+	{Method: "PUT", Path: "/:userId/:projectId/api/security/:table_name", Handler: updateSecurityPolicy},
 
 	// --- 其他查询 API ---
-	{Method: "GET", Path: "/api/query/tables", Handler: listDataTables},
-	{Method: "GET", Path: "/api/query/logs", Handler: listLogs},
-	{Method: "POST", Path: "/api/search/logs", Handler: searchLogs},
+	{Method: "GET", Path: "/:userId/:projectId/api/query/tables", Handler: listDataTables},
+	{Method: "GET", Path: "/:userId/:projectId/api/query/logs", Handler: listLogs},
+	{Method: "POST", Path: "/:userId/:projectId/api/search/logs", Handler: searchLogs},
 }
 
-type Route struct {
-	Method  string
-	Path    string
-	Handler fiber.Handler
+var dbMap = make(map[string]*DBSet)
+
+type DBSet struct {
+	Queries *database.Queries
+	DataDB  *sql.DB
+	LogFn   func(string)
 }
-
-//------------------------------------JWT---------------------------------------
-
-type MyCustomClaims struct {
-	UserID int64 `json:"user_id"`
-	jwt.RegisteredClaims
-}
-
-var jwtSecret = []byte("my_super_super_super_secret_key_that_is_very_long_and_not_that_random")
-
-// GenerateJWT 为给定用户 ID 生成一个新的 JWT
-func GenerateJWT(userID int64) (string, time.Time, error) {
-	expirationTime := time.Now().Add(48 * time.Hour)
-
-	claims := &MyCustomClaims{
-		UserID: userID,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expirationTime),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtSecret)
-	if err != nil {
-		return "", time.Time{}, err
-	}
-
-	return tokenString, expirationTime, nil
-}
-
-// ParseJWT 解析并验证 JWT，返回用户 ID
-func ParseJWT(tokenString string) (int64, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &MyCustomClaims{}, func(token *jwt.Token) (any, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return jwtSecret, nil
-	})
-	if err != nil {
-		return 0, err
-	}
-
-	if claims, ok := token.Claims.(*MyCustomClaims); ok && token.Valid {
-		return claims.UserID, nil
-	}
-
-	return 0, errors.New("invalid token")
-}
-
-//------------------------------------------------------------------------------
 
 //------------------------------------init--------------------------------------
-
-func init() {
-	if err := initMetaDatabase(); err != nil {
-		log.Fatalf("Failed to initialize meta database: %v", err)
-	}
-	log.Println("Meta database initialized successfully!")
-
-	if err := initDataDatabase(); err != nil {
-		log.Fatalf("Failed to initialize data database: %v", err)
-	}
-	log.Println("Data database initialized successfully!")
-}
 
 func NewApp(name string, routes []Route) *fiber.App {
 	app := fiber.New(fiber.Config{AppName: name})
 
+	app.Use(compress.New())
+	app.Use(etag.New())
+
 	app.Use(cors.New())
-
-	// 创建日志文件
-	logFile, err := os.OpenFile("./LighterBaseDate/app.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0o666)
-	if err != nil {
-		log.Fatalf("error opening log file: %v", err)
-	}
-
-	// 确保在Windows上文件不是只读的
-	if runtime.GOOS == "windows" {
-		if err := os.Chmod("./LighterBaseDate/app.log", 0o666); err != nil {
-			log.Printf("warning: failed to set file permissions on Windows: %v", err)
-		}
-	}
-
-	// 自定义logger配置
-	app.Use(logger.New(logger.Config{
-		Format:     "${time} ${ip}:${port} ${status} - ${method} ${path}\n",
-		TimeFormat: "2006-01-02 15:04:05",
-		Output:     logFile,
-		Done: func(c *fiber.Ctx, logString []byte) {
-			// 将日志同时写入数据库
-			go func(logText string) {
-				err := queries.CreateLog(context.Background(), logText)
-				if err != nil {
-					log.Printf("Failed to save log to database: %v", err)
-				}
-			}(string(logString))
-		},
-	}))
+	app.Use(logger.New())
 
 	for _, r := range routes {
-		app.Add(strings.ToUpper(r.Method), r.Path, r.Handler)
+		// 先收集需要用到的中间件
+		var mws []fiber.Handler
+
+		// 1. 如果路由需要 projectMiddleware
+		if !strings.Contains(r.Path, "/:userId/:projectId/init") &&
+			strings.Contains(r.Path, ":userId") &&
+			strings.Contains(r.Path, ":projectId") {
+			mws = append(mws, projectMiddleware)
+		}
+
+		// 2. 如果路由需要 JWT 鉴权
+		if r.AuthRequired {
+			mws = append(mws, JWTMiddleware)
+		}
+
+		// 把中间件和最终处理器一起展开
+		app.Add(strings.ToUpper(r.Method), r.Path,
+			append(mws, r.Handler)...)
 	}
+
+	app.Use("/", filesystem.New(filesystem.Config{
+		Root:       http.FS(embeddedFiles),
+		PathPrefix: "build",
+		Index:      "index.html",
+		MaxAge:     86400,
+	}))
+
+	app.Use("*", func(c *fiber.Ctx) error {
+		return filesystem.SendFile(c, http.FS(embeddedFiles), "build/index.html")
+	})
 
 	return app
-}
-
-func Run(name string, port int, routes []Route) {
-	app := NewApp(name, routes)
-	log.Fatal(app.Listen(fmt.Sprintf(":%d", port)))
-}
-
-func initMetaDatabase() error {
-	dbPath := "./LighterBaseDate/metaDate.db"
-	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
-		return fmt.Errorf("could not create database directory: %w", err)
-	}
-	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
-		log.Printf("Meta database file not found. Initializing...")
-		db, err := sql.Open("sqlite3", dbPath)
-		if err != nil {
-			return fmt.Errorf("could not open meta database: %w", err)
-		}
-		defer db.Close()
-		if err := runSchema(db); err != nil {
-			return fmt.Errorf("could not run meta database schema: %w", err)
-		}
-		log.Println("Meta database schema executed.")
-	}
-	db, err := sql.Open("sqlite3", dbPath)
-	if err != nil {
-		return fmt.Errorf("could not open meta database for queries: %w", err)
-	}
-
-	if _, err := db.Exec("PRAGMA journal_mode=WAL;"); err != nil {
-		return fmt.Errorf("could not enable WAL mode on meta database: %w", err)
-	}
-
-	queries = database.New(db)
-	return nil
-}
-
-func initDataDatabase() error {
-	dbPath := "./LighterBaseDate/data.db"
-	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
-		return fmt.Errorf("could not create database directory: %w", err)
-	}
-
-	needInit := false
-	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
-		needInit = true
-	}
-
-	db, err := sql.Open("sqlite3", dbPath)
-	if err != nil {
-		return fmt.Errorf("could not open data database: %w", err)
-	}
-
-	if _, err := db.Exec("PRAGMA journal_mode=WAL;"); err != nil {
-		return fmt.Errorf("could not enable WAL mode on data database: %w", err)
-	}
-
-	if needInit {
-		log.Printf("Data database file not found. Initializing...")
-		if err := createUsersTable(db); err != nil {
-			return fmt.Errorf("could not create users table: %w", err)
-		}
-		log.Println("Users table created in data database.")
-
-		// 为users表添加空的权限记录
-		if err := queries.CreateSecurity(context.Background(), database.CreateSecurityParams{
-			TableName:   "users",
-			CreateWhere: sql.NullString{Valid: false},
-			DeleteWhere: sql.NullString{Valid: false},
-			UpdateWhere: sql.NullString{Valid: false},
-			ViewWhere:   sql.NullString{Valid: false},
-		}); err != nil {
-			return fmt.Errorf("could not create default security policy for users table: %w", err)
-		}
-		log.Println("Default security policy created for users table.")
-	}
-
-	dataDB = db
-	return nil
 }
 
 func runSchema(db *sql.DB) error {
@@ -290,8 +152,6 @@ func createUsersTable(db *sql.DB) error {
 	_, err := db.Exec(createTableSQL)
 	return err
 }
-
-//------------------------------------------------------------------------------
 
 //--------------------------------helper-func-----------------------------------
 
@@ -392,7 +252,7 @@ func isValidIdentifier(s string) bool {
 }
 
 // findUserByName 根据用户名查找用户
-func findUserByName(name string) (map[string]any, error) {
+func findUserByName(dataDB *sql.DB, name string) (map[string]any, error) {
 	data, err := queryTableAsMap(dataDB, "users", "WHERE name = ?", name)
 	if err != nil {
 		return nil, err
@@ -404,7 +264,7 @@ func findUserByName(name string) (map[string]any, error) {
 }
 
 // findUserByID 根据 ID 查找用户
-func findUserByID(id int64) (map[string]any, error) {
+func findUserByID(dataDB *sql.DB, id int64) (map[string]any, error) {
 	data, err := queryTableAsMap(dataDB, "users", "WHERE id = ?", id)
 	if err != nil {
 		return nil, err
@@ -455,8 +315,8 @@ func authenticateUserForAPI(c *fiber.Ctx) (int64, bool, error) {
 	return userID, false, nil
 }
 
-func checkPermission(operation, tableName string, userID int64, isGuest bool) (bool, error) {
-	policy, err := getSecurityByTable(tableName)
+func checkPermission(dataDB *sql.DB, queries *database.Queries, operation, tableName string, userID int64, isGuest bool) (bool, error) {
+	policy, err := getSecurityByTable(queries, tableName)
 	if err != nil {
 		return false, fmt.Errorf("failed to retrieve security policy: %w", err)
 	}
@@ -529,7 +389,11 @@ func checkPermission(operation, tableName string, userID int64, isGuest bool) (b
 		}
 
 		if count == 0 {
-			return false, fmt.Errorf("TABLE_EMPTY")
+			// 表为空时，允许创建操作，其他操作返回 false（但不是错误）
+			if operation == "create" {
+				return true, nil
+			}
+			return false, nil
 		}
 	}
 
@@ -560,138 +424,63 @@ func touchingRootUser(where string, args []any) bool {
 
 //------------------------------------------------------------------------------
 
-//------------------------------------web---------------------------------------
-
-func web() {
-	buildPath := "./dist"
-
-	if _, err := os.Stat(buildPath); os.IsNotExist(err) {
-		fmt.Printf("Directory %s does not exist", buildPath)
-		return
-	}
-
-	fileServer := http.FileServer(http.Dir(buildPath))
-
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		requestedPath := path.Join(buildPath, path.Clean(r.URL.Path))
-		if _, err := os.Stat(requestedPath); os.IsNotExist(err) {
-			r.URL.Path = "/"
-		}
-		fileServer.ServeHTTP(w, r)
-	})
-
-	port := "8090"
-	if envPort := os.Getenv("PORT"); envPort != "" {
-		port = envPort
-	}
-
-	go func() {
-		time.Sleep(500 * time.Millisecond)
-		openBrowser("http://localhost:8090")
-	}()
-
-	log.Printf("Server starting on port %s...", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
-		log.Fatal("Server failed:", err)
-	}
-}
-
-//go:embed build/*
-var embeddedFiles embed.FS
-
-func webEmbed() {
-	buildFS, err := fs.Sub(embeddedFiles, "build")
-	if err != nil {
-		log.Fatal("Failed to create sub filesystem:", err)
-	}
-
-	fileServer := http.FileServer(http.FS(buildFS))
-
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		_, err := buildFS.Open(path.Clean(r.URL.Path))
-		if os.IsNotExist(err) {
-			r.URL.Path = "/"
-		}
-		fileServer.ServeHTTP(w, r)
-	})
-
-	port := "8070"
-	if envPort := os.Getenv("PORT"); envPort != "" {
-		port = envPort
-	}
-
-	go func() {
-		time.Sleep(500 * time.Millisecond)
-		openBrowser("http://localhost:8070")
-	}()
-
-	log.Printf("Server starting on port %s...", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
-		log.Fatal("Server failed:", err)
-	}
-}
-
-func openBrowser(url string) error {
-	var cmd string
-	var args []string
-
-	currentUser, _ := user.Current()
-	if currentUser != nil && currentUser.Uid == "0" {
-		if sudoUser := os.Getenv("SUDO_USER"); sudoUser != "" {
-			return exec.Command("sudo", "-u", sudoUser, "xdg-open", url).Start()
-		} else {
-			env := os.Environ()
-			env = append(env, "DISPLAY=:0")
-
-			if xdgCurrentDesktop := os.Getenv("XDG_CURRENT_DESKTOP"); xdgCurrentDesktop != "" {
-				env = append(env, "XDG_CURRENT_DESKTOP="+xdgCurrentDesktop)
-			}
-			if xdgSessionType := os.Getenv("XDG_SESSION_TYPE"); xdgSessionType != "" {
-				env = append(env, "XDG_SESSION_TYPE="+xdgSessionType)
-			}
-
-			command := exec.Command("xdg-open", url)
-			command.Env = env
-			return command.Start()
-		}
-	}
-
-	switch runtime.GOOS {
-	case "windows":
-		cmd = "cmd"
-		args = []string{"/c", "start"}
-	case "darwin":
-		cmd = "open"
-	default:
-		cmd = "xdg-open"
-	}
-	args = append(args, url)
-
-	return exec.Command(cmd, args...).Start()
-}
-
-//------------------------------------------------------------------------------
-
 func main() {
-	go func() {
-		web()
-	}()
-
-	go func() {
-		webEmbed()
-	}()
-
-	Run("LighterBase", 8080, routes)
+	// initDB("LighterBase")
+	initBackend("LighterBase", 8080)
 }
 
 //----------------------------------routing--------------------------------------
 
-func health(c *fiber.Ctx) error {
-	return c.SendStatus(200)
+func projectMiddleware(c *fiber.Ctx) error {
+	userId := c.Params("userId")
+	projectId := c.Params("projectId")
+
+	basePath := fmt.Sprintf("./LighterBaseData/Apps/%s/%s", userId, projectId)
+	userPath := fmt.Sprintf("./LighterBaseData/Apps/%s", userId)
+
+	// 检查用户目录
+	if _, err := os.Stat(userPath); os.IsNotExist(err) {
+		return sendError(c, 400, "没有该用户", nil)
+	}
+
+	// 检查项目目录
+	if _, err := os.Stat(basePath); os.IsNotExist(err) {
+		return sendError(c, 400, "没有该项目", nil)
+	}
+
+	// 检查是否已加载数据库
+	key := fmt.Sprintf("%s/%s", userId, projectId)
+	if _, ok := dbMap[key]; !ok {
+		return sendError(c, 400, "项目未初始化", nil)
+	}
+
+	// 注入数据库连接
+	c.Locals("dbSet", dbMap[key])
+
+	// 执行请求
+	err := c.Next()
+
+	// 请求完成后记录日志
+	dbSet := dbMap[key]
+	if dbSet.LogFn != nil {
+		logText := fmt.Sprintf("%s %s %d %s",
+			c.Method(),
+			c.Path(),
+			c.Response().StatusCode(),
+			time.Now().Format("15:04:05"),
+		)
+		dbSet.LogFn(logText)
+	}
+
+	return err
 }
 
 // execSQL 执行用户提供的 SQL（root 专属，事务级保护，users 表只读）
 func execSQL(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	queries := dbSet.Queries
+	dataDB := dbSet.DataDB
+
 	// 1.  root 专属
 	userID, err := authenticateUser(c)
 	if err != nil || userID != 1 {
@@ -821,6 +610,10 @@ func execSQL(c *fiber.Ctx) error {
 
 // createRecord 动态向指定表插入数据
 func createRecord(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	queries := dbSet.Queries
+	dataDB := dbSet.DataDB
+
 	tableName := c.Params("table")
 
 	var userID int64
@@ -835,11 +628,9 @@ func createRecord(c *fiber.Ctx) error {
 	}
 
 	// 权限检查
-	canCreate, err := checkPermission("create", tableName, userID, isGuest)
+	canCreate, err := checkPermission(dataDB, queries, "create", tableName, userID, isGuest)
 	if err != nil {
 		switch err.Error() {
-		case "TABLE_EMPTY":
-			return sendError(c, 400, "Table is empty", nil)
 		case "AUTH_REQUIRED":
 			return sendError(c, 401, "Authentication required.", nil)
 		default:
@@ -896,6 +687,10 @@ func createRecord(c *fiber.Ctx) error {
 
 // deleteRecord 动态删除指定表的数据
 func deleteRecord(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	queries := dbSet.Queries
+	dataDB := dbSet.DataDB
+
 	tableName := c.Params("table")
 	if tableName == "" {
 		return sendError(c, 400, "Table name is required.", nil)
@@ -908,11 +703,9 @@ func deleteRecord(c *fiber.Ctx) error {
 	}
 
 	// 2. 权限检查
-	canDelete, err := checkPermission("delete", tableName, userID, isGuest)
+	canDelete, err := checkPermission(dataDB, queries, "delete", tableName, userID, isGuest)
 	if err != nil {
 		switch err.Error() {
-		case "TABLE_EMPTY":
-			return sendError(c, 400, "Table is empty", nil)
 		case "AUTH_REQUIRED":
 			return sendError(c, 401, "Authentication required.", nil)
 		default:
@@ -964,6 +757,10 @@ func deleteRecord(c *fiber.Ctx) error {
 
 // updateRecord 动态更新指定表的数据
 func updateRecord(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	queries := dbSet.Queries
+	dataDB := dbSet.DataDB
+
 	tableName := c.Params("table")
 	if tableName == "" {
 		return sendError(c, 400, "Table name is required.", nil)
@@ -976,11 +773,9 @@ func updateRecord(c *fiber.Ctx) error {
 	}
 
 	// 2. 权限检查
-	canDelete, err := checkPermission("update", tableName, userID, isGuest)
+	canDelete, err := checkPermission(dataDB, queries, "update", tableName, userID, isGuest)
 	if err != nil {
 		switch err.Error() {
-		case "TABLE_EMPTY":
-			return sendError(c, 400, "Table is empty", nil)
 		case "AUTH_REQUIRED":
 			return sendError(c, 401, "Authentication required.", nil)
 		default:
@@ -1052,6 +847,10 @@ func updateRecord(c *fiber.Ctx) error {
 
 // viewRecords 动态查询指定表的数据
 func viewRecords(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	queries := dbSet.Queries
+	dataDB := dbSet.DataDB
+
 	tableName := c.Params("table")
 	if tableName == "" {
 		return sendError(c, 400, "Table name is required.", nil)
@@ -1064,11 +863,9 @@ func viewRecords(c *fiber.Ctx) error {
 	}
 
 	// 2. 权限检查
-	canDelete, err := checkPermission("view", tableName, userID, isGuest)
+	canDelete, err := checkPermission(dataDB, queries, "view", tableName, userID, isGuest)
 	if err != nil {
 		switch err.Error() {
-		case "TABLE_EMPTY":
-			return sendError(c, 400, "Table is empty", nil)
 		case "AUTH_REQUIRED":
 			return sendError(c, 401, "Authentication required.", nil)
 		default:
@@ -1171,7 +968,11 @@ func viewRecords(c *fiber.Ctx) error {
 }
 
 // login 用户登录
-func login(c *fiber.Ctx) error {
+func login_app(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	// queries := dbSet.Queries
+	dataDB := dbSet.DataDB
+
 	type Body struct {
 		Name         string `json:"name"`
 		PasswordHash string `json:"password_hash"`
@@ -1188,7 +989,7 @@ func login(c *fiber.Ctx) error {
 	}
 
 	// 查找用户
-	userRecord, err := findUserByName(body.Name)
+	userRecord, err := findUserByName(dataDB, body.Name)
 	if err != nil {
 		return sendError(c, 500, "Database error.", nil)
 	}
@@ -1234,12 +1035,16 @@ func login(c *fiber.Ctx) error {
 }
 
 func refreshToken(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	// queries := dbSet.Queries
+	dataDB := dbSet.DataDB
+
 	userID, err := authenticateUser(c)
 	if err != nil {
 		return sendError(c, 401, "The request requires valid record authorization token to be set.", nil)
 	}
 
-	userRecord, err := findUserByID(userID)
+	userRecord, err := findUserByID(dataDB, userID)
 	if err != nil {
 		return sendError(c, 500, "Database error.", nil)
 	}
@@ -1267,96 +1072,12 @@ func refreshToken(c *fiber.Ctx) error {
 	})
 }
 
-// createSqlRecord 向 _sqls_ 表写入一条新记录
-// func createSqlRecord(c *fiber.Ctx) error {
-// 	// 认证
-// 	if _, err := authenticateUser(c); err != nil {
-// 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
-// 	}
-
-// 	type Body struct {
-// 		SQL string `json:"SQL"`
-// 	}
-// 	var body Body
-// 	if err := c.BodyParser(&body); err != nil {
-// 		return sendError(c, 400, "Invalid JSON body.", nil)
-// 	}
-// 	if body.SQL == "" {
-// 		return sendError(c, 400, "Failed to create SQL record.", fiber.Map{"SQL": "SQL field is required."})
-// 	}
-
-// 	err := queries.CreateSql(context.Background(), body.SQL)
-// 	if err != nil {
-// 		return sendError(c, 500, "Failed to create SQL record.", fiber.Map{"database_error": err.Error()})
-// 	}
-
-// 	return c.Status(201).JSON(fiber.Map{"message": "SQL record created successfully.", "SQL": body.SQL})
-// }
-
-// 根据 ID 删除 _sqls_ 表中的一条记录
-// func deleteSqlRecord(c *fiber.Ctx) error {
-// 	if _, err := authenticateUser(c); err != nil {
-// 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
-// 	}
-
-// 	idStr := c.Params("id")
-// 	id, err := strconv.ParseInt(idStr, 10, 64)
-// 	if err != nil {
-// 		return sendError(c, 400, "Invalid ID format.", nil)
-// 	}
-
-// 	err = queries.DeleteSql(context.Background(), id)
-// 	if err != nil {
-// 		// 检查是否是因为记录不存在导致的错误
-// 		if strings.Contains(err.Error(), "no rows in result set") {
-// 			return sendError(c, 404, "The requested resource wasn't found.", nil)
-// 		}
-// 		return sendError(c, 500, "Failed to delete SQL record.", fiber.Map{"database_error": err.Error()})
-// 	}
-
-// 	return c.Status(204).Send(nil)
-// }
-
-// 根据 ID 更新 _sqls_ 表中的一条记录
-// func updateSqlRecord(c *fiber.Ctx) error {
-// 	if _, err := authenticateUser(c); err != nil {
-// 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
-// 	}
-
-// 	idStr := c.Params("id")
-// 	id, err := strconv.ParseInt(idStr, 10, 64)
-// 	if err != nil {
-// 		return sendError(c, 400, "Invalid ID format.", nil)
-// 	}
-
-// 	type Body struct {
-// 		SQL string `json:"SQL"`
-// 	}
-// 	var body Body
-// 	if err := c.BodyParser(&body); err != nil {
-// 		return sendError(c, 400, "Invalid JSON body.", nil)
-// 	}
-// 	if body.SQL == "" {
-// 		return sendError(c, 400, "Failed to update SQL record.", fiber.Map{"SQL": "SQL field is required."})
-// 	}
-
-// 	err = queries.UpdateSql(context.Background(), database.UpdateSqlParams{
-// 		Sql: body.SQL,
-// 		ID:  id,
-// 	})
-// 	if err != nil {
-// 		// 检查是否是因为记录不存在导致的错误
-// 		if strings.Contains(err.Error(), "no rows in result set") {
-// 			return sendError(c, 404, "The requested resource wasn't found.", nil)
-// 		}
-// 		return sendError(c, 500, "Failed to update SQL record.", fiber.Map{"database_error": err.Error()})
-// 	}
-
-// 	return c.JSON(fiber.Map{"message": "SQL record updated successfully.", "id": id, "SQL": body.SQL})
-// }
-
 // 获取 _sqls_ 表中最新的一条记录
 func getLatestSqlRecord(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	queries := dbSet.Queries
+	// dataDB := dbSet.DataDB
+
 	userID, err := authenticateUser(c)
 	if err != nil || userID != 1 {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
@@ -1384,6 +1105,10 @@ type SecurityResponse struct {
 }
 
 func getAllSecurity(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	queries := dbSet.Queries
+	// dataDB := dbSet.DataDB
+
 	userID, err := authenticateUser(c)
 	if err != nil || userID != 1 {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
@@ -1430,75 +1155,12 @@ func getAllSecurity(c *fiber.Ctx) error {
 	return c.JSON(response)
 }
 
-// 为表创建安全策略
-// func createSecurityPolicy(c *fiber.Ctx) error {
-// 	userID, err := authenticateUser(c)
-// 	if err != nil || userID != 1 {
-// 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
-// 	}
-
-// 	tableName := c.Params("table_name")
-// 	if tableName == "" {
-// 		return sendError(c, 400, "Table name is required.", nil)
-// 	}
-
-// 	type Body struct {
-// 		CreateWhere string `json:"create_where"`
-// 		DeleteWhere string `json:"delete_where"`
-// 		UpdateWhere string `json:"update_where"`
-// 		ViewWhere   string `json:"view_where"`
-// 	}
-// 	var body Body
-// 	if err := c.BodyParser(&body); err != nil {
-// 		return sendError(c, 400, "Invalid JSON body.", nil)
-// 	}
-// 	if tableName == "" {
-// 		return sendError(c, 400, "Failed to create security policy.", fiber.Map{"table_name": "table_name is required."})
-// 	}
-
-// 	// 使用 sqlc 生成的函数
-// 	err = queries.CreateSecurity(context.Background(), database.CreateSecurityParams{
-// 		TableName:   tableName,
-// 		CreateWhere: sql.NullString{String: body.CreateWhere, Valid: body.CreateWhere != ""},
-// 		DeleteWhere: sql.NullString{String: body.DeleteWhere, Valid: body.DeleteWhere != ""},
-// 		UpdateWhere: sql.NullString{String: body.UpdateWhere, Valid: body.UpdateWhere != ""},
-// 		ViewWhere:   sql.NullString{String: body.ViewWhere, Valid: body.ViewWhere != ""},
-// 	})
-// 	if err != nil {
-// 		// 检查唯一性约束冲突
-// 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
-// 			return sendError(c, 409, "A security policy for this table already exists.", nil) // 409 Conflict
-// 		}
-// 		return sendError(c, 500, "Failed to create security policy.", fiber.Map{"database_error": err.Error()})
-// 	}
-
-// 	return c.Status(201).JSON(fiber.Map{"message": "Security policy created successfully."})
-// }
-
-// 删除表的安全策略
-// func deleteSecurityPolicy(c *fiber.Ctx) error {
-// 	userID, err := authenticateUser(c)
-// 	if err != nil || userID != 1 {
-// 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
-// 	}
-
-// 	tableName := c.Params("table_name")
-// 	if tableName == "" {
-// 		return sendError(c, 400, "Table name is required.", nil)
-// 	}
-
-// 	err = queries.DeleteSecurity(context.Background(), tableName)
-// 	if err != nil {
-// 		// sqlc 对于 DELETE 不存在的记录不会返回 sql.ErrNoRows，而是返回一个错误
-// 		// 我们可以检查 RowsAffected
-// 		return sendError(c, 500, "Failed to delete security policy.", fiber.Map{"database_error": err.Error()})
-// 	}
-
-// 	return c.SendStatus(204) // 204 No Content
-// }
-
 // 更新表的安全策略
 func updateSecurityPolicy(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	queries := dbSet.Queries
+	// dataDB := dbSet.DataDB
+
 	userID, err := authenticateUser(c)
 	if err != nil || userID != 1 {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
@@ -1535,7 +1197,7 @@ func updateSecurityPolicy(c *fiber.Ctx) error {
 }
 
 // (内部函数) 根据表名获取安全策略
-func getSecurityByTable(tableName string) (*database.Security, error) {
+func getSecurityByTable(queries *database.Queries, tableName string) (*database.Security, error) {
 	policy, err := queries.GetSecurityByTable(context.Background(), tableName)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -1548,6 +1210,10 @@ func getSecurityByTable(tableName string) (*database.Security, error) {
 
 // listDataTables 返回 data.db 中所有用户表名（不含 sqlite_ 系统表）
 func listDataTables(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	// queries := dbSet.Queries
+	dataDB := dbSet.DataDB
+
 	// 1. 只允许 root
 	userID, err := authenticateUser(c)
 	if err != nil || userID != 1 {
@@ -1585,6 +1251,10 @@ func listDataTables(c *fiber.Ctx) error {
 
 // 添加日志列表处理函数
 func listLogs(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	queries := dbSet.Queries
+	// dataDB := dbSet.DataDB
+
 	// 只允许root用户访问
 	userID, err := authenticateUser(c)
 	if err != nil || userID != 1 {
@@ -1639,6 +1309,10 @@ func listLogs(c *fiber.Ctx) error {
 
 // searchLogs 模糊搜索日志并分页返回
 func searchLogs(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	queries := dbSet.Queries
+	// dataDB := dbSet.DataDB
+
 	// 只允许root用户访问
 	userID, err := authenticateUser(c)
 	if err != nil || userID != 1 {
@@ -1710,12 +1384,14 @@ func searchLogs(c *fiber.Ctx) error {
 }
 
 // checkInit 检查 users 表中是否有数据，用于前端判断是否需要初始化
-func checkInit(c *fiber.Ctx) error {
+func checkInit_app(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	// queries := dbSet.Queries
+	dataDB := dbSet.DataDB
+
 	var count int
 	err := dataDB.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
 	if err != nil {
-		// 如果错误是 "no such table: users"，这表示表还未创建，是正常的初始化流程
-		// 在这种情况下，我们应该返回 false
 		if strings.Contains(err.Error(), "no such table") {
 			return c.JSON(fiber.Map{"init": false})
 		}

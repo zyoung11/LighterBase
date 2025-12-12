@@ -14,6 +14,17 @@ type Log struct {
 	CreatedAt sql.NullString
 }
 
+type Project struct {
+	ProjectID          int64
+	UserID             int64
+	ProjectName        string
+	ProjectAvatar      sql.NullString
+	ProjectDescription sql.NullString
+	ProjectSize        sql.NullInt64
+	CreateAt           sql.NullString
+	UpdateAt           sql.NullString
+}
+
 type Security struct {
 	ID          int64
 	TableName   string
@@ -26,4 +37,14 @@ type Security struct {
 type Sqls struct {
 	ID  int64
 	Sql string
+}
+
+type User struct {
+	UserID       int64
+	UserName     string
+	PasswordHash string
+	Email        string
+	UserAvatar   sql.NullString
+	CreateAt     sql.NullString
+	UpdateAt     sql.NullString
 }
