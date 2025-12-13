@@ -342,7 +342,6 @@ cd LighterBase/Backend/web/LighterBaseHub
 
   http状态码：500
 
-
 ## 二、项目API
 
 ### 1. 创建项目
@@ -538,7 +537,69 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-## 三、Baas API
+### 5. 下载项目
+
+- http方法：**GET**  
+
+- URL：`/projects/download/:id`
+
+- 请求头：
+
+  ```
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 预期返回： 
+  http状态码：206 
+  返回体：
+
+  ```json
+  null
+  ```
+
+  http状态码：400, 401, 403, 404, 500 
+  返回体：
+
+  ```json
+  {
+    "error": "error_message"
+  }
+  ```
+
+## 三、下载 API
+
+### 1. 下载 App
+
+- http方法：**GET**  
+
+- URL：`/download/app/:os` 
+
+  > /:os 选项：`/windows` 或 `/linux`
+
+- 请求头：
+
+  ```
+  null
+  ```
+
+- 预期返回： 
+  http状态码：206 
+  返回体：
+
+  ```json
+  null
+  ```
+
+  http状态码：400, 404
+  返回体：
+
+  ```json
+  {
+    "error": "error_message"
+  }
+  ```
+
+## 四、Baas API
 
 **同 LighterBase API 文档** 
 
