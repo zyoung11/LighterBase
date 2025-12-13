@@ -36,6 +36,10 @@ var routes = []Route{
 	{Method: "GET", Path: "/api/projects/:id", Handler: getProject, AuthRequired: true},
 	{Method: "PUT", Path: "/api/projects/:id", Handler: updateProject, AuthRequired: true},
 	{Method: "DELETE", Path: "/api/projects/:id", Handler: deleteProject, AuthRequired: true},
+	{Method: "GET", Path: "/api/projects/download/:id", Handler: downloadProject, AuthRequired: true},
+
+	// 下载
+	{Method: "GET", Path: "/api/download/app/:os", Handler: downloadApp, AuthRequired: false},
 
 	// --- 初始化 API ---
 	// {Method: "POST", Path: "/:userId/:projectId/init", Handler: initProject, AuthRequired: false},

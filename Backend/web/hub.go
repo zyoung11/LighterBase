@@ -2,14 +2,17 @@ package main
 
 import (
 	"LighterBaseHub/database"
+	"archive/zip"
 	"context"
 	"database/sql"
 	"fmt"
+	"io"
 	"log"
 	"math"
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -354,4 +357,127 @@ func deleteProject(c *fiber.Ctx) error {
 
 	log.Printf("Successfully deleted project %d and its resources.", projectID)
 	return c.SendStatus(fiber.StatusNoContent)
+}
+
+// 下载项目
+func downloadProject(c *fiber.Ctx) error {
+	projectID, err := c.ParamsInt("id")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid project ID"})
+	}
+
+	userID, ok := c.Locals("userID").(int64)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	project, err := queries.GetProjectByID(c.Context(), int64(projectID))
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Project not found"})
+	}
+
+	if project.UserID != userID && userID != 1 {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Forbidden"})
+	}
+
+	projectDir := filepath.Join(baseDir, strconv.FormatInt(project.UserID, 10), strconv.FormatInt(project.ProjectID, 10))
+
+	if _, err := os.Stat(projectDir); os.IsNotExist(err) {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Project directory not found"})
+	}
+
+	tempZipPath := filepath.Join(os.TempDir(), fmt.Sprintf("project_%d_%d.zip", project.UserID, project.ProjectID))
+	zipFile, err := os.Create(tempZipPath)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create zip file"})
+	}
+	defer zipFile.Close()
+
+	zipWriter := zip.NewWriter(zipFile)
+	defer zipWriter.Close()
+
+	err = filepath.Walk(projectDir, func(filePath string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		header, err := zip.FileInfoHeader(info)
+		if err != nil {
+			return err
+		}
+
+		relPath, err := filepath.Rel(projectDir, filePath)
+		if err != nil {
+			return err
+		}
+		header.Name = relPath
+
+		if info.IsDir() {
+			header.Name += "/"
+		} else {
+			header.Method = zip.Deflate
+		}
+
+		writer, err := zipWriter.CreateHeader(header)
+		if err != nil {
+			return err
+		}
+
+		if !info.IsDir() {
+			file, err := os.Open(filePath)
+			if err != nil {
+				return err
+			}
+			defer file.Close()
+
+			_, err = io.Copy(writer, file)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create zip archive"})
+	}
+
+	zipWriter.Close()
+
+	err = c.Download(tempZipPath, fmt.Sprintf("project_%s.zip", project.ProjectName))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to send file"})
+	}
+
+	os.Remove(tempZipPath)
+
+	return nil
+}
+
+// 下载应用
+func downloadApp(c *fiber.Ctx) error {
+	osType := strings.ToLower(c.Params("os"))
+	var appPath string
+
+	switch osType {
+	case "windows":
+		appPath = "./Apps/LighterBase.exe"
+	case "linux":
+		appPath = "./Apps/LighterBase"
+	default:
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid OS type. Use 'windows' or 'linux'"})
+	}
+
+	if _, err := os.Stat(appPath); os.IsNotExist(err) {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Application file not found"})
+	}
+
+	var filename string
+	if osType == "windows" {
+		filename = "LighterBase.exe"
+	} else {
+		filename = "LighterBase"
+	}
+
+	return c.Download(appPath, filename)
 }
