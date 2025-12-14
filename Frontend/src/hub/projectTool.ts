@@ -22,25 +22,41 @@ app.appendChild(gridContainer);
 
 // 创建项目详情区域
 const projectDetails = document.createElement('div');
-projectDetails.className = 'absolute right-[5%] top-[12%] w-3/5 h-4/5 bg-gray-800 p-4 hidden z-5';
+projectDetails.id = 'projectDetails';
+projectDetails.className = 'absolute right-[5%] top-[12%] w-3/5 h-4/5 bg-gray-700 bg-opacity-90 p-4 rounded-lg hidden z-5';
 projectDetails.innerHTML = `
-  <img id="detail-avatar" class="w-[40%] h-[50%] mb-4" onerror="this.style.display='none'">
+  <img id="detail-avatar" class="w-[50%] h-[40%] object-cover mb-4" onerror="this.style.display='none'">
   <h2 id="detail-name" class="text-2xl font-bold mb-4"></h2>
-  <div id="detail-description" class="text-lg mb-4"></div>
-  <div class="flex space-x-4">
-    <button id="start-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">开始</button>
+  <textarea id="detail-description" class="w-full h-[40%] bg-gray-600 bg-opacity-50 text-white p-3 rounded resize-none overflow-auto mb-4" readonly style="user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; cursor: default; pointer-events: none; outline: none; box-shadow: none; border: none;"></textarea>
+  <div class="absolute bottom-4 right-4 flex space-x-4">
+    <button id="start-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">start</button>
     <button id="delete-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Delete</button>
   </div>
  `;
 if(app)
 app.appendChild(projectDetails);
 
-// 创建返回按钮
-const backBtn = document.createElement('button');
-backBtn.textContent = 'Back';
-backBtn.className = 'fixed bottom-4 right-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded hidden z-10';
-backBtn.addEventListener('click', () => {
-  // 重新排列回3列网格
+// 创建点击外部返回的功能
+function handleOutsideClick(event: MouseEvent) {
+  const target = event.target as HTMLElement;
+  
+  // 检查是否点击在项目区块上
+  const isClickOnBlock = target.closest('.absolute.flex.bg-gray-700');
+  
+  // 检查是否点击在详情区域内
+  const isClickOnDetails = target.closest('#projectDetails') || 
+                           target.closest('#detail-avatar') || 
+                           target.closest('#detail-name') || 
+                           target.closest('#detail-description') || 
+                           target.closest('#start-btn') || 
+                           target.closest('#delete-btn');
+  
+  // 如果点击在项目区块或详情区域内，不执行返回操作
+  if (isClickOnBlock || isClickOnDetails || projectDetails.classList.contains('hidden')) {
+    return;
+  }
+  
+  // 执行返回操作
   blocks.forEach((block, index) => {
     const row = Math.floor(index / GRID_SIZE);
     const col = index % GRID_SIZE;
@@ -48,18 +64,17 @@ backBtn.addEventListener('click', () => {
   });
   // 更新容器高度
   const rows = Math.ceil(blocks.length / GRID_SIZE);
-  // gridContainer.style.height = `${rows * (window.innerHeight * 0.25)}px`;
   gridContainer.style.height = '90vh';
   // 禁用y轴滚动
   gridContainer.style.overflowY = 'hidden';
-  // 隐藏详情和按钮
+  // 隐藏详情
   projectDetails.classList.add('hidden');
-  backBtn.classList.add('hidden');
   // 重新render
   blocks.forEach(renderBlock);
-});
-if(app)
-app.appendChild(backBtn);
+}
+
+// 添加全局点击事件监听
+document.addEventListener('click', handleOutsideClick);
 
 // --- 辅助函数 ---
 // 将网格坐标转换为像素坐标
@@ -147,7 +162,7 @@ async function initializeBlocks() {
 }
 
 // 选择区块的函数
-function selectBlock(selectedId:Int8Array) {
+function selectBlock(selectedId:number) {
   const selected = blocks.find(b => b.id === selectedId);
   if (!selected) return;
       // function getCookie(name:string) {
@@ -178,8 +193,8 @@ function selectBlock(selectedId:Int8Array) {
     }
   });
 
-  // 添加选中项目的边框
-  selected.element.style.border = '2px solid white';
+  // 移除选中项目的边框
+  // selected.element.style.border = '2px solid white';
 // selected.element.
   // 重新排列：selected to [0,0], others in order to [1,0], [2,0], etc.
   const others = blocks.filter(b => b.id !== selectedId);
@@ -288,9 +303,8 @@ function selectBlock(selectedId:Int8Array) {
       if (blocks.length > 0) {
         selectBlock(blocks[0].id);
       } else {
-        // 无项目，隐藏详情和按钮
+        // 无项目，隐藏详情
         projectDetails.classList.add('hidden');
-        backBtn.classList.add('hidden');
       }
 
       // 重新render
@@ -298,9 +312,6 @@ function selectBlock(selectedId:Int8Array) {
     };
   }
   projectDetails.classList.remove('hidden');
-
-  // 显示返回按钮
-  backBtn.classList.remove('hidden');
 
   // 滚动到顶部
   gridContainer.scrollTop = 0;

@@ -135,8 +135,8 @@ function createNavBar() {
   logoutMenu.className = 'absolute top-full mt-1 bg-[#2B2F31] rounded-lg shadow-lg hidden z-10';
   const logoutBtn = document.createElement('button');
   logoutBtn.id = 'logout-btn';
-  logoutBtn.className = 'px-4 py-2 text-white hover:bg-[#3a3f41] rounded-lg w-16 text-center';
-  logoutBtn.textContent = '登出';
+  logoutBtn.className = 'px-2 py-2 text-white hover:bg-[#3a3f41] rounded-lg w-16 text-center';
+  logoutBtn.textContent = 'logout';
   logoutMenu.appendChild(logoutBtn);
   rightDiv.appendChild(logoutMenu);
 
