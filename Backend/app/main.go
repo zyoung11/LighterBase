@@ -40,6 +40,7 @@ var routes = []Route{
 	{Method: "GET", Path: "/api/projects/:id", Handler: getProject, AuthRequired: true},
 	{Method: "PUT", Path: "/api/projects/:id", Handler: updateProject, AuthRequired: true},
 	{Method: "DELETE", Path: "/api/projects/:id", Handler: deleteProject, AuthRequired: true},
+	{Method: "GET", Path: "/api/projects/sql/:id", Handler: getProjectLatestSql, AuthRequired: true},
 
 	// --- 初始化 API ---
 	// {Method: "POST", Path: "/:userId/:projectId/init", Handler: initProject, AuthRequired: false},

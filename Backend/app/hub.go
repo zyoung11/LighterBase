@@ -355,3 +355,44 @@ func deleteProject(c *fiber.Ctx) error {
 	log.Printf("Successfully deleted project %d and its resources.", projectID)
 	return c.SendStatus(fiber.StatusNoContent)
 }
+
+// 获取用户项目的最新SQL记录
+func getProjectLatestSql(c *fiber.Ctx) error {
+	projectID, err := c.ParamsInt("id")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid project ID"})
+	}
+
+	userID, ok := c.Locals("userID").(int64)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	project, err := queries.GetProjectByID(c.Context(), int64(projectID))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Project not found"})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch project"})
+	}
+
+	if project.UserID != userID && userID != 1 {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Forbidden"})
+	}
+
+	key := fmt.Sprintf("%d/%d", project.UserID, project.ProjectID)
+	dbSet, ok := dbMap[key]
+	if !ok {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Project database not initialized"})
+	}
+
+	record, err := dbSet.Queries.GetLatestSql(c.Context())
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "No SQL records found"})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch latest SQL record"})
+	}
+
+	return c.JSON(record)
+}
