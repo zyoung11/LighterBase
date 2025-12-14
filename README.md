@@ -566,6 +566,31 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
+### 6. 获取项目数据库表结构
+
+- http方法：**GET**  
+- URL：`/projects/sql/:id`
+
+- 请求头：
+
+  ```
+  Content-Type: application/json
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  {
+      "ID": "value1",
+      "sql": "value2"
+  }
+  ```
+
 ## 三、下载 API
 
 ### 1. 下载 App
