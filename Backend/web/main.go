@@ -1073,9 +1073,8 @@ func getLatestSqlRecord(c *fiber.Ctx) error {
 
 	record, err := queries.GetLatestSql(context.Background())
 	if err != nil {
-		// 如果记录不存在，sqlc 会返回 sql.ErrNoRows
 		if err == sql.ErrNoRows {
-			return sendError(c, 404, "No SQL records found.", nil)
+			return c.JSON(nil)
 		}
 		return sendError(c, 500, "Failed to fetch latest SQL record.", fiber.Map{"database_error": err.Error()})
 	}
