@@ -81,7 +81,7 @@ async isLogin(){
         const res = await fetch(`${URL}/api/auth/init`,{
             method:"GET",
             headers:{
-                "Content-Type":"application/json",
+                // "Content-Type":"application/json",
                 "Authorization":`Bearer ${hubAuthToken}`
 
             }

@@ -3,13 +3,12 @@ const CELL_SIZE = 100; // 每个格子的大小 (px)
 const ANIMATION_DURATION = 500; // 动画持续时间 (ms)
 const GAP = 20; // 项目间隔 (px)
 import projects from "./projects";
-import { setBaseUrl } from "../apis/api";
+import {URL, setBaseUrl } from "../apis/api";
 import { compressImage,getCookie } from "../modules/tools";
 import { i18n } from "../modules/i18n";
 import sql from "../apis/sql";
 import gojsER from "../utils/gojsER";
 import sqliteParser from "sqlite-parser";
-
 
 
 let token = getCookie("hubAuthToken")
@@ -33,7 +32,7 @@ projectDetails.className = 'absolute right-[5%] top-[12%] w-3/5 h-4/5 bg-gray-70
 projectDetails.innerHTML = `
 <div class="w-full h-[40%] flex">
   <img id="detail-avatar" class="w-[45%] h-full object-cover mb-4 rounded-sm" onerror="this.style.display='none'">
-  <textarea id="hub-ER" class="ml-3 w-[50%] h-full rounded-sm bg-gray-600"></textarea>
+  <div id="mount" class="ml-3 w-[50%] h-full rounded-sm bg-gray-600"></div>
 </div>
   <h2 id="detail-name" class="text-2xl font-bold mb-4"></h2>
   <textarea id="detail-description" class="w-full h-[40%] bg-gray-600 bg-opacity-50 text-white p-3 rounded resize-none overflow-auto mb-4" readonly style="user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; cursor: default; pointer-events: none; outline: none; box-shadow: none; border: none;"></textarea>
@@ -201,7 +200,7 @@ function selectBlock(selectedId:number) {
   }
 
   const projectId = selected.project.project_id;
-  const sqlUrl = `http://localhost:8080/${userId}/${projectId}`;
+  // const sqlUrl = `http://localhost:8080/${userId}/${projectId}`;
   // 移除所有项目的边框
   blocks.forEach(block => {
     if (block.element) {
@@ -239,7 +238,7 @@ function selectBlock(selectedId:number) {
     // });
     detailName.textContent = selected.project.project_name;
     detailDescription.textContent = selected.project.project_description;
-    initializeDatabaseView(sqlUrl)
+    initializeDatabaseView(URL,projectId)
      }
   // 添加开始事件
   const startBtn = projectDetails.querySelector('#start-btn') as HTMLButtonElement;
@@ -342,9 +341,9 @@ function selectBlock(selectedId:number) {
   });
 }
 
-async function initializeDatabaseView(hubUrl:string) {
-  const textarea = document.getElementById('hub-ER') as HTMLTextAreaElement | null;
-  if (textarea) {
+async function initializeDatabaseView(hubUrl:string,projectId:number) {
+  // const textarea = document.getElementById('hub-ER') as HTMLTextAreaElement | null;
+  // if (textarea) {
     let initialSQL = `CREATE TABLE users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
@@ -358,15 +357,17 @@ async function initializeDatabaseView(hubUrl:string) {
 `;
     
     try {
-      const tableStatements = await sql.hubLastestSql(hubUrl,token);
+      if(token){
+      const tableStatements = await sql.hubLastestSql(hubUrl,projectId);
       if (tableStatements) {
         initialSQL += tableStatements + '\n';
+      }
       }
     } catch (error) {
       console.warn("获取表数据失败，使用默认SQL:", error);
     }
     
-    textarea.value = initialSQL;
+    // textarea.value = initialSQL;
 
     try {
       const ast = sqliteParser(initialSQL);
@@ -378,7 +379,7 @@ async function initializeDatabaseView(hubUrl:string) {
     } catch (error) {
       console.error("初始SQL解析错误:", error);
     }
-  }
+  // }
 }
 
 

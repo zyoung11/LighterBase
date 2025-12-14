@@ -1,4 +1,4 @@
-import { URL,authToken } from "./api.ts";
+import { URL,authToken,hubAuthToken } from "./api.ts";
 type theLogs = {
     page: number;
     perPage: number;
@@ -35,27 +35,6 @@ const sql = {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${authToken}`
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-            console.log(data.Sql);
-            return data.Sql;
-        } catch (error) {
-            console.error("Error getting lastest SQL:", error);
-            throw error;
-        }
-    },
-
-    async hubLastestSql(hubUrl:string,hubAuthToken:string): Promise<any> {
-        try {
-            const response = await fetch(`${hubUrl}/api/sqls/latest`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${hubAuthToken}`
                 }
             });
             if (!response.ok) {
@@ -134,8 +113,31 @@ const sql = {
       console.error('searchLogs error', error);
       throw error;
     }
-  }
-    
+  },
+
+    async hubLastestSql(hubUrl:string,projectId:number): Promise<any> {
+        try {
+            const response = await fetch(`${hubUrl}/api/projects/sql/${projectId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${hubAuthToken}`
+                }
+            });
+            console.log(hubUrl)
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log(data.Sql);
+            return data.Sql;
+        } catch (error) {
+            console.error("Error getting lastest SQL:", error);
+            throw error;
+        }
+    },
+
+   
 }
 
 export default sql;
