@@ -515,7 +515,7 @@ func getProjectLatestSql(c *fiber.Ctx) error {
 	record, err := dbSet.Queries.GetLatestSql(c.Context())
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "No SQL records found"})
+			return c.JSON(nil)
 		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch latest SQL record"})
 	}
