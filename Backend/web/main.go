@@ -37,6 +37,7 @@ var routes = []Route{
 	{Method: "PUT", Path: "/api/projects/:id", Handler: updateProject, AuthRequired: true},
 	{Method: "DELETE", Path: "/api/projects/:id", Handler: deleteProject, AuthRequired: true},
 	{Method: "GET", Path: "/api/projects/download/:id", Handler: downloadProject, AuthRequired: true},
+	{Method: "GET", Path: "/api/projects/sql/:id", Handler: getProjectLatestSql, AuthRequired: true},
 
 	// 下载
 	{Method: "GET", Path: "/api/download/app/:os", Handler: downloadApp, AuthRequired: false},
