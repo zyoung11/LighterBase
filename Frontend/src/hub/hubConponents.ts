@@ -7,6 +7,7 @@ import office from './office.jpg'
 import githubImg from '../icons/git.svg'
 // import { createLoader } from "../modules/loader";
 import { compressImage,checkAuthentication } from "../modules/tools";
+import { i18n, createLanguageSwitcher } from "../modules/i18n";
 
 function getCookie(name: string) {
   const value = `; ${document.cookie}`;
@@ -18,7 +19,7 @@ let token = getCookie('hubAuthToken');
 
 //检查token
 if(token)
-await checkAuthentication(token,'login')
+checkAuthentication(token,'login')
 // await checkAuthentication(hubToken,'login')
 // let token = hubToken
 let isEmpty = false;
@@ -71,7 +72,7 @@ function createNavBar() {
    pricingBtn.onclick = () => window.location.href = '/pricing';
   leftDiv.appendChild(pricingBtn);
 
-  const docsBtn = blocks.createButton('Docs');
+  const docsBtn = blocks.createButton(i18n.t('hub.navbar.docs'));
   docsBtn.style.backgroundColor = 'lightgray';
   docsBtn.style.color = 'gray';
   docsBtn.style.border = '1px solid gray';
@@ -103,7 +104,7 @@ function createNavBar() {
   // 右侧：Login in 或 用户名
   const rightDiv = document.createElement('div');
   rightDiv.className = 'relative';
-  const userBtn = blocks.createButton('Login in');
+  const userBtn = blocks.createButton(i18n.t('hub.navbar.login'));
   userBtn.id = 'user-link';
   userBtn.style.backgroundColor = 'lightgray';
   userBtn.style.color = 'gray';
@@ -127,7 +128,12 @@ function createNavBar() {
     userBtn.style.transform = 'translateY(-4px) translateX(-2px)';
     userBtn.style.boxShadow = '2px 5px 0 0 gray';
   };
-   userBtn.onclick = () => window.location.href = '/login';
+userBtn.onclick = () => window.location.href = '/login';
+
+  // 添加语言切换按钮（放在用户名左边）
+  const languageSwitcher = createLanguageSwitcher();
+  rightDiv.appendChild(languageSwitcher);
+
   rightDiv.appendChild(userBtn);
 
   const logoutMenu = document.createElement('div');
@@ -136,7 +142,7 @@ function createNavBar() {
   const logoutBtn = document.createElement('button');
   logoutBtn.id = 'logout-btn';
   logoutBtn.className = 'px-2 py-2 text-white hover:bg-[#3a3f41] rounded-lg w-16 text-center';
-  logoutBtn.textContent = 'logout';
+  logoutBtn.textContent = i18n.t('hub.navbar.logout');
   logoutMenu.appendChild(logoutBtn);
   rightDiv.appendChild(logoutMenu);
 
@@ -152,9 +158,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   officeImg.src = office;
   gitImg.src = githubImg;
 }
-  // 生成导航栏
+// 生成导航栏
   const newNav = createNavBar();
   document.body.insertBefore(newNav, document.body.firstChild);
+
+  // 监听语言变化事件，更新未登录状态的用户按钮文本
+  window.addEventListener('languageChanged', () => {
+    const userBtn = document.getElementById('user-link') as HTMLButtonElement;
+    const username = localStorage.getItem('username');
+    if (!token || !username) {
+      userBtn.textContent = i18n.t('hub.navbar.login');
+    }
+  });
 
   // 检查登录状态
   // function getCookie(name: string) {
@@ -179,12 +194,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       logoutMenu.classList.toggle('hidden');
     };
 
+    // 更新登出按钮文本
+    const updateLogoutButtonText = () => {
+      logoutBtn.textContent = i18n.t('hub.navbar.logout');
+    };
+    updateLogoutButtonText();
+
     // 点击登出清除token
     logoutBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       document.cookie = 'hubAuthToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
       localStorage.removeItem('username');
       window.location.reload();
+    });
+
+    // 监听语言变化事件
+    window.addEventListener('languageChanged', () => {
+      updateLogoutButtonText();
     });
 
     // 点击其他地方隐藏菜单

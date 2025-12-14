@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Switch Test</title>
+    <script src="../tailwind.js"></script>
+</head>
+<body class="bg-gray-900 text-white p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8">Language Switch Test</h1>
+        
+        <!-- 测试导航栏 -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4">Navigation Bar Test</h2>
+            <div id="nav-test" class="bg-gray-800 p-4 rounded-lg">
+                <!-- 导航栏将在这里渲染 -->
+            </div>
+        </div>
+
+        <!-- 测试项目详情 -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4">Project Detail Test</h2>
+            <div id="project-detail-test" class="bg-gray-800 p-4 rounded-lg">
+                <div class="w-1/2 h-40 bg-gray-700 mb-4">
+                    <img id="test-avatar" class="w-full h-full object-cover" src="https://via.placeholder.com/400x300" alt="Project Avatar">
+                </div>
+                <h3 id="test-name" class="text-xl font-bold mb-2">Test Project</h3>
+                <textarea id="test-description" class="w-full h-32 bg-gray-600 p-2 rounded mb-4" readonly>Test project description for language switching functionality.</textarea>
+                <div class="flex space-x-4">
+                    <button id="test-start-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Start</button>
+                    <button id="test-delete-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 测试其他文本 -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4">Other Text Test</h2>
+            <div class="bg-gray-800 p-4 rounded-lg space-y-2">
+                <p>Hub Slogan: <span id="slogan-test"></span></p>
+                <p>Pricing Title: <span id="pricing-test"></span></p>
+                <p>Current Language: <span id="lang-test"></span></p>
+            </div>
+        </div>
+
+        <script type="module">
+            import { i18n } from './modules/i18n.js';
+            
+            // 更新测试文本
+            function updateTestTexts() {
+                document.getElementById('slogan-test').textContent = i18n.t('hub.slogan.build');
+                document.getElementById('pricing-test').textContent = i18n.t('pricing.title.free');
+                document.getElementById('lang-test').textContent = i18n.getCurrentLanguage();
+                
+                // 更新项目详情按钮
+                document.getElementById('test-start-btn').textContent = i18n.t('common.start');
+                document.getElementById('test-delete-btn').textContent = i18n.t('common.delete');
+            }
+            
+            // 初始化
+            updateTestTexts();
+            
+            // 监听语言变化
+            window.addEventListener('languageChanged', updateTestTexts);
+            
+            // 模拟导航栏创建
+            setTimeout(() => {
+                const navTest = document.getElementById('nav-test');
+                navTest.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-4">
+                            <button class="bg-gray-700 px-4 py-2 rounded">${i18n.t('hub.navbar.logo')}</button>
+                            <button class="bg-gray-700 px-4 py-2 rounded">${i18n.t('hub.navbar.pricing')}</button>
+                            <button class="bg-gray-700 px-4 py-2 rounded">${i18n.t('hub.navbar.docs')}</button>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="bg-gray-700 px-4 py-2 rounded" id="test-user-btn">${i18n.t('hub.navbar.login')}</button>
+                        </div>
+                    </div>
+                `;
+                
+                // 添加语言变化监听
+                window.addEventListener('languageChanged', () => {
+                    const userBtn = document.getElementById('test-user-btn');
+                    if (userBtn) {
+                        userBtn.textContent = i18n.t('hub.navbar.login');
+                    }
+                });
+            }, 100);
+        </script>
+    </div>
+</body>
+</html>

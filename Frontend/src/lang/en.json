@@ -1,0 +1,110 @@
+{
+  "common": {
+    "start": "Start",
+    "delete": "Delete",
+    "created": "Created:",
+    "updated": "Updated:"
+  },
+  "hub": {
+    "slogan": {
+      "build": "Build in a Lighter Way",
+      "minutes": "Just in minutes",
+      "platform": "Lighterbase is the Postgres development platform.",
+      "editing": "Backend editing in a new way than the past altogether."
+    },
+    "buttons": {
+      "getStart": "Get Start"
+    },
+    "footer": {
+      "trusted": "Trusted by ourselves",
+      "github": "LighterBase"
+    },
+    "navbar": {
+      "logo": "LighterBase",
+      "pricing": "Pricing",
+      "docs": "Docs",
+      "login": "Login in",
+      "logout": "Logout"
+    }
+  },
+  "pricing": {
+    "title": {
+      "free": "Totally Free!!"
+    },
+    "subtitle": {
+      "efficient": "Open and Efficent"
+    },
+    "music": {
+      "play": "▶️",
+      "pause": "⏸️"
+    }
+  },
+  "login": {
+    "welcome": {
+      "title": "Welcome to LighterBase"
+    },
+    "toggle": {
+      "login": "Login",
+      "register": "Register"
+    },
+    "form": {
+      "username": {
+        "label": "Username",
+        "placeholder": "Enter username"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Enter password"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "Enter email"
+      }
+    },
+    "submit": {
+      "login": "Login"
+    },
+    "footer": {
+      "brand": "LighterBase"
+    }
+  },
+  "welcome": {
+    "welcome": {
+      "title": "Welcome to lighterBase"
+    },
+    "login": {
+      "title": "Login"
+    },
+    "form": {
+      "username": {
+        "label": "Username",
+        "placeholder": "Enter username"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Enter password"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "Enter email"
+      }
+    },
+    "submit": {
+      "login": "Login"
+    },
+    "footer": {
+      "brand": "LighterBase"
+    }
+  },
+  "index": {
+    "welcome": {
+      "default": "Welcome to lighterBase"
+    },
+    "navigation": {
+      "database": "Database",
+      "folder": "Files",
+      "analysis": "Analysis",
+      "settings": "Settings"
+    }
+  }
+}

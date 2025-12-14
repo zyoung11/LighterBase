@@ -5,6 +5,12 @@ const GAP = 20; // 项目间隔 (px)
 import projects from "./projects";
 import { setBaseUrl } from "../apis/api";
 import { compressImage,getCookie } from "../modules/tools";
+import { i18n } from "../modules/i18n";
+import sql from "../apis/sql";
+import gojsER from "../utils/gojsER";
+import sqliteParser from "sqlite-parser";
+
+
 
 let token = getCookie("hubAuthToken")
 
@@ -25,12 +31,15 @@ const projectDetails = document.createElement('div');
 projectDetails.id = 'projectDetails';
 projectDetails.className = 'absolute right-[5%] top-[12%] w-3/5 h-4/5 bg-gray-700 bg-opacity-90 p-4 rounded-lg hidden z-5';
 projectDetails.innerHTML = `
-  <img id="detail-avatar" class="w-[50%] h-[40%] object-cover mb-4" onerror="this.style.display='none'">
+<div class="w-full h-[40%] flex">
+  <img id="detail-avatar" class="w-[45%] h-full object-cover mb-4 rounded-sm" onerror="this.style.display='none'">
+  <textarea id="hub-ER" class="ml-3 w-[50%] h-full rounded-sm bg-gray-600"></textarea>
+</div>
   <h2 id="detail-name" class="text-2xl font-bold mb-4"></h2>
   <textarea id="detail-description" class="w-full h-[40%] bg-gray-600 bg-opacity-50 text-white p-3 rounded resize-none overflow-auto mb-4" readonly style="user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; cursor: default; pointer-events: none; outline: none; box-shadow: none; border: none;"></textarea>
   <div class="absolute bottom-4 right-4 flex space-x-4">
-    <button id="start-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">start</button>
-    <button id="delete-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Delete</button>
+    <button id="start-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">${i18n.t('common.start')}</button>
+    <button id="delete-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">${i18n.t('common.delete')}</button>
   </div>
  `;
 if(app)
@@ -106,8 +115,8 @@ async function renderBlock(block:any) {
        <h3 class="text-white text-sm font-bold break-words">${block.project.project_name}</h3>
        <p class="text-gray-300 text-xs break-words">${block.project.project_description}</p>
         <div>
-          <p class="text-gray-400 text-xs">Created: ${block.project.create_at}</p>
-          <p class="text-gray-400 text-xs">Updated: ${block.project.update_at}</p>
+          <p class="text-gray-400 text-xs">${i18n.t('common.created')}${block.project.create_at}</p>
+          <p class="text-gray-400 text-xs">${i18n.t('common.updated')}${block.project.update_at}</p>
         </div>
 </div>
     `;
@@ -185,7 +194,14 @@ function selectBlock(selectedId:number) {
         }
       }
   const payload = parseJwt(token);
-  console.log(payload)
+  const userId = payload ? payload.user_id || payload.id : null;
+  if (!userId) {
+    console.error('无法从token上获取到userid');
+    return;
+  }
+
+  const projectId = selected.project.project_id;
+  const sqlUrl = `http://localhost:8080/${userId}/${projectId}`;
   // 移除所有项目的边框
   blocks.forEach(block => {
     if (block.element) {
@@ -223,7 +239,8 @@ function selectBlock(selectedId:number) {
     // });
     detailName.textContent = selected.project.project_name;
     detailDescription.textContent = selected.project.project_description;
-  }
+    initializeDatabaseView(sqlUrl)
+     }
   // 添加开始事件
   const startBtn = projectDetails.querySelector('#start-btn') as HTMLButtonElement;
   if (startBtn) {
@@ -238,34 +255,34 @@ function selectBlock(selectedId:number) {
       if (!token) return;
 
       // 解析token获取userId
-      function parseJwt(token) {
-        try {
-          const base64Url = token.split('.')[1];
-          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-          const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-          }).join(''));
-          return JSON.parse(jsonPayload);
-        } catch (e) {
-          console.error('Token解析失败:', e);
-          return null;
-        }
-      }
-      const payload = parseJwt(token);
-      const userId = payload ? payload.user_id || payload.id : null;
-      if (!userId) {
-        console.error('无法从token上获取到userid');
-        return;
-      }
+      // function parseJwt(token) {
+      //   try {
+      //     const base64Url = token.split('.')[1];
+      //     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      //     const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      //       return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      //     }).join(''));
+      //     return JSON.parse(jsonPayload);
+      //   } catch (e) {
+      //     console.error('Token解析失败:', e);
+      //     return null;
+      //   }
+      // }
+      // const payload = parseJwt(token);
+      // const userId = payload ? payload.user_id || payload.id : null;
+      // if (!userId) {
+      //   console.error('无法从token上获取到userid');
+      //   return;
+      // }
 
-      const projectId = selected.project.project_id;
+      // const projectId = selected.project.project_id;
       const newUrl = `http://localhost:8080/${userId}/${projectId}`;
       // const newUrl = `http://www.smallwoodice.cn:8080/${userId}/${projectId}`;
       // console.log(newUrl)
       setBaseUrl(newUrl);
       console.log(newUrl)
 
-      // window.location.href = `/welcome?apiUrl=${encodeURIComponent(newUrl)}`;
+      window.location.href = `/welcome?apiUrl=${encodeURIComponent(newUrl)}`;
     };
   }
 
@@ -318,6 +335,62 @@ function selectBlock(selectedId:number) {
 
   // 重新render所有
   blocks.forEach(renderBlock);
+
+  // 监听语言变化事件，更新项目详情文本
+  window.addEventListener('languageChanged', () => {
+    updateProjectDetailText(selected);
+  });
+}
+
+async function initializeDatabaseView(hubUrl:string) {
+  const textarea = document.getElementById('hub-ER') as HTMLTextAreaElement | null;
+  if (textarea) {
+    let initialSQL = `CREATE TABLE users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  password_hash TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  avatar TEXT,
+  create_at TEXT NOT NULL,
+  update_at TEXT NOT NULL
+);
+
+`;
+    
+    try {
+      const tableStatements = await sql.hubLastestSql(hubUrl,token);
+      if (tableStatements) {
+        initialSQL += tableStatements + '\n';
+      }
+    } catch (error) {
+      console.warn("获取表数据失败，使用默认SQL:", error);
+    }
+    
+    textarea.value = initialSQL;
+
+    try {
+      const ast = sqliteParser(initialSQL);
+      const tables = gojsER.extract(ast);
+      console.log("提取的表结构:", tables);
+      requestAnimationFrame(() => { 
+        gojsER.drawER(tables, 'mount');
+      });
+    } catch (error) {
+      console.error("初始SQL解析错误:", error);
+    }
+  }
+}
+
+
+
+
+// 更新项目详情文本的函数
+function updateProjectDetailText(selected: any) {
+  const startBtn = projectDetails.querySelector('#start-btn') as HTMLButtonElement;
+  const deleteBtn = projectDetails.querySelector('#delete-btn') as HTMLButtonElement;
+  
+  if (startBtn) startBtn.textContent = i18n.t('common.start');
+  if (deleteBtn) deleteBtn.textContent = i18n.t('common.delete');
 }
 
 // 移动区块的函数

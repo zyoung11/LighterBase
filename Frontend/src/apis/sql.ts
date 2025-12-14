@@ -49,6 +49,27 @@ const sql = {
         }
     },
 
+    async hubLastestSql(hubUrl:string,hubAuthToken:string): Promise<any> {
+        try {
+            const response = await fetch(`${hubUrl}/api/sqls/latest`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${hubAuthToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log(data.Sql);
+            return data.Sql;
+        } catch (error) {
+            console.error("Error getting lastest SQL:", error);
+            throw error;
+        }
+    },
+
     async getTableAll(){
         try {
             const response = await fetch(`${URL}/api/query/tables`, {

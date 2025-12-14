@@ -1,0 +1,13 @@
+127.0.0.1 - - [14/Dec/2025 12:45:06] code 404, message File not found
+127.0.0.1 - - [14/Dec/2025 12:45:06] "GET /src/welcome.html HTTP/1.1" 404 -
+127.0.0.1 - - [14/Dec/2025 12:45:15] code 404, message File not found
+127.0.0.1 - - [14/Dec/2025 12:45:15] "GET /src/welcome.html HTTP/1.1" 404 -
+127.0.0.1 - - [14/Dec/2025 12:45:19] code 404, message File not found
+127.0.0.1 - - [14/Dec/2025 12:45:19] "GET /src/ HTTP/1.1" 404 -
+127.0.0.1 - - [14/Dec/2025 12:45:22] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [14/Dec/2025 12:45:28] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [14/Dec/2025 12:45:31] "GET /Frontend/src/welcome.html HTTP/1.1" 200 -
+127.0.0.1 - - [14/Dec/2025 12:45:35] "GET /Frontend/src/lang/en.json HTTP/1.1" 200 -
+127.0.0.1 - - [14/Dec/2025 12:45:38] "GET /Frontend/src/lang/en.json HTTP/1.1" 200 -
+127.0.0.1 - - [14/Dec/2025 12:45:56] "GET /Frontend/src/lang/en.json HTTP/1.1" 200 -
+127.0.0.1 - - [14/Dec/2025 12:46:00] "GET /Frontend/src/lang/en.json HTTP/1.1" 200 -

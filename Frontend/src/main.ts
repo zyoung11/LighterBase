@@ -12,6 +12,7 @@ import auth from "./apis/auth"
 import aichat from "./modules/aiChat";
 import lighterBase from "./apis/auto";
 import { checkAuthentication } from "./modules/tools";
+
 // Import images
 import logoImg from './icons/logoWhite.png';
 import databaseImg from './icons/databaseWhite.svg';
