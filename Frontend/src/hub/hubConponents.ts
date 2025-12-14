@@ -34,12 +34,6 @@ function translatePage() {
       element.textContent = i18n.t(key);
     }
   });
-  
-  // 特殊处理pricing页面的音乐控制按钮
-  const playPauseBtn = document.getElementById('play-pause-btn');
-  if (playPauseBtn) {
-    playPauseBtn.textContent = i18n.t('pricing.music.pause');
-  }
 }
 
 // 创建导航栏函数
