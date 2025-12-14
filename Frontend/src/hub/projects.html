@@ -14,6 +14,14 @@
     }
   </style>
   <script src="../tailwind.js"></script>
+  <style>
+    .line-clamp-3 {
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+    }
+  </style>
 </head>
 
 <body class="bg-[#121414] text-gray-200 h-screen overflow-hidden flex flex-col"
@@ -42,9 +50,9 @@
       <!-- 预览区域 -->
       <div id="preview" class="mb-4 flex p-4 bg-[#2B2F31] rounded-lg">
         <img id="preview-avatar" src="" class="w-24 h-24 mb-2 bg-white mr-3">
-        <div class="flex flex-col">
+        <div class="flex flex-1 flex-col">
           <h3 id="preview-name" class="text-xl font-bold break-words"></h3>
-          <p id="preview-description" class="break-words "></p>
+          <p id="preview-description" class="break-words line-clamp-3"></p>
           <div>
             <p id="preview-create-at" class="text-gray-400 text-xs">Created: xxxx-xx-xx 00:00:00</p>
             <p id="preview-update-at" class="text-gray-400 text-xs">Updated: xxxx-xx-xx 00:00:00</p>

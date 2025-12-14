@@ -31,11 +31,13 @@ projectDetails.id = 'projectDetails';
 projectDetails.className = 'absolute right-[5%] top-[12%] w-3/5 h-4/5 bg-gray-700 bg-opacity-90 p-4 rounded-lg hidden z-5';
 projectDetails.innerHTML = `
 <div class="w-full h-[40%] flex">
-  <img id="detail-avatar" class="w-[45%] h-full object-cover mb-4 rounded-sm" onerror="this.style.display='none'">
-  <div id="mount" class="ml-3 w-[50%] h-full rounded-sm bg-gray-600"></div>
-</div>
+  <img id="detail-avatar" class="w-[45%] h-full object-cover mb-4 rounded-sm">
+  <div class="ml-3 w-[50%] h-full flex flex-col">
   <h2 id="detail-name" class="text-2xl font-bold mb-4"></h2>
-  <textarea id="detail-description" class="w-full h-[40%] bg-gray-600 bg-opacity-50 text-white p-3 rounded resize-none overflow-auto mb-4" readonly style="user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; cursor: default; pointer-events: none; outline: none; box-shadow: none; border: none;"></textarea>
+  <textarea id="detail-description" class="w-full h-full bg-gray-600 bg-opacity-50 text-white p-2 rounded resize-none overflow-y-auto mb-4" readonly style="user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; cursor: default; pointer-events: none; outline: none; box-shadow: none; border: none;"></textarea>
+  </div>
+</div>
+  <div id="mount" class="mt-3 w-full h-[50%] rounded-sm bg-gray-600"></div>
   <div class="absolute bottom-4 right-4 flex space-x-4">
     <button id="start-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">${i18n.t('common.start')}</button>
     <button id="delete-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">${i18n.t('common.delete')}</button>
@@ -112,7 +114,7 @@ async function renderBlock(block:any) {
         <img src="${originAvatar}" class="w-[16vh] h-[16vh] mr-2" onerror="this.style.display='none'">
        <div class = "flex flex-col">
        <h3 class="text-white text-sm font-bold break-words">${block.project.project_name}</h3>
-       <p class="text-gray-300 text-xs break-words">${block.project.project_description}</p>
+       <p class="text-gray-300 text-xs break-words line-clamp-3">${block.project.project_description}</p>
         <div>
           <p class="text-gray-400 text-xs">${i18n.t('common.created')}${block.project.create_at}</p>
           <p class="text-gray-400 text-xs">${i18n.t('common.updated')}${block.project.update_at}</p>
