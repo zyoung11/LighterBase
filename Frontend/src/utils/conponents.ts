@@ -645,7 +645,7 @@ const updateBottom = () => {
 
     const payload = { SELECT: [],WHERE:'' };
     try {
-      const lb = new lighterBase('http://localhost:8080');
+      const lb = new lighterBase(URL);
       const res = await lb.searchTable(payload, table, 1, 30);
       console.log("查看表的响应res:",res)
       renderTableInMain(res.items || [], table);
