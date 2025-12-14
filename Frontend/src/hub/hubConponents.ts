@@ -46,7 +46,7 @@ function createNavBar() {
   logoBtn.appendChild(logoSpan);
   leftDiv.appendChild(logoBtn);
 
-  const pricingBtn = blocks.createButton('Pricing');
+  const pricingBtn = blocks.createButton(i18n.t('hub.navbar.pricing'));
   pricingBtn.id='pricing-link';
   pricingBtn.style.backgroundColor = 'lightgray';
   pricingBtn.style.color = 'gray';
@@ -164,6 +164,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const newNav = createNavBar();
   document.body.insertBefore(newNav, document.body.firstChild);
 
+
+
+
+
+
+
   // 监听语言变化事件，更新未登录状态的用户按钮文本
   window.addEventListener('languageChanged', () => {
     const userBtn = document.getElementById('user-link') as HTMLButtonElement;
@@ -172,18 +178,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       userBtn.textContent = i18n.t('hub.navbar.login');
     }
     const docsBtn = document.getElementById('docs-link') as HTMLButtonElement;
+    const pricingBtn = document.getElementById('pricing-link') as HTMLButtonElement;
     docsBtn.textContent = i18n.t('hub.navbar.docs');
+    pricingBtn.textContent = i18n.t('hub.navbar.pricing');
   });
 
-  // 检查登录状态
-  // function getCookie(name: string) {
-  //   const value = `; ${document.cookie}`;
-  //   const parts = value.split(`; ${name}=`);
-  //   if (parts.length === 2) return parts.pop()?.split(';').shift();
-  // }
 
-  // const token = getCookie('hubAuthToken');
-  // console.log(token)
+
+
+
+
+
   const username = localStorage.getItem('username');
   // console.log(username)
   const userBtn = document.getElementById('user-link') as HTMLButtonElement;
@@ -224,40 +229,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
   }
-
-  // 登录功能
-  // const formLogin = document.getElementById("form-login") as HTMLFormElement;
-  // const loginUsernameInput = document.getElementById("login-username") as HTMLInputElement;
-  // const loginPasswordInput = document.getElementById("login-password") as HTMLInputElement;
-  // const emailInput = document.getElementById("email") as HTMLInputElement;
-  // const emailField = document.getElementById("email-field") as HTMLDivElement;
-
-  // if (formLogin && loginUsernameInput && loginPasswordInput && emailInput && emailField) {
-  //   // isEmpty = await auth.isLogin();
-  //   // if (!isEmpty) {
-  //   //   emailField.style.display = 'block';
-  //   //   emailInput.required = true;
-  //   // } else {
-  //   //   emailField.style.display = 'none';
-  //   //   emailInput.required = false;
-  //   // }
-
-  //   formLogin.addEventListener("submit", async(e) => {
-  //     e.preventDefault();
-  //     if (!isEmpty) {
-  //       // 设置注册输入
-  //       (document.getElementById("username") as HTMLInputElement).value = loginUsernameInput.value;
-  //       (document.getElementById("password") as HTMLInputElement).value = loginPasswordInput.value;
-  //       const success = await hubauth.hubUserRegister();
-  //       if (success) {
-  //         await hubauth.hubUserLogin();
-  //       }
-  //     } else {
-  //       await hubauth.hubUserLogin();
-  //     }
-  //   });
-  // }
-
    // 鼠标悬停效果功能
    const hoverArea = document.getElementById("hover-area") as HTMLElement;
    const overlay = document.getElementById("overlay") as HTMLElement;

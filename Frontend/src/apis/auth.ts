@@ -21,7 +21,7 @@ async userRegister(): Promise<boolean> {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                // "Authorization":`Bearer ${hubAuthToken}`
+                "Authorization":`Bearer ${hubAuthToken}`
             },
             body: JSON.stringify({
                 "name": username,

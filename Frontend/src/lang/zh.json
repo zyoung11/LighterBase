@@ -17,7 +17,8 @@
     },
     "footer": {
       "trusted": "我们自己信任",
-      "github": "LighterBase"
+      "github": "LighterBase",
+      "icp": "京公网安备11011402055062号"
     },
     "navbar": {
       "logo": "LighterBase",

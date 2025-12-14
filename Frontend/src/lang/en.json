@@ -17,7 +17,8 @@
     },
     "footer": {
       "trusted": "Trusted by ourselves",
-      "github": "LighterBase"
+      "github": "LighterBase",
+      "icp": "ICP备案号 11011402055062"
     },
     "navbar": {
       "logo": "LighterBase",
