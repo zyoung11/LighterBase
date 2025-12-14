@@ -51,15 +51,18 @@
     "form": {
       "username": {
         "label": "Username",
-        "placeholder": "Enter username"
+        "placeholder": "Enter username",
+        "placeholder_input": "Enter username"
       },
       "password": {
         "label": "Password",
-        "placeholder": "Enter password"
+        "placeholder": "Enter password",
+        "placeholder_input": "Enter password"
       },
       "email": {
         "label": "Email",
-        "placeholder": "Enter email"
+        "placeholder": "Enter email",
+        "placeholder_input": "Enter email"
       }
     },
     "submit": {

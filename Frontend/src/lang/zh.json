@@ -51,15 +51,18 @@
     "form": {
       "username": {
         "label": "用户名",
-        "placeholder": "请输入用户名"
+        "placeholder": "请输入用户名",
+        "placeholder_input": "请输入用户名"
       },
       "password": {
         "label": "密码",
-        "placeholder": "请输入密码"
+        "placeholder": "请输入密码",
+        "placeholder_input": "请输入密码"
       },
       "email": {
         "label": "邮箱",
-        "placeholder": "请输入邮箱"
+        "placeholder": "请输入邮箱",
+        "placeholder_input": "请输入邮箱"
       }
     },
     "submit": {
