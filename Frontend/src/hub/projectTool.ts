@@ -9,7 +9,7 @@ import { i18n } from "../modules/i18n";
 import sql from "../apis/sql";
 import gojsER from "../utils/gojsER";
 import sqliteParser from "sqlite-parser";
-
+import defaultImg from "../icons/projectsDefault.jpg";
 
 let token = getCookie("hubAuthToken")
 
@@ -31,7 +31,7 @@ projectDetails.id = 'projectDetails';
 projectDetails.className = 'absolute right-[5%] top-[12%] w-3/5 h-4/5 bg-gray-700 bg-opacity-90 p-4 rounded-lg hidden z-5';
 projectDetails.innerHTML = `
 <div class="w-full h-[40%] flex">
-  <img id="detail-avatar" class="w-[45%] h-full object-cover mb-4 rounded-sm">
+  <img id="detail-avatar" class="w-[45%] h-full object-cover mb-4 rounded-sm" src="${defaultImg}" onerror="this.src='${defaultImg}'">
   <div class="ml-3 w-[50%] h-full flex flex-col">
   <h2 id="detail-name" class="text-2xl font-bold mb-4"></h2>
   <textarea id="detail-description" class="w-full h-full bg-gray-600 bg-opacity-50 text-white p-2 rounded resize-none overflow-y-auto mb-4" readonly style="user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; cursor: default; pointer-events: none; outline: none; box-shadow: none; border: none;"></textarea>
@@ -111,7 +111,8 @@ async function renderBlock(block:any) {
     block.element.style.height = '22vh';
     block.element.style.transitionDuration = `${ANIMATION_DURATION}ms`;
     block.element.innerHTML = `
-        <img src="${originAvatar}" class="w-[16vh] h-[16vh] mr-2" onerror="this.style.display='none'">
+        <img src="${originAvatar}" class="w-[16vh] h-[16vh] mr-2 object-cover rounded" 
+             onerror="this.src='${defaultImg}'; this.style.display='block'; this.style.objectFit='cover';">
        <div class = "flex flex-col">
        <h3 class="text-white text-sm font-bold break-words">${block.project.project_name}</h3>
        <p class="text-gray-300 text-xs break-words line-clamp-3">${block.project.project_description}</p>
@@ -234,7 +235,10 @@ function selectBlock(selectedId:number) {
   const detailDescription = projectDetails.querySelector('#detail-description') as HTMLElement;
   const deleteBtn = projectDetails.querySelector('#delete-btn') as HTMLButtonElement;
   if (detailAvatar && detailName && detailDescription) {
-    detailAvatar.src = selected.project.project_avatar || '';
+    detailAvatar.src = selected.project.project_avatar || '../icons/projectsDefault.jpg';
+    detailAvatar.onerror = function() {
+      this.src =defaultImg;
+    };
     // compressImage(selected.project.project_avatar || '', 300, 0.6).then(compressedSrc => {
     //   detailAvatar.src = compressedSrc;
     // });

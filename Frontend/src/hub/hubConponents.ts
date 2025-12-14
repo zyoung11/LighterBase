@@ -5,6 +5,7 @@ import logoIcon from "../icons/logoWhite.png"
 import projects from "./projects"
 import office from './office.jpg'
 import githubImg from '../icons/git.svg'
+import defaultImg from "../icons/projectsDefault.jpg"
 // import { createLoader } from "../modules/loader";
 import { compressImage,checkAuthentication } from "../modules/tools";
 import { i18n, createLanguageSwitcher } from "../modules/i18n";
@@ -286,22 +287,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
    if (createForm && avatarInput && nameInput && descInput && previewAvatar && previewName && previewDesc && token) {
      // 实时预览
+     previewAvatar.src=defaultImg;
      nameInput.addEventListener('input', () => {
        previewName.textContent = nameInput.value;
      });
      descInput.addEventListener('input', () => {
        previewDesc.textContent = descInput.value;
      });
-     avatarInput.addEventListener('change', (e) => {
-       const file = (e.target as HTMLInputElement).files?.[0];
-       if (file) {
-         const reader = new FileReader();
-         reader.onload = () => {
-           previewAvatar.src = reader.result as string;
-         };
-         reader.readAsDataURL(file);
-       }
-     });
+avatarInput.addEventListener('change', (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            previewAvatar.src = reader.result as string;
+          };
+          reader.readAsDataURL(file);
+        } else {
+          previewAvatar.src = '../icons/projectsDefault.jpg';
+        }
+      });
 
 createForm.addEventListener('submit', async (e) => {
   const createModal = document.getElementById('create-modal');
