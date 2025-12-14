@@ -47,6 +47,7 @@ function createNavBar() {
   leftDiv.appendChild(logoBtn);
 
   const pricingBtn = blocks.createButton('Pricing');
+  pricingBtn.id='pricing-link';
   pricingBtn.style.backgroundColor = 'lightgray';
   pricingBtn.style.color = 'gray';
   pricingBtn.style.border = '1px solid gray';
@@ -73,6 +74,7 @@ function createNavBar() {
   leftDiv.appendChild(pricingBtn);
 
   const docsBtn = blocks.createButton(i18n.t('hub.navbar.docs'));
+  docsBtn.id='docs-link'
   docsBtn.style.backgroundColor = 'lightgray';
   docsBtn.style.color = 'gray';
   docsBtn.style.border = '1px solid gray';
@@ -169,6 +171,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!token || !username) {
       userBtn.textContent = i18n.t('hub.navbar.login');
     }
+    const docsBtn = document.getElementById('docs-link') as HTMLButtonElement;
+    docsBtn.textContent = i18n.t('hub.navbar.docs');
   });
 
   // 检查登录状态
