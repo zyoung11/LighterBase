@@ -9,7 +9,7 @@
     "slogan": {
       "build": "Build in a Lighter Way",
       "minutes": "Just in minutes",
-      "platform": "Lighterbase is the Postgres development platform.",
+      "platform": "Lighterbase is the Program development platform.",
       "editing": "Backend editing in a new way than the past altogether."
     },
     "buttons": {
@@ -18,7 +18,7 @@
     "footer": {
       "trusted": "Trusted by ourselves",
       "github": "LighterBase",
-      "icp": "ICP备案号 11011402055062"
+      "icp": "京公网安备11011402055062号"
     },
     "navbar": {
       "logo": "LighterBase",

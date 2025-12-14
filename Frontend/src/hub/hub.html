@@ -25,24 +25,27 @@
     <div class="text-center space-y-6 relative">
       <!-- 三组不同大小的字 -->
       <div class="space-y-2 relative" id="hover-area">
-        <h1 class="text-8xl font-bold text-[#46A3FF]">Build in a Lighter Way</h1>
-        <h2 class="text-6xl font-semibold">Just in minutes</h2>
-        <p class="text-2xl">Lighterbase is the Postgres development platform.</p>
-        <p class="text-2xl">Backend editing in a new way than the past altogether.</p>
+        <h1 class="text-8xl font-bold text-[#46A3FF]" data-i18n="hub.slogan.build">Build in a Lighter Way</h1>
+        <h2 class="text-6xl font-semibold" data-i18n="hub.slogan.minutes">Just in minutes</h2>
+        <p class="text-2xl" data-i18n="hub.slogan.platform">Lighterbase is the Program development platform.</p>
+        <p class="text-2xl" data-i18n="hub.slogan.editing">Backend editing in a new way than the past altogether.</p>
         <!-- 重叠层 -->
         <div class="absolute -inset-y-2 space-y-2 opacity-0" id="overlay">
-          <h1 class="text-8xl font-bold text-[#FF6B46]">Build in a Lighter Way</h1>
-          <h2 class="text-6xl font-semibold text-white">Just in minutes</h2>
-          <p class="text-2xl text-white">Lighterbase is the Postgres development platform.</p>
-          <p class="text-2xl text-white">Backend editing in a new way than the past altogether.</p>
+          <h1 class="text-8xl font-bold text-[#FF6B46]" data-i18n="hub.slogan.build">Build in a Lighter Way</h1>
+          <h2 class="text-6xl font-semibold text-white" data-i18n="hub.slogan.minutes">Just in minutes</h2>
+          <p class="text-2xl text-white" data-i18n="hub.slogan.platform">Lighterbase is the Postgres development
+            platform.</p>
+          <p class="text-2xl text-white" data-i18n="hub.slogan.editing">Backend editing in a new way than the past
+            altogether.</p>
         </div>
       </div>
       <!-- Get Start 按钮 -->
       <a href="/projects"
-        class="px-6 py-2 bg-[#46A3FF] hover:bg-[#14AFF7] border border-[#44F6FF] hover:border-[#1FF4FF] rounded-lg text-xl text-white font-semibold transition-colors inline-block">Get
+        class="px-6 py-2 bg-[#46A3FF] hover:bg-[#14AFF7] border border-[#44F6FF] hover:border-[#1FF4FF] rounded-lg text-xl text-white font-semibold transition-colors inline-block"
+        data-i18n="hub.buttons.getStart">Get
         Start</a>
       <!-- 一行小字 -->
-      <p class="text-sm text-gray-400">Trusted by ourselves</p>
+      <p class="text-sm text-gray-400" data-i18n="hub.footer.trusted">Trusted by ourselves</p>
     </div>
   </div>
 
@@ -50,13 +53,13 @@
   <div class="fixed bottom-4 left-4">
     <a href="https://github.com/zyoung11/LighterBase" class="flex items-center">
       <img id="gitImg" alt="GitHub" class="w-8 h-8 mr-2">
-      <div>LighterBase</div>
+      <div data-i18n="hub.footer.github">LighterBase</div>
     </a>
   </div>
   <div class="fixed flex left-1/2 transform -translate-x-1/2 bottom-2 justify-center items-center"><img
       class="w-[5%] h-[5%] mr-2" id='officeSrc' />
-    <a href="https://beian.mps.gov.cn/#/query/webSearch?code=11011402055062" rel="noreferrer"
-      target="_blank">京公网安备11011402055062号</a>
+    <a href="https://beian.mps.gov.cn/#/query/webSearch?code=11011402055062" rel="noreferrer" target="_blank"
+      data-i18n="hub.footer.icp">京公网安备11011402055062号</a>
   </div>
 
   <script src="hubConponents.ts"></script>
@@ -67,7 +70,6 @@
       if (styleTag) {
         styleTag.remove();
       }
-    });
 
   </script>
 </body>

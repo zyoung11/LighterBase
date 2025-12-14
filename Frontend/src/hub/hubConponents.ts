@@ -24,6 +24,24 @@ checkAuthentication(token,'login')
 // await checkAuthentication(hubToken,'login')
 // let token = hubToken
 let isEmpty = false;
+
+// 翻译页面函数
+function translatePage() {
+  const elements = document.querySelectorAll('[data-i18n]');
+  elements.forEach(element => {
+    const key = element.getAttribute('data-i18n');
+    if (key) {
+      element.textContent = i18n.t(key);
+    }
+  });
+  
+  // 特殊处理pricing页面的音乐控制按钮
+  const playPauseBtn = document.getElementById('play-pause-btn');
+  if (playPauseBtn) {
+    playPauseBtn.textContent = i18n.t('pricing.music.pause');
+  }
+}
+
 // 创建导航栏函数
 function createNavBar() {
   const nav = document.createElement('nav');
@@ -165,10 +183,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const newNav = createNavBar();
   document.body.insertBefore(newNav, document.body.firstChild);
 
-
-
-
-
+  // 初始化翻译
+  translatePage();
 
 
   // 监听语言变化事件，更新未登录状态的用户按钮文本
@@ -182,6 +198,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const pricingBtn = document.getElementById('pricing-link') as HTMLButtonElement;
     docsBtn.textContent = i18n.t('hub.navbar.docs');
     pricingBtn.textContent = i18n.t('hub.navbar.pricing');
+    
+    // 重新翻译整个页面
+    translatePage();
   });
 
 
