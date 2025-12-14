@@ -303,7 +303,7 @@ avatarInput.addEventListener('change', (e) => {
           };
           reader.readAsDataURL(file);
         } else {
-          previewAvatar.src = '../icons/projectsDefault.jpg';
+          previewAvatar.src = defaultImg;
         }
       });
 

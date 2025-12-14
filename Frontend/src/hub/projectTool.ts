@@ -235,7 +235,7 @@ function selectBlock(selectedId:number) {
   const detailDescription = projectDetails.querySelector('#detail-description') as HTMLElement;
   const deleteBtn = projectDetails.querySelector('#delete-btn') as HTMLButtonElement;
   if (detailAvatar && detailName && detailDescription) {
-    detailAvatar.src = selected.project.project_avatar || '../icons/projectsDefault.jpg';
+    detailAvatar.src = selected.project.project_avatar || defaultImg;
     detailAvatar.onerror = function() {
       this.src =defaultImg;
     };
