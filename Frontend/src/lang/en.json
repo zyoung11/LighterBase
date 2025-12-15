@@ -24,7 +24,8 @@
       "logo": "LighterBase",
       "pricing": "Pricing",
       "docs": "Docs",
-      "login": "Login in",
+      "download": "Download",
+      "login": "Login",
       "logout": "Logout"
     }
   },

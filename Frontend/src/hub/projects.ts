@@ -1,4 +1,5 @@
 import { URL } from "../apis/api";
+import blocks from "../modules/blocks";
 const projects = {
 
 async getAllUsers(hubAuthToken:string){
@@ -203,9 +204,20 @@ async deleteProject(id: number, hubAuthToken: string){
   }catch(e){
     console.log("删除项目失败：",e)
   }
+},
+
+async downloadApp(os:string){
+try{
+  const res = await fetch(`${URL}/api/download/app/${os}`)
+  console.log(res);
+  if(res.ok){
+    return true
+  }
+}catch(e){
+  blocks.popupConfirm("下载失败")
 }
-
-
+  
+}
 
 }
 

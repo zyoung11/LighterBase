@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="../icons/logoWhite.png" />
+  <title>LighterBase</title>
+  <style id="fouc-fix">
+    body {
+      background: #1B1E1F;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+    }
+  </style>
+  <script src="../tailwind.js"></script>
+</head>
+
+<body class="fouc-fix bg-[#121414] text-gray-200 h-screen overflow-hidden flex flex-col"
+  style="background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 20px 20px;">
+
+  <!-- 顶部内容 -->
+  <div class="flex-1 flex flex-col items-center justify-center space-y-8">
+    <!-- Logo和标题 -->
+    <div class="text-center space-y-4">
+      <div class="flex items-center justify-center space-x-3">
+        <img id="logoImg" alt="LighterBase Logo" class="w-12 h-12">
+        <h1 class="text-5xl font-bold text-[#46A3FF]">LighterBase</h1>
+      </div>
+      <p class="text-xl text-gray-300">A Lighter way, a Lighter base, a Lighter life</p>
+    </div>
+
+    <!-- 操作按钮区域 -->
+    <div class="flex space-x-8">
+      <button id="windowsBtn"
+        class="flex flex-col items-center space-y-2 px-6 py-4 bg-[#46A3FF] hover:bg-[#14AFF7] border border-[#44F6FF] hover:border-[#1FF4FF] rounded-lg transition-colors">
+        <img id="windowsImg" alt="Windows" class="w-12 h-12">
+        <span class="text-lg font-semibold">Windows</span>
+      </button>
+      <button id="linuxBtn"
+        class="flex flex-col items-center space-y-2 px-6 py-4 bg-[#46A3FF] hover:bg-[#14AFF7] border border-[#44F6FF] hover:border-[#1FF4FF] rounded-lg transition-colors">
+        <img id="linuxImg" alt="Linux" class="w-12 h-12">
+        <span class="text-lg font-semibold">Linux</span>
+      </button>
+    </div>
+
+    <!-- 白色横线分割 -->
+    <div class="w-full max-w-2xl h-px bg-white"></div>
+
+    <!-- 发布信息 -->
+    <div class="text-center">
+      <p class="text-lg text-gray-300">2025.12.12 base正式发布</p>
+    </div>
+  </div>
+
+  <!-- 右下角联系信息 -->
+  <div class="fixed bottom-4 right-4 flex items-center space-x-2">
+    <img id="contactLogoImg" alt="LighterBase" class="w-6 h-6">
+    <span class="text-sm text-gray-400">contact us</span>
+  </div>
+
+  <script src="download.ts"></script>
+  <script src="hubConponents.ts"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.body.style.opacity = '1';
+      const styleTag = document.getElementById('fouc-fix');
+      if (styleTag) {
+        styleTag.remove();
+      }
+    });
+  </script>
+</body>
+
+</html>

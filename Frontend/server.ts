@@ -5,6 +5,7 @@ import PricingPage from './src/hub/pricing.html';
 import DocsPage from './src/hub/docs.html';
 import WelcomePage from './src/welcome.html';
 import ProjectPage from './src/hub/projects.html'
+import DownloadPage from './src/hub/download.html';
 import open from 'open';
 
 const server = Bun.serve({
@@ -50,6 +51,14 @@ const server = Bun.serve({
     // 欢迎页面
     "/welcome": WelcomePage,
     "/welcome.html": WelcomePage,
+
+
+    //下载页面
+    "/download":DownloadPage,
+    "/download.html":DownloadPage,
+    "/hub/download.html":DownloadPage
+
+
   },
 
   // fetch 处理器处理未定义的请求

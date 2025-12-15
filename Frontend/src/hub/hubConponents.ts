@@ -112,7 +112,35 @@ function createNavBar() {
   };
    docsBtn.onclick = () => window.location.href = '/docs';
 
-  leftDiv.appendChild(docsBtn);
+leftDiv.appendChild(docsBtn);
+
+  const downloadBtn = blocks.createButton(i18n.t('hub.navbar.download'));
+  downloadBtn.id='download-link'
+  downloadBtn.style.backgroundColor = 'lightgray';
+  downloadBtn.style.color = 'gray';
+  downloadBtn.style.border = '1px solid gray';
+  downloadBtn.style.boxShadow = '0 0 0 0 gray';
+  downloadBtn.style.padding = '0.5rem 1rem';
+  downloadBtn.style.borderRadius = '0.5rem';
+  downloadBtn.onmouseenter = () => {
+    downloadBtn.style.transform = 'translateY(-4px) translateX(-2px)';
+    downloadBtn.style.boxShadow = '2px 5px 0 0 gray';
+  };
+  downloadBtn.onmouseleave = () => {
+    downloadBtn.style.transform = 'translateY(0) translateX(0)';
+    downloadBtn.style.boxShadow = '0 0 0 0 gray';
+  };
+  downloadBtn.onmousedown = () => {
+    downloadBtn.style.transform = 'translateY(2px) translateX(1px)';
+    downloadBtn.style.boxShadow = '0 0 0 0 gray';
+  };
+  downloadBtn.onmouseup = () => {
+    downloadBtn.style.transform = 'translateY(-4px) translateX(-2px)';
+    downloadBtn.style.boxShadow = '2px 5px 0 0 gray';
+  };
+   downloadBtn.onclick = () => window.location.href = '/download';
+
+  leftDiv.appendChild(downloadBtn);
 
   nav.appendChild(leftDiv);
 
@@ -190,8 +218,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     const docsBtn = document.getElementById('docs-link') as HTMLButtonElement;
     const pricingBtn = document.getElementById('pricing-link') as HTMLButtonElement;
+    const downloadBtn = document.getElementById('download-link') as HTMLButtonElement;
     docsBtn.textContent = i18n.t('hub.navbar.docs');
     pricingBtn.textContent = i18n.t('hub.navbar.pricing');
+    downloadBtn.textContent = i18n.t('hub.navbar.download');
     
     // 重新翻译整个页面
     translatePage();
