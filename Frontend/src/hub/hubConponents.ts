@@ -59,119 +59,66 @@ function createNavBar() {
   logoBtn.appendChild(logoSpan);
   leftDiv.appendChild(logoBtn);
 
-  const pricingBtn = blocks.createButton(i18n.t('hub.navbar.pricing'));
-  pricingBtn.id='pricing-link';
-  pricingBtn.style.backgroundColor = 'lightgray';
-  pricingBtn.style.color = 'gray';
-  pricingBtn.style.border = '1px solid gray';
-  pricingBtn.style.boxShadow = '0 0 0 0 gray';
-  pricingBtn.style.padding = '0.5rem 1rem';
-  pricingBtn.style.borderRadius = '0.5rem';
-  pricingBtn.onmouseenter = () => {
-    pricingBtn.style.transform = 'translateY(-4px) translateX(-2px)';
-    pricingBtn.style.boxShadow = '2px 5px 0 0 gray';
-  };
-  pricingBtn.onmouseleave = () => {
-    pricingBtn.style.transform = 'translateY(0) translateX(0)';
-    pricingBtn.style.boxShadow = '0 0 0 0 gray';
-  };
-  pricingBtn.onmousedown = () => {
-    pricingBtn.style.transform = 'translateY(2px) translateX(1px)';
-    pricingBtn.style.boxShadow = '0 0 0 0 gray';
-  };
-  pricingBtn.onmouseup = () => {
-    pricingBtn.style.transform = 'translateY(-4px) translateX(-2px)';
-    pricingBtn.style.boxShadow = '2px 5px 0 0 gray';
-  };
+const pricingBtn = document.createElement('button');
+   pricingBtn.id='pricing-link';
+   pricingBtn.textContent = i18n.t('hub.navbar.pricing');
+   pricingBtn.style.backgroundColor = 'transparent';
+   pricingBtn.style.color = 'white';
+   pricingBtn.style.border = 'none';
+   pricingBtn.style.padding = '0.5rem 1rem';
+   pricingBtn.style.borderRadius = '0.5rem';
+   pricingBtn.style.cursor = 'pointer';
+   pricingBtn.style.fontWeight = '600';
    pricingBtn.onclick = () => window.location.href = '/pricing';
-  leftDiv.appendChild(pricingBtn);
+   leftDiv.appendChild(pricingBtn);
 
-  const docsBtn = blocks.createButton(i18n.t('hub.navbar.docs'));
-  docsBtn.id='docs-link'
-  docsBtn.style.backgroundColor = 'lightgray';
-  docsBtn.style.color = 'gray';
-  docsBtn.style.border = '1px solid gray';
-  docsBtn.style.boxShadow = '0 0 0 0 gray';
-  docsBtn.style.padding = '0.5rem 1rem';
-  docsBtn.style.borderRadius = '0.5rem';
-  docsBtn.onmouseenter = () => {
-    docsBtn.style.transform = 'translateY(-4px) translateX(-2px)';
-    docsBtn.style.boxShadow = '2px 5px 0 0 gray';
-  };
-  docsBtn.onmouseleave = () => {
-    docsBtn.style.transform = 'translateY(0) translateX(0)';
-    docsBtn.style.boxShadow = '0 0 0 0 gray';
-  };
-  docsBtn.onmousedown = () => {
-    docsBtn.style.transform = 'translateY(2px) translateX(1px)';
-    docsBtn.style.boxShadow = '0 0 0 0 gray';
-  };
-  docsBtn.onmouseup = () => {
-    docsBtn.style.transform = 'translateY(-4px) translateX(-2px)';
-    docsBtn.style.boxShadow = '2px 5px 0 0 gray';
-  };
+   const docsBtn = document.createElement('button');
+   docsBtn.id='docs-link';
+   docsBtn.textContent = i18n.t('hub.navbar.docs');
+   docsBtn.style.backgroundColor = 'transparent';
+   docsBtn.style.color = 'white';
+   docsBtn.style.border = 'none';
+   docsBtn.style.padding = '0.5rem 1rem';
+   docsBtn.style.borderRadius = '0.5rem';
+   docsBtn.style.cursor = 'pointer';
+   docsBtn.style.fontWeight = '600';
    docsBtn.onclick = () => window.location.href = '/docs';
+   leftDiv.appendChild(docsBtn);
 
-leftDiv.appendChild(docsBtn);
-
-  const downloadBtn = blocks.createButton(i18n.t('hub.navbar.download'));
-  downloadBtn.id='download-link'
-  downloadBtn.style.backgroundColor = 'lightgray';
-  downloadBtn.style.color = 'gray';
-  downloadBtn.style.border = '1px solid gray';
-  downloadBtn.style.boxShadow = '0 0 0 0 gray';
-  downloadBtn.style.padding = '0.5rem 1rem';
-  downloadBtn.style.borderRadius = '0.5rem';
-  downloadBtn.onmouseenter = () => {
-    downloadBtn.style.transform = 'translateY(-4px) translateX(-2px)';
-    downloadBtn.style.boxShadow = '2px 5px 0 0 gray';
-  };
-  downloadBtn.onmouseleave = () => {
-    downloadBtn.style.transform = 'translateY(0) translateX(0)';
-    downloadBtn.style.boxShadow = '0 0 0 0 gray';
-  };
-  downloadBtn.onmousedown = () => {
-    downloadBtn.style.transform = 'translateY(2px) translateX(1px)';
-    downloadBtn.style.boxShadow = '0 0 0 0 gray';
-  };
-  downloadBtn.onmouseup = () => {
-    downloadBtn.style.transform = 'translateY(-4px) translateX(-2px)';
-    downloadBtn.style.boxShadow = '2px 5px 0 0 gray';
-  };
+   const downloadBtn = document.createElement('button');
+   downloadBtn.id='download-link';
+   downloadBtn.textContent = i18n.t('hub.navbar.download');
+   downloadBtn.style.backgroundColor = 'transparent';
+   downloadBtn.style.color = 'white';
+   downloadBtn.style.border = 'none';
+   downloadBtn.style.padding = '0.5rem 1rem';
+   downloadBtn.style.borderRadius = '0.5rem';
+   downloadBtn.style.cursor = 'pointer';
+   downloadBtn.style.fontWeight = '600';
    downloadBtn.onclick = () => window.location.href = '/download';
-
-  leftDiv.appendChild(downloadBtn);
+   leftDiv.appendChild(downloadBtn);
 
   nav.appendChild(leftDiv);
 
   // 右侧：Login in 或 用户名
   const rightDiv = document.createElement('div');
   rightDiv.className = 'relative';
-  const userBtn = blocks.createButton(i18n.t('hub.navbar.login'));
-  userBtn.id = 'user-link';
-  userBtn.style.backgroundColor = 'lightgray';
-  userBtn.style.color = 'gray';
-  userBtn.style.border = '1px solid gray';
-  userBtn.style.boxShadow = '0 0 0 0 gray';
-  userBtn.style.padding = '0.5rem 1rem';
-  userBtn.style.borderRadius = '0.5rem';
-  userBtn.onmouseenter = () => {
-    userBtn.style.transform = 'translateY(-4px) translateX(-2px)';
-    userBtn.style.boxShadow = '2px 5px 0 0 gray';
-  };
-  userBtn.onmouseleave = () => {
-    userBtn.style.transform = 'translateY(0) translateX(0)';
-    userBtn.style.boxShadow = '0 0 0 0 gray';
-  };
-  userBtn.onmousedown = () => {
-    userBtn.style.transform = 'translateY(2px) translateX(1px)';
-    userBtn.style.boxShadow = '0 0 0 0 gray';
-  };
-  userBtn.onmouseup = () => {
-    userBtn.style.transform = 'translateY(-4px) translateX(-2px)';
-    userBtn.style.boxShadow = '2px 5px 0 0 gray';
-  };
-userBtn.onclick = () => window.location.href = '/login';
+const userBtn = document.createElement('button');
+   userBtn.id = 'user-link';
+   userBtn.textContent = i18n.t('hub.navbar.login');
+   userBtn.style.backgroundColor = '#46A3FF';
+   userBtn.style.color = 'white';
+   userBtn.style.border = '1px solid white';
+   userBtn.style.padding = '0.5rem 1rem';
+   userBtn.style.borderRadius = '0.5rem';
+   userBtn.style.cursor = 'pointer';
+   userBtn.onmouseenter = () => {
+     userBtn.style.backgroundColor = '#3D8FEF';
+   };
+   userBtn.onmouseleave = () => {
+     userBtn.style.backgroundColor = '#46A3FF';
+   };
+   userBtn.onclick = () => window.location.href = '/login';
 
   // 添加语言切换按钮（放在用户名左边）
   const languageSwitcher = createLanguageSwitcher();

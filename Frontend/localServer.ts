@@ -79,8 +79,8 @@ const server = Bun.serve({
   development: true,
 });
 
-// // console.log(`Bun 服务器运行在: http://${server.hostname}:${server.port}`);
-// // console.log(`访问页面: http://localhost:3000/ (根页面), http://localhost:3000/hub (Hub页面), 等`);
+console.log(`Bun 服务器运行在: http://${server.hostname}:${server.port}`);
+// console.log(`访问页面: http://localhost:3000`);
 
 // // // 自动在浏览器中打开 /hub 页面
 // // await open('http://localhost:3000/hub');

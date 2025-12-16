@@ -281,11 +281,11 @@ function selectBlock(selectedId:number) {
       // }
 
       // const projectId = selected.project.project_id;
-      const newUrl = `http://localhost:8080/${userId}/${projectId}`;
-      // const newUrl = `http://www.smallwoodice.cn:8080/${userId}/${projectId}`;
+      // const newUrl = `http://localhost:8080/${userId}/${projectId}`;
+      const newUrl = `${URL}/${userId}/${projectId}`;
       // console.log(newUrl)
       setBaseUrl(newUrl);
-      console.log(newUrl)
+      // console.log(newUrl)
 
       window.location.href = `/welcome?apiUrl=${encodeURIComponent(newUrl)}`;
     };
