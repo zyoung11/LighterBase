@@ -69,6 +69,13 @@ const pricingBtn = document.createElement('button');
    pricingBtn.style.borderRadius = '0.5rem';
    pricingBtn.style.cursor = 'pointer';
    pricingBtn.style.fontWeight = '600';
+   pricingBtn.style.transition = 'transform 0.2s ease';
+   pricingBtn.onmouseenter = () => {
+     pricingBtn.style.transform = 'scale(1.1)';
+   };
+   pricingBtn.onmouseleave = () => {
+     pricingBtn.style.transform = 'scale(1)';
+   };
    pricingBtn.onclick = () => window.location.href = '/pricing';
    leftDiv.appendChild(pricingBtn);
 
@@ -82,6 +89,13 @@ const pricingBtn = document.createElement('button');
    docsBtn.style.borderRadius = '0.5rem';
    docsBtn.style.cursor = 'pointer';
    docsBtn.style.fontWeight = '600';
+   docsBtn.style.transition = 'transform 0.2s ease';
+   docsBtn.onmouseenter = () => {
+     docsBtn.style.transform = 'scale(1.1)';
+   };
+   docsBtn.onmouseleave = () => {
+     docsBtn.style.transform = 'scale(1)';
+   };
    docsBtn.onclick = () => window.location.href = '/docs';
    leftDiv.appendChild(docsBtn);
 
@@ -95,6 +109,13 @@ const pricingBtn = document.createElement('button');
    downloadBtn.style.borderRadius = '0.5rem';
    downloadBtn.style.cursor = 'pointer';
    downloadBtn.style.fontWeight = '600';
+   downloadBtn.style.transition = 'transform 0.2s ease';
+   downloadBtn.onmouseenter = () => {
+     downloadBtn.style.transform = 'scale(1.1)';
+   };
+   downloadBtn.onmouseleave = () => {
+     downloadBtn.style.transform = 'scale(1)';
+   };
    downloadBtn.onclick = () => window.location.href = '/download';
    leftDiv.appendChild(downloadBtn);
 

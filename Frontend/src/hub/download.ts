@@ -1,8 +1,8 @@
 import projects from './projects';
 import logoIcon from '../icons/logoWhite.png';
-import windowsIcon from '../icons/windows-white.svg';
-import linuxIcon from '../icons/linux-white.svg';
-
+import windowsIcon from '../icons/windows-black.svg';
+import linuxIcon from '../icons/linux-black.svg';
+import blocks from '../modules/blocks'
 // 初始化页面图片
 function initializeImages() {
   const logoImg = document.getElementById('logoImg') as HTMLImageElement;
@@ -26,16 +26,20 @@ function initializeImages() {
 
 // 下载应用功能
 async function downloadApp(os: string) {
+  const confirmed = await blocks.popupConfirm(`确定要下载 ${os === 'windows' ? 'Windows' : 'Linux'} 版本的 LighterBase 吗？`);
+  if (!confirmed) {
+    return;
+  }
+  
   try {
     const success = await projects.downloadApp(os);
     if (success) {
-      alert('下载成功！');
+      blocks.popupConfirm('下载成功！');
     } else {
-      alert('下载失败，请重试');
+      blocks.popupConfirm('下载失败，请重试');
     }
   } catch (error) {
-    console.error('下载失败:', error);
-    alert('下载失败，请重试');
+    blocks.popupConfirm('下载失败，请重试');
   }
 }
 
