@@ -21,3 +21,5 @@ Backend/app_beta/test/__pycache__
 Backend
 *LighterBase
 *LighterBaseHub
+Backend/app/test/__pycache__
+Backend/app/test/__pycache__/PAT.cpython-313.pyc

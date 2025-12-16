@@ -87,6 +87,40 @@ app_token = run_test(
     "token"
 )
 
+run_test(
+    "App 修改管理员密码",
+    put(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auto/update/users",
+         headers={"Authorization": f"Bearer {app_token}",
+                  "Content-Type": "application/json"},
+         body={
+             "set": {
+                 "password_hash": "123"
+             },
+             "WHERE": "id=1"
+         })     
+)
+
+run_test(
+    "App 修改密码后登录 错误示例",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auth/login",
+         headers={"Content-Type": "application/json"},
+         body={
+             "name": "zy",
+             "password_hash": "zy"
+        },
+    should_fail=True)
+)
+
+run_test(
+    "App 修改密码后登录",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auth/login",
+         headers={"Content-Type": "application/json"},
+         body={
+             "name": "zy",
+             "password_hash": "123"
+        })
+)
+
 print_info(
     "info",
     {

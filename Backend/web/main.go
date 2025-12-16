@@ -791,14 +791,30 @@ func updateRecord(c *fiber.Ctx) error {
 	}
 
 	if tableName == "users" {
-		// // 禁止改 users表 id=1 的记录
-		// if touchingRootUser(body.WHERE, nil) {
-		// 	return sendError(c, 403, "System user (id=1) is read-only.", nil)
-		// }
 		// 禁止改 users表 系统保留列
 		for col := range body.Set {
 			if isSystemColumn(col) {
 				return sendError(c, 403, fmt.Sprintf("Column %s is read-only.", col), nil)
+			}
+		}
+
+		// 管理员修改自己的密码时加哈希
+		if userID == 1 && !isGuest {
+			whereTrimmed := strings.TrimSpace(body.WHERE)
+			re := regexp.MustCompile(`id\s*=\s*['"]?1['"]?`)
+			matchesId1 := re.MatchString(whereTrimmed)
+			if strings.Contains(strings.ReplaceAll(whereTrimmed, " ", ""), "id=@uid") {
+				matchesId1 = true
+			}
+
+			if matchesId1 {
+				if plainPassword, ok := body.Set["password_hash"].(string); ok && plainPassword != "" {
+					hashedPassword, err := bcrypt.GenerateFromPassword([]byte(plainPassword), bcrypt.DefaultCost)
+					if err != nil {
+						return sendError(c, 500, "Failed to hash password.", nil)
+					}
+					body.Set["password_hash"] = string(hashedPassword)
+				}
 			}
 		}
 	}
