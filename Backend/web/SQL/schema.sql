@@ -47,3 +47,17 @@ CREATE TABLE IF NOT EXISTS _log_ (
     log_text TEXT NOT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS notifications (
+    notification_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sender_id INTEGER NOT NULL,
+    receiver_id INTEGER NOT NULL,
+    project_id INTEGER NOT NULL,
+    notification_content TEXT NOT NULL,
+    notification_status TEXT NOT NULL DEFAULT 'pending',
+    create_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    update_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (sender_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (receiver_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (project_id) REFERENCES projects(project_id) ON DELETE CASCADE
+);

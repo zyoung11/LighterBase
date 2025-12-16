@@ -21,6 +21,9 @@ import (
 var routes = []Route{
 	{Method: "GET", Path: "/health", Handler: health, AuthRequired: false},
 
+	// 下载
+	{Method: "GET", Path: "/api/download/app/:os", Handler: downloadApp, AuthRequired: false},
+
 	// 用户相关
 	{Method: "POST", Path: "/api/users/register", Handler: register, AuthRequired: false},
 	{Method: "POST", Path: "/api/users/login", Handler: login, AuthRequired: false},
@@ -39,11 +42,11 @@ var routes = []Route{
 	{Method: "GET", Path: "/api/projects/download/:id", Handler: downloadProject, AuthRequired: true},
 	{Method: "GET", Path: "/api/projects/sql/:id", Handler: getProjectLatestSql, AuthRequired: true},
 
-	// 下载
-	{Method: "GET", Path: "/api/download/app/:os", Handler: downloadApp, AuthRequired: false},
-
-	// --- 初始化 API ---
-	// {Method: "POST", Path: "/:userId/:projectId/init", Handler: initProject, AuthRequired: false},
+	// 通知相关
+	{Method: "POST", Path: "/api/team", Handler: sendNotification, AuthRequired: true},
+	{Method: "GET", Path: "/api/team/send/:status", Handler: checkMyNotifications, AuthRequired: true},
+	{Method: "GET", Path: "/api/team/receive/:status", Handler: checkNotificationsSentToMe, AuthRequired: true},
+	{Method: "PUT", Path: "/api/team/confirm/:notificationId/:status", Handler: confirmNotification, AuthRequired: true},
 
 	// --- JWT 认证 API ---
 	{Method: "POST", Path: "/:userId/:projectId/api/auth/login", Handler: login_app, AuthRequired: false},

@@ -39,7 +39,7 @@ yzm_uid, yzm_token = run_test(
              "user_name": "yzm",
              "password": "yzm666"
          }),
-    "user.user_id", "token"    
+    "user.user_id", "token"
 )
 
 zy_proj_id1 = run_test(
@@ -68,20 +68,6 @@ zy_proj_id2 = run_test(
     "project_id"
 )
 
-
-yzm_proj_id = run_test(
-    "yzm 创建项目1",
-    post(f"{baseUrl}/api/projects",
-         headers={"Authorization": f"Bearer {yzm_token}",
-                  "Content-Type": "application/json"},
-         body={
-             "project_name": "3",
-             "project_avatar": "",
-             "project_description": "this is a blog project"
-         }),
-    "project_id"
-)
-
 run_test(
     "获取 zy 项目",
     get(f"{baseUrl}/api/projects",
@@ -89,7 +75,129 @@ run_test(
 )
 
 run_test(
-    "获取 yzm 项目",
-    get(f"{baseUrl}/api/projects",
-        key=yzm_token)
+    "App 注册",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auto/create/users",
+         headers={"Content-Type": "application/json"},
+         body={
+             "name": "zy",
+             "password_hash": "zy",
+             "email": "zy@zy.com"
+         })
+)
+
+app_token = run_test(
+    "App 登录",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auth/login",
+         headers={"Content-Type": "application/json"},
+         body={
+             "name": "zy",
+             "password_hash": "zy"
+        }),
+    "token"
+)
+
+run_test(
+    "App 修改管理员密码",
+    put(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auto/update/users",
+         headers={"Authorization": f"Bearer {app_token}",
+                  "Content-Type": "application/json"},
+         body={
+             "set": {
+                 "password_hash": "123"
+             },
+             "WHERE": "id=1"
+         })     
+)
+
+run_test(
+    "App 修改密码后登录 错误示例",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auth/login",
+         headers={"Content-Type": "application/json"},
+         body={
+             "name": "zy",
+             "password_hash": "zy"
+        },
+    should_fail=True)
+)
+
+run_test(
+    "App 修改密码后登录",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auth/login",
+         headers={"Content-Type": "application/json"},
+         body={
+             "name": "zy",
+             "password_hash": "123"
+        })
+)
+
+run_test(
+    "zy 发送通知给 yzm",
+    post(f"{baseUrl}/api/team",
+         headers={"Authorization": f"Bearer {zy_token}",
+                  "Content-Type": "application/json"},
+          body={
+              	"projectId": zy_proj_id1,
+                "permissions": "admin",
+                "email": "yzm@notgay.com"
+          })
+)
+
+run_test(
+    "zy 查看自己发送的通知",
+    get(f"{baseUrl}/api/team/send/all",
+         headers={"Authorization": f"Bearer {zy_token}"})
+)
+
+run_test(
+    "zy 查看自己发送的已经同意了的通知",
+    get(f"{baseUrl}/api/team/send/agree",
+         headers={"Authorization": f"Bearer {zy_token}"})
+)
+
+run_test(
+    "zy 查看自己发送的没有同意了的通知",
+    get(f"{baseUrl}/api/team/send/disagree",
+         headers={"Authorization": f"Bearer {zy_token}"})
+)
+
+notificationId = run_test(
+    "yzm 查看接收的所有通知",
+    get(f"{baseUrl}/api/team/receive/all",
+         headers={"Authorization": f"Bearer {yzm_token}"}),
+    "0.notification_id"
+)
+
+run_test(
+    "yzm 查看接收的且同意的通知",
+    get(f"{baseUrl}/api/team/receive/agree",
+         headers={"Authorization": f"Bearer {yzm_token}"})
+)
+
+run_test(
+    "yzm 查看接收的且不同意的通知",
+    get(f"{baseUrl}/api/team/receive/disagree",
+         headers={"Authorization": f"Bearer {yzm_token}"})
+)
+
+run_test(
+    "yzm 同意通知",
+    put(f"{baseUrl}/api/team/confirm/{notificationId}/agree",
+         headers={"Authorization": f"Bearer {yzm_token}"})
+)
+
+run_test(
+    "zy 查看自己发送的已经同意了的通知",
+    get(f"{baseUrl}/api/team/send/agree",
+         headers={"Authorization": f"Bearer {zy_token}"})
+)
+
+print_info(
+    "info",
+    {
+        "zy_uid": zy_uid,
+        "zy_token": zy_token,
+        "zy_pid_1": zy_proj_id1,
+        "zy_pid_2": zy_proj_id2,
+        "app_token": app_token
+    }
 )

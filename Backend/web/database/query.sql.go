@@ -10,6 +10,23 @@ import (
 	"database/sql"
 )
 
+const checkNotificationPermission = `-- name: CheckNotificationPermission :one
+SELECT COUNT(*) FROM notifications 
+WHERE notification_id = ? AND receiver_id = ? AND notification_status = 'pending'
+`
+
+type CheckNotificationPermissionParams struct {
+	NotificationID int64
+	ReceiverID     int64
+}
+
+func (q *Queries) CheckNotificationPermission(ctx context.Context, arg CheckNotificationPermissionParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, checkNotificationPermission, arg.NotificationID, arg.ReceiverID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countLogs = `-- name: CountLogs :one
 SELECT COUNT(*) FROM _log_
 `
@@ -51,6 +68,47 @@ INSERT INTO _log_ (log_text) VALUES (?)
 func (q *Queries) CreateLog(ctx context.Context, logText string) error {
 	_, err := q.db.ExecContext(ctx, createLog, logText)
 	return err
+}
+
+const createNotification = `-- name: CreateNotification :one
+INSERT INTO notifications (
+    sender_id, receiver_id, project_id, notification_content, notification_status,
+    create_at, update_at
+) VALUES (
+    ?, ?, ?, ?, ?,
+    datetime('now'), datetime('now')
+)
+RETURNING notification_id, sender_id, receiver_id, project_id, notification_content, notification_status, create_at, update_at
+`
+
+type CreateNotificationParams struct {
+	SenderID            int64
+	ReceiverID          int64
+	ProjectID           int64
+	NotificationContent string
+	NotificationStatus  string
+}
+
+func (q *Queries) CreateNotification(ctx context.Context, arg CreateNotificationParams) (Notification, error) {
+	row := q.db.QueryRowContext(ctx, createNotification,
+		arg.SenderID,
+		arg.ReceiverID,
+		arg.ProjectID,
+		arg.NotificationContent,
+		arg.NotificationStatus,
+	)
+	var i Notification
+	err := row.Scan(
+		&i.NotificationID,
+		&i.SenderID,
+		&i.ReceiverID,
+		&i.ProjectID,
+		&i.NotificationContent,
+		&i.NotificationStatus,
+		&i.CreateAt,
+		&i.UpdateAt,
+	)
+	return i, err
 }
 
 const createProject = `-- name: CreateProject :one
@@ -208,6 +266,180 @@ func (q *Queries) GetLatestSql(ctx context.Context) (Sqls, error) {
 	var i Sqls
 	err := row.Scan(&i.ID, &i.Sql)
 	return i, err
+}
+
+const getNotificationByID = `-- name: GetNotificationByID :one
+SELECT notification_id, sender_id, receiver_id, project_id, notification_content, notification_status, create_at, update_at FROM notifications WHERE notification_id = ? LIMIT 1
+`
+
+func (q *Queries) GetNotificationByID(ctx context.Context, notificationID int64) (Notification, error) {
+	row := q.db.QueryRowContext(ctx, getNotificationByID, notificationID)
+	var i Notification
+	err := row.Scan(
+		&i.NotificationID,
+		&i.SenderID,
+		&i.ReceiverID,
+		&i.ProjectID,
+		&i.NotificationContent,
+		&i.NotificationStatus,
+		&i.CreateAt,
+		&i.UpdateAt,
+	)
+	return i, err
+}
+
+const getNotificationsByReceiver = `-- name: GetNotificationsByReceiver :many
+SELECT notification_id, sender_id, receiver_id, project_id, notification_content, notification_status, create_at, update_at FROM notifications WHERE receiver_id = ? ORDER BY create_at DESC
+`
+
+func (q *Queries) GetNotificationsByReceiver(ctx context.Context, receiverID int64) ([]Notification, error) {
+	rows, err := q.db.QueryContext(ctx, getNotificationsByReceiver, receiverID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Notification
+	for rows.Next() {
+		var i Notification
+		if err := rows.Scan(
+			&i.NotificationID,
+			&i.SenderID,
+			&i.ReceiverID,
+			&i.ProjectID,
+			&i.NotificationContent,
+			&i.NotificationStatus,
+			&i.CreateAt,
+			&i.UpdateAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getNotificationsByReceiverAndStatus = `-- name: GetNotificationsByReceiverAndStatus :many
+SELECT notification_id, sender_id, receiver_id, project_id, notification_content, notification_status, create_at, update_at FROM notifications WHERE receiver_id = ? AND notification_status = ? ORDER BY create_at DESC
+`
+
+type GetNotificationsByReceiverAndStatusParams struct {
+	ReceiverID         int64
+	NotificationStatus string
+}
+
+func (q *Queries) GetNotificationsByReceiverAndStatus(ctx context.Context, arg GetNotificationsByReceiverAndStatusParams) ([]Notification, error) {
+	rows, err := q.db.QueryContext(ctx, getNotificationsByReceiverAndStatus, arg.ReceiverID, arg.NotificationStatus)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Notification
+	for rows.Next() {
+		var i Notification
+		if err := rows.Scan(
+			&i.NotificationID,
+			&i.SenderID,
+			&i.ReceiverID,
+			&i.ProjectID,
+			&i.NotificationContent,
+			&i.NotificationStatus,
+			&i.CreateAt,
+			&i.UpdateAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getNotificationsBySender = `-- name: GetNotificationsBySender :many
+SELECT notification_id, sender_id, receiver_id, project_id, notification_content, notification_status, create_at, update_at FROM notifications WHERE sender_id = ? ORDER BY create_at DESC
+`
+
+func (q *Queries) GetNotificationsBySender(ctx context.Context, senderID int64) ([]Notification, error) {
+	rows, err := q.db.QueryContext(ctx, getNotificationsBySender, senderID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Notification
+	for rows.Next() {
+		var i Notification
+		if err := rows.Scan(
+			&i.NotificationID,
+			&i.SenderID,
+			&i.ReceiverID,
+			&i.ProjectID,
+			&i.NotificationContent,
+			&i.NotificationStatus,
+			&i.CreateAt,
+			&i.UpdateAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getNotificationsBySenderAndStatus = `-- name: GetNotificationsBySenderAndStatus :many
+SELECT notification_id, sender_id, receiver_id, project_id, notification_content, notification_status, create_at, update_at FROM notifications WHERE sender_id = ? AND notification_status = ? ORDER BY create_at DESC
+`
+
+type GetNotificationsBySenderAndStatusParams struct {
+	SenderID           int64
+	NotificationStatus string
+}
+
+func (q *Queries) GetNotificationsBySenderAndStatus(ctx context.Context, arg GetNotificationsBySenderAndStatusParams) ([]Notification, error) {
+	rows, err := q.db.QueryContext(ctx, getNotificationsBySenderAndStatus, arg.SenderID, arg.NotificationStatus)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Notification
+	for rows.Next() {
+		var i Notification
+		if err := rows.Scan(
+			&i.NotificationID,
+			&i.SenderID,
+			&i.ReceiverID,
+			&i.ProjectID,
+			&i.NotificationContent,
+			&i.NotificationStatus,
+			&i.CreateAt,
+			&i.UpdateAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getProjectByID = `-- name: GetProjectByID :one
@@ -544,6 +776,22 @@ func (q *Queries) SearchLogs(ctx context.Context, arg SearchLogsParams) ([]Log, 
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateNotificationStatus = `-- name: UpdateNotificationStatus :exec
+UPDATE notifications
+SET notification_status = ?, update_at = datetime('now')
+WHERE notification_id = ?
+`
+
+type UpdateNotificationStatusParams struct {
+	NotificationStatus string
+	NotificationID     int64
+}
+
+func (q *Queries) UpdateNotificationStatus(ctx context.Context, arg UpdateNotificationStatusParams) error {
+	_, err := q.db.ExecContext(ctx, updateNotificationStatus, arg.NotificationStatus, arg.NotificationID)
+	return err
 }
 
 const updateProject = `-- name: UpdateProject :one

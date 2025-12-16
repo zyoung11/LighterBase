@@ -14,6 +14,17 @@ type Log struct {
 	CreatedAt sql.NullString
 }
 
+type Notification struct {
+	NotificationID      int64
+	SenderID            int64
+	ReceiverID          int64
+	ProjectID           int64
+	NotificationContent string
+	NotificationStatus  string
+	CreateAt            sql.NullString
+	UpdateAt            sql.NullString
+}
+
 type Project struct {
 	ProjectID          int64
 	UserID             int64

@@ -175,3 +175,37 @@ LIMIT ? OFFSET ?;
 -- name: CountSearchLogs :one
 SELECT COUNT(*) FROM _log_ 
 WHERE log_text LIKE ?;
+
+-- name: CreateNotification :one
+INSERT INTO notifications (
+    sender_id, receiver_id, project_id, notification_content, notification_status,
+    create_at, update_at
+) VALUES (
+    ?, ?, ?, ?, ?,
+    datetime('now'), datetime('now')
+)
+RETURNING *;
+
+-- name: GetNotificationByID :one
+SELECT * FROM notifications WHERE notification_id = ? LIMIT 1;
+
+-- name: GetNotificationsBySender :many
+SELECT * FROM notifications WHERE sender_id = ? ORDER BY create_at DESC;
+
+-- name: GetNotificationsByReceiver :many
+SELECT * FROM notifications WHERE receiver_id = ? ORDER BY create_at DESC;
+
+-- name: GetNotificationsBySenderAndStatus :many
+SELECT * FROM notifications WHERE sender_id = ? AND notification_status = ? ORDER BY create_at DESC;
+
+-- name: GetNotificationsByReceiverAndStatus :many
+SELECT * FROM notifications WHERE receiver_id = ? AND notification_status = ? ORDER BY create_at DESC;
+
+-- name: UpdateNotificationStatus :exec
+UPDATE notifications
+SET notification_status = ?, update_at = datetime('now')
+WHERE notification_id = ?;
+
+-- name: CheckNotificationPermission :one
+SELECT COUNT(*) FROM notifications 
+WHERE notification_id = ? AND receiver_id = ? AND notification_status = 'pending';
