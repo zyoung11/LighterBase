@@ -707,10 +707,10 @@ const updateBottom = () => {
 
     if (full.startsWith('data:image/')) {
       // 显示图片tooltip
-      this.showImageTooltip(full, rect.left, rect.top - 10);
+      this.showImageTooltip(full, rect.left, rect.top - 5);
     } else {
       // 显示文本tooltip
-      blocks.showTooltipWithCopy(full, rect.left, rect.top - 10);
+      blocks.showTooltipWithCopy(full, rect.left, rect.top - 5);
     }
   });
 }
