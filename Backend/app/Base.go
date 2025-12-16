@@ -16,6 +16,8 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/etag"
 	"github.com/golang-jwt/jwt/v5"
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
@@ -151,6 +153,27 @@ func initDB(projectName string) {
 }
 
 //------------------------------------web---------------------------------------
+
+func web() {
+	app := fiber.New(fiber.Config{AppName: "Website"})
+
+	app.Use(compress.New())
+	app.Use(etag.New())
+
+	app.Static("/", "./dist", fiber.Static{
+		Compress:      true,
+		CacheDuration: 0,
+		MaxAge:        0,
+		Index:         "index.html",
+	})
+
+	go func() {
+		time.Sleep(300 * time.Millisecond)
+		openBrowser("http:localhost:8090")
+	}()
+
+	log.Fatal(app.Listen(":8090"))
+}
 
 func openBrowser(url string) error {
 	var cmd string
