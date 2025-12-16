@@ -241,6 +241,27 @@ run_test(
          headers={"Authorization": f"Bearer {zy_token}"})
 )
 
+run_test(
+    "yzm 在 zy 项目里注册",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auto/create/users",
+         headers={"Content-Type": "application/json"},
+         body={
+             "name": "yzm",
+             "password_hash": "yzm",
+             "email": "yzm@yzm.com"
+         })
+)
+
+run_test(
+    "yzm 在 zy 项目里登录",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auth/login",
+         headers={"Content-Type": "application/json"},
+         body={
+             "name": "yzm",
+             "password_hash": "yzm"
+        })
+)
+
 print_info(
     "info",
     {

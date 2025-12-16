@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -100,6 +101,32 @@ func NewApp(name string, routes []Route) *fiber.App {
 			strings.Contains(r.Path, ":userId") &&
 			strings.Contains(r.Path, ":projectId") {
 			mws = append(mws, projectMiddleware)
+
+			// 为需要团队权限验证的BaaS API添加团队权限中间件
+			// 这些是项目相关的API，需要检查团队权限
+			baasAPIPaths := []string{
+				"/:userId/:projectId/api/auth/login",
+				"/:userId/:projectId/api/auth/refresh",
+				"/:userId/:projectId/api/auth/init",
+				"/:userId/:projectId/api/create-table/create/",
+				"/:userId/:projectId/api/auto/create/:table",
+				"/:userId/:projectId/api/auto/delete/:table",
+				"/:userId/:projectId/api/auto/update/:table",
+				"/:userId/:projectId/api/auto/view/:table",
+				"/:userId/:projectId/api/sqls/latest",
+				"/:userId/:projectId/api/security",
+				"/:userId/:projectId/api/security/:table_name",
+				"/:userId/:projectId/api/query/tables",
+				"/:userId/:projectId/api/query/logs",
+				"/:userId/:projectId/api/search/logs",
+			}
+
+			for _, baasPath := range baasAPIPaths {
+				if r.Path == baasPath {
+					mws = append(mws, teamPermissionMiddleware)
+					break
+				}
+			}
 		}
 
 		// 2. 如果路由需要 JWT 鉴权
@@ -406,6 +433,42 @@ func isSystemColumn(col string) bool {
 	return false
 }
 
+// checkTeamPermission 检查团队权限
+func checkTeamPermission(c *fiber.Ctx, requireAdmin bool) bool {
+	// 获取团队权限信息
+	isTeamMember, ok := c.Locals("isTeamMember").(bool)
+	if !ok {
+		return false
+	}
+
+	teamPermission, ok := c.Locals("teamPermission").(string)
+	if !ok {
+		return false
+	}
+
+	// 如果不是团队成员，没有权限
+	if !isTeamMember {
+		return false
+	}
+
+	// 如果是高权限成员，拥有所有权限
+	if teamPermission == "admin" {
+		return true
+	}
+
+	// 如果是只读成员，只有GET请求的权限
+	if teamPermission == "readonly" {
+		if requireAdmin {
+			// 需要管理员权限但用户是只读成员
+			return false
+		}
+		// 只读成员只能访问GET请求
+		return c.Method() == "GET"
+	}
+
+	return false
+}
+
 // 是否尝试动 id=1 的记录
 func touchingRootUser(where string, args []any) bool {
 	return strings.Contains(where, "id=1") ||
@@ -421,6 +484,70 @@ func main() {
 }
 
 //----------------------------------routing--------------------------------------
+
+// teamPermissionMiddleware 检查用户是否有团队权限
+func teamPermissionMiddleware(c *fiber.Ctx) error {
+	// 获取路径参数
+	userIdStr := c.Params("userId")
+	projectIdStr := c.Params("projectId")
+
+	// 转换为整数
+	ownerID, err := strconv.ParseInt(userIdStr, 10, 64)
+	if err != nil {
+		return sendError(c, 400, "Invalid user ID", nil)
+	}
+
+	projectID, err := strconv.ParseInt(projectIdStr, 10, 64)
+	if err != nil {
+		return sendError(c, 400, "Invalid project ID", nil)
+	}
+
+	// 获取当前用户ID（从JWT）
+	currentUserID, err := authenticateUser(c)
+	if err != nil {
+		// 如果没有认证信息，则不是团队成员
+		c.Locals("isTeamMember", false)
+		c.Locals("teamPermission", "none")
+		return c.Next()
+	}
+
+	// 如果是项目所有者，拥有所有权限
+	if currentUserID == ownerID {
+		c.Locals("isTeamMember", true)
+		c.Locals("teamPermission", "admin")
+		return c.Next()
+	}
+
+	// 检查是否有团队权限通知
+	permissionRow, err := queries.GetTeamPermission(c.Context(), database.GetTeamPermissionParams{
+		SenderID:   ownerID,
+		ReceiverID: currentUserID,
+		ProjectID:  projectID,
+	})
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// 没有团队权限
+			c.Locals("isTeamMember", false)
+			c.Locals("teamPermission", "none")
+			return c.Next()
+		}
+		return sendError(c, 500, "Failed to check team permission", nil)
+	}
+
+	// 根据通知内容设置权限级别
+	var permissionLevel string
+	if permissionRow.NotificationContent == "邀请成为高权限成员" {
+		permissionLevel = "admin"
+	} else if permissionRow.NotificationContent == "邀请成为只读成员" {
+		permissionLevel = "readonly"
+	} else {
+		permissionLevel = "none"
+	}
+
+	c.Locals("isTeamMember", true)
+	c.Locals("teamPermission", permissionLevel)
+	return c.Next()
+}
 
 func projectMiddleware(c *fiber.Ctx) error {
 	userId := c.Params("userId")
@@ -618,6 +745,14 @@ func createRecord(c *fiber.Ctx) error {
 		}
 	}
 
+	// 检查团队权限（POST请求需要管理员权限）
+	if !checkTeamPermission(c, true) {
+		// 如果不是团队成员或权限不足，使用原有权限检查
+		if tableName != "users" && isGuest {
+			return sendError(c, 401, "Authentication required.", nil)
+		}
+	}
+
 	// 权限检查
 	canCreate, err := checkPermission(dataDB, queries, "create", tableName, userID, isGuest)
 	if err != nil {
@@ -693,6 +828,14 @@ func deleteRecord(c *fiber.Ctx) error {
 		return sendError(c, 401, err.Error(), nil)
 	}
 
+	// 检查团队权限（DELETE请求需要管理员权限）
+	if !checkTeamPermission(c, true) {
+		// 如果不是团队成员或权限不足，使用原有权限检查
+		if isGuest {
+			return sendError(c, 401, "Authentication required.", nil)
+		}
+	}
+
 	// 2. 权限检查
 	canDelete, err := checkPermission(dataDB, queries, "delete", tableName, userID, isGuest)
 	if err != nil {
@@ -761,6 +904,14 @@ func updateRecord(c *fiber.Ctx) error {
 	userID, isGuest, err := authenticateUserForAPI(c)
 	if err != nil {
 		return sendError(c, 401, err.Error(), nil)
+	}
+
+	// 检查团队权限（PUT请求需要管理员权限）
+	if !checkTeamPermission(c, true) {
+		// 如果不是团队成员或权限不足，使用原有权限检查
+		if isGuest {
+			return sendError(c, 401, "Authentication required.", nil)
+		}
 	}
 
 	// 2. 权限检查
@@ -867,6 +1018,14 @@ func viewRecords(c *fiber.Ctx) error {
 	userID, isGuest, err := authenticateUserForAPI(c)
 	if err != nil {
 		return sendError(c, 401, err.Error(), nil)
+	}
+
+	// 检查团队权限（GET请求，只读成员也可以访问）
+	if !checkTeamPermission(c, false) {
+		// 如果不是团队成员或权限不足，使用原有权限检查
+		if isGuest {
+			return sendError(c, 401, "Authentication required.", nil)
+		}
 	}
 
 	// 2. 权限检查

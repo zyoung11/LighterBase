@@ -501,6 +501,31 @@ func (q *Queries) GetSecurityByTable(ctx context.Context, tableName string) (Sec
 	return i, err
 }
 
+const getTeamPermission = `-- name: GetTeamPermission :one
+SELECT notification_content, notification_status FROM notifications 
+WHERE sender_id = ? AND receiver_id = ? AND project_id = ? 
+AND notification_status = 'agree'
+LIMIT 1
+`
+
+type GetTeamPermissionParams struct {
+	SenderID   int64
+	ReceiverID int64
+	ProjectID  int64
+}
+
+type GetTeamPermissionRow struct {
+	NotificationContent string
+	NotificationStatus  string
+}
+
+func (q *Queries) GetTeamPermission(ctx context.Context, arg GetTeamPermissionParams) (GetTeamPermissionRow, error) {
+	row := q.db.QueryRowContext(ctx, getTeamPermission, arg.SenderID, arg.ReceiverID, arg.ProjectID)
+	var i GetTeamPermissionRow
+	err := row.Scan(&i.NotificationContent, &i.NotificationStatus)
+	return i, err
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT user_id, user_name, password_hash, email, user_avatar, create_at, update_at FROM users
 WHERE email = ? LIMIT 1

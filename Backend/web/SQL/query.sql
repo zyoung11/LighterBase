@@ -214,3 +214,9 @@ WHERE notification_id = ? AND receiver_id = ? AND notification_status = 'pending
 SELECT COUNT(*) FROM notifications 
 WHERE sender_id = ? AND receiver_id = ? AND project_id = ? 
 AND notification_status IN ('pending', 'agree');
+
+-- name: GetTeamPermission :one
+SELECT notification_content, notification_status FROM notifications 
+WHERE sender_id = ? AND receiver_id = ? AND project_id = ? 
+AND notification_status = 'agree'
+LIMIT 1;
