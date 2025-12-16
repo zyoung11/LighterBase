@@ -209,3 +209,8 @@ WHERE notification_id = ?;
 -- name: CheckNotificationPermission :one
 SELECT COUNT(*) FROM notifications 
 WHERE notification_id = ? AND receiver_id = ? AND notification_status = 'pending';
+
+-- name: CheckDuplicateNotification :one
+SELECT COUNT(*) FROM notifications 
+WHERE sender_id = ? AND receiver_id = ? AND project_id = ? 
+AND notification_status IN ('pending', 'agree');

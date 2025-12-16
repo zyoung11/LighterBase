@@ -143,6 +143,19 @@ run_test(
 )
 
 run_test(
+    "zy 重复发送通知给 yzm",
+    post(f"{baseUrl}/api/team",
+         headers={"Authorization": f"Bearer {zy_token}",
+                  "Content-Type": "application/json"},
+          body={
+              	"projectId": zy_proj_id1,
+                "permissions": "admin",
+                "email": "yzm@notgay.com"
+          },
+      should_fail=True)
+)
+
+run_test(
     "zy 查看自己发送的通知",
     get(f"{baseUrl}/api/team/send/all",
          headers={"Authorization": f"Bearer {zy_token}"})
@@ -195,6 +208,19 @@ run_test(
     "yzm 同意通知",
     put(f"{baseUrl}/api/team/confirm/{notificationId}/agree",
          headers={"Authorization": f"Bearer {yzm_token}"})
+)
+
+run_test(
+    "zy 重复发送通知给 yzm",
+    post(f"{baseUrl}/api/team",
+         headers={"Authorization": f"Bearer {zy_token}",
+                  "Content-Type": "application/json"},
+          body={
+              	"projectId": zy_proj_id1,
+                "permissions": "admin",
+                "email": "yzm@notgay.com"
+          },
+      should_fail=True)
 )
 
 run_test(

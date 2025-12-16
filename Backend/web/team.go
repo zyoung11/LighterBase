@@ -65,6 +65,19 @@ func sendNotification(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid permissions. Use 'admin' or 'readonly'"})
 	}
 
+	// 检查是否已经给这个用户发送过这个项目的请求且状态为待确认或同意
+	duplicateCount, err := queries.CheckDuplicateNotification(c.Context(), database.CheckDuplicateNotificationParams{
+		SenderID:   userID,
+		ReceiverID: receiver.UserID,
+		ProjectID:  req.ProjectID,
+	})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to check duplicate notification"})
+	}
+	if duplicateCount > 0 {
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "You have already sent a notification to this user for this project that is pending or agreed"})
+	}
+
 	// 创建通知记录
 	notification, err := queries.CreateNotification(c.Context(), database.CreateNotificationParams{
 		SenderID:            userID,

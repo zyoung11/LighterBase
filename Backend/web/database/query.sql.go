@@ -10,6 +10,25 @@ import (
 	"database/sql"
 )
 
+const checkDuplicateNotification = `-- name: CheckDuplicateNotification :one
+SELECT COUNT(*) FROM notifications 
+WHERE sender_id = ? AND receiver_id = ? AND project_id = ? 
+AND notification_status IN ('pending', 'agree')
+`
+
+type CheckDuplicateNotificationParams struct {
+	SenderID   int64
+	ReceiverID int64
+	ProjectID  int64
+}
+
+func (q *Queries) CheckDuplicateNotification(ctx context.Context, arg CheckDuplicateNotificationParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, checkDuplicateNotification, arg.SenderID, arg.ReceiverID, arg.ProjectID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const checkNotificationPermission = `-- name: CheckNotificationPermission :one
 SELECT COUNT(*) FROM notifications 
 WHERE notification_id = ? AND receiver_id = ? AND notification_status = 'pending'
