@@ -9,17 +9,18 @@ Backend/web-beta/LighterBaseHubData/data.db-wal
 Backend/web-beta/Test/__pycache__
 Backend/web-beta/Test/uv.lock
 Backend/web-beta/LighterBaseHubData
-TEST
-Frontend/lighterBaseWeb
-Frontend/backup/lighterBaseWeb
+# TEST
+# Frontend/lighterBaseWeb
+# Frontend/backup/lighterBaseWeb
 Backend/web/test/__pycache__
 Backend/web/test/uv.lock
 Backend/web_test/LighterBaseHubData
 Backend/web_beta/LighterBaseHubData
 Backend/app_beta/LighterBaseData
 Backend/app_beta/test/__pycache__
-Backend
 *LighterBase
 *LighterBaseHub
 Backend/app/test/__pycache__
 Backend/app/test/__pycache__/PAT.cpython-313.pyc
+Backend/app/LighterBase.exe
+Backend/web/Apps/LighterBase.exe
