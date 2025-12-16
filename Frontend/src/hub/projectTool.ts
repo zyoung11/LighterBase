@@ -28,19 +28,28 @@ app.appendChild(gridContainer);
 // 创建项目详情区域
 const projectDetails = document.createElement('div');
 projectDetails.id = 'projectDetails';
-projectDetails.className = 'absolute right-[5%] top-[12%] w-3/5 h-4/5 bg-gray-700 bg-opacity-90 p-4 rounded-lg hidden z-5';
+projectDetails.className = 'absolute right-[5%] top-[12%] w-3/5 h-4/5 bg-[#1B1E1F] shadow-md shadow-white/30 bg-opacity-90 p-4 rounded-lg hidden z-5';
 projectDetails.innerHTML = `
 <div class="w-full h-[40%] flex">
   <img id="detail-avatar" class="w-[45%] h-full object-cover mb-4 rounded-sm" src="${defaultImg}" onerror="this.src='${defaultImg}'">
   <div class="ml-3 w-[50%] h-full flex flex-col">
   <h2 id="detail-name" class="text-2xl font-bold mb-4"></h2>
-  <textarea id="detail-description" class="w-full h-full bg-gray-600 bg-opacity-50 text-white p-2 rounded resize-none overflow-y-auto mb-4" readonly style="user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; cursor: default; pointer-events: none; outline: none; box-shadow: none; border: none;"></textarea>
+  <textarea id="detail-description" class="w-full h-full bg-[#1B1E1F] border border-white/10 bg-opacity-50 text-white p-2 rounded resize-none overflow-y-auto mb-4" readonly style="user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; cursor: default; pointer-events: none; outline: none; box-shadow: none;"></textarea>
   </div>
 </div>
-  <div id="mount" class="mt-3 w-full h-[50%] rounded-sm bg-gray-600"></div>
+  <div id="mount" class="mt-3 w-full h-[50%] rounded-sm bg-[#1B1E1F] "></div>
   <div class="absolute bottom-4 right-4 flex space-x-4">
-    <button id="start-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">${i18n.t('common.start')}</button>
-    <button id="delete-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">${i18n.t('common.delete')}</button>
+    <button id="start-btn" class="w-10 h-10 bg-[#3D8FEF] hover:bg-[#46A3FF] rounded-lg flex items-center justify-center transition-colors">
+      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </button>
+    <button id="delete-btn" class="w-10 h-10 bg-[#EF4B3D] hover:bg-[#FF6B6B] rounded-lg flex items-center justify-center transition-colors">
+      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+      </svg>
+    </button>
   </div>
  `;
 if(app)
@@ -106,12 +115,12 @@ async function renderBlock(block:any) {
     const originAvatar = block.project.project_avatar
     const compressedAvatar = await compressImage(block.project.project_avatar || '', 120, 0.4);
     block.element = document.createElement('div');
-    block.element.className = `absolute flex bg-gray-700 rounded-md shadow-lg p-2 transition-all ease-in-out cursor-pointer`;
+    block.element.className = `absolute flex bg-[#1B1E1F] shadow-sm shadow-white/30 rounded-md shadow-lg p-2 transition-all ease-in-out cursor-pointer pointer-events-auto`;
     block.element.style.width = '28%';
     block.element.style.height = '22vh';
     block.element.style.transitionDuration = `${ANIMATION_DURATION}ms`;
     block.element.innerHTML = `
-        <img src="${originAvatar}" class="w-[16vh] h-[16vh] mr-2 object-cover rounded" 
+        <img src="${originAvatar}" class="w-[16vh] h-[16vh] p-1 object-cover rounded" 
              onerror="this.src='${defaultImg}'; this.style.display='block'; this.style.objectFit='cover';">
        <div class = "flex flex-col">
        <h3 class="text-white text-sm font-bold break-words">${block.project.project_name}</h3>
@@ -122,7 +131,16 @@ async function renderBlock(block:any) {
         </div>
 </div>
     `;
-    block.element.addEventListener('click', () => selectBlock(block.id));
+    block.element.addEventListener('click', (event: MouseEvent) => {
+  event.stopPropagation();
+  console.log('Block clicked:', block.id);
+  // 确保元素可以接收点击事件
+  block.element.style.pointerEvents = 'auto';
+  selectBlock(block.id);
+});
+
+// 确保元素可以接收点击事件
+block.element.style.pointerEvents = 'auto';
     gridContainer.appendChild(block.element);
   }
 
@@ -182,11 +200,11 @@ function selectBlock(selectedId:number) {
       //   if (parts.length === 2) return parts.pop()?.split(';').shift();
       // }
       // const token = getCookie('hubAuthToken');
-      function parseJwt(token) {
+function parseJwt(token: string) {
         try {
           const base64Url = token.split('.')[1];
-          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-          const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+const base64 = (base64Url || '').replace(/-/g, '+').replace(/_/g, '/');
+const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function(c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
           }).join(''));
           return JSON.parse(jsonPayload);
@@ -260,11 +278,11 @@ function selectBlock(selectedId:number) {
       if (!token) return;
 
       // 解析token获取userId
-      // function parseJwt(token) {
+      // function parseJwt(token: string) {
       //   try {
       //     const base64Url = token.split('.')[1];
       //     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      //     const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      //     const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function(c) {
       //       return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
       //     }).join(''));
       //     return JSON.parse(jsonPayload);
@@ -295,7 +313,7 @@ function selectBlock(selectedId:number) {
   if (deleteBtn) {
     deleteBtn.onclick = async () => {
       // 获取token
-      function getCookie(name) {
+      function getCookie(name: string) {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
         if (parts.length === 2) return parts.pop()?.split(';').shift();
