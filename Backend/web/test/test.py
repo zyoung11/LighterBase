@@ -180,8 +180,32 @@ run_test(
 )
 
 run_test(
+    "zy 查看自己发送的待同意的通知",
+    get(f"{baseUrl}/api/team/send/pending",
+         headers={"Authorization": f"Bearer {zy_token}"})
+)
+
+run_test(
+    "yzm 查看自己接收的待同意的通知",
+    get(f"{baseUrl}/api/team/receive/pending",
+         headers={"Authorization": f"Bearer {yzm_token}"})
+)
+
+run_test(
     "yzm 同意通知",
     put(f"{baseUrl}/api/team/confirm/{notificationId}/agree",
+         headers={"Authorization": f"Bearer {yzm_token}"})
+)
+
+run_test(
+    "zy 查看自己发送的待同意的通知",
+    get(f"{baseUrl}/api/team/send/pending",
+         headers={"Authorization": f"Bearer {zy_token}"})
+)
+
+run_test(
+    "yzm 查看自己接收的待同意的通知",
+    get(f"{baseUrl}/api/team/receive/pending",
          headers={"Authorization": f"Bearer {yzm_token}"})
 )
 
