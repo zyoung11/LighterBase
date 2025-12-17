@@ -117,5 +117,52 @@
     "slogan": "A Lighter way, a Lighter base, a Lighter life",
     "release": "2025.12.12 base officially released",
     "contact": "contact us"
+  },
+  "projects": {
+    "create": {
+      "title": "Create New Project",
+      "upload": "Click to upload image",
+      "name": {
+        "placeholder": "Project Name"
+      },
+      "description": {
+        "placeholder": "Project Description"
+      },
+      "button": "Create",
+      "cancel": "Cancel"
+    },
+    "start": {
+      "title": "Start Project",
+      "username": {
+        "label": "Username",
+        "placeholder": "Enter username"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Enter password"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "Enter email"
+      },
+      "login": {
+        "button": "Login"
+      }
+    },
+    "update": {
+      "title": "Update Project",
+      "upload": "Click to upload image",
+      "name": {
+        "placeholder": "Project Name"
+      },
+      "description": {
+        "placeholder": "Project Description"
+      },
+      "button": "Update"
+    },
+    "cancel": {
+      "button": "Cancel",
+      "cancel": "Cancel"
+    }
   }
 }

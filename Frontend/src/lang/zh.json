@@ -117,5 +117,52 @@
     "slogan": "更轻的方式，更轻的数据库，更轻的生活",
     "release": "2025.12.12 base正式发布",
     "contact": "联系我们"
+  },
+  "projects": {
+    "create": {
+      "title": "创建新项目",
+      "upload": "点击上传图片",
+      "name": {
+        "placeholder": "项目名称"
+      },
+      "description": {
+        "placeholder": "项目描述"
+      },
+      "button": "创建",
+      "cancel": "取消"
+    },
+    "start": {
+      "title": "开始项目",
+      "username": {
+        "label": "用户名",
+        "placeholder": "请输入用户名"
+      },
+      "password": {
+        "label": "密码",
+        "placeholder": "请输入密码"
+      },
+      "email": {
+        "label": "邮箱",
+        "placeholder": "请输入邮箱"
+      },
+      "login": {
+        "button": "登录"
+      }
+    },
+    "update": {
+      "title": "更新项目",
+      "upload": "点击上传图片",
+      "name": {
+        "placeholder": "项目名称"
+      },
+      "description": {
+        "placeholder": "项目描述"
+      },
+      "button": "更新",
+      "cancel": "取消"
+    },
+    "cancel": {
+      "button": "取消"
+    }
   }
 }

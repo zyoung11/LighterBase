@@ -52,7 +52,7 @@
     class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 transition-opacity duration-300">
     <div
       class="bg-[#1B1E1F] p-3 rounded-lg shadow-lg w-[35%] h-[40%] transform transition-transform duration-300 scale-95">
-      <h2 class="text-2xl font-bold mb-4">Create New Project</h2>
+      <h2 class="text-2xl font-bold mb-4" data-i18n="projects.create.title">Create New Project</h2>
       <!-- 预览区域 -->
       <div id="preview" class="w-full h-[70%] mb-4 p-3 bg-[#2B2F31] rounded-lg">
         <div class="flex items-start h-full">
@@ -74,10 +74,11 @@
       <form id="create-project-form">
         <input type="file" id="project-avatar" accept="image/*" class="hidden">
         <div class="flex space-x-4">
-          <button type="submit"
-            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Create</button>
+          <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            data-i18n="projects.create.button">Create</button>
           <button type="button" id="cancel-create"
-            class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Cancel</button>
+            class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+            data-i18n="projects.create.cancel">Cancel</button>
         </div>
       </form>
     </div>
@@ -88,30 +89,34 @@
     class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 transition-opacity duration-300">
     <div
       class="bg-[#181A1B] p-8 rounded-lg shadow-lg w-full max-w-md transform transition-transform duration-300 scale-95">
-      <h2 class="text-2xl font-bold mb-6 text-center">开始项目</h2>
+      <h2 class="text-2xl font-bold mb-6 text-center" data-i18n="projects.start.title">Start Project</h2>
 
       <!-- 登录/注册表单 -->
       <form id="start-form" class="space-y-4">
         <div>
-          <label class="block mb-1 text-sm">用户名</label>
-          <input required id="start-username" type="text" placeholder="请输入用户名"
+          <label class="block mb-1 text-sm" data-i18n="projects.start.username.label">Username</label>
+          <input required id="start-username" type="text" placeholder="Enter username"
+            data-i18n="projects.start.username.placeholder"
             class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
         </div>
         <div>
-          <label class="block mb-1 text-sm">密码</label>
-          <input required id="start-password" type="password" placeholder="请输入密码"
+          <label class="block mb-1 text-sm" data-i18n="projects.start.password.label">Password</label>
+          <input required id="start-password" type="password" placeholder="Enter password"
+            data-i18n="projects.start.password.placeholder"
             class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
         </div>
         <div id="start-email-field">
-          <label class="block mb-1 text-sm">邮箱</label>
-          <input required id="start-email" type="email" placeholder="请输入邮箱"
+          <label class="block mb-1 text-sm" data-i18n="projects.start.email.label">Email</label>
+          <input required id="start-email" type="email" placeholder="Enter email"
+            data-i18n="projects.start.email.placeholder"
             class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
         </div>
         <!-- 隐藏的注册输入 -->
         <input type="hidden" id="start-hidden-username">
         <input type="hidden" id="start-hidden-password">
-        <button type="submit" class="w-full py-2 mt-2 rounded bg-[#2B2F31] hover:bg-[#3a3f41] transition-colors">
-          登录
+        <button type="submit" class="w-full py-2 mt-2 rounded bg-[#2B2F31] hover:bg-[#3a3f41] transition-colors"
+          data-i18n="projects.start.login.button">
+          Login
         </button>
       </form>
 
@@ -124,7 +129,7 @@
     class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 transition-opacity duration-300">
     <div
       class="bg-[#1B1E1F] p-3 rounded-lg shadow-lg w-[35%] h-[40%] transform transition-transform duration-300 scale-95">
-      <h2 class="text-2xl font-bold mb-4">Update Project</h2>
+      <h2 class="text-2xl font-bold mb-4" data-i18n="projects.update.title">Update Project</h2>
       <!-- 预览区域 -->
       <div id="update-preview" class="w-full h-[70%] mb-4 p-3 bg-[#2B2F31] rounded-lg">
         <div class="flex items-start h-full">
@@ -146,10 +151,11 @@
       <form id="update-project-form">
         <input type="file" id="update-project-avatar" accept="image/*" class="hidden">
         <div class="flex space-x-4">
-          <button type="submit"
-            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Update</button>
+          <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            data-i18n="projects.update.button">Update</button>
           <button type="button" id="cancel-update"
-            class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Cancel</button>
+            class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+            data-i18n="projects.update.cancel">Cancel</button>
         </div>
       </form>
     </div>

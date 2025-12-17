@@ -235,7 +235,7 @@ const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function
   const payload = parseJwt(token);
   const userId = payload ? payload.user_id || payload.id : null;
   if (!userId) {
-    console.error('无法从token上获取到userid');
+     console.error('Unable to get userid from token');
     return;
   }
 
@@ -312,7 +312,7 @@ const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function
     deleteBtn.onclick = async () => {
       if (!token) return;
 
-      const confirm = await popBlocks.popupConfirm("确定删除项目吗？")
+       const confirm = await popBlocks.popupConfirm("Are you sure to delete the project?")
       if(confirm){
       // 删除项目
       await projects.deleteProject(selectedId, token);
@@ -356,9 +356,9 @@ const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function
   blocks.forEach(renderBlock);
 
   // 监听语言变化事件，更新项目详情文本
-  window.addEventListener('languageChanged', () => {
-    updateProjectDetailText(selected);
-  });
+  // window.addEventListener('languageChanged', () => {
+  //   updateProjectDetailText(selected);
+  // });
 }
 
 async function initializeDatabaseView(hubUrl:string,projectId:number) {
@@ -384,7 +384,7 @@ async function initializeDatabaseView(hubUrl:string,projectId:number) {
       }
       }
     } catch (error) {
-      console.warn("获取表数据失败，使用默认SQL:", error);
+       console.warn("Failed to get table data, using default SQL:", error);
     }
     
     // textarea.value = initialSQL;
@@ -397,7 +397,7 @@ async function initializeDatabaseView(hubUrl:string,projectId:number) {
         gojsER.drawER(tables, 'mount');
       });
     } catch (error) {
-      console.error("初始SQL解析错误:", error);
+       console.error("Initial SQL parsing error:", error);
     }
   // }
 }
@@ -406,13 +406,13 @@ async function initializeDatabaseView(hubUrl:string,projectId:number) {
 
 
 // 更新项目详情文本的函数
-function updateProjectDetailText(selected: any) {
-  const startBtn = projectDetails.querySelector('#start-btn') as HTMLButtonElement;
-  const deleteBtn = projectDetails.querySelector('#delete-btn') as HTMLButtonElement;
+// function updateProjectDetailText(selected: any) {
+//   const startBtn = projectDetails.querySelector('#start-btn') as HTMLButtonElement;
+//   const deleteBtn = projectDetails.querySelector('#delete-btn') as HTMLButtonElement;
   
-  if (startBtn) startBtn.textContent = i18n.t('common.start');
-  if (deleteBtn) deleteBtn.textContent = i18n.t('common.delete');
-}
+//   if (startBtn) startBtn.textContent = i18n.t('common.start');
+//   if (deleteBtn) deleteBtn.textContent = i18n.t('common.delete');
+// }
 
 // --- 开始项目模态窗口逻辑 ---
 async function initializeStartModal(userId: string, projectId: number) {
@@ -425,7 +425,7 @@ async function initializeStartModal(userId: string, projectId: number) {
 
   // 检查必要元素是否存在
   if (!startModal || !startForm || !startUsernameInput || !startPasswordInput || !startEmailInput || !startEmailField) {
-    console.error('登录模态窗口的必要元素未找到');
+     console.error('Necessary elements for login modal not found');
     return;
   }
 
@@ -461,7 +461,7 @@ async function initializeStartModal(userId: string, projectId: number) {
     const hiddenPassword = document.getElementById('start-hidden-password') as HTMLInputElement;
 
     if (!hiddenUsername || !hiddenPassword) {
-      console.error('隐藏输入元素未找到');
+      console.error('Hidden input elements not found');
       return;
     }
 
