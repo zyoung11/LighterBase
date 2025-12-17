@@ -555,6 +555,29 @@ func sendNotification(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "You don't have permission to send notification for this project"})
 	}
 
+	// 检查项目数据库是否已初始化
+	key := fmt.Sprintf("%d/%d", project.UserID, project.ProjectID)
+	dbSet, ok := dbMap[key]
+	if !ok {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Project database not initialized"})
+	}
+
+	// 检查项目内的users表是否有数据
+	var userCount int
+	err = dbSet.DataDB.QueryRow("SELECT COUNT(*) FROM users").Scan(&userCount)
+	if err != nil {
+		// 如果表不存在，也视为没有数据
+		if strings.Contains(err.Error(), "no such table") {
+			userCount = 0
+		} else {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to check users table"})
+		}
+	}
+
+	if userCount == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Cannot invite others before registering yourself in this project"})
+	}
+
 	// 检查接收者邮箱是否存在
 	receiver, err := queries.GetUserByEmail(c.Context(), req.Email)
 	if err != nil {
