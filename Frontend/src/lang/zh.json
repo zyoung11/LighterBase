@@ -30,7 +30,9 @@
       "docs": "文档",
       "download": "下载",
       "login": "登录",
-      "logout": "退出"
+      "logout": "退出",
+      "messages": "消息",
+      "setting": "设置"
     }
   },
   "pricing": {

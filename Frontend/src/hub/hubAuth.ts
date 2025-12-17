@@ -41,14 +41,15 @@ async hubUserRegister(): Promise<boolean> {
         
         if (res.ok) {
             return true;
-        } else {
-            if (res.status === 409) {
-                blocks.popupConfirm("User already exists");
-            } else {
-                blocks.popupConfirm("注册失败");
-            }
-            return false;
         }
+        // else {
+        //     if (res.status === 409) {
+        //         blocks.popupConfirm("User already exists");
+        //     } else {
+        //         blocks.popupConfirm("注册失败");
+        //     }
+        //     return false;
+        // }
     } catch (e) {
         console.log(e)
         blocks.popupConfirm(`注册失败${e}`);

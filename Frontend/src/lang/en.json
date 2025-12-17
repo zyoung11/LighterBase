@@ -30,7 +30,9 @@
       "docs": "Docs",
       "download": "Download",
       "login": "Login",
-      "logout": "Logout"
+      "logout": "Logout",
+      "messages": "Messages",
+      "setting": "Setting"
     }
   },
   "pricing": {

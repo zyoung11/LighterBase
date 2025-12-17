@@ -104,15 +104,40 @@ function createNavBar() {
    newDiv.className = 'relative';
    newDiv.appendChild(userBtn);
 
-   const logoutMenu = document.createElement('div');
-   logoutMenu.id = 'logout-menu';
-   logoutMenu.className = 'absolute top-full mt-1 bg-[#2B2F31] rounded-lg shadow-lg hidden z-10';
-   const logoutBtn = document.createElement('button');
-   logoutBtn.id = 'logout-btn';
-   logoutBtn.className = 'px-2 py-2 text-white hover:bg-[#3a3f41] rounded-lg w-16 text-center';
-   logoutBtn.textContent = i18n.t('hub.navbar.logout');
-   logoutMenu.appendChild(logoutBtn);
-   newDiv.appendChild(logoutMenu);
+    const profileMenu = document.createElement('div');
+    profileMenu.id = 'profile-menu';
+    profileMenu.className = 'absolute top-full right-1 mt-1 w-[10vh] bg-[#2B2F31] border border-white rounded-lg shadow-lg hidden z-10';
+    // Profile section with avatar and username
+    const profileDiv = document.createElement('div');
+    profileDiv.className = 'flex items-center space-x-2 px-2 py-2';
+    const avatarImg = document.createElement('img');
+    avatarImg.src = defaultImg;
+    avatarImg.className = 'w-8 h-8 rounded-full';
+    const usernameSpan = document.createElement('span');
+    usernameSpan.id = 'profile-username';
+    profileDiv.appendChild(avatarImg);
+    profileDiv.appendChild(usernameSpan);
+    profileMenu.appendChild(profileDiv);
+    // Message button
+    const messageBtn = document.createElement('button');
+    messageBtn.id = 'message-btn';
+    messageBtn.className = 'px-2 py-2 text-white hover:bg-[#3a3f41] rounded-lg w-full text-center';
+    messageBtn.textContent = i18n.t('hub.navbar.messages');
+    profileMenu.appendChild(messageBtn);
+    // Setting button
+    const settingBtn = document.createElement('button');
+    settingBtn.id = 'setting-btn';
+    settingBtn.className = 'px-2 py-2 text-white hover:bg-[#3a3f41] rounded-lg w-full text-center';
+    settingBtn.textContent = i18n.t('hub.navbar.setting');
+    profileMenu.appendChild(settingBtn);
+    // Logout button
+    const logoutBtn = document.createElement('button');
+    logoutBtn.id = 'logout-btn';
+    logoutBtn.className = 'px-2 py-2 text-white hover:bg-[#3a3f41] rounded-lg w-full text-center';
+    logoutBtn.textContent = i18n.t('hub.navbar.logout');
+    profileMenu.appendChild(logoutBtn);
+
+    newDiv.appendChild(profileMenu);
 
    rightDiv.appendChild(newDiv);
 
@@ -167,22 +192,31 @@ document.addEventListener('DOMContentLoaded', async () => {
   const username = localStorage.getItem('username');
   // console.log(username)
   const userBtn = document.getElementById('user-link') as HTMLButtonElement;
-  const logoutMenu = document.getElementById('logout-menu') as HTMLDivElement;
+  const profileMenu = document.getElementById('profile-menu') as HTMLDivElement;
   const logoutBtn = document.getElementById('logout-btn') as HTMLButtonElement;
+  const settingBtn = document.getElementById('setting-btn') as HTMLButtonElement;
+  const messagesBtn = document.getElementById('message-btn') as HTMLButtonElement;
+  const usernameSpan = document.getElementById('profile-username') as HTMLSpanElement;
+  if (usernameSpan) {
+    usernameSpan.textContent = username;
+  }
 
-  if (token && username && userBtn && logoutMenu && logoutBtn) {
+  if (token && username && userBtn && profileMenu && logoutBtn) {
     userBtn.textContent = username;
     userBtn.onclick = function (e) {
       e.preventDefault();
       e.stopPropagation();
-      logoutMenu.classList.toggle('hidden');
+      profileMenu.classList.toggle('hidden');
     };
 
     // 更新登出按钮文本
-    const updateLogoutButtonText = () => {
+    const updateButtonText = () => {
       logoutBtn.textContent = i18n.t('hub.navbar.logout');
+      settingBtn.textContent = i18n.t('hub.navbar.setting');
+      messagesBtn.textContent = i18n.t('hub.navbar.messages');
+      
     };
-    updateLogoutButtonText();
+    updateButtonText();
 
     // 点击登出清除token
     logoutBtn.addEventListener('click', function (e) {
@@ -194,13 +228,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 监听语言变化事件
     window.addEventListener('languageChanged', () => {
-      updateLogoutButtonText();
+      updateButtonText();
     });
 
     // 点击其他地方隐藏菜单
     document.addEventListener('click', function (e) {
-      if (!userBtn.contains(e.target as Node) && !logoutMenu.contains(e.target as Node)) {
-        logoutMenu.classList.add('hidden');
+      if (!userBtn.contains(e.target as Node) && !profileMenu.contains(e.target as Node)) {
+        profileMenu.classList.add('hidden');
       }
     });
   }
@@ -337,12 +371,6 @@ createForm.addEventListener('submit', async (e) => {
 
 
 window.addEventListener('load', () => {
-    // 确保加载器存在，并在所有资源（包括 hubDoc.ts 中的 marked.parse）完成后隐藏
-    // const loader = (window as any).myLoader; // 假设通过全局变量访问
-    // if (loader) {
-    //     loader.hide(); 
-    // }
-    // 执行 docs.html 中原有的 FOUC 修复，显示页面内容
     document.body.style.opacity = '1';
     const styleTag = document.getElementById('fouc-fix');
     if (styleTag) {
