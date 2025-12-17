@@ -2,8 +2,7 @@ import {URL} from "../apis/api"
 import sql from "../apis/sql";
 import admin from "../apis/admin";
 import { apiMarked } from "./contents";
-import { marked } from "marked";
-import { markedHighlight } from "marked-highlight"; // 如果使用 marked-highlight 扩展
+import { marked, Renderer } from "marked";
 import hljs from 'highlight.js';
 import 'highlight.js/styles/vs2015.css';
 // import 'highlight.js/styles/rainbow.css'
@@ -21,13 +20,17 @@ let logDeletePopup: {
   checkedIds: []
 };
 
-marked.use(markedHighlight({
-  langPrefix: 'hljs language-',
-  highlight(code, lang) {
-    const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-    return hljs.highlight(code, { language }).value;
-  }
-}));
+const renderer = new Renderer();
+renderer.code = function({ text, lang, escaped }) {
+  const langStr = lang || '';
+  const language = hljs.getLanguage(langStr) ? langStr : 'plaintext';
+  const highlighted = hljs.highlight(text, { language }).value;
+  return `<div class="code-block-container relative">
+    <pre><code class="hljs language-${langStr || 'plaintext'} over">${highlighted}</code></pre>
+    <span class="text-xs ml-1 copy-text absolute top-2 right-2 cursor-pointer text-gray-400 hover:text-white">复制</span>
+  </div>`;
+};
+marked.setOptions({ renderer });
 
 const rightSlidebar = document.getElementById("right-slidebar") as HTMLElement;
 // const slidebarTitle = document.getElementById("slidebar-title") as HTMLElement;
@@ -721,5 +724,28 @@ const updateBottom = () => {
 
 // 初始化右侧滑入栏外部点击关闭功能
 conponents.initRightSlidebarClose();
+
+// 初始化代码块复制功能
+document.addEventListener('click', (e) => {
+  const target = e.target as HTMLElement;
+  if (target.classList.contains('copy-text')) {
+    const container = target.closest('.code-block-container') as HTMLElement;
+    if (container) {
+      const code = container.querySelector('code');
+      if (code) {
+        const text = code.textContent || '';
+        navigator.clipboard.writeText(text).then(() => {
+          const original = target.textContent;
+          target.textContent = '已复制';
+          setTimeout(() => {
+            target.textContent = original;
+          }, 500);
+        }).catch(err => {
+          console.error('复制失败:', err);
+        });
+      }
+    }
+  }
+});
 
 export default conponents;
