@@ -337,7 +337,7 @@ yzk_app_token = run_test(
 )
 
 run_test(
-    "zy 创建表 错误token",
+    "zy 创建表 web token",
     post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/create-table/create",
          headers={"Authorization": f"Bearer {zy_token}",
                   "Content-Type": "application/json"},
@@ -354,7 +354,7 @@ run_test(
 )
 
 run_test(
-    "zy 创建表",
+    "zy 创建表 app token",
     post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/create-table/create",
          headers={"Authorization": f"Bearer {app_token}",
                   "Content-Type": "application/json"},
@@ -408,7 +408,8 @@ run_test(
                         FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
                     );
               	'''
-          })
+          },
+      should_fail=True)
 )
 
 print_info(

@@ -469,6 +469,18 @@ func checkTeamPermission(c *fiber.Ctx, requireAdmin bool) bool {
 	return false
 }
 
+// checkRootOrAdminPermission 检查用户是否是root或高权限成员
+func checkRootOrAdminPermission(c *fiber.Ctx) bool {
+	// 首先检查是否是root用户
+	userID, err := authenticateUser(c)
+	if err == nil && userID == 1 {
+		return true
+	}
+
+	// 如果不是root，检查是否是高权限成员
+	return checkTeamPermission(c, true)
+}
+
 // 是否尝试动 id=1 的记录
 func touchingRootUser(where string, args []any) bool {
 	return strings.Contains(where, "id=1") ||
@@ -599,9 +611,8 @@ func execSQL(c *fiber.Ctx) error {
 	queries := dbSet.Queries
 	dataDB := dbSet.DataDB
 
-	// 1.  root 专属
-	userID, err := authenticateUser(c)
-	if err != nil || userID != 1 {
+	// 1. 检查是否是root或高权限成员
+	if !checkRootOrAdminPermission(c) {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 
@@ -1254,8 +1265,8 @@ func getLatestSqlRecord(c *fiber.Ctx) error {
 	queries := dbSet.Queries
 	// dataDB := dbSet.DataDB
 
-	userID, err := authenticateUser(c)
-	if err != nil || userID != 1 {
+	// 检查是否是root或高权限成员
+	if !checkRootOrAdminPermission(c) {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 
@@ -1284,8 +1295,8 @@ func getAllSecurity(c *fiber.Ctx) error {
 	queries := dbSet.Queries
 	// dataDB := dbSet.DataDB
 
-	userID, err := authenticateUser(c)
-	if err != nil || userID != 1 {
+	// 检查是否是root或高权限成员
+	if !checkRootOrAdminPermission(c) {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 
@@ -1336,10 +1347,12 @@ func updateSecurityPolicy(c *fiber.Ctx) error {
 	queries := dbSet.Queries
 	// dataDB := dbSet.DataDB
 
-	userID, err := authenticateUser(c)
-	if err != nil || userID != 1 {
+	// 检查是否是root或高权限成员
+	if !checkRootOrAdminPermission(c) {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
+
+	var err error
 
 	tableName := c.Params("table_name")
 	if tableName == "" {
@@ -1389,9 +1402,8 @@ func listDataTables(c *fiber.Ctx) error {
 	// queries := dbSet.Queries
 	dataDB := dbSet.DataDB
 
-	// 1. 只允许 root
-	userID, err := authenticateUser(c)
-	if err != nil || userID != 1 {
+	// 1. 检查是否是root或高权限成员
+	if !checkRootOrAdminPermission(c) {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 
@@ -1430,9 +1442,8 @@ func listLogs(c *fiber.Ctx) error {
 	queries := dbSet.Queries
 	// dataDB := dbSet.DataDB
 
-	// 只允许root用户访问
-	userID, err := authenticateUser(c)
-	if err != nil || userID != 1 {
+	// 检查是否是root或高权限成员
+	if !checkRootOrAdminPermission(c) {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 
@@ -1488,9 +1499,8 @@ func searchLogs(c *fiber.Ctx) error {
 	queries := dbSet.Queries
 	// dataDB := dbSet.DataDB
 
-	// 只允许root用户访问
-	userID, err := authenticateUser(c)
-	if err != nil || userID != 1 {
+	// 检查是否是root或高权限成员
+	if !checkRootOrAdminPermission(c) {
 		return sendError(c, 403, "You are not allowed to perform this request.", nil)
 	}
 
