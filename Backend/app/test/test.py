@@ -76,6 +76,18 @@ run_test(
          })
 )
 
+run_test(
+    "App 注册",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auto/create/users",
+         headers={"Content-Type": "application/json"},
+         body={
+             "name": "zy",
+             "password_hash": "zy",
+             "email": "zy@zy.com"
+         },
+     should_fail=True)
+)
+
 app_token = run_test(
     "App 登录",
     post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auth/login",

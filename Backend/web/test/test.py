@@ -13,6 +13,17 @@ run_test(
 )
 
 run_test(
+    "注册用户 zy",
+    post(f"{baseUrl}/api/users/register",
+         body={
+             "user_name": "zy",
+             "password": "sbdlh",
+             "email": "sbdlh@love.com"
+         },
+     should_fail=True)
+)
+
+run_test(
     "注册用户 yzm",
     post(f"{baseUrl}/api/users/register",
          body={
