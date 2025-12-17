@@ -1409,7 +1409,7 @@ cd LighterBase/Backend/web/LighterBaseHub
   | `/disagree`       | 获取该用户发送的所有的不同意的邀请   |
   | `/pending`        | 获取该用户发送的所有的待同意的邀请   |
 
-### 5.4 发送邀请
+### 5.4 确认邀请
 
 - http方法：**PUT**
 
