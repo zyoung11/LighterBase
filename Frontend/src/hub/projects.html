@@ -45,36 +45,28 @@
   <div id="create-modal"
     class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 transition-opacity duration-300">
     <div
-      class="bg-[#1B1E1F] p-6 rounded-lg shadow-lg w-full max-w-md transform transition-transform duration-300 scale-95">
+      class="bg-[#1B1E1F] p-3 rounded-lg shadow-lg w-[35%] h-[40%] transform transition-transform duration-300 scale-95">
       <h2 class="text-2xl font-bold mb-4">Create New Project</h2>
       <!-- 预览区域 -->
-      <div id="preview" class="mb-4 flex p-4 bg-[#2B2F31] rounded-lg">
-        <img id="preview-avatar" class="w-24 h-24 mb-2 bg-white mr-3" onerror="this.src='../icons/projectsDefault.jpg'">
-        <div class="flex flex-1 flex-col">
-          <h3 id="preview-name" class="text-xl font-bold break-words"></h3>
-          <p id="preview-description" class="break-words line-clamp-3"></p>
-          <div>
-            <p id="preview-create-at" class="text-gray-400 text-xs">Created: xxxx-xx-xx 00:00:00</p>
-            <p id="preview-update-at" class="text-gray-400 text-xs">Updated: xxxx-xx-xx 00:00:00</p>
+      <div id="preview" class="w-full h-[70%] mb-4 p-3 bg-[#2B2F31] rounded-lg">
+        <div class="flex items-start h-full">
+          <div class="flex flex-col items-center mr-6">
+            <img id="preview-avatar" class="w-[20vh] h-[20vh] bg-white cursor-pointer rounded"
+              onerror="this.src='../icons/projectsDefault.jpg'">
+            <p class="text-gray-400 text-xs mt-2">点击上传图片</p>
+          </div>
+          <div class="flex flex-1 flex-col h-full">
+            <input id="preview-name"
+              class="text-xl font-bold break-words bg-transparent border-none outline-none text-white mb-2"
+              placeholder="项目名称" maxlength="20">
+            <textarea id="preview-description"
+              class="flex-1 bg-transparent border-none outline-none text-white resize-none" placeholder="项目描述"
+              maxlength="200"></textarea>
           </div>
         </div>
       </div>
       <form id="create-project-form">
-        <div class="mb-4">
-          <label for="project-name" class="block text-sm font-medium mb-2">Project Name</label>
-          <input type="text" id="project-name" name="project_name" required maxlength="20"
-            class="w-full px-3 py-2 bg-[#2B2F31] border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div class="mb-4">
-          <label for="project-avatar" class="block text-sm font-medium mb-2">Project Avatar</label>
-          <input type="file" id="project-avatar" accept="image/*"
-            class="w-full px-3 py-2 bg-[#2B2F31] border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div class="mb-4">
-          <label for="project-description" class="block text-sm font-medium mb-2">Description</label>
-          <textarea id="project-description" name="project_description" rows="3" maxlength="200"
-            class="w-full px-3 py-2 bg-[#2B2F31] border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-        </div>
+        <input type="file" id="project-avatar" accept="image/*" class="hidden">
         <div class="flex space-x-4">
           <button type="submit"
             class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Create</button>

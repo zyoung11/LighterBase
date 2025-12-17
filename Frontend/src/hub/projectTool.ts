@@ -10,6 +10,7 @@ import sql from "../apis/sql";
 import gojsER from "../utils/gojsER";
 import sqliteParser from "sqlite-parser";
 import defaultImg from "../icons/projectsDefault.jpg";
+import popBlocks from "../modules/blocks";
 
 let token = getCookie("hubAuthToken")
 
@@ -314,17 +315,22 @@ const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function
   if (deleteBtn) {
     deleteBtn.onclick = async () => {
       // 获取token
-      function getCookie(name: string) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop()?.split(';').shift();
-      }
-      const token = getCookie('hubAuthToken');
+      // function getCookie(name: string) {
+      //   const value = `; ${document.cookie}`;
+      //   const parts = value.split(`; ${name}=`);
+      //   if (parts.length === 2) return parts.pop()?.split(';').shift();
+      // }
+      // const token = getCookie('hubAuthToken');
       if (!token) return;
 
+      const confirm = await popBlocks.popupConfirm("确定删除项目吗？")
+      if(confirm){
       // 删除项目
       await projects.deleteProject(selectedId, token);
-
+      }
+      else{
+        return;
+      }
       // 移除DOM元素
       const removedBlock = blocks.find(b => b.id === selectedId);
       if (removedBlock && removedBlock.element) {

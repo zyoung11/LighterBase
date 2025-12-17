@@ -287,25 +287,24 @@ document.addEventListener('DOMContentLoaded', async () => {
      });
    }
 
-   // 创建项目表单
-   const createForm = document.getElementById('create-project-form') as HTMLFormElement;
-   const avatarInput = document.getElementById('project-avatar') as HTMLInputElement;
-   const nameInput = document.getElementById('project-name') as HTMLInputElement;
-   const descInput = document.getElementById('project-description') as HTMLTextAreaElement;
-   const previewAvatar = document.getElementById('preview-avatar') as HTMLImageElement;
-   const previewName = document.getElementById('preview-name');
-   const previewDesc = document.getElementById('preview-description');
+    // 创建项目表单
+    const createForm = document.getElementById('create-project-form') as HTMLFormElement;
+    const avatarInput = document.getElementById('project-avatar') as HTMLInputElement;
+    const previewAvatar = document.getElementById('preview-avatar') as HTMLImageElement;
+    const previewName = document.getElementById('preview-name') as HTMLInputElement;
+    const previewDesc = document.getElementById('preview-description') as HTMLTextAreaElement;
 
-   if (createForm && avatarInput && nameInput && descInput && previewAvatar && previewName && previewDesc && token) {
-     // 实时预览
-     previewAvatar.src=defaultImg;
-     nameInput.addEventListener('input', () => {
-       previewName.textContent = nameInput.value;
-     });
-     descInput.addEventListener('input', () => {
-       previewDesc.textContent = descInput.value;
-     });
-avatarInput.addEventListener('change', (e) => {
+    if (createForm && avatarInput && previewAvatar && previewName && previewDesc && token) {
+      // 初始化预览头像
+      previewAvatar.src = defaultImg;
+
+      // 使头像可点击来触发文件上传
+      previewAvatar.addEventListener('click', () => {
+        avatarInput.click();
+      });
+
+      // 文件选择事件
+      avatarInput.addEventListener('change', (e) => {
         const file = (e.target as HTMLInputElement).files?.[0];
         if (file) {
           const reader = new FileReader();
@@ -319,47 +318,47 @@ avatarInput.addEventListener('change', (e) => {
       });
 
 createForm.addEventListener('submit', async (e) => {
-  const createModal = document.getElementById('create-modal');
-  if(createModal){
-    createModal.classList.add('hidden');
-    createModal.classList.remove('flex');
-  }
-  e.preventDefault();
-  const file = avatarInput.files?.[0];
-  let avatarBase64 = '';
-  if (file) {
-    const originalBase64 = await new Promise<string>((resolve: (value: string) => void) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          resolve(reader.result);
-        } else {
-          resolve('');
-        }
-      };
-      reader.onerror = () => resolve('');
-      reader.readAsDataURL(file);
-    });
-    if(originalBase64)
-    avatarBase64 = await compressImage(originalBase64, 400, 0.8);
-  }
-  const data = {
-    project_name: nameInput.value,
-    project_avatar: avatarBase64,
-    project_description: descInput.value,
-  };
-  const result = await projects.createProject(data, token);
-  if (result) {
-    // 重新加载项目，刷新网格
-    window.location.reload(); // 简单方式，重新加载页面
-    createForm.reset();
-    previewAvatar.src = '';
-    previewName.textContent = '';
-    previewDesc.textContent = '';
-    createModal?.classList.add('hidden');
-    createModal?.classList.remove('flex');
-  }
-});
+   const createModal = document.getElementById('create-modal');
+   if(createModal){
+     createModal.classList.add('hidden');
+     createModal.classList.remove('flex');
+   }
+   e.preventDefault();
+   const file = avatarInput.files?.[0];
+   let avatarBase64 = '';
+   if (file) {
+     const originalBase64 = await new Promise<string>((resolve: (value: string) => void) => {
+       const reader = new FileReader();
+       reader.onload = () => {
+         if (typeof reader.result === 'string') {
+           resolve(reader.result);
+         } else {
+           resolve('');
+         }
+       };
+       reader.onerror = () => resolve('');
+       reader.readAsDataURL(file);
+     });
+     if(originalBase64)
+     avatarBase64 = await compressImage(originalBase64, 400, 0.8);
+   }
+   const data = {
+     project_name: previewName.value,
+     project_avatar: avatarBase64,
+     project_description: previewDesc.value,
+   };
+   const result = await projects.createProject(data, token);
+   if (result) {
+     // 重新加载项目，刷新网格
+     window.location.reload(); // 简单方式，重新加载页面
+     createForm.reset();
+     previewAvatar.src = defaultImg;
+     previewName.value = '';
+     previewDesc.value = '';
+     createModal?.classList.add('hidden');
+     createModal?.classList.remove('flex');
+   }
+ });
 
 
 
