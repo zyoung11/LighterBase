@@ -44,9 +44,9 @@ import settingsImg from './icons/settingsWhite.svg';
 
 // 初始化应用
 // async function initializeApp() {
-await checkAuthentication(authToken,'welcome.html')
+// await checkAuthentication(authToken,'welcome.html')
 // }
-
+await checkAuthentication(authToken,'projects')
 // 启动应用
 // initializeApp();
 

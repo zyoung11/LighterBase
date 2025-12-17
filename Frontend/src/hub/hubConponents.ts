@@ -272,20 +272,27 @@ document.addEventListener('DOMContentLoaded', async () => {
      });
    }
 
-   // 项目创建功能
-   const addBtn = document.getElementById('add-project-btn');
-   const createModal = document.getElementById('create-modal');
-   const cancelBtn = document.getElementById('cancel-create');
-   if (addBtn && createModal && cancelBtn) {
-     addBtn.addEventListener('click', () => {
-       createModal.classList.remove('hidden');
-       createModal.classList.add('flex');
-     });
-     cancelBtn.addEventListener('click', () => {
-       createModal.classList.add('hidden');
-       createModal.classList.remove('flex');
-     });
-   }
+    // 项目创建功能
+    const addBtn = document.getElementById('add-project-btn');
+    const createModal = document.getElementById('create-modal');
+    const cancelBtn = document.getElementById('cancel-create');
+    if (addBtn && createModal && cancelBtn) {
+      addBtn.addEventListener('click', () => {
+        createModal.classList.remove('hidden');
+        createModal.classList.add('flex');
+      });
+      cancelBtn.addEventListener('click', () => {
+        createModal.classList.add('hidden');
+        createModal.classList.remove('flex');
+      });
+      // 点击背景关闭模态窗口
+      createModal.onclick = (e) => {
+        if (e.target === createModal) {
+          createModal.classList.add('hidden');
+          createModal.classList.remove('flex');
+        }
+      };
+    }
 
     // 创建项目表单
     const createForm = document.getElementById('create-project-form') as HTMLFormElement;

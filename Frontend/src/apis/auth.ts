@@ -3,10 +3,10 @@ import blocks from "../modules/blocks.ts";
 
 
 const auth ={
-async userRegister(): Promise<boolean> {
-    const username = (document.getElementById("username") as HTMLInputElement).value;
-    const password = (document.getElementById("password") as HTMLInputElement).value;
-    const email = (document.getElementById("email") as HTMLInputElement).value;
+async userRegister(username?: string, password?: string, email?: string): Promise<boolean> {
+    // if (!username) username = (document.getElementById("username") as HTMLInputElement)?.value;
+    // if (!password) password = (document.getElementById("password") as HTMLInputElement)?.value;
+    // if (!email) email = (document.getElementById("email") as HTMLInputElement)?.value;
     if (!email) {
         blocks.popupConfirm("邮箱不能为空");
         return false;
@@ -44,10 +44,10 @@ async userRegister(): Promise<boolean> {
 },
 
 
-    async userLogin() {
-        const loginusername = (document.getElementById("login-username")as HTMLInputElement).value;
-        const loginpassword = (document.getElementById("login-password")as HTMLInputElement).value;
-        console.log(loginusername,loginpassword);
+    async userLogin(username?: string, password?: string) {
+        // if (!username) username = (document.getElementById("login-username")as HTMLInputElement)?.value;
+        // if (!password) password = (document.getElementById("login-password")as HTMLInputElement)?.value;
+        // console.log(username,password);
         try{
             const res = await fetch(`${URL}/api/auth/login`, {
                 method: "POST",
@@ -56,9 +56,9 @@ async userRegister(): Promise<boolean> {
                     "Authorization":`Bearer ${hubAuthToken}`
                 },
                 body: JSON.stringify({
-                    "name":loginusername,
-                    "password_hash":loginpassword
-                 })
+                    "name":username,
+                    "password_hash":password
+                  })
               });
               const data = await res.json();
               const token = data.token;

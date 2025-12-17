@@ -21,6 +21,12 @@
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 3;
     }
+
+    .square-btn {
+      aspect-ratio: 1 / 1;
+      width: 20%;
+      max-width: 200px;
+    }
   </style>
 </head>
 
@@ -51,7 +57,7 @@
       <div id="preview" class="w-full h-[70%] mb-4 p-3 bg-[#2B2F31] rounded-lg">
         <div class="flex items-start h-full">
           <div class="flex flex-col items-center mr-6">
-            <img id="preview-avatar" class="w-[20vh] h-[20vh] bg-white cursor-pointer rounded"
+            <img id="preview-avatar" class="w-[20vh] square-btn bg-white cursor-pointer rounded"
               onerror="this.src='../icons/projectsDefault.jpg'">
             <p class="text-gray-400 text-xs mt-2">点击上传图片</p>
           </div>
@@ -77,9 +83,44 @@
     </div>
   </div>
 
+  <!-- 开始项目模态窗口 -->
+  <div id="start-modal"
+    class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 transition-opacity duration-300">
+    <div
+      class="bg-[#181A1B] p-8 rounded-lg shadow-lg w-full max-w-md transform transition-transform duration-300 scale-95">
+      <h2 class="text-2xl font-bold mb-6 text-center">开始项目</h2>
+
+      <!-- 登录/注册表单 -->
+      <form id="start-form" class="space-y-4">
+        <div>
+          <label class="block mb-1 text-sm">用户名</label>
+          <input required id="start-username" type="text" placeholder="请输入用户名"
+            class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
+        </div>
+        <div>
+          <label class="block mb-1 text-sm">密码</label>
+          <input required id="start-password" type="password" placeholder="请输入密码"
+            class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
+        </div>
+        <div id="start-email-field">
+          <label class="block mb-1 text-sm">邮箱</label>
+          <input required id="start-email" type="email" placeholder="请输入邮箱"
+            class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
+        </div>
+        <!-- 隐藏的注册输入 -->
+        <input type="hidden" id="start-hidden-username">
+        <input type="hidden" id="start-hidden-password">
+        <button type="submit" class="w-full py-2 mt-2 rounded bg-[#2B2F31] hover:bg-[#3a3f41] transition-colors">
+          登录
+        </button>
+      </form>
+
+
+    </div>
+  </div>
 
   <script src="hubConponents.ts"></script>
-  <script src="projectTool.ts"></script>
+  <script src="./projectTool.ts"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       document.body.style.opacity = '1';

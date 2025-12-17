@@ -11,6 +11,7 @@ import gojsER from "../utils/gojsER";
 import sqliteParser from "sqlite-parser";
 import defaultImg from "../icons/projectsDefault.jpg";
 import popBlocks from "../modules/blocks";
+import auth from "../apis/auth";
 
 let token = getCookie("hubAuthToken")
 
@@ -70,9 +71,10 @@ function handleOutsideClick(event: MouseEvent) {
                            target.closest('#detail-description') || 
                            target.closest('#start-btn') || 
                            target.closest('#delete-btn');
+  const isClickOnLogin = target.closest("#start-modal")
   
   // 如果点击在项目区块或详情区域内，不执行返回操作
-  if (isClickOnBlock || isClickOnDetails || projectDetails.classList.contains('hidden')) {
+  if (isClickOnBlock || isClickOnDetails ||isClickOnLogin||  projectDetails.classList.contains('hidden')) {
     return;
   }
   
@@ -153,13 +155,6 @@ block.element.style.pointerEvents = 'auto';
 // --- 核心逻辑 ---
 // 初始化区块
 async function initializeBlocks() {
-  // 获取token
-  // function getCookie(name:string) {
-  //   const value = `; ${document.cookie}`;
-  //   const parts = value.split(`; ${name}=`);
-  //   if (parts.length === 2) return parts.pop()?.split(';').shift();
-  // }
-  // const token = getCookie('hubAuthToken');
   if (!token) {
     window.location.href = 'login.html';
     return;
@@ -195,12 +190,6 @@ async function initializeBlocks() {
 function selectBlock(selectedId:number) {
   const selected = blocks.find(b => b.id === selectedId);
   if (!selected) return;
-      // function getCookie(name:string) {
-      //   const value = `; ${document.cookie}`;
-      //   const parts = value.split(`; ${name}=`);
-      //   if (parts.length === 2) return parts.pop()?.split(';').shift();
-      // }
-      // const token = getCookie('hubAuthToken');
 function parseJwt(token: string) {
         try {
           const base64Url = token.split('.')[1];
@@ -265,62 +254,24 @@ const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function
     detailDescription.textContent = selected.project.project_description;
     initializeDatabaseView(URL,projectId)
      }
-  // 添加开始事件
-  const startBtn = projectDetails.querySelector('#start-btn') as HTMLButtonElement;
-  if (startBtn) {
-    startBtn.onclick = () => {
-      // 获取token
-      function getCookie(name:string) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop()?.split(';').shift();
-      }
-      const token = getCookie('hubAuthToken');
-      if (!token) return;
-
-      // 解析token获取userId
-      // function parseJwt(token: string) {
-      //   try {
-      //     const base64Url = token.split('.')[1];
-      //     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      //     const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function(c) {
-      //       return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      //     }).join(''));
-      //     return JSON.parse(jsonPayload);
-      //   } catch (e) {
-      //     console.error('Token解析失败:', e);
-      //     return null;
-      //   }
-      // }
-      // const payload = parseJwt(token);
-      // const userId = payload ? payload.user_id || payload.id : null;
-      // if (!userId) {
-      //   console.error('无法从token上获取到userid');
-      //   return;
-      // }
-
-      // const projectId = selected.project.project_id;
-      // const newUrl = `http://localhost:8080/${userId}/${projectId}`;
-      // const newUrl = `${URL}/${userId}/${projectId}`;
-      const newUrl = `http://www.smallwoodice.cn:8080/${userId}/${projectId}`;
-      // console.log(newUrl)
-      setBaseUrl(newUrl);
-      // console.log(newUrl)
-
-      window.location.href = `/welcome?apiUrl=${encodeURIComponent(newUrl)}`;
-    };
-  }
+   // 添加开始事件
+   const startBtn = projectDetails.querySelector('#start-btn') as HTMLButtonElement;
+   if (startBtn) {
+     startBtn.onclick = () => {
+       // 显示开始模态窗口
+       const startModal = document.getElementById('start-modal') as HTMLDivElement;
+       if (startModal) {
+         startModal.classList.remove('hidden');
+         startModal.classList.add('flex');
+         // 初始化模态窗口
+         initializeStartModal(userId, projectId);
+       }
+     };
+   }
 
   // 添加删除事件
   if (deleteBtn) {
     deleteBtn.onclick = async () => {
-      // 获取token
-      // function getCookie(name: string) {
-      //   const value = `; ${document.cookie}`;
-      //   const parts = value.split(`; ${name}=`);
-      //   if (parts.length === 2) return parts.pop()?.split(';').shift();
-      // }
-      // const token = getCookie('hubAuthToken');
       if (!token) return;
 
       const confirm = await popBlocks.popupConfirm("确定删除项目吗？")
@@ -425,18 +376,73 @@ function updateProjectDetailText(selected: any) {
   if (deleteBtn) deleteBtn.textContent = i18n.t('common.delete');
 }
 
-// 移动区块的函数
-// function moveBlock(blockId:Int8Array, targetPosition:any) {
-//   const blockToMove = blocks.find(b => b.id === blockId);
+// --- 开始项目模态窗口逻辑 ---
+async function initializeStartModal(userId: string, projectId: number) {
+  const startModal = document.getElementById('start-modal') as HTMLDivElement;
+  const startForm = document.getElementById('start-form') as HTMLFormElement;
+  const startUsernameInput = document.getElementById('start-username') as HTMLInputElement;
+  const startPasswordInput = document.getElementById('start-password') as HTMLInputElement;
+  const startEmailInput = document.getElementById('start-email') as HTMLInputElement;
+  const startEmailField = document.getElementById('start-email-field') as HTMLDivElement;
 
-//   if (blockToMove) {
-//     console.log(`Moving block ${blockId} from [${blockToMove.position}] to [${targetPosition}]`);
-//     blockToMove.position = targetPosition;
-//     renderBlock(blockToMove); // 重新渲染会触发 CSS transition
-//   } else {
-//     console.error(`Block with id "${blockId}" not found.`);
-//   }
-// }
+  // 检查必要元素是否存在
+  if (!startModal || !startForm || !startUsernameInput || !startPasswordInput || !startEmailInput || !startEmailField) {
+    console.error('登录模态窗口的必要元素未找到');
+    return;
+  }
+
+
+    const newUrl = `http://localhost:8080/${userId}/${projectId}`;
+    // const newUrl = `http://www.smallwoodice.cn:8080/${userId}/${projectId}`;
+    setBaseUrl(newUrl);
+
+  // 检查是否为空数据库
+  const isEmpty = await auth.isLogin();
+  if (!isEmpty) {
+    startEmailField.style.display = 'block';
+    startEmailInput.required = true;
+  } else {
+    startEmailField.style.display = 'none';
+    startEmailInput.required = false;
+  }
+
+  // 点击背景关闭模态窗口
+  startModal.onclick = (e) => {
+    if (e.target === startModal) {
+      startModal.classList.add('hidden');
+      startModal.classList.remove('flex');
+      startForm.reset();
+    }
+  };
+
+  // 表单提交
+  startForm.onsubmit = async (e) => {
+    e.preventDefault();
+
+    const hiddenUsername = document.getElementById('start-hidden-username') as HTMLInputElement;
+    const hiddenPassword = document.getElementById('start-hidden-password') as HTMLInputElement;
+
+    if (!hiddenUsername || !hiddenPassword) {
+      console.error('隐藏输入元素未找到');
+      return;
+    }
+
+    if (!isEmpty) {
+      // 设置注册输入
+      hiddenUsername.value = startUsernameInput.value;
+      hiddenPassword.value = startPasswordInput.value;
+      const success = await auth.userRegister(startUsernameInput.value, startPasswordInput.value, startEmailInput.value);
+      if (success) {
+        await auth.userLogin(startUsernameInput.value, startPasswordInput.value);
+      }
+    } else {
+      await auth.userLogin(startUsernameInput.value, startPasswordInput.value);
+    }
+
+    // 设置URL并跳转
+    window.location.href = `/index?apiUrl=${encodeURIComponent(newUrl)}`;
+  };
+}
 
 // --- 启动 ---
 initializeBlocks();
