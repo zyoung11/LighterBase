@@ -93,9 +93,10 @@ function handleOutsideClick(event: MouseEvent) {
                             target.closest('#update-preview-description') ||
                             target.closest('#update-btn') ||
                             target.closest('#cancel-update')
-    const isClickOnInvite = target.closest('#invite-modal')
-    // 如果点击在项目区块或详情区域内，不执行返回操作
-    if (isClickOnBlock || isClickOnDetails ||isClickOnLogin|| isClickOnUpdate || isClickOnInvite || projectDetails.classList.contains('hidden')) {
+     const isClickOnInvite = target.closest('#invite-modal')
+     const isClickOnPopup = target.closest('.fixed.inset-0.z-\\[9999\\]')
+     // 如果点击在项目区块或详情区域内，不执行返回操作
+     if (isClickOnBlock || isClickOnDetails ||isClickOnLogin|| isClickOnUpdate || isClickOnInvite || isClickOnPopup || projectDetails.classList.contains('hidden')) {
      return;
    }
   
@@ -328,7 +329,12 @@ const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function
     // 添加邀请事件
     const inviteBtn = projectDetails.querySelector('#invite-btn') as HTMLButtonElement;
     if (inviteBtn) {
-      inviteBtn.onclick = () => {
+      inviteBtn.onclick = async () => {
+        const isEmpty = await auth.isLogin();
+        if (!isEmpty) {
+          await popBlocks.popupConfirm("请先注册用户");
+          return;
+        }
         // 创建邀请弹窗
         const inviteModal = document.createElement('div');
         inviteModal.id = 'invite-modal';
