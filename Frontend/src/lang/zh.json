@@ -3,7 +3,11 @@
     "start": "开始",
     "delete": "删除",
     "created": "创建时间:",
-    "updated": "更新时间:"
+    "updated": "更新时间:",
+    "confirm": {
+      "yes": "确认",
+      "no": "取消"
+    }
   },
   "hub": {
     "slogan": {

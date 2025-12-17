@@ -3,7 +3,11 @@
     "start": "Start",
     "delete": "Delete",
     "created": "Created:",
-    "updated": "Updated:"
+    "updated": "Updated:",
+    "confirm": {
+      "yes": "Yes",
+      "no": "No"
+    }
   },
   "hub": {
     "slogan": {

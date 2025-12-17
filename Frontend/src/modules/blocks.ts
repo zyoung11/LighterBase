@@ -1,3 +1,5 @@
+import { i18n } from "./i18n";
+
 
 const blocks={
 popupConfirm(text: string): Promise<boolean> {
@@ -13,13 +15,18 @@ popupConfirm(text: string): Promise<boolean> {
     panel.innerHTML = `
       <p class="mb-5 text-center">${text}</p>
       <div class="flex justify-center gap-3">
-        <button id="cancelBtn" class="px-4 py-2 rounded-md border border-gray-400 hover:bg-gray-600 transition">取消</button>
-        <button id="okBtn" class="text-black px-4 py-2 rounded-md bg-white transition">确认</button>
+        <button id="cancelBtn" class="px-4 py-2 rounded-md border border-gray-400 hover:bg-gray-600 transition">No</button>
+        <button id="okBtn" class="text-black px-4 py-2 rounded-md bg-white transition">Yes</button>
       </div>
     `;
 
+
     backdrop.appendChild(panel);
     document.body.appendChild(backdrop);
+    const cancelbtn = document.getElementById("cancelBtn") as HTMLButtonElement;
+    const okbtn = document.getElementById("okBtn") as HTMLElement;
+    cancelbtn.textContent = i18n.t('common.confirm.no');
+    okbtn.textContent = i18n.t('common.confirm.yes');
 
     const clean = (result: boolean) => {
       backdrop.remove();
