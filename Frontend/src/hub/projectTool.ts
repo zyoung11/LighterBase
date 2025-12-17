@@ -300,7 +300,8 @@ const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function
 
       // const projectId = selected.project.project_id;
       // const newUrl = `http://localhost:8080/${userId}/${projectId}`;
-      const newUrl = `${URL}/${userId}/${projectId}`;
+      // const newUrl = `${URL}/${userId}/${projectId}`;
+      const newUrl = `http://www.smallwoodice.cn:8080/${userId}/${projectId}`;
       // console.log(newUrl)
       setBaseUrl(newUrl);
       // console.log(newUrl)
