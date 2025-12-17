@@ -745,11 +745,21 @@ func createRecord(c *fiber.Ctx) error {
 		}
 	}
 
-	// 检查团队权限（POST请求需要管理员权限）
-	if !checkTeamPermission(c, true) {
-		// 如果不是团队成员或权限不足，使用原有权限检查
-		if tableName != "users" && isGuest {
+	// 检查团队权限
+	// 特殊情况：如果是users表，只读成员也可以创建（用于注册）
+	if tableName == "users" {
+		hasTeamPermission := checkTeamPermission(c, false)
+		if !hasTeamPermission && isGuest {
+			// 如果不是团队成员且是访客，需要认证
 			return sendError(c, 401, "Authentication required.", nil)
+		}
+	} else {
+		// 对于其他表，POST请求需要管理员权限
+		if !checkTeamPermission(c, true) {
+			// 如果不是团队成员或权限不足，使用原有权限检查
+			if isGuest {
+				return sendError(c, 401, "Authentication required.", nil)
+			}
 		}
 	}
 

@@ -1,4 +1,4 @@
-from PAT import get, option, patch, post, put, delete, run_test, print_info
+from PAT import get, post, put, run_test, print_info
 
 baseUrl = "http://localhost:8080"
 
@@ -22,6 +22,16 @@ run_test(
          })
 )
 
+run_test(
+    "注册用户 yzk",
+    post(f"{baseUrl}/api/users/register",
+         body={
+             "user_name": "yzk",
+             "password": "yzk",
+             "email": "yzk@yzk.com"
+         })
+)
+
 zy_uid, zy_token = run_test(
     "zy 登录",
     post(f"{baseUrl}/api/users/login",
@@ -38,6 +48,16 @@ yzm_uid, yzm_token = run_test(
          body={
              "user_name": "yzm",
              "password": "yzm666"
+         }),
+    "user.user_id", "token"
+)
+
+yzk_uid, yzk_token = run_test(
+    "yzk 登录",
+    post(f"{baseUrl}/api/users/login",
+         body={
+             "user_name": "yzk",
+             "password": "yzk"
          }),
     "user.user_id", "token"
 )
@@ -252,14 +272,143 @@ run_test(
          })
 )
 
-run_test(
+yzm_app_token = run_test(
     "yzm 在 zy 项目里登录",
     post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auth/login",
          headers={"Content-Type": "application/json"},
          body={
              "name": "yzm",
              "password_hash": "yzm"
-        })
+        }),
+    "token"
+)
+
+run_test(
+    "zy 发送通知给 yzk",
+    post(f"{baseUrl}/api/team",
+         headers={"Authorization": f"Bearer {zy_token}",
+                  "Content-Type": "application/json"},
+          body={
+              	"projectId": zy_proj_id1,
+                "permissions": "readonly",
+                "email": "yzk@yzk.com"
+          })
+)
+
+yzk_notificationId = run_test(
+    "yzk 查看自己接收的待同意的通知",
+    get(f"{baseUrl}/api/team/receive/pending",
+         headers={"Authorization": f"Bearer {yzk_token}"}),
+    "0.notification_id"
+)
+
+run_test(
+    "yzk 同意通知",
+    put(f"{baseUrl}/api/team/confirm/{yzk_notificationId}/agree",
+         headers={"Authorization": f"Bearer {yzk_token}"})
+)
+
+run_test(
+    "zy 查看自己发送的已经同意了的通知",
+    get(f"{baseUrl}/api/team/send/agree",
+         headers={"Authorization": f"Bearer {zy_token}"})
+)
+
+run_test(
+    "yzk 在 zy 项目里注册",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auto/create/users",
+         headers={"Content-Type": "application/json"},
+         body={
+             "name": "yzk",
+             "password_hash": "yzk",
+             "email": "yzk@yzk.com"
+         })
+)
+
+yzk_app_token = run_test(
+    "yzk 在 zy 项目里登录",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auth/login",
+         headers={"Content-Type": "application/json"},
+         body={
+             "name": "yzk",
+             "password_hash": "yzk"
+        }),
+    "token"
+)
+
+run_test(
+    "zy 创建表 错误token",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/create-table/create",
+         headers={"Authorization": f"Bearer {zy_token}",
+                  "Content-Type": "application/json"},
+          body={
+              	"SQL": '''
+              	    CREATE TABLE IF NOT EXISTS test (
+                        test_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER NOT NULL,
+                        test TEXT,
+                        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+                    );
+              	'''
+          })
+)
+
+run_test(
+    "zy 创建表",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/create-table/create",
+         headers={"Authorization": f"Bearer {app_token}",
+                  "Content-Type": "application/json"},
+          body={
+              	"SQL": '''
+              	    CREATE TABLE IF NOT EXISTS test (
+                        test_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER NOT NULL,
+                        test TEXT,
+                        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+                    );
+              	'''
+          })
+)
+
+run_test(
+    "zy 查看上一次SQL操作",
+    get(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/sqls/latest",
+         headers={"Authorization": f"Bearer {app_token}",
+                  "Content-Type": "application/json"},)
+)
+
+run_test(
+    "yzm 创建表",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/create-table/create",
+         headers={"Authorization": f"Bearer {yzm_app_token}",
+                  "Content-Type": "application/json"},
+          body={
+              	"SQL": '''
+              	    CREATE TABLE IF NOT EXISTS test (
+                        test_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER NOT NULL,
+                        test TEXT,
+                        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+                    );
+              	'''
+          })
+)
+
+run_test(
+    "yzk 创建表",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/create-table/create",
+         headers={"Authorization": f"Bearer {yzk_app_token}",
+                  "Content-Type": "application/json"},
+          body={
+              	"SQL": '''
+              	    CREATE TABLE IF NOT EXISTS test (
+                        test_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER NOT NULL,
+                        test TEXT,
+                        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+                    );
+              	'''
+          })
 )
 
 print_info(
