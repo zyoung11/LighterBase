@@ -15,3 +15,4 @@ Frontend/backup
 Backend/web/LighterBaseHubData
 Backend/web/test_build
 >>>>>>> 3462262 (fix(web & app): Error message when registering with duplicate username or email)
+Backend
