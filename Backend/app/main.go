@@ -812,7 +812,7 @@ func updateRecord(c *fiber.Ctx) error {
 		}
 
 		// 管理员修改自己的密码时加哈希
-		if userID == 1 && !isGuest {
+		if !isGuest {
 			whereTrimmed := strings.TrimSpace(body.WHERE)
 			re := regexp.MustCompile(`id\s*=\s*['"]?1['"]?`)
 			matchesId1 := re.MatchString(whereTrimmed)
