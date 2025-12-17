@@ -163,7 +163,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 > [!IMPORTANT]
 >
-> 只有**管理员**可以使用这个API
+> 只有**管理员和高权限成员**可以使用这个API
 
 - http方法：**GET**
 
@@ -977,7 +977,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 > [!IMPORTANT]
 >
-> 只有**管理员**可以执行这个API
+> 只有**管理员和高权限成员**可以执行这个API
 
 - http方法：**POST**
 
@@ -1026,7 +1026,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 > [!IMPORTANT]
 >
-> 只有**管理员**可以执行这个API
+> 只有**管理员和高权限成员**可以执行这个API
 
 - http方法：**GET**
 
@@ -1189,7 +1189,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 > [!IMPORTANT]
 >
-> 1. 只有**管理员**可以执行以下三个API
+> 1. 只有**管理员和高权限成员**可以执行以下三个API
 >
 > 2. 当有新建的表时，后端会**自动新建**这个表的**空白权限记录**
 >
@@ -1430,7 +1430,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 > [!IMPORTANT]
 >
-> 这里所有 API 都只有**管理员**可用
+> 这里所有 API 都只有**管理员和高权限成员**可用
 
 ### 6.1 查询所有表名
 
