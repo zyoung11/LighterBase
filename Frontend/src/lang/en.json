@@ -158,10 +158,7 @@
       "description": {
         "placeholder": "Project Description"
       },
-      "button": "Update"
-    },
-    "cancel": {
-      "button": "Cancel",
+      "button": "Update",
       "cancel": "Cancel"
     }
   }

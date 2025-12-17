@@ -432,6 +432,7 @@ async function initializeStartModal(userId: string, projectId: number) {
 
     const projectUrl = `${theURL}/${userId}/${projectId}`;
     // const projectUrl = `http://www.smallwoodice.cn:8080/${userId}/${projectId}`;
+    console.log(projectUrl)
     setBaseUrl(projectUrl);
 
   // 检查是否为空数据库

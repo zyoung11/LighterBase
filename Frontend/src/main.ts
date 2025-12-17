@@ -377,23 +377,19 @@ document.addEventListener('click', (e) => {
     }
     
     if (target.id === 'copy-full-sql') {
-        const content = document.getElementById('full-sql-content') as HTMLElement;
-        const text = content.textContent || '';
-        
-        navigator.clipboard.writeText(text).then(() => {
+        const content = document.getElementById('full-sql-content') as HTMLTextAreaElement;
+        const text = content.value || '';
 
-            const btn = target as HTMLButtonElement;
-            const originalText = btn.textContent;
+        const btn = target as HTMLButtonElement;
+        const originalText = btn.textContent;
+
+        navigator.clipboard.writeText(text).then(() => {
             btn.textContent = '已复制！';
-            btn.classList.add('bg-green-600');
-            
             setTimeout(() => {
                 btn.textContent = originalText;
-                btn.classList.remove('bg-green-600');
-            }, 2000);
-        }).catch(err => {
-            console.error('复制失败:', err);
-            alert('复制失败，请手动复制');
+            }, 500);
+        }).catch(e => {
+            btn.textContent = originalText;
         });
     }
 });

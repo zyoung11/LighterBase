@@ -160,9 +160,6 @@
       },
       "button": "更新",
       "cancel": "取消"
-    },
-    "cancel": {
-      "button": "取消"
     }
   }
 }
