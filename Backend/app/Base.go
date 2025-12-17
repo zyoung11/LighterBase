@@ -303,6 +303,18 @@ func register(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Already registered"})
 	}
 
+	// 检查邮箱是否已存在
+	_, err = queries.GetUserByEmail(c.Context(), req.Email)
+	if err == nil {
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "Email already exists"})
+	}
+
+	// 检查用户名是否已存在
+	_, err = queries.GetUserByName(c.Context(), req.UserName)
+	if err == nil {
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "Username already exists"})
+	}
+
 	// 加密密码
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {

@@ -8,5 +8,10 @@ Backend/web/LighterBaseHub
 Backend/web/test/__pycache__
 TEST
 Backend/web/test/uv.lock
+<<<<<<< HEAD
 Frontend/lighterBaseWeb
 Frontend/backup
+=======
+Backend/web/LighterBaseHubData
+Backend/web/test_build
+>>>>>>> 3462262 (fix(web & app): Error message when registering with duplicate username or email)

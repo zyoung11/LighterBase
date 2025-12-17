@@ -13,12 +13,23 @@ run_test(
 )
 
 run_test(
-    "注册用户 zy",
+    "注册相同邮箱",
+    post(f"{baseUrl}/api/users/register",
+         body={
+             "user_name": "zy111",
+             "password": "sbdlh",
+             "email": "sbdlh@love.com"
+         },
+     should_fail=True)
+)
+
+run_test(
+    "注册相同名称",
     post(f"{baseUrl}/api/users/register",
          body={
              "user_name": "zy",
              "password": "sbdlh",
-             "email": "sbdlh@love.com"
+             "email": "sbdlh@11111111.com"
          },
      should_fail=True)
 )

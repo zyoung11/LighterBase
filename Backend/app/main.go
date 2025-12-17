@@ -679,6 +679,14 @@ func createRecord(c *fiber.Ctx) error {
 
 	res, err := dataDB.Exec(query, values...)
 	if err != nil {
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "UNIQUE constraint failed") {
+			if strings.Contains(errMsg, "user_name") {
+				return sendError(c, 409, "Username already exists", nil)
+			} else if strings.Contains(errMsg, "email") {
+				return sendError(c, 409, "Email already exists", nil)
+			}
+		}
 		return sendError(c, 400, "Failed to create record.", fiber.Map{"database_error": err.Error()})
 	}
 
