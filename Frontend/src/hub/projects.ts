@@ -2,6 +2,9 @@ import { URL } from "../apis/api";
 import blocks from "../modules/blocks";
 const projects = {
 
+
+// ====================================用户=========================================
+
 async getAllUsers(hubAuthToken:string){
   try{
     const res = await fetch(`${URL}/api/users`,{
@@ -101,6 +104,12 @@ async checkInit(){
     console.log("检查初始化失败：",e)
   }
 },
+
+
+
+// ====================================项目=========================================
+
+
 
 async createProject(data: {project_name: string, project_avatar: string, project_description: string}, hubAuthToken: string){
   try{
@@ -206,6 +215,9 @@ async deleteProject(id: number, hubAuthToken: string){
   }
 },
 
+// ====================================下载=========================================
+
+
 
 async downloadApp(os: string) {
   try {
@@ -231,9 +243,6 @@ async downloadApp(os: string) {
 
 
 
-
-
-
 async downloadProject(projectId: number, hubAuthToken: string){
   try{
     const res = await fetch(`${URL}/api/projects/download/${projectId}`,{
@@ -245,7 +254,7 @@ async downloadProject(projectId: number, hubAuthToken: string){
 
     if(!res.ok){
       console.error('下载请求失败:', res.status, res.statusText);
-      blocks.popupConfirm("下载失败：服务器返回错误")
+      blocks.popupConfirm("下载失败")
       return false
     }
 
@@ -281,6 +290,108 @@ async downloadProject(projectId: number, hubAuthToken: string){
     console.error("下载过程中发生错误:", e);
     blocks.popupConfirm("下载失败")
     return false
+  }
+},
+
+// ====================================团队协作=========================================
+
+//可选 admin 或 readonly
+async sendInvitation(data: {projectId: string, permissions: string, email: string}, hubAuthToken: string){
+  try{
+    const res = await fetch(`${URL}/api/team`,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":`Bearer ${hubAuthToken}`
+      },
+      body: JSON.stringify(data)
+    });
+
+    if(res.ok){
+      const data = await res.json()
+      return data
+    }
+
+  }catch(e){
+    console.log("发送邀请失败：",e)
+  }
+},
+
+
+
+
+// /:status 选项 	功能
+// /all 	获取该用户发送的所有邀请
+// /agree 	获取该用户发送的所有的已经同意的邀请
+// /disagree 	获取该用户发送的所有的不同意的邀请
+// /pending 	获取该用户发送的所有的待同意的邀请
+async getSentInvitations(status: string, hubAuthToken: string){
+  try{
+    const res = await fetch(`${URL}/api/team/send/${status}`,{
+      method:"GET",
+      headers:{
+        "Authorization":`Bearer ${hubAuthToken}`
+      }
+    });
+
+    if(res.ok){
+      const data = await res.json()
+      return data
+    }
+
+  }catch(e){
+    console.log("查询发送的邀请失败：",e)
+  }
+},
+
+
+
+
+// /:status 选项 	功能
+// /all 	获取该用户发送的所有邀请
+// /agree 	获取该用户发送的所有的已经同意的邀请
+// /disagree 	获取该用户发送的所有的不同意的邀请
+// /pending 	获取该用户发送的所有的待同意的邀请
+async getReceivedInvitations(status: string, hubAuthToken: string){
+  try{
+    const res = await fetch(`${URL}/api/team/receive/${status}`,{
+      method:"GET",
+      headers:{
+        "Authorization":`Bearer ${hubAuthToken}`
+      }
+    });
+
+    if(res.ok){
+      const data = await res.json()
+      return data
+    }
+
+  }catch(e){
+    console.log("查询接收的邀请失败：",e)
+  }
+},
+
+
+
+// /:status 选项 	功能
+// /agree 	同意邀请
+// disagree 	不同意邀请
+async confirmInvitation(notificationId: number, status: string, hubAuthToken: string){
+  try{
+    const res = await fetch(`${URL}/api/team/confirm/${notificationId}/${status}`,{
+      method:"PUT",
+      headers:{
+        "Authorization":`Bearer ${hubAuthToken}`
+      }
+    });
+
+    if(res.ok){
+      const data = await res.json()
+      return data
+    }
+
+  }catch(e){
+    console.log("确认邀请失败：",e)
   }
 }
 }
