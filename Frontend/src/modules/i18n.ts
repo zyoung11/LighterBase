@@ -71,26 +71,40 @@ export const i18n = new I18n();
 // 语言切换按钮组件
 export function createLanguageSwitcher(): HTMLButtonElement {
   const switcher = document.createElement('button');
-  switcher.className = 'mr-2 px-3 py-1 text-xs bg-[#2B2F31] hover:bg-[#3a3f41] text-gray-300 rounded transition-colors';
   switcher.id = 'language-switcher';
-  
+  switcher.style.backgroundColor = 'transparent';
+  switcher.style.color = 'white';
+  switcher.style.border = 'none';
+  switcher.style.padding = '0.5rem 1rem';
+  switcher.style.borderRadius = '0.5rem';
+  switcher.style.cursor = 'pointer';
+  switcher.style.fontWeight = '600';
+  switcher.style.transition = 'transform 0.2s ease';
+  switcher.style.marginRight = '6px';
+  switcher.onmouseenter = () => {
+    switcher.style.transform = 'scale(1.1)';
+  };
+  switcher.onmouseleave = () => {
+    switcher.style.transform = 'scale(1)';
+  };
+
   // 更新按钮文本
   const updateButtonText = () => {
     switcher.textContent = i18n.getCurrentLanguage() === 'zh' ? 'EN' : '中';
   };
-  
+
   updateButtonText();
-  
+
   // 点击切换语言
   switcher.addEventListener('click', () => {
     i18n.toggleLanguage();
     updateButtonText();
   });
-  
+
   // 监听语言变化事件
   window.addEventListener('languageChanged', () => {
     updateButtonText();
   });
-  
+
   return switcher;
 }

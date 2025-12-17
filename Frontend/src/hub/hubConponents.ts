@@ -64,103 +64,57 @@ function createNavBar() {
   logoBtn.appendChild(logoSpan);
   leftDiv.appendChild(logoBtn);
 
-const pricingBtn = document.createElement('button');
-   pricingBtn.id='pricing-link';
-   pricingBtn.textContent = i18n.t('hub.navbar.pricing');
-   pricingBtn.style.backgroundColor = 'transparent';
-   pricingBtn.style.color = 'white';
-   pricingBtn.style.border = 'none';
-   pricingBtn.style.padding = '0.5rem 1rem';
-   pricingBtn.style.borderRadius = '0.5rem';
-   pricingBtn.style.cursor = 'pointer';
-   pricingBtn.style.fontWeight = '600';
-   pricingBtn.style.transition = 'transform 0.2s ease';
-   pricingBtn.onmouseenter = () => {
-     pricingBtn.style.transform = 'scale(1.1)';
-   };
-   pricingBtn.onmouseleave = () => {
-     pricingBtn.style.transform = 'scale(1)';
-   };
-   pricingBtn.onclick = () => window.location.href = '/pricing';
+ const pricingBtn = document.createElement('button');
+    pricingBtn.id='pricing-link';
+    pricingBtn.textContent = i18n.t('hub.navbar.pricing');
+    pricingBtn.className = 'bg-transparent text-white border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+    pricingBtn.onclick = () => window.location.href = '/pricing';
    leftDiv.appendChild(pricingBtn);
 
-   const docsBtn = document.createElement('button');
-   docsBtn.id='docs-link';
-   docsBtn.textContent = i18n.t('hub.navbar.docs');
-   docsBtn.style.backgroundColor = 'transparent';
-   docsBtn.style.color = 'white';
-   docsBtn.style.border = 'none';
-   docsBtn.style.padding = '0.5rem 1rem';
-   docsBtn.style.borderRadius = '0.5rem';
-   docsBtn.style.cursor = 'pointer';
-   docsBtn.style.fontWeight = '600';
-   docsBtn.style.transition = 'transform 0.2s ease';
-   docsBtn.onmouseenter = () => {
-     docsBtn.style.transform = 'scale(1.1)';
-   };
-   docsBtn.onmouseleave = () => {
-     docsBtn.style.transform = 'scale(1)';
-   };
-   docsBtn.onclick = () => window.location.href = '/docs';
+    const docsBtn = document.createElement('button');
+    docsBtn.id='docs-link';
+    docsBtn.textContent = i18n.t('hub.navbar.docs');
+    docsBtn.className = 'bg-transparent text-white border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+    docsBtn.onclick = () => window.location.href = '/docs';
    leftDiv.appendChild(docsBtn);
 
-   const downloadBtn = document.createElement('button');
-   downloadBtn.id='download-link';
-   downloadBtn.textContent = i18n.t('hub.navbar.download');
-   downloadBtn.style.backgroundColor = 'transparent';
-   downloadBtn.style.color = 'white';
-   downloadBtn.style.border = 'none';
-   downloadBtn.style.padding = '0.5rem 1rem';
-   downloadBtn.style.borderRadius = '0.5rem';
-   downloadBtn.style.cursor = 'pointer';
-   downloadBtn.style.fontWeight = '600';
-   downloadBtn.style.transition = 'transform 0.2s ease';
-   downloadBtn.onmouseenter = () => {
-     downloadBtn.style.transform = 'scale(1.1)';
-   };
-   downloadBtn.onmouseleave = () => {
-     downloadBtn.style.transform = 'scale(1)';
-   };
-   downloadBtn.onclick = () => window.location.href = '/download';
+    const downloadBtn = document.createElement('button');
+    downloadBtn.id='download-link';
+    downloadBtn.textContent = i18n.t('hub.navbar.download');
+    downloadBtn.className = 'bg-transparent text-white border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+    downloadBtn.onclick = () => window.location.href = '/download';
    leftDiv.appendChild(downloadBtn);
 
   nav.appendChild(leftDiv);
 
   // 右侧：Login in 或 用户名
   const rightDiv = document.createElement('div');
-  rightDiv.className = 'relative';
-const userBtn = document.createElement('button');
-   userBtn.id = 'user-link';
-   userBtn.textContent = i18n.t('hub.navbar.login');
-   userBtn.style.backgroundColor = '#46A3FF';
-   userBtn.style.color = 'white';
-   userBtn.style.border = '1px solid white';
-   userBtn.style.padding = '0.5rem 1rem';
-   userBtn.style.borderRadius = '0.5rem';
-   userBtn.style.cursor = 'pointer';
-   userBtn.onmouseenter = () => {
-     userBtn.style.backgroundColor = '#3D8FEF';
-   };
-   userBtn.onmouseleave = () => {
-     userBtn.style.backgroundColor = '#46A3FF';
-   };
-   userBtn.onclick = () => window.location.href = '/login';
+  rightDiv.className = 'relative flex';
+ const userBtn = document.createElement('button');
+    userBtn.id = 'user-link';
+    userBtn.textContent = i18n.t('hub.navbar.login');
+    userBtn.className = ' bg-blue-500 text-white border border-white p-2 rounded-lg cursor-pointer hover:bg-blue-600';
+    userBtn.onclick = () => window.location.href = '/login';
 
-  // 添加语言切换按钮（放在用户名左边）
-  const languageSwitcher = createLanguageSwitcher();
-  rightDiv.appendChild(languageSwitcher);
+   // 添加语言切换按钮（放在用户名左边）
+   const languageSwitcher = createLanguageSwitcher();
+   rightDiv.appendChild(languageSwitcher);
 
-  rightDiv.appendChild(userBtn);
+   const newDiv = document.createElement('div');
+   newDiv.className = 'relative';
+   newDiv.appendChild(userBtn);
 
-  const logoutMenu = document.createElement('div');
-  logoutMenu.id = 'logout-menu';
-  logoutMenu.className = 'absolute top-full mt-1 bg-[#2B2F31] rounded-lg shadow-lg hidden z-10';
-  const logoutBtn = document.createElement('button');
-  logoutBtn.id = 'logout-btn';
-  logoutBtn.className = 'px-2 py-2 text-white hover:bg-[#3a3f41] rounded-lg w-16 text-center';
-  logoutBtn.textContent = i18n.t('hub.navbar.logout');
-  logoutMenu.appendChild(logoutBtn);
-  rightDiv.appendChild(logoutMenu);
+   const logoutMenu = document.createElement('div');
+   logoutMenu.id = 'logout-menu';
+   logoutMenu.className = 'absolute top-full mt-1 bg-[#2B2F31] rounded-lg shadow-lg hidden z-10';
+   const logoutBtn = document.createElement('button');
+   logoutBtn.id = 'logout-btn';
+   logoutBtn.className = 'px-2 py-2 text-white hover:bg-[#3a3f41] rounded-lg w-16 text-center';
+   logoutBtn.textContent = i18n.t('hub.navbar.logout');
+   logoutMenu.appendChild(logoutBtn);
+   newDiv.appendChild(logoutMenu);
+
+   rightDiv.appendChild(newDiv);
 
   nav.appendChild(rightDiv);
 
@@ -180,6 +134,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 初始化翻译
   translatePage();
+
+
+
+
 
 
   // 监听语言变化事件，更新未登录状态的用户按钮文本
