@@ -117,6 +117,19 @@ run_test(
 )
 
 run_test(
+    "zy 提前发送通知给 yzm",
+    post(f"{baseUrl}/api/team",
+         headers={"Authorization": f"Bearer {zy_token}",
+                  "Content-Type": "application/json"},
+          body={
+              	"projectId": zy_proj_id1,
+                "permissions": "admin",
+                "email": "yzm@notgay.com"
+          },
+      should_fail=True)
+)
+
+run_test(
     "App 注册",
     post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auto/create/users",
          headers={"Content-Type": "application/json"},
