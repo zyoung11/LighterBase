@@ -36,28 +36,28 @@ projectDetails.id = 'projectDetails';
 projectDetails.className = 'absolute right-[5%] top-[12%] w-3/5 h-4/5 bg-[#1B1E1F] shadow-md shadow-white/30 bg-opacity-90 p-4 rounded-lg hidden z-5';
 projectDetails.innerHTML = `
     <div class=" flex space-x-4 justify-end">
-      <button id="start-btn" class="w-10 h-10 border border-white rounded-lg flex items-center justify-center transition-colors">
-        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-      </button>
-      <button id="download-btn" class="w-10 h-10 border border-white rounded-lg flex items-center justify-center transition-colors">
-        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-        </svg>
-      </button>
-      <button id="invite-btn" class="w-10 h-10 border border-white rounded-lg flex items-center justify-center transition-colors">
-        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
-        </svg>
-      </button>
-      <button id="delete-btn" class="w-10 h-10 border border-white rounded-lg flex items-center justify-center transition-colors">
-        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-        </svg>
-      </button>
-    </div>
+       <button id="start-btn" class="w-10 h-10 border border-white/50 rounded-lg flex items-center justify-center transition-colors">
+         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+         </svg>
+       </button>
+       <button id="download-btn" class="w-10 h-10 border border-white/50 rounded-lg flex items-center justify-center transition-colors">
+         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+         </svg>
+       </button>
+       <button id="invite-btn" class="w-10 h-10 border border-white/50 rounded-lg flex items-center justify-center transition-colors">
+         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m0-3h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+         </svg>
+       </button>
+       <button id="delete-btn" class="w-10 h-10 border border-white/50 rounded-lg flex items-center justify-center transition-colors">
+         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+         </svg>
+       </button>
+     </div>
 <div class="w-full h-[40%] flex">
   <img id="detail-avatar" class="w-[45%] h-full object-cover mb-4 rounded-md" src="${defaultImg}" onerror="this.src='${defaultImg}'">
   <div class="ml-3 w-[50%] h-full flex flex-col">
@@ -155,7 +155,7 @@ async function renderBlock(block:any) {
           <p class="text-gray-400 text-xs">${i18n.t('common.updated')}${block.project.update_at}</p>
         </div>
         <div class="flex justify-end mt-2">
-           <button id="update-btn-${block.id}" class="w-6 h-6 border border-white rounded flex items-center justify-center transition-colors">
+           <button id="update-btn-${block.id}" class="w-6 h-6 border border-white/50 rounded flex items-center justify-center transition-colors">
             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -330,6 +330,7 @@ const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function
     const inviteBtn = projectDetails.querySelector('#invite-btn') as HTMLButtonElement;
     if (inviteBtn) {
       inviteBtn.onclick = async () => {
+        setBaseUrl();
         const projectUrl = `${theURL}/${userId}/${projectId}`;
         console.log(projectUrl)
         setBaseUrl(projectUrl);
@@ -344,7 +345,7 @@ const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function
         // 创建邀请弹窗
         const inviteModal = document.createElement('div');
         inviteModal.id = 'invite-modal';
-        inviteModal.className = 'fixed bg-[#1B1E1F] border border-white shadow-md shadow-white/30 bg-opacity-90 p-4 rounded-lg z-50';
+        inviteModal.className = 'fixed bg-[#1B1E1F] border border-white/50 shadow-md shadow-white/30 bg-opacity-90 p-4 rounded-lg z-50';
         inviteModal.style.width = '350px';
         inviteModal.innerHTML = `
           <div class="flex justify-center items-center mb-4">
