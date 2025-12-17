@@ -212,13 +212,31 @@ func register(c *fiber.Ctx) error {
 	if req.UserName == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Username is required"})
 	}
+	if len(req.UserName) < 2 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Username must be at least 3 characters"})
+	}
+	if len(req.UserName) > 50 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Username must be at most 50 characters"})
+	}
 
 	if req.Password == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Password is required"})
 	}
+	if len(req.Password) < 2 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Password must be at least 8 characters"})
+	}
+	if len(req.Password) > 128 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Password must be at most 128 characters"})
+	}
 
 	if req.Email == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Email is required"})
+	}
+	if len(req.Email) < 6 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Email must be at least 5 characters"})
+	}
+	if len(req.Email) > 255 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Email must be at most 255 characters"})
 	}
 
 	// 检查邮箱是否已存在

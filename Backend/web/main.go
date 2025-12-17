@@ -799,7 +799,35 @@ func createRecord(c *fiber.Ctx) error {
 
 	// 4. 处理 users 表的密码哈希
 	if tableName == "users" {
+		// 验证用户名长度
+		if userName, ok := body["user_name"].(string); ok {
+			if len(userName) < 3 {
+				return sendError(c, 400, "Username must be at least 3 characters", nil)
+			}
+			if len(userName) > 50 {
+				return sendError(c, 400, "Username must be at most 50 characters", nil)
+			}
+		}
+
+		// 验证邮箱长度
+		if email, ok := body["email"].(string); ok {
+			if len(email) < 5 {
+				return sendError(c, 400, "Email must be at least 5 characters", nil)
+			}
+			if len(email) > 255 {
+				return sendError(c, 400, "Email must be at most 255 characters", nil)
+			}
+		}
+
+		// 验证密码长度
 		if plainPassword, ok := body["password_hash"].(string); ok && plainPassword != "" {
+			if len(plainPassword) < 8 {
+				return sendError(c, 400, "Password must be at least 8 characters", nil)
+			}
+			if len(plainPassword) > 128 {
+				return sendError(c, 400, "Password must be at most 128 characters", nil)
+			}
+
 			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(plainPassword), bcrypt.DefaultCost)
 			if err != nil {
 				return sendError(c, 500, "Failed to hash password.", nil)
@@ -981,6 +1009,26 @@ func updateRecord(c *fiber.Ctx) error {
 			}
 		}
 
+		// 验证用户名长度（如果更新用户名）
+		if userName, ok := body.Set["user_name"].(string); ok {
+			if len(userName) < 3 {
+				return sendError(c, 400, "Username must be at least 3 characters", nil)
+			}
+			if len(userName) > 50 {
+				return sendError(c, 400, "Username must be at most 50 characters", nil)
+			}
+		}
+
+		// 验证邮箱长度（如果更新邮箱）
+		if email, ok := body.Set["email"].(string); ok {
+			if len(email) < 5 {
+				return sendError(c, 400, "Email must be at least 5 characters", nil)
+			}
+			if len(email) > 255 {
+				return sendError(c, 400, "Email must be at most 255 characters", nil)
+			}
+		}
+
 		// 修改自己的密码时加哈希
 		if !isGuest {
 			whereTrimmed := strings.TrimSpace(body.WHERE)
@@ -992,6 +1040,14 @@ func updateRecord(c *fiber.Ctx) error {
 
 			if matchesId1 {
 				if plainPassword, ok := body.Set["password_hash"].(string); ok && plainPassword != "" {
+					// 验证密码长度
+					if len(plainPassword) < 8 {
+						return sendError(c, 400, "Password must be at least 8 characters", nil)
+					}
+					if len(plainPassword) > 128 {
+						return sendError(c, 400, "Password must be at most 128 characters", nil)
+					}
+
 					hashedPassword, err := bcrypt.GenerateFromPassword([]byte(plainPassword), bcrypt.DefaultCost)
 					if err != nil {
 						return sendError(c, 500, "Failed to hash password.", nil)
