@@ -44,7 +44,7 @@ const sql = {
             // console.log(data.Sql);
             return data.Sql;
         } catch (e) {
-            throw e;
+            // throw e;
         }
     },
 
@@ -129,9 +129,9 @@ const sql = {
             }
             const data = await response.json();
             return data.Sql;
-        } catch (error) {
-            console.error("Error getting lastest SQL:", error);
-            throw error;
+        } catch (e) {
+            // console.error("err SQL:", e);
+            // throw e;
         }
     },
 

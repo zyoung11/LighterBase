@@ -13,7 +13,7 @@ import defaultImg from "../icons/projectsDefault.jpg";
 import popBlocks from "../modules/blocks";
 import auth from "../apis/auth";
 
-let token = getCookie("hubAuthToken")
+let token = getCookie("hubAuthToken")!
 let theURL = "http://localhost:8080"
 // let theURL = "http://www.smallwoodice.cn:8080"
 
@@ -181,7 +181,6 @@ block.element.style.pointerEvents = 'auto';
   block.element.style.transform = `translate(${x}px, ${y}px)`;
 }
 
-// --- 核心逻辑 ---
 // 初始化区块
 async function initializeBlocks() {
   if (!token) {
@@ -190,9 +189,7 @@ async function initializeBlocks() {
   }
 
   // 获取项目数据
-  // console.log(token)
   const projectsData = await projects.getAllProjects(token);
-  await projects.getAllUsers(token)
   if (!projectsData) return;
 
   // 创建blocks

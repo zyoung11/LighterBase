@@ -42,12 +42,16 @@ async hubUserRegister(): Promise<boolean> {
         if (res.ok) {
             return true;
         } else {
-            blocks.popupConfirm( "注册失败");
-            return false; 
+            if (res.status === 409) {
+                blocks.popupConfirm("User already exists");
+            } else {
+                blocks.popupConfirm("注册失败");
+            }
+            return false;
         }
-    } catch (err) {
-        console.log("注册失败：", err);
-        blocks.popupConfirm("注册失败，请检查网络连接");
+    } catch (e) {
+        console.log(e)
+        blocks.popupConfirm(`注册失败${e}`);
         return false;
     }
 },
@@ -173,7 +177,7 @@ init() {
                 }
             } else {
                 if (!username || !password || !email) {
-                    alert('请填写用户名、密码和邮箱');
+                    blocks.popupConfirm('请填写用户名、密码和邮箱');
                     return;
                 }
                 // 注册
