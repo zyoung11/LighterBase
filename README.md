@@ -13,8 +13,6 @@ cd LighterBase/Backend/app/LighterBase
 ./LighterBase
 ```
 
-
-
 ```bash
 # LighterBaseHub
 
@@ -26,15 +24,32 @@ cd LighterBase/Backend/web/LighterBaseHub
 ./LighterBaseHub
 ```
 
+# LighterBase API 文档
 
+> [!NOTE]
+>
+> 1. BaseURL: http://localhost:8080/1/:projectId/api
+>
+> 2. 驱动用户的前端：
+>
+>    1. 创建 `./dist` 文件夹
+>
+>    2. 将所有前端静态文件放入 `./dist` 文件夹中
+>
+>    3. 确保存在 `./dist/index.html`
+>
+>    4. 前端代码改动无需重启应用，刷新网页即可
+>
+> 3. 程序本身只能注册一个管理员账号
+> 4.  **无团队协作功能**
+> 5.  **无程序下载功能**
+> 6.  **其余 API 与 LighterBaseHub 相同**
 
 # LighterBaseHub API 文档
 
 > [!NOTE]
 >
-> BaseURL：http://localhost:8080/api
-
-
+> BaseURL: http://localhost:8080/:userId/:projectId/api
 
 ## 一、用户API
 
@@ -364,7 +379,7 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
   
-- 预期返回： 
+- 预期返回： notification.UpdateAt.String
   http状态码：201 
   返回体：
   
@@ -626,17 +641,9 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ## 四、Baas API
 
-**同 LighterBase API 文档** 
-
-------
-
-
-
-# LighterBase API 文档
-
 > [!NOTE]
 >
-> 1. BaseURL：http://localhost:8080/1/:project_id/api
+> 1. BaseURL：http://localhost:8080/:user_id/:project_id/api
 > 2. 时间编码： **RFC3339 格式**
 > 3. 密码哈希：均由**后端**进行哈希操作
 > 4. 管理员账号：**id = 1，不能改 id ，不能删除**
@@ -652,16 +659,10 @@ cd LighterBase/Backend/web/LighterBaseHub
 > |   create_at   |           TEXT NOT NULL           |
 > |   update_at   |           TEXT NOT NULL           |
 >
-> 6. 驱动用户的前端：
->    1. 创建 `./dist` 文件夹
->    2. 将所有前端静态文件放入`./dist` 文件夹中
->    3. 确保存在`./dist/index.html`
->    4. 前端代码改动无需重启应用，刷新网页即可
-> 7. 更换管理员界面需重新编译程序
 
-## 一、 自动生成模块
+## 1. 自动生成模块
 
-### 1. 增
+### 1.1 增
 
 - http方法：**POST**
 
@@ -728,7 +729,7 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-### 2. 删
+##  1.2 删
 
 > [!IMPORTANT]
 >
@@ -800,7 +801,7 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-### 3. 改
+### 1.3 改
 
 > [!IMPORTANT]
 >
@@ -882,7 +883,7 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-### 4. 查
+### 1.4 查
 
 - http方法：**POST**
 
@@ -970,9 +971,9 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 
 
-## 二、 用户表操作 API
+## 2. 用户表操作 API
 
-### 1. SQL 操作
+### 2.1 SQL 操作
 
 > [!IMPORTANT]
 >
@@ -1021,7 +1022,7 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-### 2. 查看上一次SQL操作
+### 2.2 查看上一次SQL操作
 
 > [!IMPORTANT]
 >
@@ -1054,9 +1055,9 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 
 
-## 三、 JWT
+## 3. JWT
 
-### 1. 登录
+### 3.1 登录
 
 - http方法：**POST**
 
@@ -1114,7 +1115,7 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-### 2. 更新 token
+### 3.2 更新 token
 
 - http方法：**POST**
 
@@ -1184,7 +1185,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 
 
-## 四、权限管理API
+## 4. 权限管理API
 
 > [!IMPORTANT]
 >
@@ -1209,7 +1210,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 >    - `xxx_where: ""` 表示容许所有请求
 >
 
-### 1. 获取所有权限状态
+### 4.1 获取所有权限状态
 
 - http方法：**GET**
 
@@ -1265,7 +1266,7 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-### 2. 更新权限规则
+### 4.2 更新权限规则
 
 - http方法：**PUT**
 
@@ -1299,15 +1300,139 @@ cd LighterBase/Backend/web/LighterBaseHub
   null
   ```
 
+## 5. 团队协作通知系统API
 
+### 5.1 发送邀请
 
-## 五、其他查询
+- http方法：**POST**
+
+- URL：`/team`
+
+- 请求头：
+
+  ```
+  Content-Type: application/json
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 请求体：
+
+  ```json
+  {
+    "projectId": "value1",
+    "permissions": "value2",
+    "email": "value3"
+  }
+  ```
+
+1. **projectId: **邀请成员来的自己的项目id
+2. **permissions: **邀请成员为高权限成员或只读成员，可选 `admin` 或 `readonly`
+3. **email: **要邀请的成员在网站注册使用的邮箱
+
+### 5.2 查询用户发送的日志
+
+- http方法：**GET**
+
+- URL：`/team/send/:status`
+
+- 请求头：
+
+  ```
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  [
+      {
+       	"notification_id": 0,
+  		"sender_id":       0,
+  		"receiver_id":     0,
+  		"project_id":      0,
+  		"content":         "value1",
+  		"status":          "value2",
+  		"create_at":       "value3",
+  		"update_at":       "value4"
+      }
+  ]
+  ```
+
+  | **/:status** 选项 | 功能                                 |
+  | ----------------- | ------------------------------------ |
+  | `/all`            | 获取该用户发送的所有邀请             |
+  | `/agree`          | 获取该用户发送的所有的已经同意的邀请 |
+  | `/disagree`       | 获取该用户发送的所有的不同意的邀请   |
+  | `/pending`        | 获取该用户发送的所有的待同意的邀请   |
+
+### 5.3 查询用户接收的日志
+
+- http方法：**GET**
+
+- URL：`/team/receive/:status`
+
+- 请求头：
+
+  ```
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  [
+      {
+       	"notification_id": 0,
+  		"sender_id":       0,
+  		"receiver_id":     0,
+  		"project_id":      0,
+  		"content":         "value1",
+  		"status":          "value2",
+  		"create_at":       "value3",
+  		"update_at":       "value4"
+      }
+  ]
+  ```
+
+  | **/:status** 选项 | 功能                                 |
+  | ----------------- | ------------------------------------ |
+  | `/all`            | 获取该用户发送的所有邀请             |
+  | `/agree`          | 获取该用户发送的所有的已经同意的邀请 |
+  | `/disagree`       | 获取该用户发送的所有的不同意的邀请   |
+  | `/pending`        | 获取该用户发送的所有的待同意的邀请   |
+
+### 5.4 发送邀请
+
+- http方法：**PUT**
+
+- URL：`/team/confirm/:notificationId/:status`
+
+- 请求头：
+
+  ```
+  Authorization: Bearer <jwt_token>
+  ```
+
+  | **/:status** 选项 | 功能       |
+  | ----------------- | ---------- |
+  | `/agree`          | 同意邀请   |
+  | `disagree`        | 不同意邀请 |
+
+## 6. 其他查询
 
 > [!IMPORTANT]
 >
 > 这里所有 API 都只有**管理员**可用
 
-### 1. 查询所有表名
+### 6.1 查询所有表名
 
 - http方法：**GET**
 
@@ -1335,7 +1460,7 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-### 2. 查询日志
+### 6.2 查询日志
 
 - http方法：**GET**
 
@@ -1418,7 +1543,7 @@ cd LighterBase/Backend/web/LighterBaseHub
     }
   ```
 
-### 3. 搜索日志
+### 6.3 搜索日志
 
 - http方法：**POST**
 
@@ -1462,7 +1587,7 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-### 4. 检查是否已经注册
+### 6.4 检查是否已经注册
 
 - http方法：**GET**
 
