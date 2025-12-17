@@ -213,7 +213,7 @@ async downloadApp(os:string){
     const res = await fetch(`${URL}/api/download/app/${os}`,{
       method:"GET"
     })
-    
+
     if(!res.ok){
       console.error('下载请求失败:', res.status, res.statusText);
       blocks.popupConfirm("下载失败：服务器返回错误")
@@ -221,22 +221,22 @@ async downloadApp(os:string){
     }
 
     const contentDisposition = res.headers.get('Content-Disposition');
-    let filename = ''; 
-    
+    let filename = '';
+
     if (contentDisposition) {
         const matches = contentDisposition.match(/filename="?([^"]+)"?/i);
         if (matches && matches[1]) {
             filename = matches[1];
         }
     }
-    
+
     if (!filename) {
         if (os === 'windows') {
             filename = 'LighterBase-windows.exe';
         } else if (os === 'linux') {
             filename = 'LighterBase-linux';
         } else {
-             filename = `LighterBase-${os}`;
+              filename = `LighterBase-${os}`;
         }
     }
 
@@ -245,15 +245,65 @@ async downloadApp(os:string){
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
-    
+
     document.body.appendChild(a);
     a.click();
-    
+
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
-    
+
     return true
-    
+
+  }catch(e){
+    console.error("下载过程中发生错误:", e);
+    blocks.popupConfirm("下载失败")
+    return false
+  }
+},
+
+async downloadProject(projectId: number, hubAuthToken: string){
+  try{
+    const res = await fetch(`${URL}/api/projects/download/${projectId}`,{
+      method:"GET",
+      headers:{
+        "Authorization": `Bearer ${hubAuthToken}`
+      }
+    })
+
+    if(!res.ok){
+      console.error('下载请求失败:', res.status, res.statusText);
+      blocks.popupConfirm("下载失败：服务器返回错误")
+      return false
+    }
+
+    const contentDisposition = res.headers.get('Content-Disposition');
+    let filename = '';
+
+    if (contentDisposition) {
+        const matches = contentDisposition.match(/filename="?([^"]+)"?/i);
+        if (matches && matches[1]) {
+            filename = matches[1];
+        }
+    }
+
+    if (!filename) {
+        filename = `project-${projectId}.zip`;
+    }
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+
+    return true
+
   }catch(e){
     console.error("下载过程中发生错误:", e);
     blocks.popupConfirm("下载失败")

@@ -40,19 +40,24 @@ projectDetails.innerHTML = `
   </div>
 </div>
   <div id="mount" class="mt-3 w-full h-[50%] rounded-sm bg-[#1B1E1F] "></div>
-  <div class="absolute bottom-4 right-4 flex space-x-4">
-    <button id="start-btn" class="w-10 h-10 bg-[#3D8FEF] hover:bg-[#46A3FF] rounded-lg flex items-center justify-center transition-colors">
-      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-      </svg>
-    </button>
-    <button id="delete-btn" class="w-10 h-10 bg-[#EF4B3D] hover:bg-[#FF6B6B] rounded-lg flex items-center justify-center transition-colors">
-      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-      </svg>
-    </button>
-  </div>
+   <div class="absolute bottom-4 right-4 flex space-x-4">
+     <button id="start-btn" class="w-10 h-10 bg-[#3D8FEF] hover:bg-[#46A3FF] rounded-lg flex items-center justify-center transition-colors">
+       <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+       </svg>
+     </button>
+     <button id="download-btn" class="w-10 h-10 bg-[#28A745] hover:bg-[#34D058] rounded-lg flex items-center justify-center transition-colors">
+       <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+       </svg>
+     </button>
+     <button id="delete-btn" class="w-10 h-10 bg-[#EF4B3D] hover:bg-[#FF6B6B] rounded-lg flex items-center justify-center transition-colors">
+       <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+       </svg>
+     </button>
+   </div>
  `;
 if(app)
 app.appendChild(projectDetails);
@@ -64,13 +69,14 @@ function handleOutsideClick(event: MouseEvent) {
   // 检查是否点击在项目区块上
   const isClickOnBlock = target.closest('.absolute.flex.bg-gray-700');
   
-  // 检查是否点击在详情区域内
-  const isClickOnDetails = target.closest('#projectDetails') || 
-                           target.closest('#detail-avatar') || 
-                           target.closest('#detail-name') || 
-                           target.closest('#detail-description') || 
-                           target.closest('#start-btn') || 
-                           target.closest('#delete-btn');
+   // 检查是否点击在详情区域内
+   const isClickOnDetails = target.closest('#projectDetails') ||
+                            target.closest('#detail-avatar') ||
+                            target.closest('#detail-name') ||
+                            target.closest('#detail-description') ||
+                            target.closest('#start-btn') ||
+                            target.closest('#download-btn') ||
+                            target.closest('#delete-btn');
   const isClickOnLogin = target.closest("#start-modal")
   
   // 如果点击在项目区块或详情区域内，不执行返回操作
@@ -267,10 +273,19 @@ const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function
          initializeStartModal(userId, projectId);
        }
      };
+    }
+
+   // 添加下载事件
+   const downloadBtn = projectDetails.querySelector('#download-btn') as HTMLButtonElement;
+   if (downloadBtn) {
+     downloadBtn.onclick = async () => {
+       if (!token) return;
+       await projects.downloadProject(selectedId, token);
+     };
    }
 
-  // 添加删除事件
-  if (deleteBtn) {
+   // 添加删除事件
+   if (deleteBtn) {
     deleteBtn.onclick = async () => {
       if (!token) return;
 
