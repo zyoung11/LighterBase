@@ -8,3 +8,5 @@ Backend/web/LighterBaseHub
 Backend/web/test/__pycache__
 TEST
 Backend/web/test/uv.lock
+Frontend/lighterBaseWeb
+Frontend/backup
