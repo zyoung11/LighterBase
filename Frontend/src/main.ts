@@ -20,28 +20,6 @@ import folderImg from './icons/folderWhite.svg';
 import recordsImg from './icons/analysisWhite.svg';
 import settingsImg from './icons/settingsWhite.svg';
 
-// function checkAuthentication() {
-//   if (!authToken) {
-//     console.log("没有找到JWT token，跳转到登录页面");
-//     window.location.href = `/welcome.html?apiUrl=${encodeURIComponent(URL)}`;
-//     return false;
-//   }
-
-//   try {
-//     const decoded = jwtDecode(authToken);
-//     const exp = Number(decoded.exp) * 1000;
-//     if (exp && exp < Date.now()) {
-//       console.log("token已经过期，尝试刷新");
-//       return true; // 继续执行刷新逻辑
-//     }
-//     return true; // token有效，继续执行
-//   } catch (e) {
-//     console.log("token解析失败，跳转到登录页面", e);
-//     window.location.href = `/welcome.html?apiUrl=${encodeURIComponent(URL)}`;
-//     return false;
-//   }
-// }
-
 // 初始化应用
 // async function initializeApp() {
 // await checkAuthentication(authToken,'welcome.html')
@@ -483,7 +461,7 @@ function setupAccountSettings() {
             // Clear token
             document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
             // Redirect to welcome
-            window.location.href = `/welcome.html?apiUrl=${encodeURIComponent(URL)}`;
+            window.location.href = `/`;
         }
     });
 }

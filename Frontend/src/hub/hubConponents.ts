@@ -93,7 +93,7 @@ function createNavBar() {
  const userBtn = document.createElement('button');
     userBtn.id = 'user-link';
     userBtn.textContent = i18n.t('hub.navbar.login');
-    userBtn.className = ' bg-blue-500 text-white border border-white p-2 rounded-lg cursor-pointer hover:bg-blue-600';
+    userBtn.className = ' bg-[#46A3FF] text-white border border-white p-2 rounded-lg cursor-pointer hover:bg-[#2E96FF]';
     userBtn.onclick = () => window.location.href = '/login';
 
    // 添加语言切换按钮（放在用户名左边）

@@ -190,7 +190,7 @@ async function initializeBlocks() {
   }
 
   // 获取项目数据
-  console.log(token)
+  // console.log(token)
   const projectsData = await projects.getAllProjects(token);
   await projects.getAllUsers(token)
   if (!projectsData) return;
@@ -430,9 +430,9 @@ async function initializeStartModal(userId: string, projectId: number) {
   }
 
 
-    const newUrl = `${theURL}/${userId}/${projectId}`;
-    // const newUrl = `http://www.smallwoodice.cn:8080/${userId}/${projectId}`;
-    setBaseUrl(newUrl);
+    const projectUrl = `${theURL}/${userId}/${projectId}`;
+    // const projectUrl = `http://www.smallwoodice.cn:8080/${userId}/${projectId}`;
+    setBaseUrl(projectUrl);
 
   // 检查是否为空数据库
   const isEmpty = await auth.isLogin();
@@ -449,6 +449,7 @@ async function initializeStartModal(userId: string, projectId: number) {
     if (e.target === startModal) {
       startModal.classList.add('hidden');
       startModal.classList.remove('flex');
+      setBaseUrl()
       startForm.reset();
     }
   };
@@ -461,7 +462,6 @@ async function initializeStartModal(userId: string, projectId: number) {
     const hiddenPassword = document.getElementById('start-hidden-password') as HTMLInputElement;
 
     if (!hiddenUsername || !hiddenPassword) {
-      console.error('Hidden input elements not found');
       return;
     }
 
@@ -478,7 +478,7 @@ async function initializeStartModal(userId: string, projectId: number) {
     }
 
     // 设置URL并跳转
-    window.location.href = `/index?apiUrl=${encodeURIComponent(newUrl)}`;
+    window.location.href = `/index?apiUrl=${encodeURIComponent(projectUrl)}`;
   };
 }
 
