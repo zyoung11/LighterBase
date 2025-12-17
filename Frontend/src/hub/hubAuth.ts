@@ -1,5 +1,6 @@
 import blocks from "../modules/blocks";
 import { URL } from "../apis/api";
+import { i18n } from "../modules/i18n";
 // const URL = "http://localhost:8080"
 
 
@@ -138,7 +139,7 @@ init() {
             isLoginMode = true;
             emailField.classList.add('hidden');
             emailInput.required = false;
-            submitBtn.textContent = '登录';
+            submitBtn.textContent = i18n.t('login.toggle.login');
             toggleLogin.className = 'w-[50%] px-2 py-2 bg-[#46A3FF] text-white rounded-l-lg transition-colors';
             toggleRegister.className = 'w-[50%] px-2 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] text-gray-200 rounded-r-lg transition-colors';
         }
@@ -148,7 +149,7 @@ init() {
             isLoginMode = false;
             emailField.classList.remove('hidden');
             emailInput.required = true;
-            submitBtn.textContent = '注册';
+            submitBtn.textContent = i18n.t('login.toggle.register');
             toggleLogin.className = 'w-[50%] px-2 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] text-gray-200 rounded-l-lg transition-colors';
             toggleRegister.className = 'w-[50%] px-2 py-2 bg-[#46A3FF] text-white rounded-r-lg transition-colors';
         }

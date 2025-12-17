@@ -330,9 +330,15 @@ const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function
     const inviteBtn = projectDetails.querySelector('#invite-btn') as HTMLButtonElement;
     if (inviteBtn) {
       inviteBtn.onclick = async () => {
+        const projectUrl = `${theURL}/${userId}/${projectId}`;
+        console.log(projectUrl)
+        setBaseUrl(projectUrl);
+        
         const isEmpty = await auth.isLogin();
+
         if (!isEmpty) {
           await popBlocks.popupConfirm("请先注册用户");
+          setBaseUrl();
           return;
         }
         // 创建邀请弹窗
@@ -348,7 +354,7 @@ const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function
             <div class="flex items-center justify-center">
               <label class="block text-white mr-2">权限</label>
               <select id="invite-permissions" class="flex-1 bg-[#1B1E1F] border border-white/10 text-white p-2 rounded">
-                <option value="admin">admin</option>
+                <option value="admin">high-privileges</option>
                 <option value="readonly">readonly</option>
               </select>
             </div>
@@ -372,6 +378,7 @@ const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function
             app.removeChild(inviteModal);
           }
           document.removeEventListener('click', closeHandler);
+          setBaseUrl();
         };
         const closeHandler = (e: MouseEvent) => {
           if (!inviteModal.contains(e.target as Node)) {
