@@ -208,58 +208,86 @@ async deleteProject(id: number, hubAuthToken: string){
 
 // projects.ts
 
-async downloadApp(os:string){
-  try{
-    const res = await fetch(`${URL}/api/download/app/${os}`,{
-      method:"GET"
-    })
+// async downloadApp(os:string){
+//   try{
+//     const res = await fetch(`${URL}/api/download/app/${os}`,{
+//       method:"GET"
+//     })
 
-    if(!res.ok){
-      console.error('下载请求失败:', res.status, res.statusText);
-      blocks.popupConfirm("下载失败：服务器返回错误")
-      return false
-    }
+//     if(!res.ok){
+//       console.error('下载请求失败:', res.status, res.statusText);
+//       blocks.popupConfirm("下载失败：服务器返回错误")
+//       return false
+//     }
 
-    const contentDisposition = res.headers.get('Content-Disposition');
-    let filename = '';
+//     const contentDisposition = res.headers.get('Content-Disposition');
+//     let filename = '';
 
-    if (contentDisposition) {
-        const matches = contentDisposition.match(/filename="?([^"]+)"?/i);
-        if (matches && matches[1]) {
-            filename = matches[1];
-        }
-    }
+//     if (contentDisposition) {
+//         const matches = contentDisposition.match(/filename="?([^"]+)"?/i);
+//         if (matches && matches[1]) {
+//             filename = matches[1];
+//         }
+//     }
 
-    if (!filename) {
-        if (os === 'windows') {
-            filename = 'LighterBase-windows.exe';
-        } else if (os === 'linux') {
-            filename = 'LighterBase-linux';
-        } else {
-              filename = `LighterBase-${os}`;
-        }
-    }
+//     if (!filename) {
+//         if (os === 'windows') {
+//             filename = 'LighterBase-windows.exe';
+//         } else if (os === 'linux') {
+//             filename = 'LighterBase-linux';
+//         } else {
+//               filename = `LighterBase-${os}`;
+//         }
+//     }
 
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
+//     const blob = await res.blob();
+//     const url = window.URL.createObjectURL(blob);
+//     const a = document.createElement('a');
+//     a.href = url;
+//     a.download = filename;
+
+//     document.body.appendChild(a);
+//     a.click();
+
+//     document.body.removeChild(a);
+//     window.URL.revokeObjectURL(url);
+
+//     return true
+
+//   }catch(e){
+//     console.error("下载过程中发生错误:", e);
+//     blocks.popupConfirm("下载失败")
+//     return false
+//   }
+// },
+
+
+async downloadApp(os: string) {
+  try {
+    // 方案 1：直接构造 URL 跳转，让浏览器原生处理下载
+    const downloadUrl = `${URL}/api/download/app/${os}`;
+    
+    // 创建一个隐藏的 a 标签并触发点击
     const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-
+    a.href = downloadUrl;
+    // 如果后端配置了 Content-Disposition，这行其实可以省略
+    a.download = os === 'windows' ? 'LighterBase-windows.exe' : 'LighterBase-linux';
+    
     document.body.appendChild(a);
     a.click();
-
     document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
 
-    return true
-
-  }catch(e){
-    console.error("下载过程中发生错误:", e);
-    blocks.popupConfirm("下载失败")
-    return false
+    return true;
+  } catch (e) {
+    console.error("触发下载失败:", e);
+    return false;
   }
 },
+
+
+
+
+
 
 async downloadProject(projectId: number, hubAuthToken: string){
   try{

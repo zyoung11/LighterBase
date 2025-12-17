@@ -427,8 +427,8 @@ async function initializeStartModal(userId: string, projectId: number) {
   }
 
 
-    const newUrl = `http://localhost:8080/${userId}/${projectId}`;
-    // const newUrl = `http://www.smallwoodice.cn:8080/${userId}/${projectId}`;
+    // const newUrl = `http://localhost:8080/${userId}/${projectId}`;
+    const newUrl = `http://www.smallwoodice.cn:8080/${userId}/${projectId}`;
     setBaseUrl(newUrl);
 
   // 检查是否为空数据库

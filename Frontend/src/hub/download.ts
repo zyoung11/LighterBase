@@ -33,13 +33,11 @@ async function downloadApp(os: string) {
   
   try {
     const success = await projects.downloadApp(os);
-    if (success) {
-      blocks.popupConfirm('下载成功！');
-    } else {
-      blocks.popupConfirm('下载失败，请重试');
+    if (!success) {
+      blocks.popupConfirm('下载失败');
     }
   } catch (error) {
-    blocks.popupConfirm('下载失败，请重试');
+    blocks.popupConfirm('下载失败');
   }
 }
 
