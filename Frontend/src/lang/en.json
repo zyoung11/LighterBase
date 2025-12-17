@@ -111,5 +111,11 @@
       "analysis": "Analysis",
       "settings": "Settings"
     }
+  },
+  "download": {
+    "title": "LighterBase",
+    "slogan": "A Lighter way, a Lighter base, a Lighter life",
+    "release": "2025.12.12 base officially released",
+    "contact": "contact us"
   }
 }

@@ -14,6 +14,9 @@ import popBlocks from "../modules/blocks";
 import auth from "../apis/auth";
 
 let token = getCookie("hubAuthToken")
+let theURL = "http://localhost:8080"
+// let theURL = "http://www.smallwoodice.cn:8080"
+
 
 let blocks:any[] = [];
 const app = document.getElementById('app');
@@ -427,8 +430,8 @@ async function initializeStartModal(userId: string, projectId: number) {
   }
 
 
-    // const newUrl = `http://localhost:8080/${userId}/${projectId}`;
-    const newUrl = `http://www.smallwoodice.cn:8080/${userId}/${projectId}`;
+    const newUrl = `${theURL}/${userId}/${projectId}`;
+    // const newUrl = `http://www.smallwoodice.cn:8080/${userId}/${projectId}`;
     setBaseUrl(newUrl);
 
   // 检查是否为空数据库

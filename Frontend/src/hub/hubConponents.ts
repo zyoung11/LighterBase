@@ -31,7 +31,12 @@ function translatePage() {
   elements.forEach(element => {
     const key = element.getAttribute('data-i18n');
     if (key) {
-      element.textContent = i18n.t(key);
+      const translation = i18n.t(key);
+      if (element.tagName === 'INPUT' && element.hasAttribute('placeholder')) {
+        element.setAttribute('placeholder', translation);
+      } else {
+        element.textContent = translation;
+      }
     }
   });
 }

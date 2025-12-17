@@ -111,5 +111,11 @@
       "analysis": "分析",
       "settings": "设置"
     }
+  },
+  "download": {
+    "title": "LighterBase",
+    "slogan": "更轻的方式，更轻的数据库，更轻的生活",
+    "release": "2025.12.12 base正式发布",
+    "contact": "联系我们"
   }
 }
