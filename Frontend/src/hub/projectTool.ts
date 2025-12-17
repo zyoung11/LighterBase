@@ -33,7 +33,7 @@ projectDetails.id = 'projectDetails';
 projectDetails.className = 'absolute right-[5%] top-[12%] w-3/5 h-4/5 bg-[#1B1E1F] shadow-md shadow-white/30 bg-opacity-90 p-4 rounded-lg hidden z-5';
 projectDetails.innerHTML = `
 <div class="w-full h-[40%] flex">
-  <img id="detail-avatar" class="w-[45%] h-full object-cover mb-4 rounded-sm" src="${defaultImg}" onerror="this.src='${defaultImg}'">
+  <img id="detail-avatar" class="w-[45%] h-full object-cover mb-4 rounded-md" src="${defaultImg}" onerror="this.src='${defaultImg}'">
   <div class="ml-3 w-[50%] h-full flex flex-col">
   <h2 id="detail-name" class="text-2xl font-bold mb-4"></h2>
   <textarea id="detail-description" class="w-full h-full bg-[#1B1E1F] border border-white/10 bg-opacity-50 text-white p-2 rounded resize-none overflow-y-auto mb-4" readonly style="user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; cursor: default; pointer-events: none; outline: none; box-shadow: none;"></textarea>
@@ -47,7 +47,7 @@ projectDetails.innerHTML = `
          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
        </svg>
      </button>
-     <button id="download-btn" class="w-10 h-10 bg-[#28A745] hover:bg-[#34D058] rounded-lg flex items-center justify-center transition-colors">
+     <button id="download-btn" class="w-10 h-10 bg-[#E8A948] hover:bg-[#F0B151] rounded-lg flex items-center justify-center transition-colors">
        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
        </svg>
@@ -60,7 +60,7 @@ projectDetails.innerHTML = `
    </div>
  `;
 if(app)
-app.appendChild(projectDetails);
+  app.appendChild(projectDetails);
 
 // 创建点击外部返回的功能
 function handleOutsideClick(event: MouseEvent) {
@@ -69,20 +69,25 @@ function handleOutsideClick(event: MouseEvent) {
   // 检查是否点击在项目区块上
   const isClickOnBlock = target.closest('.absolute.flex.bg-gray-700');
   
-   // 检查是否点击在详情区域内
-   const isClickOnDetails = target.closest('#projectDetails') ||
-                            target.closest('#detail-avatar') ||
-                            target.closest('#detail-name') ||
-                            target.closest('#detail-description') ||
-                            target.closest('#start-btn') ||
-                            target.closest('#download-btn') ||
-                            target.closest('#delete-btn');
-  const isClickOnLogin = target.closest("#start-modal")
-  
-  // 如果点击在项目区块或详情区域内，不执行返回操作
-  if (isClickOnBlock || isClickOnDetails ||isClickOnLogin||  projectDetails.classList.contains('hidden')) {
-    return;
-  }
+  // 检查是否点击在详情区域内
+    const isClickOnDetails = target.closest('#projectDetails') ||
+                             target.closest('#detail-avatar') ||
+                             target.closest('#detail-name') ||
+                             target.closest('#detail-description') ||
+                             target.closest('#start-btn') ||
+                             target.closest('#download-btn') ||
+                             target.closest('#delete-btn');
+   const isClickOnLogin = target.closest("#start-modal")
+   const isClickOnUpdate = target.closest('#update-modal') ||
+                           target.closest('#update-preview-avatar') ||
+                           target.closest('#update-preview-name') ||
+                           target.closest('#update-preview-description') ||
+                           target.closest('#update-btn') ||
+                           target.closest('#cancel-update')
+   // 如果点击在项目区块或详情区域内，不执行返回操作
+   if (isClickOnBlock || isClickOnDetails ||isClickOnLogin|| isClickOnUpdate || projectDetails.classList.contains('hidden')) {
+     return;
+   }
   
   // 执行返回操作
   blocks.forEach((block, index) => {
@@ -124,19 +129,27 @@ async function renderBlock(block:any) {
     const originAvatar = block.project.project_avatar
     const compressedAvatar = await compressImage(block.project.project_avatar || '', 120, 0.4);
     block.element = document.createElement('div');
-    block.element.className = `absolute flex bg-[#1B1E1F] shadow-sm shadow-white/30 rounded-md shadow-lg p-2 transition-all ease-in-out cursor-pointer pointer-events-auto`;
+    block.element.className = `absolute flex bg-[#1B1E1F] shadow-sm shadow-white/40 rounded-md shadow-lg p-2 transition-all ease-in-out cursor-pointer pointer-events-auto`;
     block.element.style.width = '28%';
     block.element.style.height = '22vh';
     block.element.style.transitionDuration = `${ANIMATION_DURATION}ms`;
     block.element.innerHTML = `
-        <img src="${originAvatar}" class="w-[16vh] h-[16vh] p-1 object-cover rounded" 
+        <img src="${originAvatar}" class="w-[16vh] h-[16vh] p-1 rounded-md object-cover rounded" 
              onerror="this.src='${defaultImg}'; this.style.display='block'; this.style.objectFit='cover';">
-       <div class = "flex flex-col">
-       <h3 class="text-white text-sm font-bold break-words">${block.project.project_name}</h3>
-       <p class="text-gray-300 text-xs break-words line-clamp-3">${block.project.project_description}</p>
-        <div>
+        <div class = "flex flex-col flex-1 ml-2 mt-2">
+        <h3 class="text-white text-sm font-bold break-words line-clamp-1 min-h-5">${block.project.project_name}</h3>
+        <p class="text-gray-300 text-xs break-words line-clamp-3 min-h-12 mt-1">${block.project.project_description}</p>
+        <div class="mt-3">
           <p class="text-gray-400 text-xs">${i18n.t('common.created')}${block.project.create_at}</p>
           <p class="text-gray-400 text-xs">${i18n.t('common.updated')}${block.project.update_at}</p>
+        </div>
+        <div class="flex justify-end mt-2">
+          <button id="update-btn-${block.id}" class="w-6 h-6 bg-[#E8A948] hover:bg-[#F0B151] rounded flex items-center justify-center transition-colors">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+          </button>
         </div>
 </div>
     `;
@@ -147,6 +160,13 @@ async function renderBlock(block:any) {
   block.element.style.pointerEvents = 'auto';
   selectBlock(block.id);
 });
+
+    // 添加更新按钮事件
+    const updateBtn = block.element.querySelector(`#update-btn-${block.id}`) as HTMLButtonElement;
+    updateBtn.addEventListener('click', (event: MouseEvent) => {
+      event.stopPropagation();
+      showUpdateModal(block);
+    });
 
 // 确保元素可以接收点击事件
 block.element.style.pointerEvents = 'auto';
@@ -456,6 +476,67 @@ async function initializeStartModal(userId: string, projectId: number) {
 
     // 设置URL并跳转
     window.location.href = `/index?apiUrl=${encodeURIComponent(newUrl)}`;
+  };
+}
+
+// --- 更新项目模态窗口逻辑 ---
+async function showUpdateModal(block: any) {
+  const updateModal = document.getElementById('update-modal') as HTMLDivElement;
+  const previewName = updateModal.querySelector('#update-preview-name') as HTMLInputElement;
+  const previewDescription = updateModal.querySelector('#update-preview-description') as HTMLTextAreaElement;
+  const previewAvatar = updateModal.querySelector('#update-preview-avatar') as HTMLImageElement;
+  const avatarInput = updateModal.querySelector('#update-project-avatar') as HTMLInputElement;
+  const form = updateModal.querySelector('#update-project-form') as HTMLFormElement;
+  const cancelBtn = updateModal.querySelector('#cancel-update') as HTMLButtonElement;
+
+  // 填充数据
+  previewName.value = block.project.project_name;
+  previewDescription.value = block.project.project_description;
+  previewAvatar.src = block.project.project_avatar || defaultImg;
+
+  // 显示modal
+  updateModal.classList.remove('hidden');
+  updateModal.classList.add('flex');
+
+  // 点击外部关闭
+  updateModal.onclick = (e) => {
+    if (e.target === updateModal) {
+      updateModal.classList.add('hidden');
+      updateModal.classList.remove('flex');
+    }
+  };
+
+  // 图片上传
+  previewAvatar.onclick = () => avatarInput.click();
+  avatarInput.onchange = (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (file) {
+      previewAvatar.src = window.URL.createObjectURL(file);
+    }
+  };
+
+  // 取消
+  cancelBtn.onclick = () => {
+    updateModal.classList.add('hidden');
+    updateModal.classList.remove('flex');
+  };
+
+  // 表单提交
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+    const name = previewName.value;
+    const description = previewDescription.value;
+    const file = avatarInput.files?.[0];
+    let avatar = block.project.project_avatar;
+    if (file) {
+      avatar = await compressImage(window.URL.createObjectURL(file), 120, 0.4);
+    }
+    const data = { project_name: name, project_description: description, project_avatar: avatar };
+    await projects.updateProject(block.id, data, token);
+    updateModal.classList.add('hidden');
+    updateModal.classList.remove('flex');
+    // 重新加载页面以更新
+    location.reload();
   };
 }
 
