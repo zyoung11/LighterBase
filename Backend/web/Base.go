@@ -19,6 +19,7 @@ import (
 )
 
 //go:embed SQL/schema.sql
+//go:embed SQL/schema_baas.sql
 var schemaFS embed.FS
 
 var (

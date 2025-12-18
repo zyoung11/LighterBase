@@ -148,7 +148,7 @@ func createProject(c *fiber.Ctx) error {
 	if err != nil {
 		return sendError(c, 500, "无法打开元数据库", nil)
 	}
-	if err := runSchema(metaDB); err != nil {
+	if err := RunSchemaWithFile(metaDB, "SQL/schema_baas.sql"); err != nil {
 		return sendError(c, 500, "无法初始化元数据库", nil)
 	}
 	queries := database.New(metaDB)

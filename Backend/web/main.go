@@ -147,7 +147,11 @@ func NewApp(name string, routes []Route) *fiber.App {
 }
 
 func runSchema(db *sql.DB) error {
-	schemaBytes, err := schemaFS.ReadFile("SQL/schema.sql")
+	return RunSchemaWithFile(db, "SQL/schema.sql")
+}
+
+func RunSchemaWithFile(db *sql.DB, schemaFile string) error {
+	schemaBytes, err := schemaFS.ReadFile(schemaFile)
 	if err != nil {
 		return fmt.Errorf("could not read embedded schema file: %w", err)
 	}
