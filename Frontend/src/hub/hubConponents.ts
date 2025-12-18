@@ -78,23 +78,30 @@ function createNavBar() {
     docsBtn.onclick = () => window.location.href = '/docs';
    leftDiv.appendChild(docsBtn);
 
-    const downloadBtn = document.createElement('button');
-    downloadBtn.id='download-link';
-    downloadBtn.textContent = i18n.t('hub.navbar.download');
-    downloadBtn.className = 'bg-transparent text-white border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
-    downloadBtn.onclick = () => window.location.href = '/download';
-   leftDiv.appendChild(downloadBtn);
+     const downloadBtn = document.createElement('button');
+     downloadBtn.id='download-link';
+     downloadBtn.textContent = i18n.t('hub.navbar.download');
+     downloadBtn.className = 'bg-transparent text-white border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+     downloadBtn.onclick = () => window.location.href = '/download';
+    leftDiv.appendChild(downloadBtn);
+
+     const projectsBtn = document.createElement('button');
+     projectsBtn.id='projects-link';
+     projectsBtn.textContent = i18n.t('hub.navbar.projects');
+     projectsBtn.className = 'bg-transparent text-white border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+     projectsBtn.onclick = () => window.location.href = '/projects';
+    leftDiv.appendChild(projectsBtn);
 
   nav.appendChild(leftDiv);
 
   // 右侧：Login in 或 用户名
   const rightDiv = document.createElement('div');
   rightDiv.className = 'relative flex';
- const userBtn = document.createElement('button');
-    userBtn.id = 'user-link';
-    userBtn.textContent = i18n.t('hub.navbar.login');
-    userBtn.className = ' bg-[#46A3FF] text-white border border-white p-2 rounded-lg cursor-pointer hover:bg-[#2E96FF]';
-    userBtn.onclick = () => window.location.href = '/login';
+  const userBtn = document.createElement('button');
+     userBtn.id = 'user-link';
+     userBtn.textContent = i18n.t('hub.navbar.login');
+     userBtn.className = ' bg-[#46A3FF] text-white border border-white w-10 h-10 rounded-full cursor-pointer hover:bg-[#2E96FF] flex items-center justify-center';
+     userBtn.onclick = () => window.location.href = '/login';
 
    // 添加语言切换按钮（放在用户名左边）
    const languageSwitcher = createLanguageSwitcher();
@@ -173,11 +180,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       userBtn.textContent = i18n.t('hub.navbar.login');
     }
     const docsBtn = document.getElementById('docs-link') as HTMLButtonElement;
-    const pricingBtn = document.getElementById('pricing-link') as HTMLButtonElement;
-    const downloadBtn = document.getElementById('download-link') as HTMLButtonElement;
-    docsBtn.textContent = i18n.t('hub.navbar.docs');
-    pricingBtn.textContent = i18n.t('hub.navbar.pricing');
-    downloadBtn.textContent = i18n.t('hub.navbar.download');
+     const pricingBtn = document.getElementById('pricing-link') as HTMLButtonElement;
+     const downloadBtn = document.getElementById('download-link') as HTMLButtonElement;
+     const projectsBtn = document.getElementById('projects-link') as HTMLButtonElement;
+     docsBtn.textContent = i18n.t('hub.navbar.docs');
+     pricingBtn.textContent = i18n.t('hub.navbar.pricing');
+     downloadBtn.textContent = i18n.t('hub.navbar.download');
+     projectsBtn.textContent = i18n.t('hub.navbar.projects');
     
     // 重新翻译整个页面
     translatePage();
@@ -202,7 +211,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   if (token && username && userBtn && profileMenu && logoutBtn) {
-    userBtn.textContent = username;
+     userBtn.textContent = username.charAt(0);
     userBtn.onclick = function (e) {
       e.preventDefault();
       e.stopPropagation();
