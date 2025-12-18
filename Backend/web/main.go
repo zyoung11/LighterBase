@@ -69,6 +69,7 @@ var routes = []Route{
 
 	// --- _sqls_ 表管理 API ---
 	{Method: "GET", Path: "/:userId/:projectId/api/sqls/latest", Handler: getLatestSqlRecord},
+	{Method: "GET", Path: "/:userId/:projectId/api/sqls/history", Handler: getAllSqlHistory},
 
 	// --- _security_ 表管理 API (需要 JWT) ---
 	{Method: "GET", Path: "/:userId/:projectId/api/security", Handler: getAllSecurity},
@@ -1387,6 +1388,23 @@ func getLatestSqlRecord(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(record)
+}
+
+// 获取所有 SQL 历史记录
+func getAllSqlHistory(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	queries := dbSet.Queries
+
+	if !checkRootOrAdminPermission(c) {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
+	records, err := queries.ListSqls(context.Background())
+	if err != nil {
+		return sendError(c, 500, "Failed to fetch SQL history.", fiber.Map{"database_error": err.Error()})
+	}
+
+	return c.JSON(records)
 }
 
 type SecurityResponse struct {

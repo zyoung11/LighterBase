@@ -123,14 +123,56 @@ run_test(
     should_fail=True)
 )
 
-run_test(
+app_token = run_test(
     "App 修改密码后登录",
     post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auth/login",
          headers={"Content-Type": "application/json"},
          body={
              "name": "zy",
              "password_hash": "123"
-        })
+        }),
+    "token"    
+)
+
+run_test(
+    "zy 创建表 1",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/create-table/create",
+         headers={"Authorization": f"Bearer {app_token}",
+                  "Content-Type": "application/json"},
+          body={
+              	"SQL": '''
+              	    CREATE TABLE IF NOT EXISTS test (
+                        test_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER NOT NULL,
+                        test TEXT,
+                        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+                    );
+              	'''
+          })
+)
+
+run_test(
+    "zy 创建表 2",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/create-table/create",
+         headers={"Authorization": f"Bearer {app_token}",
+                  "Content-Type": "application/json"},
+          body={
+              	"SQL": '''
+              	    CREATE TABLE IF NOT EXISTS test (
+                        test_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER NOT NULL,
+                        test TEXT,
+                        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+                    );
+              	'''
+          })
+)
+
+run_test(
+    "查看历史SQL记录",
+    get(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/sqls/history",
+         headers={"Authorization": f"Bearer {app_token}",
+                  "Content-Type": "application/json"})
 )
 
 print_info(

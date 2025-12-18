@@ -973,7 +973,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 ## 2. 用户表操作 API
 
-### 2.1 SQL 操作
+### 2.1 SQL  表操作
 
 > [!IMPORTANT]
 >
@@ -1022,7 +1022,7 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-### 2.2 查看上一次SQL操作
+### 2.2 查看上一次 SQL 表操作
 
 > [!IMPORTANT]
 >
@@ -1047,13 +1047,47 @@ cd LighterBase/Backend/web/LighterBaseHub
 
   ```json
   {
-      "ID": "value1",
-      "sql": "value2"
+      "ID": 0,
+      "sql": "value1"
   }
   ```
   
 
+### 2.3 查看历史 SQL 表操作
 
+> [!IMPORTANT]
+>
+> 只有**管理员和高权限成员**可以执行这个API
+
+- http方法：**GET**
+
+- URL：`/sqls/history`
+
+- 请求头：
+
+  ```
+  Content-Type: application/json
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  [
+      {
+          "ID": 0,
+          "sql": "value1"
+      },
+      {
+          "ID": 1,
+          "sql": "value2"
+      }
+  ]
+  ```
 
 ## 3. JWT
 

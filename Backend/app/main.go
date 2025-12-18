@@ -46,9 +46,6 @@ var routes = []Route{
 	{Method: "DELETE", Path: "/api/projects/:id", Handler: deleteProject, AuthRequired: true},
 	{Method: "GET", Path: "/api/projects/sql/:id", Handler: getProjectLatestSql, AuthRequired: true},
 
-	// --- 初始化 API ---
-	// {Method: "POST", Path: "/:userId/:projectId/init", Handler: initProject, AuthRequired: false},
-
 	// --- JWT 认证 API ---
 	{Method: "POST", Path: "/:userId/:projectId/api/auth/login", Handler: login_app, AuthRequired: false},
 	{Method: "POST", Path: "/:userId/:projectId/api/auth/refresh", Handler: refreshToken, AuthRequired: false},
@@ -65,6 +62,7 @@ var routes = []Route{
 
 	// --- _sqls_ 表管理 API ---
 	{Method: "GET", Path: "/:userId/:projectId/api/sqls/latest", Handler: getLatestSqlRecord},
+	{Method: "GET", Path: "/:userId/:projectId/api/sqls/history", Handler: getAllSqlHistory},
 
 	// --- _security_ 表管理 API (需要 JWT) ---
 	{Method: "GET", Path: "/:userId/:projectId/api/security", Handler: getAllSecurity},
@@ -1213,6 +1211,24 @@ func getLatestSqlRecord(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(record)
+}
+
+// 获取所有 SQL 历史记录
+func getAllSqlHistory(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	queries := dbSet.Queries
+
+	userID, err := authenticateUser(c)
+	if err != nil || userID != 1 {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
+	records, err := queries.ListSqls(context.Background())
+	if err != nil {
+		return sendError(c, 500, "Failed to fetch SQL history.", fiber.Map{"database_error": err.Error()})
+	}
+
+	return c.JSON(records)
 }
 
 type SecurityResponse struct {
