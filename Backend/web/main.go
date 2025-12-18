@@ -6,11 +6,15 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"os"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	inspectSQL "github.com/rqlite/sql"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -487,6 +491,89 @@ func touchingRootUser(where string, args []any) bool {
 		(strings.Contains(where, "id=@uid") && len(args) > 0 && args[0] == int64(1))
 }
 
+func InspectSQL(raw string) (forbidden error, hasSchemaMod bool) {
+	clean := regexp.MustCompile(`/\*.*?\*/`).ReplaceAllString(
+		regexp.MustCompile(`(?m)--.*$`).ReplaceAllString(raw, " "), " ")
+
+	protected := map[string]bool{
+		"id": true, "name": true, "password_hash": true,
+		"email": true, "avatar": true, "create_at": true, "update_at": true,
+	}
+
+	parser := inspectSQL.NewParser(strings.NewReader(clean))
+	for {
+		stmt, err := parser.ParseStatement()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, false
+		}
+
+		switch s := stmt.(type) {
+		case *inspectSQL.AlterTableStatement:
+			t := strings.ToLower(s.Name.Name)
+			if t == "users" {
+				if s.NewName != nil {
+					return fmt.Errorf("forbidden operation: cannot rename the 'users' table"), false
+				}
+				if s.ColumnName != nil && protected[strings.ToLower(s.ColumnName.Name)] {
+					return fmt.Errorf("forbidden operation: cannot rename protected column '%s' in 'users' table", s.ColumnName.Name), false
+				}
+				if s.DropColumnName != nil && protected[strings.ToLower(s.DropColumnName.Name)] {
+					return fmt.Errorf("forbidden operation: cannot drop protected column '%s' from 'users' table", s.DropColumnName.Name), false
+				}
+			}
+			hasSchemaMod = true
+
+		case *inspectSQL.DropTableStatement:
+			if strings.ToLower(s.Name.Name) == "users" {
+				return fmt.Errorf("forbidden operation: cannot drop the 'users' table"), false
+			}
+			hasSchemaMod = true
+
+		case *inspectSQL.DeleteStatement:
+			if s.Table != nil && strings.ToLower(s.Table.TableName()) == "users" {
+				return fmt.Errorf("forbidden operation: cannot DELETE from 'users' table"), false
+			}
+
+		case *inspectSQL.UpdateStatement:
+			if s.Table != nil && strings.ToLower(s.Table.TableName()) == "users" {
+				v := reflect.ValueOf(s).Elem()
+				t := v.Type()
+				for i := 0; i < t.NumField(); i++ {
+					f := t.Field(i)
+					if f.Type.Kind() == reflect.Slice && strings.Contains(strings.ToLower(f.Name), "update") {
+						slice := v.Field(i)
+						for j := 0; j < slice.Len(); j++ {
+							if ref, ok := slice.Index(j).Interface().(*inspectSQL.QualifiedRef); ok &&
+								protected[strings.ToLower(ref.Column.Name)] {
+								return fmt.Errorf("forbidden operation: cannot UPDATE protected column '%s' in 'users' table", ref.Column.Name), false
+							}
+						}
+						break
+					}
+				}
+			}
+
+		case *inspectSQL.BeginStatement, *inspectSQL.CommitStatement, *inspectSQL.RollbackStatement,
+			*inspectSQL.SavepointStatement, *inspectSQL.ReleaseStatement:
+			return fmt.Errorf("forbidden operation: transaction control statements are not allowed"), false
+
+		case *inspectSQL.PragmaStatement:
+			if _, ok := s.Expr.(*inspectSQL.BinaryExpr); ok {
+				return fmt.Errorf("forbidden operation: setting PRAGMA values is not allowed"), false
+			}
+
+		case *inspectSQL.CreateIndexStatement, *inspectSQL.CreateTableStatement, *inspectSQL.CreateTriggerStatement,
+			*inspectSQL.CreateViewStatement, *inspectSQL.CreateVirtualTableStatement,
+			*inspectSQL.DropIndexStatement, *inspectSQL.DropTriggerStatement, *inspectSQL.DropViewStatement, *inspectSQL.ReindexStatement:
+			hasSchemaMod = true
+		}
+	}
+	return nil, hasSchemaMod
+}
+
 //------------------------------------------------------------------------------
 
 func main() {
@@ -640,60 +727,10 @@ func execSQL(c *fiber.Ctx) error {
 		}
 	}()
 
-	// 4. 安全审查（仅在事务内做，失败即回滚）
-	sqlUpper := strings.ToUpper(strings.TrimSpace(body.SQL))
-	words := strings.Fields(sqlUpper)
-
-	// 4.1 如果是 ALTER TABLE users
-	if len(words) >= 3 && words[0] == "ALTER" && words[1] == "TABLE" &&
-		strings.Contains(sqlUpper, "USERS") {
-
-		// 必须是 ADD COLUMN
-		if !strings.Contains(sqlUpper, "ADD COLUMN") {
-			err = fmt.Errorf("only ADD COLUMN is allowed on users table")
-			return sendError(c, 403, err.Error(), nil)
-		}
-
-		// 提取新列名
-		var newCol string
-		for i, w := range words {
-			if w == "COLUMN" && i+1 < len(words) {
-				newCol = strings.Trim(words[i+1], `"`)
-				break
-			}
-		}
-		if newCol == "" {
-			err = fmt.Errorf("can not parse new column name")
-			return sendError(c, 400, err.Error(), nil)
-		}
-
-		// 不能与系统列重名
-		systemCols := map[string]bool{
-			"ID": true, "NAME": true, "PASSWORD_HASH": true, "EMAIL": true,
-			"AVATAR": true, "CREATE_AT": true, "UPDATE_AT": true,
-		}
-		if systemCols[strings.ToUpper(newCol)] {
-			err = fmt.Errorf("column %s already exists and is read-only", newCol)
-			return sendError(c, 403, err.Error(), nil)
-		}
-
-		// 禁止其他 ALTER 子句
-		forbidden := []string{"DROP COLUMN", "RENAME COLUMN", "ALTER COLUMN"}
-		for _, f := range forbidden {
-			if strings.Contains(sqlUpper, f) {
-				err = fmt.Errorf("%s is forbidden on users table", f)
-				return sendError(c, 403, err.Error(), nil)
-			}
-		}
-	}
-
-	// 4.2 禁止任何对 users 表的 DROP/TRUNCATE/DELETE/UPDATE
-	badVerbs := []string{"DROP", "TRUNCATE", "DELETE", "UPDATE"}
-	for _, v := range badVerbs {
-		if strings.HasPrefix(sqlUpper, v) && strings.Contains(sqlUpper, "USERS") {
-			err = fmt.Errorf("users table is read-only, %s is forbidden", v)
-			return sendError(c, 403, err.Error(), nil)
-		}
+	// 4. 使用 InspectSQL 进行安全审查
+	forbiddenErr, hasSchemaMod := InspectSQL(body.SQL)
+	if forbiddenErr != nil {
+		return sendError(c, 403, forbiddenErr.Error(), nil)
 	}
 
 	// 5. 执行用户 SQL（事务内）
@@ -712,25 +749,28 @@ func execSQL(c *fiber.Ctx) error {
 		return sendError(c, 500, "Failed to commit transaction.", fiber.Map{"database_error": err.Error()})
 	}
 
-	go func(sqlText string) {
-		re := regexp.MustCompile(`(?mi)CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?"?([a-zA-Z_][a-zA-Z0-9_]*)"?`)
-		allMatches := re.FindAllStringSubmatch(sqlText, -1)
+	// 8. 如果修改了 schema，自动为新建的表创建安全策略
+	if hasSchemaMod {
+		go func(sqlText string) {
+			re := regexp.MustCompile(`(?mi)CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?"?([a-zA-Z_][a-zA-Z0-9_]*)"?`)
+			allMatches := re.FindAllStringSubmatch(sqlText, -1)
 
-		for _, matches := range allMatches {
-			if len(matches) < 2 {
-				continue
+			for _, matches := range allMatches {
+				if len(matches) < 2 {
+					continue
+				}
+				tableName := matches[1]
+
+				_ = queries.CreateSecurity(context.Background(), database.CreateSecurityParams{
+					TableName:   tableName,
+					CreateWhere: sql.NullString{Valid: false},
+					DeleteWhere: sql.NullString{Valid: false},
+					UpdateWhere: sql.NullString{Valid: false},
+					ViewWhere:   sql.NullString{Valid: false},
+				})
 			}
-			tableName := matches[1]
-
-			_ = queries.CreateSecurity(context.Background(), database.CreateSecurityParams{
-				TableName:   tableName,
-				CreateWhere: sql.NullString{Valid: false},
-				DeleteWhere: sql.NullString{Valid: false},
-				UpdateWhere: sql.NullString{Valid: false},
-				ViewWhere:   sql.NullString{Valid: false},
-			})
-		}
-	}(body.SQL)
+		}(body.SQL)
+	}
 
 	return c.Status(201).JSON(fiber.Map{"SQL": body.SQL})
 }

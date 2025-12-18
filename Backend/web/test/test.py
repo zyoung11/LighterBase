@@ -1,6 +1,6 @@
 from PAT import get, post, put, run_test, print_info, show_result
 
-baseUrl = "http://localhost:8080"
+baseUrl = "http://127.0.0.1:8080"
 
 run_test(
     "注册用户 zy",
