@@ -47,11 +47,11 @@ projectDetails.innerHTML = `
            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
          </svg>
        </button>
-       <button id="invite-btn" class="w-10 h-10 border border-white/50 rounded-lg flex items-center justify-center transition-colors">
-         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m0-3h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
-         </svg>
-       </button>
+        <button id="invite-btn" class="w-10 h-10 border border-white/50 rounded-lg flex items-center justify-center transition-colors">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+        </svg>
+        </button>
        <button id="delete-btn" class="w-10 h-10 border border-white/50 rounded-lg flex items-center justify-center transition-colors">
          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -140,16 +140,16 @@ async function renderBlock(block:any) {
     const originAvatar = block.project.project_avatar
     const compressedAvatar = await compressImage(block.project.project_avatar || '', 120, 0.4);
     block.element = document.createElement('div');
-    block.element.className = `absolute flex bg-[#1B1E1F] shadow-sm shadow-white/40 rounded-md shadow-lg p-2 transition-all ease-in-out cursor-pointer pointer-events-auto`;
+    block.element.className = `absolute flex bg-[#1B1E1F] shadow-sm shadow-white/40 rounded-md shadow-lg p-2 transition-all ease-in-out cursor-pointer pointer-events-auto grid grid-cols-2`;
     block.element.style.width = '28%';
     block.element.style.height = '22vh';
     block.element.style.transitionDuration = `${ANIMATION_DURATION}ms`;
     block.element.innerHTML = `
         <img src="${originAvatar}" class="w-[16vh] h-[16vh] p-1 rounded-md object-cover rounded" 
              onerror="this.src='${defaultImg}'; this.style.display='block'; this.style.objectFit='cover';">
-        <div class = "flex flex-col flex-1 ml-2 mt-2">
-        <h3 class="text-white text-sm font-bold break-words line-clamp-1 min-h-5">${block.project.project_name}</h3>
-        <p class="text-gray-300 text-xs break-words line-clamp-3 min-h-12 mt-1">${block.project.project_description}</p>
+        <div class = "flex flex-col mt-2">
+        <h3 class="text-white text-sm font-bold break-words line-clamp-1">${block.project.project_name}</h3>
+        <p class="text-gray-300 text-xs break-words line-clamp-3 mt-1">${block.project.project_description}</p>
         <div class="mt-3">
           <p class="text-gray-400 text-xs">${i18n.t('common.created')}${block.project.create_at}</p>
           <p class="text-gray-400 text-xs">${i18n.t('common.updated')}${block.project.update_at}</p>
@@ -162,7 +162,7 @@ async function renderBlock(block:any) {
             </svg>
           </button>
         </div>
-</div>
+  </div>
     `;
     block.element.addEventListener('click', (event: MouseEvent) => {
   event.stopPropagation();
@@ -366,7 +366,7 @@ const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function
             <button id="send-invite-btn" class="bg-white text-black px-4 py-2 rounded w-full">发送</button>
           </div>
         `;
-        app.appendChild(inviteModal);
+        if(app) app.appendChild(inviteModal);
 
         // 定位到按钮正下方
         const rect = inviteBtn.getBoundingClientRect();
@@ -376,7 +376,7 @@ const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function
         // 点击外部关闭
         const closeInviteModal = () => {
           if (inviteModal.parentNode) {
-            app.removeChild(inviteModal);
+            if(app) app.removeChild(inviteModal);
           }
           document.removeEventListener('click', closeHandler);
           setBaseUrl();
