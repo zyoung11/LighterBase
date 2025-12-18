@@ -1,4 +1,4 @@
-from PAT import get, post, put, run_test, print_info
+from PAT import get, post, put, run_test, print_info, show_result
 
 baseUrl = "http://localhost:8080"
 
@@ -457,3 +457,5 @@ print_info(
         "app_token": app_token
     }
 )
+
+show_result()
