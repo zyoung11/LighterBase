@@ -7,6 +7,7 @@ import office from './office.jpg'
 import githubImg from '../icons/git.svg'
 import defaultImg from "../icons/projectsDefault.jpg"
 import userIcon from '../icons/userWhite.svg';
+import messagesIcon from '../icons/messages.svg';
 // import { createLoader } from "../modules/loader";
 import { compressImage,checkAuthentication } from "../modules/tools";
 import { i18n, createLanguageSwitcher } from "../modules/i18n";
@@ -96,8 +97,8 @@ function createNavBar() {
   nav.appendChild(leftDiv);
 
   // 右侧：Login in 或 用户名
-  const rightDiv = document.createElement('div');
-  rightDiv.className = 'relative flex';
+   const rightDiv = document.createElement('div');
+   rightDiv.className = 'relative flex items-center';
   const userBtn = document.createElement('button');
      userBtn.id = 'user-link';
      userBtn.className = ' bg-[#46A3FF] text-white text-[1.5rem] border border-white w-[4vh] h-[4vh] rounded-full cursor-pointer hover:bg-[#2E96FF] flex items-center justify-center';
@@ -108,9 +109,21 @@ function createNavBar() {
      iconImg.className = 'w-6 h-6';
      userBtn.appendChild(iconImg);
 
-   // 添加语言切换按钮（放在用户名左边）
-   const languageSwitcher = createLanguageSwitcher();
-   rightDiv.appendChild(languageSwitcher);
+    // 添加消息按钮（放在语言切换按钮左边）
+    const navMessageBtn = document.createElement('button');
+    navMessageBtn.id = 'nav-message-btn';
+    navMessageBtn.className = 'bg-transparent text-white border-none w-10 h-10 rounded-full cursor-pointer hover:bg-[#3a3f41] flex items-center justify-center';
+    navMessageBtn.onclick = () => window.location.href = '/messages'; // 假设跳转到消息页面
+
+    const messageIcon = document.createElement('img');
+    messageIcon.src = messagesIcon;
+    messageIcon.className = 'w-[3vh] h-[3vh]';
+    navMessageBtn.appendChild(messageIcon);
+    rightDiv.appendChild(navMessageBtn);
+
+    // 添加语言切换按钮（放在用户名左边）
+    const languageSwitcher = createLanguageSwitcher();
+    rightDiv.appendChild(languageSwitcher);
 
    const newDiv = document.createElement('div');
    newDiv.className = 'relative';
