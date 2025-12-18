@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
-	"os"
+	"reflect"
 	"regexp"
 	"strings"
 
@@ -11,9 +11,8 @@ import (
 )
 
 func InspectSQL(raw string) (forbidden error, hasSchemaMod bool) {
-	reLine := regexp.MustCompile(`(?m)--.*$`)
-	reBlk := regexp.MustCompile(`/\*.*?\*/`)
-	clean := reBlk.ReplaceAllString(reLine.ReplaceAllString(raw, " "), " ")
+	clean := regexp.MustCompile(`/\*.*?\*/`).ReplaceAllString(
+		regexp.MustCompile(`(?m)--.*$`).ReplaceAllString(raw, " "), " ")
 
 	protected := map[string]bool{
 		"id": true, "name": true, "password_hash": true,
@@ -52,8 +51,33 @@ func InspectSQL(raw string) (forbidden error, hasSchemaMod bool) {
 			}
 			hasSchemaMod = true
 
-		case *sql.BeginStatement, *sql.CommitStatement, *sql.RollbackStatement, *sql.SavepointStatement, *sql.ReleaseStatement:
-			return fmt.Errorf("forbidden operation: transaction control statements (BEGIN, COMMIT, etc.) are not allowed"), false
+		case *sql.DeleteStatement:
+			if s.Table != nil && strings.ToLower(s.Table.TableName()) == "users" {
+				return fmt.Errorf("forbidden operation: cannot DELETE from 'users' table"), false
+			}
+
+		case *sql.UpdateStatement:
+			if s.Table != nil && strings.ToLower(s.Table.TableName()) == "users" {
+				v := reflect.ValueOf(s).Elem()
+				t := v.Type()
+				for i := 0; i < t.NumField(); i++ {
+					f := t.Field(i)
+					if f.Type.Kind() == reflect.Slice && strings.Contains(strings.ToLower(f.Name), "update") {
+						slice := v.Field(i)
+						for j := 0; j < slice.Len(); j++ {
+							if ref, ok := slice.Index(j).Interface().(*sql.QualifiedRef); ok &&
+								protected[strings.ToLower(ref.Column.Name)] {
+								return fmt.Errorf("forbidden operation: cannot UPDATE protected column '%s' in 'users' table", ref.Column.Name), false
+							}
+						}
+						break
+					}
+				}
+			}
+
+		case *sql.BeginStatement, *sql.CommitStatement, *sql.RollbackStatement,
+			*sql.SavepointStatement, *sql.ReleaseStatement:
+			return fmt.Errorf("forbidden operation: transaction control statements are not allowed"), false
 
 		case *sql.PragmaStatement:
 			if _, ok := s.Expr.(*sql.BinaryExpr); ok {
