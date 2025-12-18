@@ -6,6 +6,7 @@ import projects from "./projects"
 import office from './office.jpg'
 import githubImg from '../icons/git.svg'
 import defaultImg from "../icons/projectsDefault.jpg"
+import userIcon from '../icons/userWhite.svg';
 // import { createLoader } from "../modules/loader";
 import { compressImage,checkAuthentication } from "../modules/tools";
 import { i18n, createLanguageSwitcher } from "../modules/i18n";
@@ -44,7 +45,7 @@ function translatePage() {
 // 创建导航栏函数
 function createNavBar() {
   const nav = document.createElement('nav');
-  nav.className = 'flex justify-between items-center px-6 py-2 rounded-lg bg-[#181A1B]';
+  nav.className = 'flex justify-between items-center px-6 py-[1vh] rounded-lg bg-[#181A1B]';
 
   // 左侧：Logo、Pricing、Docs
   const leftDiv = document.createElement('div');
@@ -55,10 +56,10 @@ function createNavBar() {
    logoBtn.onclick = () => window.location.href = '/';
   const logoImg = document.createElement('img');
   logoImg.src = logoIcon;
-  logoImg.className = 'w-12 h-12';
+  logoImg.className = 'w-[5vh] h-[5vh]';
   logoImg.alt = 'Logo';
   const logoSpan = document.createElement('span');
-  logoSpan.className = 'text-xl font-bold';
+  logoSpan.className = 'text-[2rem] font-bold';
   logoSpan.textContent = 'LighterBase';
   logoBtn.appendChild(logoImg);
   logoBtn.appendChild(logoSpan);
@@ -67,28 +68,28 @@ function createNavBar() {
  const pricingBtn = document.createElement('button');
     pricingBtn.id='pricing-link';
     pricingBtn.textContent = i18n.t('hub.navbar.pricing');
-    pricingBtn.className = 'bg-transparent text-white border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+    pricingBtn.className = 'bg-transparent text-white text-[1.5rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
     pricingBtn.onclick = () => window.location.href = '/pricing';
    leftDiv.appendChild(pricingBtn);
 
     const docsBtn = document.createElement('button');
     docsBtn.id='docs-link';
     docsBtn.textContent = i18n.t('hub.navbar.docs');
-    docsBtn.className = 'bg-transparent text-white border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+    docsBtn.className = 'bg-transparent text-white text-[1.5rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
     docsBtn.onclick = () => window.location.href = '/docs';
    leftDiv.appendChild(docsBtn);
 
      const downloadBtn = document.createElement('button');
      downloadBtn.id='download-link';
      downloadBtn.textContent = i18n.t('hub.navbar.download');
-     downloadBtn.className = 'bg-transparent text-white border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+     downloadBtn.className = 'bg-transparent text-white text-[1.5rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
      downloadBtn.onclick = () => window.location.href = '/download';
     leftDiv.appendChild(downloadBtn);
 
      const projectsBtn = document.createElement('button');
      projectsBtn.id='projects-link';
      projectsBtn.textContent = i18n.t('hub.navbar.projects');
-     projectsBtn.className = 'bg-transparent text-white border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+     projectsBtn.className = 'bg-transparent text-white text-[1.5rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
      projectsBtn.onclick = () => window.location.href = '/projects';
     leftDiv.appendChild(projectsBtn);
 
@@ -99,9 +100,13 @@ function createNavBar() {
   rightDiv.className = 'relative flex';
   const userBtn = document.createElement('button');
      userBtn.id = 'user-link';
-     userBtn.textContent = i18n.t('hub.navbar.login');
-     userBtn.className = ' bg-[#46A3FF] text-white border border-white w-10 h-10 rounded-full cursor-pointer hover:bg-[#2E96FF] flex items-center justify-center';
+     userBtn.className = ' bg-[#46A3FF] text-white text-[1.5rem] border border-white w-[4vh] h-[4vh] rounded-full cursor-pointer hover:bg-[#2E96FF] flex items-center justify-center';
      userBtn.onclick = () => window.location.href = '/login';
+
+     const iconImg = document.createElement('img');
+     iconImg.src = userIcon;
+     iconImg.className = 'w-6 h-6';
+     userBtn.appendChild(iconImg);
 
    // 添加语言切换按钮（放在用户名左边）
    const languageSwitcher = createLanguageSwitcher();
@@ -177,7 +182,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const userBtn = document.getElementById('user-link') as HTMLButtonElement;
     const username = localStorage.getItem('username');
     if (!token || !username) {
-      userBtn.textContent = i18n.t('hub.navbar.login');
+      // 未登录时显示图标，不设置文本
     }
     const docsBtn = document.getElementById('docs-link') as HTMLButtonElement;
      const pricingBtn = document.getElementById('pricing-link') as HTMLButtonElement;
@@ -212,6 +217,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (token && username && userBtn && profileMenu && logoutBtn) {
      userBtn.textContent = username.charAt(0);
+     // 移除图标
+     const icon = userBtn.querySelector('img');
+     if (icon) userBtn.removeChild(icon);
     userBtn.onclick = function (e) {
       e.preventDefault();
       e.stopPropagation();

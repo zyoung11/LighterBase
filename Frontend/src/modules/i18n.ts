@@ -79,6 +79,7 @@ export function createLanguageSwitcher(): HTMLButtonElement {
   switcher.style.borderRadius = '0.5rem';
   switcher.style.cursor = 'pointer';
   switcher.style.fontWeight = '600';
+  switcher.style.fontSize = '1.5rem';
   switcher.style.transition = 'transform 0.2s ease';
   switcher.style.marginRight = '6px';
   switcher.onmouseenter = () => {
