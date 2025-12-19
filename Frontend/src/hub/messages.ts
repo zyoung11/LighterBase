@@ -59,7 +59,7 @@ class MessageManager {
             const sender = await projects.getSingleUser(msg.sender_id);
             const project = await projects.getSingleProject(msg.project_id);
             const senderHTML = `<span class="text-[#46A3FF]">User#${sender.user_name.slice(0,8)}</span>`;
-            const projectHTML = `<span class="text-[#46A3FF]">Project#${project.project_name.slice(0,8)} (${permission})</span>`;
+            const projectHTML = `<span class="text-[#46A3FF]">${project.project_name.slice(0,8)} | ${msg.project_id} (${permission})</span>`;
             
             const displayContent = `${senderHTML} has invited you to collaborate with ${projectHTML}`;
 
@@ -94,7 +94,7 @@ class MessageManager {
             item.className = "bg-white/5 p-4 rounded-lg border border-white/10";
             item.innerHTML = `
                 <p class="text-[15px] text-gray-200">
-                    You have invited <span class="text-[#46A3FF]">User#${sender.user_name.slice(0,8)}</span> to collaborate with <span class="text-[#46A3FF]">Project#${project.project_name.slice(0,8)}</span>
+                    You have invited <span class="text-[#46A3FF]">User#${sender.user_name.slice(0,8)}</span> to collaborate with <span class="text-[#46A3FF]">${project.project_name.slice(0,8)} | ${msg.project_id} </span>
                 </p>
                 <div class="flex justify-between mt-3 items-center">
                     <span class="text-[10px] text-gray-500 uppercase tracking-tighter">${new Date(msg.create_at).toLocaleString()}</span>
