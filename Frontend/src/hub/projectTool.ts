@@ -142,6 +142,7 @@ async function renderBlock(block:any) {
     block.element.className = `absolute flex bg-white/5 shadow-sm shadow-white/40 rounded-md shadow-lg p-2 transition-all ease-in-out cursor-pointer pointer-events-auto grid grid-cols-2`;
     block.element.style.width = '28%';
     block.element.style.height = '22vh';
+    // block.element.style.aspectRatio = "3/1"
     block.element.style.transitionDuration = `${ANIMATION_DURATION}ms`;
     block.element.innerHTML = `
         <img src="${originAvatar}" class="w-3/4 p-1 rounded-lg object-cover rounded" 

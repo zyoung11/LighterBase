@@ -115,7 +115,7 @@ function initProjectInviteWorkflow() {
                     selectorMenu.classList.add('hidden');
                     setBaseUrl()
                 }else{
-                    blocks.popupConfirm("请先注册")                    
+                    blocks.popupConfirm("请先注册项目账号")                    
                     setBaseUrl()
                     return
                 }
@@ -197,7 +197,7 @@ async function loadReceivedInvitations(status: string) {
         item.innerHTML = `
             <p class="text-[14px] text-gray-300">
                 <span class="text-[#46A3FF] font-medium">${msg.sender.user_name}</span> 
-                has invited you to collaborate with <span class="text-[#46A3FF] font-medium">${msg.project.project_name} | ${msg.project_id}</span> <span class="text-[#46A3FF]">(${permission})</span>
+                has invited you to collaborate with <span class="text-[#46A3FF] font-medium">${msg.project.project_name} | ${msg.project.project_id}</span> <span class="text-[#46A3FF]">(${permission})</span>
             </p>
             ${msg.status === 'pending' ? `
                 <div class="flex space-x-2 ml-4">
