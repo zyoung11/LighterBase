@@ -1,4 +1,4 @@
-from PAT import get, post, put, delete, run_test, print_info, show_result
+from PAT import get, post, put, delete, run_test, show_result
 
 baseUrl = "http://127.0.0.1:8080"
 
@@ -526,6 +526,16 @@ run_test(
          headers={"Authorization": f"Bearer {app_token}",
                   "Content-Type": "application/json"},
         )
+)
+
+run_test(
+    "zy 执行一条Query 请求",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/run-queries",
+         headers={"Authorization": f"Bearer {app_token}",
+                  "Content-Type": "application/json"},
+        body={
+             "queries": "SELECT * FROM users;"   
+        })
 )
 
 run_test(

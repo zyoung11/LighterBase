@@ -46,6 +46,7 @@
     * [5.2 创建一条 Query 请求](#52-创建一条-query-请求)
     * [5.3 修改一条 Query 请求](#53-修改一条-query-请求)
     * [5.4 删除一条 Query 请求](#54-删除一条-query-请求)
+    * [5.5 执行一条 Query 请求](#55-执行一条-query-请求)
   * [6. 其他查询](#6-其他查询)
     * [6.1 查询所有表名](#61-查询所有表名)
     * [6.2 查询日志](#62-查询日志)
@@ -1725,7 +1726,6 @@ cd LighterBase/Backend/web/LighterBaseHub
 
   http状态码：204
 
-
 ### 5.4 删除一条 Query 请求
 
 - http方法：**DELETE**
@@ -1743,6 +1743,42 @@ cd LighterBase/Backend/web/LighterBaseHub
 
   http状态码：204
 
+### 5.5 执行一条 Query 请求
+
+- http方法：**POST**
+
+- URL：`/queries/run-queries`
+
+- 请求头：
+
+  ```
+  Authorization: Bearer <jwt_token>
+  Content-Type: application/json
+  ```
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  {
+      "success": true,
+      "count": 1,
+      "columns": [
+          "value1"
+      ],
+      "data": [
+          {
+              "c1": "value3",
+              "c2": "value4"
+          }
+      ]
+  }
+  ```
+
+  
 
 ## 6. 其他查询
 

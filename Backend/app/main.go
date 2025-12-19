@@ -70,6 +70,7 @@ var routes = []Route{
 	{Method: "DELETE", Path: "/:userId/:projectId/api/queries/:queryId", Handler: deleteQueries, AuthRequired: false},
 	{Method: "PUT", Path: "/:userId/:projectId/api/queries/:queryId", Handler: updateQueries, AuthRequired: false},
 	{Method: "GET", Path: "/:userId/:projectId/api/queries", Handler: viewQueries, AuthRequired: false},
+	{Method: "POST", Path: "/:userId/:projectId/api/queries/run-queries", Handler: runQueries, AuthRequired: false},
 
 	// --- _security_ 表管理 API (需要 JWT) ---
 	{Method: "GET", Path: "/:userId/:projectId/api/security", Handler: getAllSecurity, AuthRequired: false},
@@ -1722,5 +1723,88 @@ func viewQueries(c *fiber.Ctx) error {
 		"totalPages": totalPages,
 		"totalItems": total,
 		"queries":    formattedQueries,
+	})
+}
+
+// runQueries 执行查询并返回结果
+func runQueries(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	dataDB := dbSet.DataDB
+
+	userID, err := authenticateUser(c)
+	if err != nil || userID != 1 {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
+	// 解析请求体
+	type Body struct {
+		SQL string `json:"queries"`
+	}
+	var body Body
+	if err := c.BodyParser(&body); err != nil {
+		return sendError(c, 400, "Invalid JSON body.", nil)
+	}
+	if body.SQL == "" {
+		return sendError(c, 400, "Failed to run query.", fiber.Map{"SQL": "SQL field is required."})
+	}
+
+	// 使用 InspectSQL 进行安全审查
+	forbiddenErr, hasSchemaMod := InspectSQL(body.SQL)
+	if forbiddenErr != nil {
+		return sendError(c, 403, forbiddenErr.Error(), nil)
+	}
+	if hasSchemaMod {
+		return sendError(c, 403, "Schema modification queries are not allowed in query execution.", nil)
+	}
+
+	// 执行查询
+	rows, err := dataDB.Query(body.SQL)
+	if err != nil {
+		return sendError(c, 400, "Failed to execute query.", fiber.Map{"database_error": err.Error()})
+	}
+	defer rows.Close()
+
+	// 获取列信息
+	columns, err := rows.Columns()
+	if err != nil {
+		return sendError(c, 500, "Failed to get column information.", fiber.Map{"database_error": err.Error()})
+	}
+
+	// 准备扫描变量
+	values := make([]any, len(columns))
+	scanArgs := make([]any, len(columns))
+	for i := range values {
+		scanArgs[i] = &values[i]
+	}
+
+	// 扫描结果
+	var results []map[string]any
+	for rows.Next() {
+		if err := rows.Scan(scanArgs...); err != nil {
+			return sendError(c, 500, "Failed to scan row.", fiber.Map{"database_error": err.Error()})
+		}
+
+		rowMap := make(map[string]any)
+		for i, colName := range columns {
+			val := values[i]
+			if b, ok := val.([]byte); ok {
+				rowMap[colName] = string(b)
+			} else {
+				rowMap[colName] = val
+			}
+		}
+		results = append(results, rowMap)
+	}
+
+	if err = rows.Err(); err != nil {
+		return sendError(c, 500, "Error during rows iteration.", fiber.Map{"database_error": err.Error()})
+	}
+
+	// 返回结果
+	return c.JSON(fiber.Map{
+		"success": true,
+		"data":    results,
+		"columns": columns,
+		"count":   len(results),
 	})
 }
