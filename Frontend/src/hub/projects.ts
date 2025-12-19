@@ -133,7 +133,7 @@ async createProject(data: {project_name: string, project_avatar: string, project
   }
 },
 
-async getAllProjects(hubAuthToken: string){
+async getAllProjects(){
   try{
     const res = await fetch(`${URL}/api/projects`,{
       method:"GET",
@@ -296,8 +296,9 @@ async downloadProject(projectId: number, hubAuthToken: string){
 // ====================================团队协作=========================================
 
 //可选 admin 或 readonly
-async sendInvitation(payload:any, hubAuthToken: string){
+async sendInvitation(payload:any){
   const tempUrl = "http://localhost:8080"
+  // const tempUrl = "http://www.smallwoodice.cn:8080"
   try{
     const res = await fetch(`${tempUrl}/api/team`,{
       method:"POST",

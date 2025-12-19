@@ -199,7 +199,7 @@ async function initializeBlocks() {
   }
 
   // 获取项目数据
-  const projectsData = await projects.getAllProjects(token);
+  const projectsData = await projects.getAllProjects();
   // if (!projectsData) return;
 
   if (!projectsData) {
@@ -404,8 +404,7 @@ const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function
             "permissions":permissions,
             "projectId": projectId
           };
-          console.log(payload,token)
-          await projects.sendInvitation(payload, token);
+          await projects.sendInvitation(payload);
           closeInviteModal();
         };
       };
