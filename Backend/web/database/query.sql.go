@@ -314,6 +314,45 @@ func (q *Queries) DeleteUser(ctx context.Context, userID int64) error {
 	return err
 }
 
+const getCollaborativeProjects = `-- name: GetCollaborativeProjects :many
+SELECT p.project_id, p.user_id, p.project_name, p.project_avatar, p.project_description, p.project_size, p.create_at, p.update_at FROM projects p
+INNER JOIN notifications n ON p.project_id = n.project_id
+WHERE n.receiver_id = ? AND n.notification_status = 'agree'
+ORDER BY p.create_at DESC
+`
+
+func (q *Queries) GetCollaborativeProjects(ctx context.Context, receiverID int64) ([]Project, error) {
+	rows, err := q.db.QueryContext(ctx, getCollaborativeProjects, receiverID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Project
+	for rows.Next() {
+		var i Project
+		if err := rows.Scan(
+			&i.ProjectID,
+			&i.UserID,
+			&i.ProjectName,
+			&i.ProjectAvatar,
+			&i.ProjectDescription,
+			&i.ProjectSize,
+			&i.CreateAt,
+			&i.UpdateAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getLatestSql = `-- name: GetLatestSql :one
 SELECT id, sql FROM _sqls_ ORDER BY id DESC LIMIT 1
 `

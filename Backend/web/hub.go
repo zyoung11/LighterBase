@@ -206,13 +206,33 @@ func listMyProjects(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
 	}
 
-	projects, err := queries.ListProjectsByUserID(c.Context(), userID)
+	// 获取用户自己的项目
+	ownProjects, err := queries.ListProjectsByUserID(c.Context(), userID)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch projects"})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch own projects"})
+	}
+
+	// 获取用户已经同意的合作项目
+	collabProjects, err := queries.GetCollaborativeProjects(c.Context(), userID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch collaborative projects"})
+	}
+
+	// 使用map来去重，避免同一个项目被重复添加
+	projectMap := make(map[int64]database.Project)
+
+	// 添加自己的项目
+	for _, project := range ownProjects {
+		projectMap[project.ProjectID] = project
+	}
+
+	// 添加合作项目
+	for _, project := range collabProjects {
+		projectMap[project.ProjectID] = project
 	}
 
 	var response []ProjectResponse
-	for _, project := range projects {
+	for _, project := range projectMap {
 		if err := updateProjectSize(c.Context(), project); err != nil {
 			log.Printf("ERROR: Failed to update size for project %d: %v", project.ProjectID, err)
 		}

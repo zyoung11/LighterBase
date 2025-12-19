@@ -221,6 +221,12 @@ WHERE sender_id = ? AND receiver_id = ? AND project_id = ?
 AND notification_status = 'agree'
 LIMIT 1;
 
+-- name: GetCollaborativeProjects :many
+SELECT p.* FROM projects p
+INNER JOIN notifications n ON p.project_id = n.project_id
+WHERE n.receiver_id = ? AND n.notification_status = 'agree'
+ORDER BY p.create_at DESC;
+
 -- name: CreateQuery :one
 INSERT INTO _query_ (queries, create_at, update_at)
 VALUES (?, datetime('now'), datetime('now'))

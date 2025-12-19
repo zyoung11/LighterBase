@@ -186,6 +186,24 @@ run_test(
 )
 
 run_test(
+    "获取 zy 项目",
+    get(f"{baseUrl}/api/projects",
+        key=zy_token)
+)
+
+run_test(
+    "获取 yzm 项目",
+    get(f"{baseUrl}/api/projects",
+        key=yzm_token)
+)
+
+run_test(
+    "获取 yzk 项目",
+    get(f"{baseUrl}/api/projects",
+        key=yzk_token)
+)
+
+run_test(
     "zy 发送通知给 yzm",
     post(f"{baseUrl}/api/team",
          headers={"Authorization": f"Bearer {zy_token}",
@@ -508,6 +526,24 @@ run_test(
          headers={"Authorization": f"Bearer {app_token}",
                   "Content-Type": "application/json"},
         )
+)
+
+run_test(
+    "获取 zy 项目",
+    get(f"{baseUrl}/api/projects",
+        key=zy_token)
+)
+
+run_test(
+    "获取 yzm 项目",
+    get(f"{baseUrl}/api/projects",
+        key=yzm_token)
+)
+
+run_test(
+    "获取 yzk 项目",
+    get(f"{baseUrl}/api/projects",
+        key=yzk_token)
 )
 
 print_info(
