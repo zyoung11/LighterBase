@@ -77,7 +77,6 @@ async userRegister(username?: string, password?: string, email?: string): Promis
 
 async isLogin(){
     try{
-        console.log("查看是否注册：",typeof(URL))
         const res = await fetch(`${URL}/api/auth/init`,{
             method:"GET",
             // headers:{

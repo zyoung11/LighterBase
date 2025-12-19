@@ -311,9 +311,9 @@ async sendInvitation(payload:any){
 
     if(res.ok){
       blocks.popupConfirm("邀请成功")
-      // const data = await res.json()
-      // return data
     }else{
+      const data = await res.json()
+      console.log(data)
       blocks.popupConfirm("邀请失败")
     }
 

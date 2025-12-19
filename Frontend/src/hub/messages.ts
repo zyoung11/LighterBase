@@ -174,16 +174,14 @@ async function loadReceivedInvitations(status: string) {
     list.innerHTML = '';
 
     data?.forEach(async (msg: any) => {
-        const sender = await projects.getSingleUser(msg.sender_id);
-        const project = await projects.getSingleProject(msg.project_id);
         const permission = msg.content.includes('admin') ? 'admin' : 'readonly';
 
         const item = document.createElement('div');
         item.className = "bg-white/5 p-4 rounded-lg border border-white/10 flex justify-between items-center hover:border-white/20 transition";
         item.innerHTML = `
             <p class="text-[14px] text-gray-300">
-                <span class="text-[#46A3FF] font-medium">${sender.user_name}</span> 
-                has invited you to collaborate with <span class="text-[#46A3FF] font-medium">${project.project_name} | ${msg.project_id}</span> <span class="text-[#46A3FF]">(${permission})</span>
+                <span class="text-[#46A3FF] font-medium">${msg.sender.user_name}</span> 
+                has invited you to collaborate with <span class="text-[#46A3FF] font-medium">${msg.project.project_name} | ${msg.project_id}</span> <span class="text-[#46A3FF]">(${permission})</span>
             </p>
             ${msg.status === 'pending' ? `
                 <div class="flex space-x-2 ml-4">
@@ -209,17 +207,14 @@ async function loadSentInvitations(status: string) {
     list.innerHTML = '';
 
     data?.forEach(async (msg: any) => {
-        const user = await projects.getSingleUser(msg.receiver_id || msg.sender_id); // 根据实际API字段调整
-        const project = await projects.getSingleProject(msg.project_id);
-
         const item = document.createElement('div');
         item.className = "bg-white/5 p-4 rounded-lg border border-white/10 hover:border-white/20 transition";
         item.innerHTML = `
             <p class="text-[14px] text-gray-300">
-                You have invited <span class="text-[#46A3FF] font-medium">${user?.user_name || 'User'}</span> to collaborate with  <span class="text-[#46A3FF] font-medium">${project.project_name} | ${msg.project_id}</span>
+                You have invited <span class="text-[#46A3FF] font-medium">${msg.receiver.user_name || 'User'}</span> to collaborate with  <span class="text-[#46A3FF] font-medium">${msg.project.project_name} | ${msg.project_id}</span>
             </p>
             <div class="flex justify-between mt-3 items-center">
-                <span class="text-[10px] text-gray-500 uppercase tracking-widest">${new Date(msg.create_at).toLocaleString()}</span>
+                <span class="text-[10px] text-gray-500 uppercase tracking-widest">${msg.create_at}</span>
                 <span class="text-xs font-medium ${msg.status === 'agree' ? 'text-green-400' : 'text-yellow-400'} px-2 py-0.5 bg-white/5 rounded capitalize border border-white/5">${msg.status}</span>
             </div>
         `;
