@@ -68,23 +68,23 @@ var routes = []Route{
 	{Method: "POST", Path: "/:userId/:projectId/api/auto/view/:table", Handler: viewRecords, AuthRequired: false},
 
 	// --- _sqls_ 表管理 API ---
-	{Method: "GET", Path: "/:userId/:projectId/api/sqls/latest", Handler: getLatestSqlRecord},
-	{Method: "GET", Path: "/:userId/:projectId/api/sqls/history", Handler: getAllSqlHistory},
+	{Method: "GET", Path: "/:userId/:projectId/api/sqls/latest", Handler: getLatestSqlRecord, AuthRequired: false},
+	{Method: "GET", Path: "/:userId/:projectId/api/sqls/history", Handler: getAllSqlHistory, AuthRequired: false},
 
 	// --- _query_ 表管理 API ---
-	{Method: "POST", Path: "/:userId/:projectId/api/queries", Handler: createQueries, AuthRequired: true},
-	{Method: "DELETE", Path: "/:userId/:projectId/api/queries/:queryId", Handler: deleteQueries, AuthRequired: true},
-	{Method: "PUT", Path: "/:userId/:projectId/api/queries/:queryId", Handler: updateQueries, AuthRequired: true},
-	{Method: "GET", Path: "/:userId/:projectId/api/queries", Handler: viewQueries, AuthRequired: true},
+	{Method: "POST", Path: "/:userId/:projectId/api/queries", Handler: createQueries, AuthRequired: false},
+	{Method: "DELETE", Path: "/:userId/:projectId/api/queries/:queryId", Handler: deleteQueries, AuthRequired: false},
+	{Method: "PUT", Path: "/:userId/:projectId/api/queries/:queryId", Handler: updateQueries, AuthRequired: false},
+	{Method: "GET", Path: "/:userId/:projectId/api/queries", Handler: viewQueries, AuthRequired: false},
 
 	// --- _security_ 表管理 API (需要 JWT) ---
-	{Method: "GET", Path: "/:userId/:projectId/api/security", Handler: getAllSecurity},
-	{Method: "PUT", Path: "/:userId/:projectId/api/security/:table_name", Handler: updateSecurityPolicy},
+	{Method: "GET", Path: "/:userId/:projectId/api/security", Handler: getAllSecurity, AuthRequired: false},
+	{Method: "PUT", Path: "/:userId/:projectId/api/security/:table_name", Handler: updateSecurityPolicy, AuthRequired: false},
 
 	// --- 其他查询 API ---
-	{Method: "GET", Path: "/:userId/:projectId/api/query/tables", Handler: listDataTables},
-	{Method: "GET", Path: "/:userId/:projectId/api/query/logs", Handler: listLogs},
-	{Method: "POST", Path: "/:userId/:projectId/api/search/logs", Handler: searchLogs},
+	{Method: "GET", Path: "/:userId/:projectId/api/query/tables", Handler: listDataTables, AuthRequired: false},
+	{Method: "GET", Path: "/:userId/:projectId/api/query/logs", Handler: listLogs, AuthRequired: false},
+	{Method: "POST", Path: "/:userId/:projectId/api/search/logs", Handler: searchLogs, AuthRequired: false},
 }
 
 var dbMap = make(map[string]*DBSet)
@@ -319,7 +319,7 @@ func authenticateUser(c *fiber.Ctx) (int64, error) {
 	}
 
 	tokenString := authHeader[7:]
-	userID, err := ParseJWT(tokenString)
+	userID, err := ParseBaasJWT(tokenString)
 	if err != nil {
 		return 0, errors.New("invalid or expired token")
 	}
@@ -339,7 +339,7 @@ func authenticateUserForAPI(c *fiber.Ctx) (int64, bool, error) {
 	}
 
 	tokenString := authHeader[7:]
-	userID, err := ParseJWT(tokenString)
+	userID, err := ParseBaasJWT(tokenString)
 	if err != nil {
 		return 0, false, fmt.Errorf("invalid or expired token")
 	}
@@ -1313,9 +1313,9 @@ func login_app(c *fiber.Ctx) error {
 		})
 	}
 
-	// 用户验证通过，生成 JWT
+	// 用户验证通过，生成 BaaS JWT
 	userID := int64(userRecord["id"].(int64))
-	token, expire, err := GenerateJWT(userID)
+	token, expire, err := GenerateBaasJWT(userID)
 	if err != nil {
 		return sendError(c, 500, "Failed to generate token.", nil)
 	}
@@ -1354,7 +1354,7 @@ func refreshToken(c *fiber.Ctx) error {
 		return sendError(c, 403, "The authorized record model is not allowed to perform this action.", nil)
 	}
 
-	token, expire, err := GenerateJWT(userID)
+	token, expire, err := GenerateBaasJWT(userID)
 	if err != nil {
 		return sendError(c, 500, "Failed to generate token.", nil)
 	}

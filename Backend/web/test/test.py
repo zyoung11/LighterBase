@@ -385,7 +385,8 @@ run_test(
                         FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
                     );
               	'''
-          })
+          },
+      should_fail=True)
 )
 
 run_test(

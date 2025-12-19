@@ -18,3 +18,4 @@ Backend/web/test_build
 /Backend/web/LighterBaseHubData
 */LighterBaseHubData
 */LighterBaseData
+Backend/web/config/jwt_secrets.json

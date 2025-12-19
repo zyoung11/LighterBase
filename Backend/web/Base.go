@@ -4,6 +4,7 @@ import (
 	"LighterBaseHub/database"
 	"database/sql"
 	"embed"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -20,6 +21,7 @@ import (
 
 //go:embed SQL/schema.sql
 //go:embed SQL/schema_baas.sql
+//go:embed config/jwt_secrets.json
 var schemaFS embed.FS
 
 var (
@@ -41,10 +43,45 @@ type MyCustomClaims struct {
 	jwt.RegisteredClaims
 }
 
-var jwtSecret = []byte("my_super_super_super_secret_key_that_is_very_long_and_not_that_random")
+type JWTSecrets struct {
+	WebJWTSecret  string `json:"web_jwt_secret"`
+	BaasJWTSecret string `json:"baas_jwt_secret"`
+}
 
-// GenerateJWT 为给定用户 ID 生成一个新的 JWT
-func GenerateJWT(userID int64) (string, time.Time, error) {
+var jwtSecrets JWTSecrets
+
+func init() {
+	// 加载JWT密钥
+	secretsBytes, err := schemaFS.ReadFile("config/jwt_secrets.json")
+	if err != nil {
+		log.Fatalf("Failed to load JWT secrets: %v", err)
+	}
+
+	if err := json.Unmarshal(secretsBytes, &jwtSecrets); err != nil {
+		log.Fatalf("Failed to parse JWT secrets: %v", err)
+	}
+
+	// 验证密钥长度
+	if len(jwtSecrets.WebJWTSecret) < 32 {
+		log.Fatal("Web JWT secret is too short, must be at least 32 characters")
+	}
+	if len(jwtSecrets.BaasJWTSecret) < 32 {
+		log.Fatal("Baas JWT secret is too short, must be at least 32 characters")
+	}
+}
+
+// GenerateWebJWT 为Web管理后台生成JWT
+func GenerateWebJWT(userID int64) (string, time.Time, error) {
+	return generateJWT(userID, jwtSecrets.WebJWTSecret)
+}
+
+// GenerateBaasJWT 为BaaS应用生成JWT
+func GenerateBaasJWT(userID int64) (string, time.Time, error) {
+	return generateJWT(userID, jwtSecrets.BaasJWTSecret)
+}
+
+// generateJWT 内部JWT生成函数
+func generateJWT(userID int64, secret string) (string, time.Time, error) {
 	expirationTime := time.Now().Add(48 * time.Hour)
 
 	claims := &MyCustomClaims{
@@ -56,7 +93,7 @@ func GenerateJWT(userID int64) (string, time.Time, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtSecret)
+	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {
 		return "", time.Time{}, err
 	}
@@ -64,13 +101,23 @@ func GenerateJWT(userID int64) (string, time.Time, error) {
 	return tokenString, expirationTime, nil
 }
 
-// ParseJWT 解析并验证 JWT，返回用户 ID
-func ParseJWT(tokenString string) (int64, error) {
+// ParseWebJWT 解析并验证Web管理后台的JWT
+func ParseWebJWT(tokenString string) (int64, error) {
+	return parseJWT(tokenString, jwtSecrets.WebJWTSecret)
+}
+
+// ParseBaasJWT 解析并验证BaaS应用的JWT
+func ParseBaasJWT(tokenString string) (int64, error) {
+	return parseJWT(tokenString, jwtSecrets.BaasJWTSecret)
+}
+
+// parseJWT 内部JWT解析函数
+func parseJWT(tokenString string, secret string) (int64, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &MyCustomClaims{}, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return jwtSecret, nil
+		return []byte(secret), nil
 	})
 	if err != nil {
 		return 0, err
@@ -83,7 +130,7 @@ func ParseJWT(tokenString string) (int64, error) {
 	return 0, errors.New("invalid token")
 }
 
-// JWTMiddleware 验证JWT中间件
+// JWTMiddleware 验证Web管理后台JWT中间件
 func JWTMiddleware(c *fiber.Ctx) error {
 	authHeader := c.Get("Authorization")
 	if authHeader == "" {
@@ -91,7 +138,7 @@ func JWTMiddleware(c *fiber.Ctx) error {
 	}
 
 	tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
-	userID, err := ParseJWT(tokenString)
+	userID, err := ParseWebJWT(tokenString)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid token"})
 	}
@@ -269,8 +316,8 @@ func register(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create user"})
 	}
 
-	// 生成JWT
-	token, _, err := GenerateJWT(user.UserID)
+	// 生成Web管理后台JWT
+	token, _, err := GenerateWebJWT(user.UserID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate token"})
 	}
@@ -307,8 +354,8 @@ func login(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid credentials"})
 	}
 
-	// 生成JWT
-	token, _, err := GenerateJWT(user.UserID)
+	// 生成Web管理后台JWT
+	token, _, err := GenerateWebJWT(user.UserID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate token"})
 	}
