@@ -202,6 +202,10 @@ async function initializeBlocks() {
   const projectsData = await projects.getAllProjects();
   // if (!projectsData) return;
 
+  if (projectsData) {
+    projectsData.sort((a, b) => b.project_id - a.project_id);
+  }
+
   if (!projectsData) {
     // 没有项目时，显示中央SVG
     const emptyStateDiv = document.createElement('div');
