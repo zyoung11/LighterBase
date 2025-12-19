@@ -5,7 +5,7 @@ type theLogs = {
     totalPages: number;
     totalItems: number;
     logs: { id: number; log_text: string; created_at: string; level: number }[];
-    }
+}
 const sql = {
     async createSql(payload: any): Promise<any> {
         try {
@@ -114,6 +114,84 @@ const sql = {
     }
   },
 
+
+async getAllQueries(page = 1, perPage = 30): Promise<any> {
+    try {
+        const response = await fetch(`${URL}/queries?page=${page}&perpage=${perPage}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${hubAuthToken}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (e) {
+    }
+},
+
+async createQuery(queries: string): Promise<any> {
+    try {
+        const response = await fetch(`${URL}/queries`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${hubAuthToken}`
+            },
+            body: JSON.stringify({ queries })
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (e) {
+    }
+},
+
+async updateQuery(queryId: number | string, queries: string): Promise<any> {
+    try {
+        const response = await fetch(`${URL}/queries/${queryId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${hubAuthToken}`
+            },
+            body: JSON.stringify({ queries })
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        if (response.status === 204) {
+            return true;
+        }
+        return await response.json();
+    } catch (e) {
+    }
+},
+
+async deleteQuery(queryId: number | string): Promise<any> {
+    try {
+        const response = await fetch(`${URL}/queries/${queryId}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${hubAuthToken}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        if (response.status === 204) {
+            return true;
+        }
+        return await response.json();
+    } catch (e) {
+    }
+},
+
+
     async hubLastestSql(hubUrl:string,projectId:number): Promise<any> {
         try {
             const response = await fetch(`${hubUrl}/api/projects/sql/${projectId}`, {
@@ -134,7 +212,6 @@ const sql = {
             // throw e;
         }
     },
-
 
 
 
