@@ -11,7 +11,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -29,6 +31,111 @@ var (
 	queries *database.Queries
 	db      *sql.DB
 )
+
+// ConnectionManager 管理项目连接状态
+type ConnectionManager struct {
+	mu sync.RWMutex
+	// 存储连接状态，key为"userID/projectID"
+	connections map[string]*ConnectionStatus
+}
+
+type ConnectionStatus struct {
+	dbSet       *DBSet
+	isClosed    bool
+	closeReason string
+	closedAt    time.Time
+}
+
+var connManager *ConnectionManager
+
+// NewConnectionManager 创建新的连接管理器
+func NewConnectionManager() *ConnectionManager {
+	return &ConnectionManager{
+		connections: make(map[string]*ConnectionStatus),
+	}
+}
+
+// RegisterConnection 注册新的项目连接
+func (cm *ConnectionManager) RegisterConnection(key string, dbSet *DBSet) {
+	cm.mu.Lock()
+	defer cm.mu.Unlock()
+
+	cm.connections[key] = &ConnectionStatus{
+		dbSet:       dbSet,
+		isClosed:    false,
+		closeReason: "",
+		closedAt:    time.Time{},
+	}
+}
+
+// GetConnection 获取项目连接，如果连接已关闭则返回错误
+func (cm *ConnectionManager) GetConnection(key string) (*DBSet, string, error) {
+	cm.mu.RLock()
+	defer cm.mu.RUnlock()
+
+	status, exists := cm.connections[key]
+	if !exists {
+		return nil, "", fmt.Errorf("connection not found for key: %s", key)
+	}
+
+	if status.isClosed {
+		return nil, status.closeReason, fmt.Errorf("connection closed: %s", status.closeReason)
+	}
+
+	return status.dbSet, "", nil
+}
+
+// CloseConnection 关闭项目连接
+func (cm *ConnectionManager) CloseConnection(key string, reason string) error {
+	cm.mu.Lock()
+	defer cm.mu.Unlock()
+
+	status, exists := cm.connections[key]
+	if !exists {
+		return fmt.Errorf("connection not found for key: %s", key)
+	}
+
+	status.isClosed = true
+	status.closeReason = reason
+	status.closedAt = time.Now()
+
+	// 关闭数据库连接
+	if status.dbSet != nil {
+		if status.dbSet.DataDB != nil {
+			status.dbSet.DataDB.Close()
+		}
+	}
+
+	// log.Printf("Closed connection for %s: %s", key, reason)
+	return nil
+}
+
+// IsConnectionClosed 检查连接是否已关闭
+func (cm *ConnectionManager) IsConnectionClosed(key string) bool {
+	cm.mu.RLock()
+	defer cm.mu.RUnlock()
+
+	status, exists := cm.connections[key]
+	if !exists {
+		return true // 不存在视为已关闭
+	}
+
+	return status.isClosed
+}
+
+// RemoveConnection 移除连接（用于项目删除）
+func (cm *ConnectionManager) RemoveConnection(key string) {
+	cm.mu.Lock()
+	defer cm.mu.Unlock()
+
+	status, exists := cm.connections[key]
+	if exists && status.dbSet != nil {
+		if status.dbSet.DataDB != nil {
+			status.dbSet.DataDB.Close()
+		}
+	}
+	delete(cm.connections, key)
+}
 
 type Route struct {
 	Method       string
@@ -157,7 +264,7 @@ func Run(name string, port int, routes []Route) {
 
 // loadExistingProjects 加载已有项目的数据库连接
 func loadExistingProjects() {
-	baseDir := "./LighterBaseData/Apps"
+	baseDir := "./LighterBaseHubData/Apps"
 
 	// 检查目录是否存在
 	if _, err := os.Stat(baseDir); os.IsNotExist(err) {
@@ -229,10 +336,16 @@ func loadExistingProjects() {
 
 			// 保存连接到全局map
 			key := fmt.Sprintf("%s/%s", userID, projectID)
-			dbMap[key] = &DBSet{
+			dbSet := &DBSet{
 				Queries: queries,
 				DataDB:  dataDB,
 				LogFn:   logFn,
+			}
+			dbMap[key] = dbSet
+
+			// 注册到连接管理器
+			if connManager != nil {
+				connManager.RegisterConnection(key, dbSet)
 			}
 
 			log.Printf("已加载项目: %s", key)
@@ -280,11 +393,160 @@ func initDB(projectName string) {
 	queries = database.New(db)
 }
 
+// calculateProjectSize 计算项目文件夹大小（单位MB）
+func calculateProjectSize(projectDir string) (float64, error) {
+	var totalSizeBytes int64
+
+	err := filepath.Walk(projectDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			// log.Printf("WARN: Error accessing file %s: %v", path, err)
+			return nil
+		}
+		if !info.IsDir() {
+			totalSizeBytes += info.Size()
+		}
+		return nil
+	})
+	if err != nil {
+		return 0, fmt.Errorf("failed to walk project directory %s: %w", projectDir, err)
+	}
+
+	// 将字节转换为MB (B -> KB -> MB)
+	sizeMB := float64(totalSizeBytes) / 1024.0 / 1024.0
+	return sizeMB, nil
+}
+
+// checkAndCloseOversizedProjects 检查并关闭超过100MB的项目，同时更新数据库中的项目大小
+func checkAndCloseOversizedProjects() {
+	// log.Println("开始定期检查项目大小...")
+
+	baseDir := "./LighterBaseHubData/Apps"
+
+	// 检查目录是否存在
+	if _, err := os.Stat(baseDir); os.IsNotExist(err) {
+		// log.Println("项目目录不存在，跳过大小检查")
+		return
+	}
+
+	// 遍历用户目录
+	userDirs, err := os.ReadDir(baseDir)
+	if err != nil {
+		log.Printf("无法读取用户目录: %v", err)
+		return
+	}
+
+	oversizedCount := 0
+	checkedCount := 0
+
+	for _, userDir := range userDirs {
+		if !userDir.IsDir() {
+			continue
+		}
+
+		userID := userDir.Name()
+		userPath := filepath.Join(baseDir, userID)
+
+		// 遍历项目目录
+		projectDirs, err := os.ReadDir(userPath)
+		if err != nil {
+			log.Printf("无法读取用户 %s 的项目目录: %v", userID, err)
+			continue
+		}
+
+		for _, projectDir := range projectDirs {
+			if !projectDir.IsDir() {
+				continue
+			}
+
+			projectID := projectDir.Name()
+			projectPath := filepath.Join(userPath, projectID)
+			key := fmt.Sprintf("%s/%s", userID, projectID)
+
+			// 计算项目大小
+			sizeMB, err := calculateProjectSize(projectPath)
+			if err != nil {
+				log.Printf("无法计算项目 %s 的大小: %v", key, err)
+				continue
+			}
+
+			checkedCount++
+			// log.Printf("项目 %s 大小: %.2f MB", key, sizeMB)
+
+			// 尝试更新数据库中的项目大小
+			// 注意：这里需要将projectID转换为int64
+			projectIDInt, err := strconv.ParseInt(projectID, 10, 64)
+			if err != nil {
+				log.Printf("无法转换项目ID %s: %v", projectID, err)
+				continue
+			}
+
+			// 查找项目记录
+			_, err = queries.GetProjectByID(context.Background(), projectIDInt)
+			if err != nil {
+				// 项目可能不存在于数据库中，跳过
+				continue
+			}
+
+			// 更新数据库中的项目大小
+			err = queries.UpdateProjectSize(context.Background(), database.UpdateProjectSizeParams{
+				ProjectSize: sql.NullInt64{Int64: int64(sizeMB), Valid: true},
+				ProjectID:   projectIDInt,
+			})
+			if err != nil {
+				log.Printf("无法更新项目 %s 的大小到数据库: %v", key, err)
+			} else {
+				// log.Printf("已更新项目 %s 的数据库大小为 %.2f MB", key, sizeMB)
+			}
+
+			// 如果超过100MB，关闭连接
+			if sizeMB > 100 {
+				reason := fmt.Sprintf("项目大小超过限制 (%.2f MB > 100 MB)", sizeMB)
+				if err := connManager.CloseConnection(key, reason); err != nil {
+					log.Printf("无法关闭项目 %s 的连接: %v", key, err)
+				} else {
+					// log.Printf("已关闭项目 %s 的连接: %s", key, reason)
+					oversizedCount++
+				}
+			}
+		}
+	}
+
+	// log.Printf("项目大小检查完成，检查了 %d 个项目，共关闭 %d 个超过100MB的项目", checkedCount, oversizedCount)
+}
+
+// startPeriodicSizeCheck 启动定期项目大小检查
+func startPeriodicSizeCheck() {
+	// 立即执行一次检查
+	go func() {
+		checkAndCloseOversizedProjects()
+	}()
+
+	// 启动定时器，每3分钟检查一次
+	ticker := time.NewTicker(3 * time.Minute)
+
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				checkAndCloseOversizedProjects()
+			}
+		}
+	}()
+
+	// log.Println("已启动定期项目大小检查，每3分钟检查一次")
+}
+
 func initBackend(projectName string, backendPort int) {
 	initDB(projectName)
 
+	// 初始化连接管理器
+	connManager = NewConnectionManager()
+
 	// 加载已有项目数据库连接
 	loadExistingProjects()
+
+	// 启动定期项目大小检查
+	startPeriodicSizeCheck()
 
 	Run(projectName, backendPort, routes)
 }

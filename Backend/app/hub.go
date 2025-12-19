@@ -54,7 +54,7 @@ func updateProjectSize(ctx context.Context, project database.Project) error {
 		return fmt.Errorf("failed to update project size in database: %w", err)
 	}
 
-	log.Printf("Updated size for project %d (user %d) to %.2f MB", project.ProjectID, project.UserID, sizeMB)
+	// log.Printf("Updated size for project %d (user %d) to %.2f MB", project.ProjectID, project.UserID, sizeMB)
 	return nil
 }
 

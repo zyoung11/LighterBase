@@ -677,12 +677,34 @@ func projectMiddleware(c *fiber.Ctx) error {
 
 	// 检查是否已加载数据库
 	key := fmt.Sprintf("%s/%s", userId, projectId)
-	if _, ok := dbMap[key]; !ok {
-		return sendError(c, 400, "项目未初始化", nil)
-	}
 
-	// 注入数据库连接
-	c.Locals("dbSet", dbMap[key])
+	// 首先检查连接管理器
+	if connManager != nil {
+		if connManager.IsConnectionClosed(key) {
+			// 尝试获取连接以获取关闭原因
+			dbSet, reason, err := connManager.GetConnection(key)
+			if err != nil && reason != "" {
+				return sendError(c, 403, fmt.Sprintf("项目连接已关闭: %s", reason), nil)
+			} else if err != nil {
+				return sendError(c, 403, "项目连接已关闭", nil)
+			}
+			// 如果连接存在且未关闭，使用它
+			c.Locals("dbSet", dbSet)
+		} else {
+			// 连接未关闭，从连接管理器获取
+			dbSet, _, err := connManager.GetConnection(key)
+			if err != nil {
+				return sendError(c, 400, "项目未初始化", nil)
+			}
+			c.Locals("dbSet", dbSet)
+		}
+	} else {
+		// 回退到原来的逻辑
+		if _, ok := dbMap[key]; !ok {
+			return sendError(c, 400, "项目未初始化", nil)
+		}
+		c.Locals("dbSet", dbMap[key])
+	}
 
 	// 执行请求
 	err := c.Next()

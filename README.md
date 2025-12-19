@@ -110,6 +110,20 @@ cd LighterBase/Backend/web/LighterBaseHub
 >
 > BaseURL: http://localhost:8080/:userId/:projectId/api
 
+> [!IMPORTANT]
+>
+> 当单个项目大小限制为：**100MB** 
+>
+> 超过大小限制会报错：
+>
+> ```json
+> {
+>     "data": "null",
+>     "message": "项目连接已关闭：项目大小超过限制（xxx MB > 100 MB）",
+>     "status": 403
+> }
+> ```
+
 ## 一、用户API
 
 ### 1. 用户注册

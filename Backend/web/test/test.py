@@ -546,15 +546,4 @@ run_test(
         key=yzk_token)
 )
 
-print_info(
-    "info",
-    {
-        "zy_uid": zy_uid,
-        "zy_token": zy_token,
-        "zy_pid_1": zy_proj_id1,
-        "zy_pid_2": zy_proj_id2,
-        "app_token": app_token
-    }
-)
-
 show_result()

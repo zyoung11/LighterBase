@@ -113,26 +113,6 @@ func createProject(c *fiber.Ctx) error {
 		// 即使目录创建失败，也不回滚数据库记录，因为项目已经创建
 	}
 
-	// // 向LighterBase发送初始化请求
-	// initURL := fmt.Sprintf("http://localhost:8081/%d/%d/init", userID, project.ProjectID)
-	// httpReq, err := http.NewRequest("POST", initURL, nil)
-	// if err != nil {
-	// 	log.Printf("ERROR: Failed to create init request for project %d: %v", project.ProjectID, err)
-	// } else {
-	// 	client := &http.Client{Timeout: 10 * time.Second}
-	// 	resp, err := client.Do(httpReq)
-	// 	if err != nil {
-	// 		log.Printf("ERROR: Failed to send init request for project %d: %v", project.ProjectID, err)
-	// 	} else {
-	// 		defer resp.Body.Close()
-	// 		if resp.StatusCode != http.StatusOK {
-	// 			log.Printf("WARN: Init request for project %d returned status %d", project.ProjectID, resp.StatusCode)
-	// 		} else {
-	// 			log.Printf("Successfully initialized project %d", project.ProjectID)
-	// 		}
-	// 	}
-	// }
-
 	basePath := fmt.Sprintf("./LighterBaseHubData/Apps/%v/%v", userID, project.ProjectID)
 
 	// 创建目录
@@ -173,16 +153,21 @@ func createProject(c *fiber.Ctx) error {
 
 	// 生成写日志闭包（捕获 queries）
 	logFn := func(logText string) {
-		// 忽略错误，纯异步日志
 		_ = queries.CreateLog(context.Background(), logText)
 	}
 
 	// 保存连接
 	key := fmt.Sprintf("%v/%v", userID, project.ProjectID)
-	dbMap[key] = &DBSet{
+	dbSet := &DBSet{
 		Queries: queries,
 		DataDB:  dataDB,
-		LogFn:   logFn, // 关键
+		LogFn:   logFn,
+	}
+	dbMap[key] = dbSet
+
+	// 注册到连接管理器
+	if connManager != nil {
+		connManager.RegisterConnection(key, dbSet)
 	}
 
 	response := ProjectResponse{
@@ -370,7 +355,16 @@ func deleteProject(c *fiber.Ctx) error {
 		log.Printf("ERROR: Failed to delete project directory %s: %v", projectDir, err)
 	}
 
-	// --- 2. 删除数据库记录 ---
+	// --- 2. 从连接管理器中移除连接 ---
+	key := fmt.Sprintf("%d/%d", project.UserID, project.ProjectID)
+	if connManager != nil {
+		connManager.RemoveConnection(key)
+	}
+
+	// --- 3. 从dbMap中移除连接 ---
+	delete(dbMap, key)
+
+	// --- 4. 删除数据库记录 ---
 	if err := queries.DeleteProject(c.Context(), int64(projectID)); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete project record from database"})
 	}
