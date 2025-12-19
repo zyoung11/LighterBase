@@ -1,7 +1,6 @@
 Backend/app/LighterBaseData
 Backend/app/LighterBase
 Backend/app/LighterBase.exe
-Backend/app/test
 Backend/web/Apps/LighterBase
 Backend/web/Apps/LighterBase.exe
 Backend/web/LighterBaseHub
@@ -19,3 +18,4 @@ Backend/web/test_build
 */LighterBaseHubData
 */LighterBaseData
 Backend/web/config/jwt_secrets.json
+Backend/app/test/__pycache__

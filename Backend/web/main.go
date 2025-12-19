@@ -589,8 +589,7 @@ func InspectSQL(raw string) (forbidden error, hasSchemaMod bool) {
 
 func main() {
 	initDB("LighterBaseHub")
-	// go Run("LighterBase", 8081, routes)
-	initBackend("LighterBaseHub", "build", 8080, 80)
+	initBackend("LighterBaseHub", 8080)
 }
 
 //----------------------------------routing--------------------------------------
