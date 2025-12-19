@@ -357,8 +357,8 @@ const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function
             <div class="flex items-center justify-center">
               <label class="block text-white mr-2">权限</label>
               <select id="invite-permissions" class="flex-1 bg-[#1B1E1F] border border-white/10 text-white p-2 rounded">
-                <option value="admin">high-privileges</option>
                 <option value="readonly">readonly</option>
+                <option value="admin">high-privileges</option>
               </select>
             </div>
             <div class="flex">
@@ -582,7 +582,7 @@ async function initializeStartModal(userId: string, projectId: number) {
     }
 
     // 设置URL并跳转
-    window.location.href = `/index?apiUrl=${encodeURIComponent(projectUrl)}`;
+    // window.location.href = `/index?apiUrl=${encodeURIComponent(projectUrl)}`;
   };
 }
 

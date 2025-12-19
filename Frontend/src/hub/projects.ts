@@ -310,8 +310,11 @@ async sendInvitation(payload:any){
     });
 
     if(res.ok){
-      const data = await res.json()
-      return data
+      blocks.popupConfirm("邀请成功")
+      // const data = await res.json()
+      // return data
+    }else{
+      blocks.popupConfirm("邀请失败")
     }
 
   }catch(e){

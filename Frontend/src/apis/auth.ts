@@ -37,7 +37,6 @@ async userRegister(username?: string, password?: string, email?: string): Promis
             return false; 
         }
     } catch (err) {
-        console.log("注册失败：", err);
         blocks.popupConfirm("注册失败，请检查网络连接");
         return false;
     }
@@ -78,13 +77,13 @@ async userRegister(username?: string, password?: string, email?: string): Promis
 
 async isLogin(){
     try{
+        console.log("查看是否注册：",typeof(URL))
         const res = await fetch(`${URL}/api/auth/init`,{
             method:"GET",
-            headers:{
-                // "Content-Type":"application/json",
-                "Authorization":`Bearer ${hubAuthToken}`
+            // headers:{
+            //     "Authorization":`Bearer ${hubAuthToken}`
 
-            }
+            // }
         });
         const data = await res.json()
         return data.init
