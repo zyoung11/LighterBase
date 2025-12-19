@@ -4,7 +4,7 @@ const ANIMATION_DURATION = 500; // 动画持续时间 (ms)
 const GAP = 20; // 项目间隔 (px)
 import projects from "./projects";
 import {URL, setBaseUrl } from "../apis/api";
-import { compressImage,getCookie } from "../modules/tools";
+import { compressImage,getCookie,parseJwt } from "../modules/tools";
 import { i18n } from "../modules/i18n";
 import sql from "../apis/sql";
 import gojsER from "../utils/gojsER";
@@ -244,19 +244,6 @@ async function initializeBlocks() {
 function selectBlock(selectedId:number) {
   const selected = blocks.find(b => b.id === selectedId);
   if (!selected) return;
-function parseJwt(token: string) {
-        try {
-          const base64Url = token.split('.')[1];
-const base64 = (base64Url || '').replace(/-/g, '+').replace(/_/g, '/');
-const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-          }).join(''));
-          return JSON.parse(jsonPayload);
-        } catch (e) {
-          console.error('Token parsing failed:', e);
-          return null;
-        }
-      }
   const payload = parseJwt(token);
   const userId = payload ? payload.user_id || payload.id : null;
   if (!userId) {
@@ -338,7 +325,7 @@ const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function
       inviteBtn.onclick = async () => {
         setBaseUrl();
         const projectUrl = `${theURL}/${userId}/${projectId}`;
-        console.log(projectUrl)
+        // console.log(projectUrl)
         setBaseUrl(projectUrl);
         
         const isEmpty = await auth.isLogin();

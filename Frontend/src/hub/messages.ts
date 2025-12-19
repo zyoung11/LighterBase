@@ -1,5 +1,6 @@
 import projects from "./projects";
 import defaultImg from "../icons/projectsDefault.jpg";
+import auth from "../apis/auth";
 
 // --- 类型定义 ---
 interface Project {
@@ -100,9 +101,15 @@ function initProjectInviteWorkflow() {
                 <img src="${proj.project_avatar || defaultImg}" class="w-8 h-8 rounded object-cover mr-3 border border-white/10">
                 <span class="text-sm text-gray-200 truncate font-medium">${proj.project_name}</span>
             `;
-            item.onclick = () => {
+            item.onclick = async() => {
+
+                const isLogin = await auth.isLogin();
+                if(isLogin){
                 openInviteModal(proj);
                 selectorMenu.classList.add('hidden');
+                }else{
+                    
+                }
             };
             selectorMenu.appendChild(item);
         });
