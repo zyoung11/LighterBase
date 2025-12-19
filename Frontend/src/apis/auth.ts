@@ -87,7 +87,7 @@ async isLogin(){
         const data = await res.json()
         return data.init
     }catch(e){
-        console.log(e);
+        // console.log(e);
         return false;
     }
 },

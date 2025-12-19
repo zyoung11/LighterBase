@@ -1,10 +1,12 @@
 import projects from "./projects";
 import defaultImg from "../icons/projectsDefault.jpg";
 import auth from "../apis/auth";
-
+import { theURL,setBaseUrl } from "../apis/api";
+import blocks from "../modules/blocks";
 // --- 类型定义 ---
 interface Project {
     project_id: number;
+    user_id: number;
     project_name: string;
     project_description: string;
     project_avatar: string;
@@ -102,13 +104,20 @@ function initProjectInviteWorkflow() {
                 <span class="text-sm text-gray-200 truncate font-medium">${proj.project_name}</span>
             `;
             item.onclick = async() => {
-
-                const isLogin = await auth.isLogin();
-                if(isLogin){
-                openInviteModal(proj);
-                selectorMenu.classList.add('hidden');
+                console.log("查看选中的：",proj)
+                const userId = proj.user_id;
+                const projectId = proj.project_id;
+                const projectUrl = `${theURL}/${userId}/${projectId}`;
+                setBaseUrl(projectUrl)
+                const isEmpty = await auth.isLogin();
+                if(isEmpty){
+                    openInviteModal(proj);
+                    selectorMenu.classList.add('hidden');
+                    setBaseUrl()
                 }else{
-                    
+                    blocks.popupConfirm("请先注册,是否现在注册？")                    
+                    setBaseUrl()
+                    return
                 }
             };
             selectorMenu.appendChild(item);

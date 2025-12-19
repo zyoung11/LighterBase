@@ -3,7 +3,7 @@ const CELL_SIZE = 100; // 每个格子的大小 (px)
 const ANIMATION_DURATION = 500; // 动画持续时间 (ms)
 const GAP = 20; // 项目间隔 (px)
 import projects from "./projects";
-import {URL, setBaseUrl } from "../apis/api";
+import {theURL,URL, setBaseUrl } from "../apis/api";
 import { compressImage,getCookie,parseJwt } from "../modules/tools";
 import { i18n } from "../modules/i18n";
 import sql from "../apis/sql";
@@ -14,9 +14,6 @@ import popBlocks from "../modules/blocks";
 import auth from "../apis/auth";
 
 let token = getCookie("hubAuthToken")!
-let theURL = "http://localhost:8080"
-// let theURL = "http://www.smallwoodice.cn:8080"
-
 
 let blocks:any[] = [];
 const app = document.getElementById('app');

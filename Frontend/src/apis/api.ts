@@ -1,5 +1,7 @@
 let URL ="http://localhost:8080"
 // let URL ="http://www.smallwoodice.cn:8080"
+let theURL = "http://localhost:8080"
+// let theURL = "http://www.smallwoodice.cn:8080"is
 const cookies = document.cookie;
 let authToken = "";
 const authTokenMatch = cookies.match(/authToken=([^;]*)/);
@@ -29,6 +31,7 @@ function setBaseUrl(url?: string): void {
 
 export {
     URL,
+    theURL,
     authToken,
     hubAuthToken,
     setBaseUrl

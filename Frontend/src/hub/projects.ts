@@ -311,14 +311,15 @@ async sendInvitation(payload:any){
 
     if(res.ok){
       blocks.popupConfirm("邀请成功")
+      return true
     }else{
       const data = await res.json()
-      console.log(data)
       blocks.popupConfirm("邀请失败")
+      return false
     }
 
   }catch(e){
-    console.log("发送邀请失败：",e)
+    return false
   }
 },
 
