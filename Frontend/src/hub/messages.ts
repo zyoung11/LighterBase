@@ -183,7 +183,7 @@ async function loadReceivedInvitations(status: string) {
         item.innerHTML = `
             <p class="text-[14px] text-gray-300">
                 <span class="text-[#46A3FF] font-medium">${sender.user_name}</span> 
-                invited you to <span class="text-white font-medium">${project.project_name}</span> (${permission})
+                has invited you to collaborate with <span class="text-[#46A3FF] font-medium">${project.project_name} | ${msg.project_id}</span> <span class="text-[#46A3FF]">(${permission})</span>
             </p>
             ${msg.status === 'pending' ? `
                 <div class="flex space-x-2 ml-4">
@@ -216,7 +216,7 @@ async function loadSentInvitations(status: string) {
         item.className = "bg-white/5 p-4 rounded-lg border border-white/10 hover:border-white/20 transition";
         item.innerHTML = `
             <p class="text-[14px] text-gray-300">
-                You invited <span class="text-[#46A3FF] font-medium">${user?.user_name || 'User'}</span> to <span class="text-white font-medium">${project.project_name}</span>
+                You have invited <span class="text-[#46A3FF] font-medium">${user?.user_name || 'User'}</span> to collaborate with  <span class="text-[#46A3FF] font-medium">${project.project_name} | ${msg.project_id}</span>
             </p>
             <div class="flex justify-between mt-3 items-center">
                 <span class="text-[10px] text-gray-500 uppercase tracking-widest">${new Date(msg.create_at).toLocaleString()}</span>
