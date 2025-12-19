@@ -147,11 +147,11 @@ async function renderBlock(block:any) {
     block.element.style.height = '22vh';
     block.element.style.transitionDuration = `${ANIMATION_DURATION}ms`;
     block.element.innerHTML = `
-        <img src="${originAvatar}" class="w-[16vh] h-[16vh] p-1 rounded-md object-cover rounded" 
+        <img src="${originAvatar}" class="w-[16vh] h-[16vh] p-1 rounded-lg object-cover rounded" 
              onerror="this.src='${defaultImg}'; this.style.display='block'; this.style.objectFit='cover';">
         <div class = "flex flex-col mt-2">
-        <h3 class="text-white text-sm font-bold break-words line-clamp-1">${block.project.project_name}</h3>
-        <p class="text-gray-300 text-xs break-words line-clamp-3 mt-1">${block.project.project_description}</p>
+        <h3 class="text-white text-sm font-bold break-words line-clamp-1 h-[10%]">${block.project.project_name}</h3>
+        <p class="text-gray-300 text-xs break-words line-clamp-3 mt-1 h-[20%]">${block.project.project_description}</p>
         <div class="mt-3">
           <p class="text-gray-400 text-xs">${i18n.t('common.created')}${block.project.create_at}</p>
           <p class="text-gray-400 text-xs">${i18n.t('common.updated')}${block.project.update_at}</p>
