@@ -1,4 +1,4 @@
-from PAT import get, post, put, run_test, print_info, show_result
+from PAT import get, post, put, delete, run_test, print_info, show_result
 
 baseUrl = "http://127.0.0.1:8080"
 
@@ -445,6 +445,68 @@ run_test(
               	'''
           },
       should_fail=True)
+)
+
+run_test(
+    "zy 创建一条Query 请求",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/queries",
+         headers={"Authorization": f"Bearer {app_token}",
+                  "Content-Type": "application/json"},
+        body={
+             "queries": "SELECT * FROM users;"   
+        })
+)
+
+query_id = run_test(
+    "zy 再创建一条Query 请求",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/queries",
+         headers={"Authorization": f"Bearer {app_token}",
+                  "Content-Type": "application/json"},
+        body={
+             "queries": "SELECT id FROM users;"   
+        }),
+    "id"
+)
+
+run_test(
+    "zy 查询 Query 请求",
+    get(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/queries?page=1&perpage=30",
+         headers={"Authorization": f"Bearer {app_token}",
+                  "Content-Type": "application/json"},
+        )
+)
+
+run_test(
+    "zy 修改一条Query 请求",
+    put(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/queries/{query_id}",
+         headers={"Authorization": f"Bearer {app_token}",
+                  "Content-Type": "application/json"},
+        body={
+             "queries": "SELECT name FROM users;"   
+        })
+)
+
+run_test(
+    "zy 查询 Query 请求",
+    get(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/queries?page=1&perpage=30",
+         headers={"Authorization": f"Bearer {app_token}",
+                  "Content-Type": "application/json"},
+        )
+)
+
+run_test(
+    "zy 删除一条Query 请求",
+    delete(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/queries/{query_id}",
+         headers={"Authorization": f"Bearer {app_token}",
+                  "Content-Type": "application/json"})
+)
+
+run_test(
+    "zy 查询 Query 请求",
+    get(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/queries?page=1&perpage=30",
+         headers={"Authorization": f"Bearer {app_token}",
+                  "Content-Type": "application/json"},
+        )
 )
 
 print_info(

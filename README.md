@@ -1,6 +1,20 @@
 # API 文档
 
-## 启动
+## 导航
+
+* [用户 API](#一、用户api)
+* [项目 API](#二、项目api)
+* [下载 API](#三、下载-api)
+* [团队协作通知系统 API](#四、团队协作通知系统api)
+* [Baas API](#五、baas-api)
+  * [自动生成模块](#1-自动生成模块)
+  * [用户表操作 API](#2-用户表操作-api)
+  * [JWT](#3-jwt)
+  * [权限管理 API](#4-权限管理api)
+  * [Queries 管理 API](#5-Query-管理-API)
+  * [其他查询](#6-其他查询)
+
+## 启动程序
 
 ```bash
 # LighterBase
@@ -639,7 +653,133 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-## 四、Baas API
+## 四、团队协作通知系统API
+
+### 1. 发送邀请
+
+- http方法：**POST**
+
+- URL：`/team`
+
+- 请求头：
+
+  ```
+  Content-Type: application/json
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 请求体：
+
+  ```json
+  {
+    "projectId": "value1",
+    "permissions": "value2",
+    "email": "value3"
+  }
+  ```
+
+1. **projectId: **邀请成员来的自己的项目id
+2. **permissions: **邀请成员为高权限成员或只读成员，可选 `admin` 或 `readonly`
+3. **email: **要邀请的成员在网站注册使用的邮箱
+
+### 2. 查询用户发送的日志
+
+- http方法：**GET**
+
+- URL：`/team/send/:status`
+
+- 请求头：
+
+  ```
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  [
+      {
+       	"notification_id": 0,
+  		"sender_id":       0,
+  		"receiver_id":     0,
+  		"project_id":      0,
+  		"content":         "value1",
+  		"status":          "value2",
+  		"create_at":       "value3",
+  		"update_at":       "value4"
+      }
+  ]
+  ```
+
+  | **/:status** 选项 | 功能                                 |
+  | ----------------- | ------------------------------------ |
+  | `/all`            | 获取该用户发送的所有邀请             |
+  | `/agree`          | 获取该用户发送的所有的已经同意的邀请 |
+  | `/disagree`       | 获取该用户发送的所有的不同意的邀请   |
+  | `/pending`        | 获取该用户发送的所有的待同意的邀请   |
+
+### 3. 查询用户接收的日志
+
+- http方法：**GET**
+
+- URL：`/team/receive/:status`
+
+- 请求头：
+
+  ```
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  [
+      {
+       	"notification_id": 0,
+  		"sender_id":       0,
+  		"receiver_id":     0,
+  		"project_id":      0,
+  		"content":         "value1",
+  		"status":          "value2",
+  		"create_at":       "value3",
+  		"update_at":       "value4"
+      }
+  ]
+  ```
+
+  | **/:status** 选项 | 功能                                 |
+  | ----------------- | ------------------------------------ |
+  | `/all`            | 获取该用户发送的所有邀请             |
+  | `/agree`          | 获取该用户发送的所有的已经同意的邀请 |
+  | `/disagree`       | 获取该用户发送的所有的不同意的邀请   |
+  | `/pending`        | 获取该用户发送的所有的待同意的邀请   |
+
+### 4. 确认邀请
+
+- http方法：**PUT**
+
+- URL：`/team/confirm/:notificationId/:status`
+
+- 请求头：
+
+  ```
+  Authorization: Bearer <jwt_token>
+  ```
+
+  | **/:status** 选项 | 功能       |
+  | ----------------- | ---------- |
+  | `/agree`          | 同意邀请   |
+  | `disagree`        | 不同意邀请 |
+
+## 五、Baas API
 
 > [!NOTE]
 >
@@ -1334,13 +1474,17 @@ cd LighterBase/Backend/web/LighterBaseHub
   null
   ```
 
-## 5. 团队协作通知系统API
+## 5. Query 管理 API
 
-### 5.1 发送邀请
+> [!IMPORTANT]
+>
+> 这里所有 API 都只有**管理员和高权限成员**可用
 
-- http方法：**POST**
+### 5.1 查询所有 Query
 
-- URL：`/team`
+- http方法：**GET**
+
+- URL：`/queries?page={x}&perpage={y}`
 
 - 请求头：
 
@@ -1349,116 +1493,107 @@ cd LighterBase/Backend/web/LighterBaseHub
   Authorization: Bearer <jwt_token>
   ```
 
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  {
+      "page": 1,
+      "perPage": 30,
+      "totalPages": 1,
+      "totalItems": 1,
+      "queries": [
+          {
+           	"id": 0,
+              "queries": "value1",
+              "create_at": "value2",
+              "update_at": "value3"
+          }
+      ]
+  }
+  ```
+
+### 5.2 创建一条 Query 请求
+
+- http方法：**POST**
+
+- URL：`/queries`
+
+- 请求头：
+
+  ```
+  Authorization: Bearer <jwt_token>
+  Content-Type: application/json
+  ```
+
 - 请求体：
 
   ```json
   {
-    "projectId": "value1",
-    "permissions": "value2",
-    "email": "value3"
+      "queries": "value1"
   }
   ```
 
-1. **projectId: **邀请成员来的自己的项目id
-2. **permissions: **邀请成员为高权限成员或只读成员，可选 `admin` 或 `readonly`
-3. **email: **要邀请的成员在网站注册使用的邮箱
-
-### 5.2 查询用户发送的日志
-
-- http方法：**GET**
-
-- URL：`/team/send/:status`
-
-- 请求头：
-
-  ```
-  Authorization: Bearer <jwt_token>
-  ```
-
 - 预期返回：
 
-  http状态码：200
+  http状态码：201
 
   返回体：
 
   ```json
-  [
-      {
-       	"notification_id": 0,
-  		"sender_id":       0,
-  		"receiver_id":     0,
-  		"project_id":      0,
-  		"content":         "value1",
-  		"status":          "value2",
-  		"create_at":       "value3",
-  		"update_at":       "value4"
-      }
-  ]
+  {
+      "id": 0,
+      "query": "value1",
+      "create_at": "value2"
+  }
   ```
 
-  | **/:status** 选项 | 功能                                 |
-  | ----------------- | ------------------------------------ |
-  | `/all`            | 获取该用户发送的所有邀请             |
-  | `/agree`          | 获取该用户发送的所有的已经同意的邀请 |
-  | `/disagree`       | 获取该用户发送的所有的不同意的邀请   |
-  | `/pending`        | 获取该用户发送的所有的待同意的邀请   |
-
-### 5.3 查询用户接收的日志
-
-- http方法：**GET**
-
-- URL：`/team/receive/:status`
-
-- 请求头：
-
-  ```
-  Authorization: Bearer <jwt_token>
-  ```
-
-- 预期返回：
-
-  http状态码：200
-
-  返回体：
-
-  ```json
-  [
-      {
-       	"notification_id": 0,
-  		"sender_id":       0,
-  		"receiver_id":     0,
-  		"project_id":      0,
-  		"content":         "value1",
-  		"status":          "value2",
-  		"create_at":       "value3",
-  		"update_at":       "value4"
-      }
-  ]
-  ```
-
-  | **/:status** 选项 | 功能                                 |
-  | ----------------- | ------------------------------------ |
-  | `/all`            | 获取该用户发送的所有邀请             |
-  | `/agree`          | 获取该用户发送的所有的已经同意的邀请 |
-  | `/disagree`       | 获取该用户发送的所有的不同意的邀请   |
-  | `/pending`        | 获取该用户发送的所有的待同意的邀请   |
-
-### 5.4 确认邀请
+### 5.3 修改一条 Query 请求
 
 - http方法：**PUT**
 
-- URL：`/team/confirm/:notificationId/:status`
+- URL：`/queries/:queryId`
 
 - 请求头：
 
   ```
   Authorization: Bearer <jwt_token>
+  Content-Type: application/json
   ```
 
-  | **/:status** 选项 | 功能       |
-  | ----------------- | ---------- |
-  | `/agree`          | 同意邀请   |
-  | `disagree`        | 不同意邀请 |
+- 请求体：
+
+  ```json
+  {
+      "queries": "value1"
+  }
+  ```
+
+- 预期返回：
+
+  http状态码：204
+
+
+### 5.4 删除一条 Query 请求
+
+- http方法：**DELETE**
+
+- URL：`/queries/:queryId`
+
+- 请求头：
+
+  ```
+  Authorization: Bearer <jwt_token>
+  Content-Type: application/json
+  ```
+
+- 预期返回：
+
+  http状态码：204
+
 
 ## 6. 其他查询
 
