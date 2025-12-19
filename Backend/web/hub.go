@@ -648,16 +648,41 @@ func sendNotification(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create notification"})
 	}
 
+	// 获取发送者和接收者详细信息
+	sender, err := queries.GetUserByID(c.Context(), userID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch sender details"})
+	}
+
+	// 获取项目详细信息
+	project, projectErr := queries.GetProjectByID(c.Context(), req.ProjectID)
+	if projectErr != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch project details"})
+	}
+
 	// 返回响应
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"notification_id": notification.NotificationID,
-		"sender_id":       notification.SenderID,
-		"receiver_id":     notification.ReceiverID,
-		"project_id":      notification.ProjectID,
-		"content":         notification.NotificationContent,
-		"status":          notification.NotificationStatus,
-		"create_at":       notification.CreateAt.String,
-		"update_at":       notification.UpdateAt.String,
+		"sender": map[string]any{
+			"user_id":   sender.UserID,
+			"user_name": sender.UserName,
+			"email":     sender.Email,
+		},
+		"receiver": map[string]any{
+			"user_id":   receiver.UserID,
+			"user_name": receiver.UserName,
+			"email":     receiver.Email,
+		},
+		"project": map[string]any{
+			"project_id":          project.ProjectID,
+			"project_name":        project.ProjectName,
+			"project_description": project.ProjectDescription.String,
+			"user_id":             project.UserID,
+		},
+		"content":   notification.NotificationContent,
+		"status":    notification.NotificationStatus,
+		"create_at": notification.CreateAt.String,
+		"update_at": notification.UpdateAt.String,
 	})
 }
 
@@ -702,15 +727,46 @@ func checkMyNotifications(c *fiber.Ctx) error {
 	// 转换为响应格式
 	var response []map[string]any
 	for _, notification := range notifications {
+		// 获取发送者详细信息
+		sender, senderErr := queries.GetUserByID(c.Context(), notification.SenderID)
+		if senderErr != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch sender details"})
+		}
+
+		// 获取接收者详细信息
+		receiver, receiverErr := queries.GetUserByID(c.Context(), notification.ReceiverID)
+		if receiverErr != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch receiver details"})
+		}
+
+		// 获取项目详细信息
+		project, projectErr := queries.GetProjectByID(c.Context(), notification.ProjectID)
+		if projectErr != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch project details"})
+		}
+
 		response = append(response, map[string]any{
 			"notification_id": notification.NotificationID,
-			"sender_id":       notification.SenderID,
-			"receiver_id":     notification.ReceiverID,
-			"project_id":      notification.ProjectID,
-			"content":         notification.NotificationContent,
-			"status":          notification.NotificationStatus,
-			"create_at":       notification.CreateAt.String,
-			"update_at":       notification.UpdateAt.String,
+			"sender": map[string]any{
+				"user_id":   sender.UserID,
+				"user_name": sender.UserName,
+				"email":     sender.Email,
+			},
+			"receiver": map[string]any{
+				"user_id":   receiver.UserID,
+				"user_name": receiver.UserName,
+				"email":     receiver.Email,
+			},
+			"project": map[string]any{
+				"project_id":          project.ProjectID,
+				"project_name":        project.ProjectName,
+				"project_description": project.ProjectDescription.String,
+				"user_id":             project.UserID,
+			},
+			"content":   notification.NotificationContent,
+			"status":    notification.NotificationStatus,
+			"create_at": notification.CreateAt.String,
+			"update_at": notification.UpdateAt.String,
 		})
 	}
 
@@ -758,15 +814,46 @@ func checkNotificationsSentToMe(c *fiber.Ctx) error {
 	// 转换为响应格式
 	var response []map[string]any
 	for _, notification := range notifications {
+		// 获取发送者详细信息
+		sender, senderErr := queries.GetUserByID(c.Context(), notification.SenderID)
+		if senderErr != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch sender details"})
+		}
+
+		// 获取接收者详细信息
+		receiver, receiverErr := queries.GetUserByID(c.Context(), notification.ReceiverID)
+		if receiverErr != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch receiver details"})
+		}
+
+		// 获取项目详细信息
+		project, projectErr := queries.GetProjectByID(c.Context(), notification.ProjectID)
+		if projectErr != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch project details"})
+		}
+
 		response = append(response, map[string]any{
 			"notification_id": notification.NotificationID,
-			"sender_id":       notification.SenderID,
-			"receiver_id":     notification.ReceiverID,
-			"project_id":      notification.ProjectID,
-			"content":         notification.NotificationContent,
-			"status":          notification.NotificationStatus,
-			"create_at":       notification.CreateAt.String,
-			"update_at":       notification.UpdateAt.String,
+			"sender": map[string]any{
+				"user_id":   sender.UserID,
+				"user_name": sender.UserName,
+				"email":     sender.Email,
+			},
+			"receiver": map[string]any{
+				"user_id":   receiver.UserID,
+				"user_name": receiver.UserName,
+				"email":     receiver.Email,
+			},
+			"project": map[string]any{
+				"project_id":          project.ProjectID,
+				"project_name":        project.ProjectName,
+				"project_description": project.ProjectDescription.String,
+				"user_id":             project.UserID,
+			},
+			"content":   notification.NotificationContent,
+			"status":    notification.NotificationStatus,
+			"create_at": notification.CreateAt.String,
+			"update_at": notification.UpdateAt.String,
 		})
 	}
 
@@ -819,14 +906,45 @@ func confirmNotification(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch updated notification"})
 	}
 
+	// 获取发送者详细信息
+	sender, senderErr := queries.GetUserByID(c.Context(), notification.SenderID)
+	if senderErr != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch sender details"})
+	}
+
+	// 获取接收者详细信息
+	receiver, receiverErr := queries.GetUserByID(c.Context(), notification.ReceiverID)
+	if receiverErr != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch receiver details"})
+	}
+
+	// 获取项目详细信息
+	project, projectErr := queries.GetProjectByID(c.Context(), notification.ProjectID)
+	if projectErr != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch project details"})
+	}
+
 	return c.JSON(map[string]any{
 		"notification_id": notification.NotificationID,
-		"sender_id":       notification.SenderID,
-		"receiver_id":     notification.ReceiverID,
-		"project_id":      notification.ProjectID,
-		"content":         notification.NotificationContent,
-		"status":          notification.NotificationStatus,
-		"create_at":       notification.CreateAt.String,
-		"update_at":       notification.UpdateAt.String,
+		"sender": map[string]any{
+			"user_id":   sender.UserID,
+			"user_name": sender.UserName,
+			"email":     sender.Email,
+		},
+		"receiver": map[string]any{
+			"user_id":   receiver.UserID,
+			"user_name": receiver.UserName,
+			"email":     receiver.Email,
+		},
+		"project": map[string]any{
+			"project_id":          project.ProjectID,
+			"project_name":        project.ProjectName,
+			"project_description": project.ProjectDescription.String,
+			"user_id":             project.UserID,
+		},
+		"content":   notification.NotificationContent,
+		"status":    notification.NotificationStatus,
+		"create_at": notification.CreateAt.String,
+		"update_at": notification.UpdateAt.String,
 	})
 }

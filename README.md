@@ -2,17 +2,55 @@
 
 ## 导航
 
-* [用户 API](#一用户api)
-* [项目 API](#二项目api)
-* [下载 API](#三下载-api)
-* [团队协作通知系统 API](#四团队协作通知系统api)
-* [Baas API](#五baas-api)
-  * [自动生成模块](#1-自动生成模块)
-  * [用户表操作 API](#2-用户表操作-api)
-  * [JWT](#3-jwt)
-  * [权限管理 API](#4-权限管理api)
-  * [Queries 管理 API](#5-Query-管理-API)
-  * [其他查询](#6-其他查询)
+* [一、用户API](#一用户api)
+  * [1. 用户注册](#1-用户注册)
+  * [2. 用户登录](#2-用户登录)
+  * [3. 获取所有用户](#3-获取所有用户)
+  * [4. 获取单个用户](#4-获取单个用户)
+  * [5. 更新用户](#5-更新用户)
+  * [6. 删除用户](#6-删除用户)
+  * [7. 检查是否已经注册](#7-检查是否已经注册)
+* [二、项目API](#二项目api)
+  * [1. 创建项目](#1-创建项目)
+  * [2. 获取当前用户的所有项目](#2-获取当前用户的所有项目)
+  * [3. 获取单个项目](#3-获取单个项目)
+  * [4. 更新项目](#4-更新项目)
+  * [5. 删除项目](#5-删除项目)
+  * [5. 下载项目](#5-下载项目)
+  * [6. 获取项目数据库表结构](#6-获取项目数据库表结构)
+* [三、下载 API](#三下载-api)
+  * [1. 下载 App](#1-下载-app)
+* [四、团队协作通知系统API](#四团队协作通知系统api)
+  * [1. 发送邀请](#1-发送邀请)
+  * [2. 查询用户发送的日志](#2-查询用户发送的日志)
+  * [3. 查询用户接收的日志](#3-查询用户接收的日志)
+  * [4. 确认邀请](#4-确认邀请)
+* [五、Baas API](#五baas-api)
+  * [1. 自动生成模块](#1-自动生成模块)
+    * [1.1 增](#11-增)
+    * [1.2 删](#12-删)
+    * [1.3 改](#13-改)
+    * [1.4 查](#14-查)
+  * [2. 用户表操作 API](#2-用户表操作-api)
+    * [2.1 SQL 表操作](#21-sql-表操作)
+    * [2.2 查看上一次 SQL 表操作](#22-查看上一次-sql-表操作)
+    * [2.3 查看历史 SQL 表操作](#23-查看历史-sql-表操作)
+  * [3. JWT](#3-jwt)
+    * [3.1 登录](#31-登录)
+    * [3.2 更新 token](#32-更新-token)
+  * [4. 权限管理API](#4-权限管理api)
+    * [4.1 获取所有权限状态](#41-获取所有权限状态)
+    * [4.2 更新权限规则](#42-更新权限规则)
+  * [5. Query 管理 API](#5-query-管理-api)
+    * [5.1 查询所有 Query](#51-查询所有-query)
+    * [5.2 创建一条 Query 请求](#52-创建一条-query-请求)
+    * [5.3 修改一条 Query 请求](#53-修改一条-query-请求)
+    * [5.4 删除一条 Query 请求](#54-删除一条-query-请求)
+  * [6. 其他查询](#6-其他查询)
+    * [6.1 查询所有表名](#61-查询所有表名)
+    * [6.2 查询日志](#62-查询日志)
+    * [6.3 搜索日志](#63-搜索日志)
+    * [6.4 检查是否已经注册](#64-检查是否已经注册)
 
 ## 启动程序
 
@@ -689,6 +727,36 @@ cd LighterBase/Backend/web/LighterBaseHub
 2. **permissions: **邀请成员为高权限成员或只读成员，可选 `admin` 或 `readonly`
 3. **email: **要邀请的成员在网站注册使用的邮箱
 
+- 返回体：
+
+  ```json
+  {
+      "content": "value1",
+      "notification_id": 1,
+      "status": "pending",
+      "create_at": "value2",
+      "update_at": "value3",
+      "project": {
+          "project_id": "value4",
+          "project_name": "value5",
+          "project_description": "value6",
+          "user_id": 1
+      },
+      "sender": {
+          "user_id": 1,
+          "user_name": "value7",
+          "email": "value8"
+      },
+      "receiver": {
+          "user_id": 2,
+          "user_name": "value9",
+          "email": "value10"
+      }
+  }
+  ```
+
+  
+
 ### 2. 查询用户发送的日志
 
 - http方法：**GET**
@@ -709,19 +777,32 @@ cd LighterBase/Backend/web/LighterBaseHub
 
   ```json
   [
-      {
-       	"notification_id": 0,
-  		"sender_id":       0,
-  		"receiver_id":     0,
-  		"project_id":      0,
-  		"content":         "value1",
-  		"status":          "value2",
-  		"create_at":       "value3",
-  		"update_at":       "value4"
+  	{
+          "content": "value1",
+          "notification_id": 1,
+          "status": "pending",
+          "create_at": "value2",
+          "update_at": "value3",
+          "project": {
+              "project_id": "value4",
+              "project_name": "value5",
+              "project_description": "value6",
+              "user_id": 1
+          },
+          "sender": {
+              "user_id": 1,
+              "user_name": "value7",
+              "email": "value8"
+          },
+          "receiver": {
+              "user_id": 2,
+              "user_name": "value9",
+              "email": "value10"
+          }
       }
   ]
   ```
-
+  
   | **/:status** 选项 | 功能                                 |
   | ----------------- | ------------------------------------ |
   | `/all`            | 获取该用户发送的所有邀请             |
@@ -749,19 +830,32 @@ cd LighterBase/Backend/web/LighterBaseHub
 
   ```json
   [
-      {
-       	"notification_id": 0,
-  		"sender_id":       0,
-  		"receiver_id":     0,
-  		"project_id":      0,
-  		"content":         "value1",
-  		"status":          "value2",
-  		"create_at":       "value3",
-  		"update_at":       "value4"
+  	{
+          "content": "value1",
+          "notification_id": 1,
+          "status": "pending",
+          "create_at": "value2",
+          "update_at": "value3",
+          "project": {
+              "project_id": "value4",
+              "project_name": "value5",
+              "project_description": "value6",
+              "user_id": 1
+          },
+          "sender": {
+              "user_id": 1,
+              "user_name": "value7",
+              "email": "value8"
+          },
+          "receiver": {
+              "user_id": 2,
+              "user_name": "value9",
+              "email": "value10"
+          }
       }
   ]
   ```
-
+  
   | **/:status** 选项 | 功能                                 |
   | ----------------- | ------------------------------------ |
   | `/all`            | 获取该用户发送的所有邀请             |
@@ -785,6 +879,40 @@ cd LighterBase/Backend/web/LighterBaseHub
   | ----------------- | ---------- |
   | `/agree`          | 同意邀请   |
   | `disagree`        | 不同意邀请 |
+  
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  {
+      "content": "value1",
+      "notification_id": 1,
+      "status": "agree",
+      "create_at": "value2",
+      "update_at": "value3",
+      "project": {
+          "project_id": "value4",
+          "project_name": "value5",
+          "project_description": "value6",
+          "user_id": 1
+      },
+      "sender": {
+          "user_id": 1,
+          "user_name": "value7",
+          "email": "value8"
+      },
+      "receiver": {
+          "user_id": 2,
+          "user_name": "value9",
+          "email": "value10"
+      }
+  }
+  ```
+
+  
 
 ## 五、Baas API
 
