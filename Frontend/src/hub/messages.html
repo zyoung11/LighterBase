@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="../icons/logoWhite.png" />
+  <title>LighterBase</title>
+  <style id="fouc-fix">
+    body {
+      background: #1B1E1F;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+    }
+  </style>
+  <script src="../tailwind.js"></script>
+</head>
+
+<body class="fouc-fix bg-[#121414] text-gray-200 h-screen flex flex-col overflow-hidden"
+  style="background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 20px 20px;">
+
+  <div class="flex flex-1 overflow-hidden relative">
+    <div class="absolute left-1/2 top-10 bottom-10 w-[1px] bg-white/10 -translate-x-1/2"></div>
+
+    <div class="w-1/2 flex flex-col p-8 overflow-y-auto">
+      <div class="relative mb-10 flex flex-col items-center">
+        <div class="flex flex-col items-center cursor-pointer group" id="filter-received-btn">
+          <h1 class="text-xl font-semibold text-white tracking-wide">Received</h1>
+          <span
+            class="text-xs text-gray-400 mt-1 transition-transform duration-200 group-hover:translate-y-0.5">▼</span>
+        </div>
+        <div id="filter-received-menu"
+          class="hidden absolute top-14 bg-white/10 backdrop-blur-md border border-white/10 rounded-lg shadow-2xl z-20 w-32 overflow-hidden text-center">
+          <div class="hover:bg-[#46A3FF] p-2 text-sm cursor-pointer transition" data-status="all">All</div>
+          <div class="hover:bg-[#46A3FF] p-2 text-sm cursor-pointer transition" data-status="pending">Pending</div>
+          <div class="hover:bg-[#46A3FF] p-2 text-sm cursor-pointer transition" data-status="agree">Agree</div>
+          <div class="hover:bg-[#46A3FF] p-2 text-sm cursor-pointer transition" data-status="disagree">Disagree</div>
+        </div>
+      </div>
+
+      <div id="received-list" class="space-y-4">
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col p-8 overflow-y-auto">
+      <div class="relative mb-10 flex flex-col items-center">
+        <div class="flex flex-col items-center cursor-pointer group" id="filter-invited-btn">
+          <h1 class="text-xl font-semibold text-white tracking-wide">Invited</h1>
+          <span
+            class="text-xs text-gray-400 mt-1 transition-transform duration-200 group-hover:translate-y-0.5">▼</span>
+        </div>
+        <div id="filter-invited-menu"
+          class="hidden absolute top-14 bg-white/10 backdrop-blur-md border border-white/10 rounded-lg shadow-2xl z-20 w-32 overflow-hidden text-center">
+          <div class="hover:bg-[#46A3FF] p-2 text-sm cursor-pointer transition" data-status="all">All</div>
+          <div class="hover:bg-[#46A3FF] p-2 text-sm cursor-pointer transition" data-status="pending">Pending</div>
+          <div class="hover:bg-[#46A3FF] p-2 text-sm cursor-pointer transition" data-status="agree">Agree</div>
+          <div class="hover:bg-[#46A3FF] p-2 text-sm cursor-pointer transition" data-status="disagree">Disagree</div>
+        </div>
+      </div>
+
+      <div id="invited-list" class="space-y-4">
+      </div>
+    </div>
+  </div>
+
+  <script src="messages.ts"></script>
+  <script src="hubConponents.ts"></script>
+</body>
+
+</html>

@@ -1,4 +1,4 @@
-import { URL } from "../apis/api";
+import { URL,hubAuthToken } from "../apis/api";
 import blocks from "../modules/blocks";
 const projects = {
 
@@ -27,7 +27,7 @@ async getAllUsers(hubAuthToken:string){
   }
 },
 
-async getSingleUser(id: number, hubAuthToken: string){
+async getSingleUser(id: number){
   try{
     const res = await fetch(`${URL}/api/users/${id}`,{
       method:"GET",
@@ -154,7 +154,7 @@ async getAllProjects(hubAuthToken: string){
   }
 },
 
-async getSingleProject(id: number, hubAuthToken: string){
+async getSingleProject(id: number){
   try{
     const res = await fetch(`${URL}/api/projects/${id}`,{
       method:"GET",
@@ -296,15 +296,16 @@ async downloadProject(projectId: number, hubAuthToken: string){
 // ====================================团队协作=========================================
 
 //可选 admin 或 readonly
-async sendInvitation(data: {projectId: string, permissions: string, email: string}, hubAuthToken: string){
+async sendInvitation(payload:any, hubAuthToken: string){
+  const tempUrl = "http://localhost:8080"
   try{
-    const res = await fetch(`${URL}/api/team`,{
+    const res = await fetch(`${tempUrl}/api/team`,{
       method:"POST",
       headers:{
         "Content-Type":"application/json",
         "Authorization":`Bearer ${hubAuthToken}`
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(payload)
     });
 
     if(res.ok){
@@ -325,7 +326,7 @@ async sendInvitation(data: {projectId: string, permissions: string, email: strin
 // /agree 	获取该用户发送的所有的已经同意的邀请
 // /disagree 	获取该用户发送的所有的不同意的邀请
 // /pending 	获取该用户发送的所有的待同意的邀请
-async getSentInvitations(status: string, hubAuthToken: string){
+async getSentInvitations(status: string){
   try{
     const res = await fetch(`${URL}/api/team/send/${status}`,{
       method:"GET",
@@ -352,7 +353,7 @@ async getSentInvitations(status: string, hubAuthToken: string){
 // /agree 	获取该用户发送的所有的已经同意的邀请
 // /disagree 	获取该用户发送的所有的不同意的邀请
 // /pending 	获取该用户发送的所有的待同意的邀请
-async getReceivedInvitations(status: string, hubAuthToken: string){
+async getReceivedInvitations(status: string){
   try{
     const res = await fetch(`${URL}/api/team/receive/${status}`,{
       method:"GET",
@@ -376,7 +377,7 @@ async getReceivedInvitations(status: string, hubAuthToken: string){
 // /:status 选项 	功能
 // /agree 	同意邀请
 // disagree 	不同意邀请
-async confirmInvitation(notificationId: number, status: string, hubAuthToken: string){
+async confirmInvitation(notificationId: number, status: string){
   try{
     const res = await fetch(`${URL}/api/team/confirm/${notificationId}/${status}`,{
       method:"PUT",

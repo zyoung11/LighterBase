@@ -397,12 +397,13 @@ const jsonPayload = decodeURIComponent(atob(base64 || '').split('').map(function
             alert('请输入邮箱');
             return;
           }
-          const data = {
-            projectId: projectId.toString(),
-            permissions,
-            email
+          const payload = {
+            "email":email,
+            "permissions":permissions,
+            "projectId": projectId
           };
-          await projects.sendInvitation(data, token);
+          console.log(payload,token)
+          await projects.sendInvitation(payload, token);
           closeInviteModal();
         };
       };

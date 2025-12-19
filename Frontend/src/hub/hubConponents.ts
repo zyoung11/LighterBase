@@ -60,7 +60,7 @@ function createNavBar() {
   logoImg.className = 'w-[5vh] h-[5vh]';
   logoImg.alt = 'Logo';
   const logoSpan = document.createElement('span');
-  logoSpan.className = 'text-[2rem] font-bold';
+  logoSpan.className = 'text-[1.5rem] font-bold';
   logoSpan.textContent = 'LighterBase';
   logoBtn.appendChild(logoImg);
   logoBtn.appendChild(logoSpan);
@@ -69,28 +69,28 @@ function createNavBar() {
  const pricingBtn = document.createElement('button');
     pricingBtn.id='pricing-link';
     pricingBtn.textContent = i18n.t('hub.navbar.pricing');
-    pricingBtn.className = 'bg-transparent text-white text-[1.5rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+    pricingBtn.className = 'bg-transparent text-white text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
     pricingBtn.onclick = () => window.location.href = '/pricing';
    leftDiv.appendChild(pricingBtn);
 
     const docsBtn = document.createElement('button');
     docsBtn.id='docs-link';
     docsBtn.textContent = i18n.t('hub.navbar.docs');
-    docsBtn.className = 'bg-transparent text-white text-[1.5rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+    docsBtn.className = 'bg-transparent text-white text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
     docsBtn.onclick = () => window.location.href = '/docs';
    leftDiv.appendChild(docsBtn);
 
      const downloadBtn = document.createElement('button');
      downloadBtn.id='download-link';
      downloadBtn.textContent = i18n.t('hub.navbar.download');
-     downloadBtn.className = 'bg-transparent text-white text-[1.5rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+     downloadBtn.className = 'bg-transparent text-white text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
      downloadBtn.onclick = () => window.location.href = '/download';
     leftDiv.appendChild(downloadBtn);
 
      const projectsBtn = document.createElement('button');
      projectsBtn.id='projects-link';
      projectsBtn.textContent = i18n.t('hub.navbar.projects');
-     projectsBtn.className = 'bg-transparent text-white text-[1.5rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+     projectsBtn.className = 'bg-transparent text-white text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
      projectsBtn.onclick = () => window.location.href = '/projects';
     leftDiv.appendChild(projectsBtn);
 
