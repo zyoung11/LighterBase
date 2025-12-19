@@ -144,24 +144,24 @@ async function renderBlock(block:any) {
     block.element.style.height = '22vh';
     block.element.style.transitionDuration = `${ANIMATION_DURATION}ms`;
     block.element.innerHTML = `
-        <img src="${originAvatar}" class="w-[16vh] h-[16vh] p-1 rounded-lg object-cover rounded" 
-             onerror="this.src='${defaultImg}'; this.style.display='block'; this.style.objectFit='cover';">
+        <img src="${originAvatar}" class="w-3/4 p-1 rounded-lg object-cover rounded" 
+             onerror="this.src='${defaultImg}'; this.style.display='block'; this.style.objectFit='cover';" style="aspect-ratio:1/1;">
         <div class = "flex flex-col mt-2">
-        <h3 class="text-white text-sm font-bold break-words line-clamp-1 h-[10%]">${block.project.project_name}</h3>
-        <p class="text-gray-300 text-xs break-words line-clamp-3 mt-1 h-[20%]">${block.project.project_description}</p>
-        <div class="mt-3">
-          <p class="text-gray-400 text-xs">${i18n.t('common.created')}${block.project.create_at}</p>
-          <p class="text-gray-400 text-xs">${i18n.t('common.updated')}${block.project.update_at}</p>
-        </div>
-        <div class="flex justify-end mt-2">
-           <button id="update-btn-${block.id}" class="w-6 h-6 border border-white/50 rounded flex items-center justify-center transition-colors">
-            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-            </svg>
-          </button>
-        </div>
-  </div>
+          <h3 class="text-white text-sm font-bold break-words line-clamp-1 h-[10%]">${block.project.project_name}</h3>
+          <p class="text-gray-300 text-xs break-words line-clamp-3 mt-1 h-[20%]">${block.project.project_description}</p>
+          <div class="mt-3">
+            <p class="text-gray-400 text-xs">${i18n.t('common.created')}${block.project.create_at}</p>
+            <p class="text-gray-400 text-xs">${i18n.t('common.updated')}${block.project.update_at}</p>
+          </div>
+          <div class="flex justify-end mt-2">
+             <button id="update-btn-${block.id}" class="w-6 h-6 border border-white/50 rounded flex items-center justify-center transition-colors">
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+            </button>
+          </div>
+      </div>
     `;
     block.element.addEventListener('click', (event: MouseEvent) => {
   event.stopPropagation();
