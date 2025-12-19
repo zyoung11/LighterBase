@@ -2,11 +2,11 @@
 
 ## 导航
 
-* [用户 API](#一、用户api)
-* [项目 API](#二、项目api)
-* [下载 API](#三、下载-api)
-* [团队协作通知系统 API](#四、团队协作通知系统api)
-* [Baas API](#五、baas-api)
+* [用户 API](#一用户api)
+* [项目 API](#二项目api)
+* [下载 API](#三下载-api)
+* [团队协作通知系统 API](#四团队协作通知系统api)
+* [Baas API](#五baas-api)
   * [自动生成模块](#1-自动生成模块)
   * [用户表操作 API](#2-用户表操作-api)
   * [JWT](#3-jwt)
@@ -43,7 +43,6 @@ cd LighterBase/Backend/web/LighterBaseHub
 > [!NOTE]
 >
 > 1. BaseURL: http://localhost:8080/1/:projectId/api
->
 > 2. 驱动用户的前端：
 >
 >    1. 创建 `./dist` 文件夹
@@ -53,11 +52,19 @@ cd LighterBase/Backend/web/LighterBaseHub
 >    3. 确保存在 `./dist/index.html`
 >
 >    4. 前端代码改动无需重启应用，刷新网页即可
->
 > 3. 程序本身只能注册一个管理员账号
-> 4.  **无团队协作功能**
-> 5.  **无程序下载功能**
-> 6.  **其余 API 与 LighterBaseHub 相同**
+> 4. **无团队协作功能**
+> 5. **无程序下载功能**
+> 6. **其余 API 与 LighterBaseHub 相同**
+
+> [!WARNING]
+>
+> 强烈建议手动修改 `LighterBase/Backend/app/config/jwt_secrets.json` 并重新编译：
+>
+> ```bash
+> go mod tidy
+> go build -ldflags="-s -w" .
+> ```
 
 # LighterBaseHub API 文档
 
