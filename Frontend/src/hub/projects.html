@@ -50,20 +50,20 @@
   <!-- 创建项目模态窗口 -->
   <div id="create-modal"
     class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 transition-opacity duration-300">
-    <div
-      class="bg-[#1B1E1F] p-3 rounded-lg shadow-lg w-[35%] h-[40%] transform transition-transform duration-300 scale-95">
+    <div class="bg-[#1B1E1F] p-3 rounded-lg shadow-lg w-[35%] transform transition-transform duration-300 scale-95"
+      style="aspect-ratio:3/2">
       <h2 class="text-2xl font-bold mb-4" data-i18n="projects.create.title">Create New Project</h2>
       <!-- 预览区域 -->
       <div id="preview" class="w-full h-[70%] mb-4 p-3 bg-[#2B2F31] rounded-lg">
         <div class="flex items-start h-full">
-          <div class="flex flex-col items-center mr-6">
-            <img id="preview-avatar" class="w-[20vh] square-btn bg-white cursor-pointer rounded"
+          <div class="flex w-2/5 flex-col items-center mr-6">
+            <img id="preview-avatar" class="w-[100%] bg-white cursor-pointer rounded" style="aspect-ratio:1/1"
               onerror="this.src='../icons/projectsDefault.jpg'">
             <p class="text-gray-400 text-xs mt-2">点击上传图片</p>
           </div>
-          <div class="flex flex-1 flex-col h-full">
+          <div class="flex w-3/5 flex-col h-full">
             <input id="preview-name"
-              class="text-xl font-bold break-words bg-transparent border-none outline-none text-white mb-2"
+              class="text-[1rem] font-bold break-words bg-transparent border-none outline-none text-white mb-2"
               placeholder="项目名称" maxlength="20">
             <textarea id="preview-description"
               class="flex-1 bg-transparent border-none outline-none text-white resize-none" placeholder="项目描述"

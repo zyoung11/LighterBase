@@ -168,7 +168,7 @@ async function renderBlock(block:any) {
     `;
     block.element.addEventListener('click', (event: MouseEvent) => {
   event.stopPropagation();
-  console.log('Block clicked:', block.id);
+  console.log('点击区块:', block.id);
   // 确保元素可以接收点击事件
   block.element.style.pointerEvents = 'auto';
   selectBlock(block.id);
