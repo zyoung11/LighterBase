@@ -42,6 +42,13 @@ CREATE TABLE IF NOT EXISTS _sqls_ (
     sql TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS _query_ (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    queries TEXT NOT NULL,
+    create_at TEXT,
+    update_at TEXT
+);
+
 CREATE TABLE IF NOT EXISTS _log_ (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     log_text TEXT NOT NULL,

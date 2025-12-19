@@ -21,6 +21,17 @@ func (q *Queries) CountLogs(ctx context.Context) (int64, error) {
 	return count, err
 }
 
+const countQueries = `-- name: CountQueries :one
+SELECT COUNT(*) FROM _query_
+`
+
+func (q *Queries) CountQueries(ctx context.Context) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countQueries)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countSearchLogs = `-- name: CountSearchLogs :one
 SELECT COUNT(*) FROM _log_ 
 WHERE log_text LIKE ?
@@ -86,6 +97,24 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 		&i.ProjectAvatar,
 		&i.ProjectDescription,
 		&i.ProjectSize,
+		&i.CreateAt,
+		&i.UpdateAt,
+	)
+	return i, err
+}
+
+const createQuery = `-- name: CreateQuery :one
+INSERT INTO _query_ (queries, create_at, update_at)
+VALUES (?, datetime('now'), datetime('now'))
+RETURNING id, queries, create_at, update_at
+`
+
+func (q *Queries) CreateQuery(ctx context.Context, queries string) (Query, error) {
+	row := q.db.QueryRowContext(ctx, createQuery, queries)
+	var i Query
+	err := row.Scan(
+		&i.ID,
+		&i.Queries,
 		&i.CreateAt,
 		&i.UpdateAt,
 	)
@@ -172,6 +201,15 @@ func (q *Queries) DeleteProject(ctx context.Context, projectID int64) error {
 	return err
 }
 
+const deleteQuery = `-- name: DeleteQuery :exec
+DELETE FROM _query_ WHERE id = ?
+`
+
+func (q *Queries) DeleteQuery(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteQuery, id)
+	return err
+}
+
 const deleteSecurity = `-- name: DeleteSecurity :exec
 DELETE FROM _security_ WHERE table_name = ?
 `
@@ -224,6 +262,22 @@ func (q *Queries) GetProjectByID(ctx context.Context, projectID int64) (Project,
 		&i.ProjectAvatar,
 		&i.ProjectDescription,
 		&i.ProjectSize,
+		&i.CreateAt,
+		&i.UpdateAt,
+	)
+	return i, err
+}
+
+const getQueryByID = `-- name: GetQueryByID :one
+SELECT id, queries, create_at, update_at FROM _query_ WHERE id = ? LIMIT 1
+`
+
+func (q *Queries) GetQueryByID(ctx context.Context, id int64) (Query, error) {
+	row := q.db.QueryRowContext(ctx, getQueryByID, id)
+	var i Query
+	err := row.Scan(
+		&i.ID,
+		&i.Queries,
 		&i.CreateAt,
 		&i.UpdateAt,
 	)
@@ -449,6 +503,43 @@ func (q *Queries) ListProjectsByUserID(ctx context.Context, userID int64) ([]Pro
 	return items, nil
 }
 
+const listQueries = `-- name: ListQueries :many
+SELECT id, queries, create_at, update_at FROM _query_ ORDER BY id DESC LIMIT ? OFFSET ?
+`
+
+type ListQueriesParams struct {
+	Limit  int64
+	Offset int64
+}
+
+func (q *Queries) ListQueries(ctx context.Context, arg ListQueriesParams) ([]Query, error) {
+	rows, err := q.db.QueryContext(ctx, listQueries, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Query
+	for rows.Next() {
+		var i Query
+		if err := rows.Scan(
+			&i.ID,
+			&i.Queries,
+			&i.CreateAt,
+			&i.UpdateAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listSecurities = `-- name: ListSecurities :many
 SELECT id, table_name, create_where, delete_where, update_where, view_where FROM _security_
 `
@@ -596,6 +687,22 @@ type UpdateProjectSizeParams struct {
 
 func (q *Queries) UpdateProjectSize(ctx context.Context, arg UpdateProjectSizeParams) error {
 	_, err := q.db.ExecContext(ctx, updateProjectSize, arg.ProjectSize, arg.ProjectID)
+	return err
+}
+
+const updateQuery = `-- name: UpdateQuery :exec
+UPDATE _query_
+SET queries = ?, update_at = datetime('now')
+WHERE id = ?
+`
+
+type UpdateQueryParams struct {
+	Queries string
+	ID      int64
+}
+
+func (q *Queries) UpdateQuery(ctx context.Context, arg UpdateQueryParams) error {
+	_, err := q.db.ExecContext(ctx, updateQuery, arg.Queries, arg.ID)
 	return err
 }
 

@@ -175,3 +175,25 @@ LIMIT ? OFFSET ?;
 -- name: CountSearchLogs :one
 SELECT COUNT(*) FROM _log_ 
 WHERE log_text LIKE ?;
+
+-- name: CreateQuery :one
+INSERT INTO _query_ (queries, create_at, update_at)
+VALUES (?, datetime('now'), datetime('now'))
+RETURNING *;
+
+-- name: GetQueryByID :one
+SELECT * FROM _query_ WHERE id = ? LIMIT 1;
+
+-- name: ListQueries :many
+SELECT * FROM _query_ ORDER BY id DESC LIMIT ? OFFSET ?;
+
+-- name: CountQueries :one
+SELECT COUNT(*) FROM _query_;
+
+-- name: UpdateQuery :exec
+UPDATE _query_
+SET queries = ?, update_at = datetime('now')
+WHERE id = ?;
+
+-- name: DeleteQuery :exec
+DELETE FROM _query_ WHERE id = ?;

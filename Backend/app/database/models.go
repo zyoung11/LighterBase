@@ -25,6 +25,13 @@ type Project struct {
 	UpdateAt           sql.NullString
 }
 
+type Query struct {
+	ID       int64
+	Queries  string
+	CreateAt sql.NullString
+	UpdateAt sql.NullString
+}
+
 type Security struct {
 	ID          int64
 	TableName   string

@@ -11,6 +11,7 @@ import (
 	"os"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -63,6 +64,12 @@ var routes = []Route{
 	// --- _sqls_ 表管理 API ---
 	{Method: "GET", Path: "/:userId/:projectId/api/sqls/latest", Handler: getLatestSqlRecord},
 	{Method: "GET", Path: "/:userId/:projectId/api/sqls/history", Handler: getAllSqlHistory},
+
+	// --- _query_ 表管理 API ---
+	{Method: "POST", Path: "/:userId/:projectId/api/queries", Handler: createQueries, AuthRequired: true},
+	{Method: "DELETE", Path: "/:userId/:projectId/api/queries/:queryId", Handler: deleteQueries, AuthRequired: true},
+	{Method: "PUT", Path: "/:userId/:projectId/api/queries/:queryId", Handler: updateQueries, AuthRequired: true},
+	{Method: "GET", Path: "/:userId/:projectId/api/queries", Handler: viewQueries, AuthRequired: true},
 
 	// --- _security_ 表管理 API (需要 JWT) ---
 	{Method: "GET", Path: "/:userId/:projectId/api/security", Handler: getAllSecurity},
@@ -1536,5 +1543,184 @@ func checkInit_app(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{
 		"init": count > 0,
+	})
+}
+
+// --- _query_ 表管理 API ---
+
+// createQueries 创建查询记录
+func createQueries(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	queries := dbSet.Queries
+
+	userID, err := authenticateUser(c)
+	if err != nil || userID != 1 {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
+	// 解析请求体
+	type Body struct {
+		Queries string `json:"queries"`
+	}
+	var body Body
+	if err := c.BodyParser(&body); err != nil {
+		return sendError(c, 400, "Invalid JSON body.", nil)
+	}
+	if body.Queries == "" {
+		return sendError(c, 400, "Failed to create query.", fiber.Map{"queries": "queries field is required."})
+	}
+
+	// 使用 InspectSQL 进行安全审查
+	forbiddenErr, hasSchemaMod := InspectSQL(body.Queries)
+	if forbiddenErr != nil {
+		return sendError(c, 403, forbiddenErr.Error(), nil)
+	}
+	if hasSchemaMod {
+		return sendError(c, 403, "Schema modification queries are not allowed in query storage.", nil)
+	}
+
+	// 创建查询记录
+	queryRecord, err := queries.CreateQuery(context.Background(), body.Queries)
+	if err != nil {
+		return sendError(c, 500, "Failed to create query.", fiber.Map{"database_error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{
+		"id":        queryRecord.ID,
+		"query":     queryRecord.Queries,
+		"create_at": queryRecord.CreateAt.String,
+	})
+}
+
+// deleteQueries 删除查询记录
+func deleteQueries(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	queries := dbSet.Queries
+
+	userID, err := authenticateUser(c)
+	if err != nil || userID != 1 {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
+	// 获取查询ID
+	queryIdStr := c.Params("queryId")
+	queryId, err := strconv.ParseInt(queryIdStr, 10, 64)
+	if err != nil {
+		return sendError(c, 400, "Invalid query ID", nil)
+	}
+
+	// 删除查询记录
+	err = queries.DeleteQuery(context.Background(), queryId)
+	if err != nil {
+		return sendError(c, 500, "Failed to delete query.", fiber.Map{"database_error": err.Error()})
+	}
+
+	return c.SendStatus(204)
+}
+
+// updateQueries 更新查询记录
+func updateQueries(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	queries := dbSet.Queries
+
+	userID, err := authenticateUser(c)
+	if err != nil || userID != 1 {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
+	// 获取查询ID
+	queryIdStr := c.Params("queryId")
+	queryId, err := strconv.ParseInt(queryIdStr, 10, 64)
+	if err != nil {
+		return sendError(c, 400, "Invalid query ID", nil)
+	}
+
+	// 解析请求体
+	type Body struct {
+		Queries string `json:"queries"`
+	}
+	var body Body
+	if err := c.BodyParser(&body); err != nil {
+		return sendError(c, 400, "Invalid JSON body.", nil)
+	}
+	if body.Queries == "" {
+		return sendError(c, 400, "Failed to update query.", fiber.Map{"queries": "queries field is required."})
+	}
+
+	// 使用 InspectSQL 进行安全审查
+	forbiddenErr, hasSchemaMod := InspectSQL(body.Queries)
+	if forbiddenErr != nil {
+		return sendError(c, 403, forbiddenErr.Error(), nil)
+	}
+	if hasSchemaMod {
+		return sendError(c, 403, "Schema modification queries are not allowed in query storage.", nil)
+	}
+
+	// 更新查询记录
+	err = queries.UpdateQuery(context.Background(), database.UpdateQueryParams{
+		Queries: body.Queries,
+		ID:      queryId,
+	})
+	if err != nil {
+		return sendError(c, 500, "Failed to update query.", fiber.Map{"database_error": err.Error()})
+	}
+
+	return c.SendStatus(204)
+}
+
+// viewQueries 查看查询记录（分页）
+func viewQueries(c *fiber.Ctx) error {
+	dbSet := c.Locals("dbSet").(*DBSet)
+	queries := dbSet.Queries
+
+	userID, err := authenticateUser(c)
+	if err != nil || userID != 1 {
+		return sendError(c, 403, "You are not allowed to perform this request.", nil)
+	}
+
+	// 解析分页参数
+	page := c.QueryInt("page", 1)
+	perPage := c.QueryInt("perpage", 30)
+
+	if page < 1 || perPage < 1 || perPage > 100 {
+		return sendError(c, 400, "Invalid pagination parameters.", nil)
+	}
+
+	// 获取总数
+	total, err := queries.CountQueries(context.Background())
+	if err != nil {
+		return sendError(c, 500, "Failed to count queries.", fiber.Map{"database_error": err.Error()})
+	}
+
+	// 计算分页
+	totalPages := int((total + int64(perPage) - 1) / int64(perPage))
+	offset := (page - 1) * perPage
+
+	// 获取查询列表
+	queryRecords, err := queries.ListQueries(context.Background(), database.ListQueriesParams{
+		Limit:  int64(perPage),
+		Offset: int64(offset),
+	})
+	if err != nil {
+		return sendError(c, 500, "Failed to fetch queries.", fiber.Map{"database_error": err.Error()})
+	}
+
+	// 转换为期望的格式
+	formattedQueries := make([]map[string]any, len(queryRecords))
+	for i, query := range queryRecords {
+		formattedQueries[i] = map[string]any{
+			"id":        query.ID,
+			"queries":   query.Queries,
+			"create_at": query.CreateAt.String,
+			"update_at": query.UpdateAt.String,
+		}
+	}
+
+	return c.JSON(fiber.Map{
+		"page":       page,
+		"perPage":    perPage,
+		"totalPages": totalPages,
+		"totalItems": total,
+		"queries":    formattedQueries,
 	})
 }
