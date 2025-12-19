@@ -109,24 +109,21 @@
       </div>
 
       <div class="space-y-4">
-        <div>
-          <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Email Address</label>
-          <input type="email" id="modal-invite-email"
-            class="w-full bg-white/5 border border-white/10 rounded p-2.5 text-white focus:border-[#46A3FF] outline-none transition"
-            placeholder="collaborator@example.com">
-        </div>
-        <div>
-          <label class="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Permissions</label>
+        <div class="flex items-center justify-center">
+          <label class="block text-white mr-2">权限</label>
           <select id="modal-invite-permission"
-            class="w-full bg-white/10 border border-white/10 rounded p-2.5 text-white outline-none appearance-none">
-            <option value="readonly" class="bg-[#1B1E1F]">Read Only</option>
-            <option value="admin" class="bg-[#1B1E1F]">High Privileges (Admin)</option>
+            class="flex-1 bg-[#1B1E1F] border border-white/10 text-white p-2 rounded">
+            <option value="readonly">readonly</option>
+            <option value="admin">high-privileges</option>
           </select>
         </div>
-        <button id="modal-send-btn"
-          class="w-full bg-[#46A3FF] hover:bg-blue-600 text-white font-medium py-3 rounded-lg transition mt-4 shadow-lg shadow-blue-500/20">
-          Send Invitation
-        </button>
+        <div class="flex">
+          <label class="block text-white mr-2">邮箱</label>
+          <input type="email" id="modal-invite-email"
+            class="flex-1 bg-[#1B1E1F] border border-white/10 text-white p-2 rounded focus:outline-none focus:ring-0"
+            placeholder="输入邮箱">
+        </div>
+        <button id="modal-send-btn" class="bg-white text-black px-4 py-2 rounded w-full">发送</button>
       </div>
     </div>
   </div>
