@@ -244,13 +244,17 @@ async function initializeBlocks() {
 function selectBlock(selectedId:number) {
   const selected = blocks.find(b => b.id === selectedId);
   if (!selected) return;
-  const payload = parseJwt(token);
-  const userId = payload ? payload.user_id || payload.id : null;
+  // const payload = parseJwt(token);
+  // const userId = payload ? payload.user_id || payload.id : null;
+  // if (!userId) {
+  //    console.error('Unable to get userid from token');
+  //   return;
+  // }
+  // console.log("查看选中的：",selected)
+  const userId = selected.project.user_id
   if (!userId) {
-     console.error('Unable to get userid from token');
     return;
   }
-
   const projectId = selected.project.project_id;
   // const sqlUrl = `http://localhost:8080/${userId}/${projectId}`;
   // 移除所有项目的边框
