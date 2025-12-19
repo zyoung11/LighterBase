@@ -115,7 +115,7 @@ function initProjectInviteWorkflow() {
                     selectorMenu.classList.add('hidden');
                     setBaseUrl()
                 }else{
-                    blocks.popupConfirm("请先注册,是否现在注册？")                    
+                    blocks.popupConfirm("请先注册")                    
                     setBaseUrl()
                     return
                 }

@@ -527,7 +527,7 @@ async function initializeStartModal(userId: string, projectId: number) {
 
     const projectUrl = `${theURL}/${userId}/${projectId}`;
     // const projectUrl = `http://www.smallwoodice.cn:8080/${userId}/${projectId}`;
-    console.log(projectUrl)
+    // console.log(projectUrl)
     setBaseUrl(projectUrl);
 
   // 检查是否为空数据库
@@ -540,7 +540,6 @@ async function initializeStartModal(userId: string, projectId: number) {
     startEmailInput.required = false;
   }
 
-  // 点击背景关闭模态窗口
   startModal.onclick = (e) => {
     if (e.target === startModal) {
       startModal.classList.add('hidden');

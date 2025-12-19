@@ -125,46 +125,7 @@ function createNavBar() {
     const languageSwitcher = createLanguageSwitcher();
     rightDiv.appendChild(languageSwitcher);
 
-   const newDiv = document.createElement('div');
-   newDiv.className = 'relative';
-   newDiv.appendChild(userBtn);
-
-    const profileMenu = document.createElement('div');
-    profileMenu.id = 'profile-menu';
-    profileMenu.className = 'absolute top-full right-1 mt-1 w-[10vh] bg-[#2B2F31] border border-white rounded-lg shadow-lg hidden z-10';
-    // Profile section with avatar and username
-    const profileDiv = document.createElement('div');
-    profileDiv.className = 'flex items-center space-x-2 px-2 py-2';
-    const avatarImg = document.createElement('img');
-    avatarImg.src = defaultImg;
-    avatarImg.className = 'w-8 h-8 rounded-full';
-    const usernameSpan = document.createElement('span');
-    usernameSpan.id = 'profile-username';
-    profileDiv.appendChild(avatarImg);
-    profileDiv.appendChild(usernameSpan);
-    profileMenu.appendChild(profileDiv);
-    // Message button
-    const messageBtn = document.createElement('button');
-    messageBtn.id = 'message-btn';
-    messageBtn.className = 'px-2 py-2 text-white hover:bg-[#3a3f41] rounded-lg w-full text-center';
-    messageBtn.textContent = i18n.t('hub.navbar.messages');
-    profileMenu.appendChild(messageBtn);
-    // Setting button
-    const settingBtn = document.createElement('button');
-    settingBtn.id = 'setting-btn';
-    settingBtn.className = 'px-2 py-2 text-white hover:bg-[#3a3f41] rounded-lg w-full text-center';
-    settingBtn.textContent = i18n.t('hub.navbar.setting');
-    profileMenu.appendChild(settingBtn);
-    // Logout button
-    const logoutBtn = document.createElement('button');
-    logoutBtn.id = 'logout-btn';
-    logoutBtn.className = 'px-2 py-2 text-white hover:bg-[#3a3f41] rounded-lg w-full text-center';
-    logoutBtn.textContent = i18n.t('hub.navbar.logout');
-    profileMenu.appendChild(logoutBtn);
-
-    newDiv.appendChild(profileMenu);
-
-   rightDiv.appendChild(newDiv);
+    rightDiv.appendChild(userBtn);
 
   nav.appendChild(rightDiv);
 
@@ -219,54 +180,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   const username = localStorage.getItem('username');
   // console.log(username)
   const userBtn = document.getElementById('user-link') as HTMLButtonElement;
-  const profileMenu = document.getElementById('profile-menu') as HTMLDivElement;
-  const logoutBtn = document.getElementById('logout-btn') as HTMLButtonElement;
-  const settingBtn = document.getElementById('setting-btn') as HTMLButtonElement;
-  const messagesBtn = document.getElementById('message-btn') as HTMLButtonElement;
-  const usernameSpan = document.getElementById('profile-username') as HTMLSpanElement;
-  if (usernameSpan) {
-    usernameSpan.textContent = username;
-  }
 
-  if (token && username && userBtn && profileMenu && logoutBtn) {
+  if (token && username && userBtn) {
      userBtn.textContent = username.charAt(0);
      // 移除图标
      const icon = userBtn.querySelector('img');
      if (icon) userBtn.removeChild(icon);
-    userBtn.onclick = function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      profileMenu.classList.toggle('hidden');
-    };
-
-    // 更新登出按钮文本
-    const updateButtonText = () => {
-      logoutBtn.textContent = i18n.t('hub.navbar.logout');
-      settingBtn.textContent = i18n.t('hub.navbar.setting');
-      messagesBtn.textContent = i18n.t('hub.navbar.messages');
-      
-    };
-    updateButtonText();
-
-    // 点击登出清除token
-    logoutBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      document.cookie = 'hubAuthToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-      localStorage.removeItem('username');
-      window.location.reload();
-    });
-
-    // 监听语言变化事件
-    window.addEventListener('languageChanged', () => {
-      updateButtonText();
-    });
-
-    // 点击其他地方隐藏菜单
-    document.addEventListener('click', function (e) {
-      if (!userBtn.contains(e.target as Node) && !profileMenu.contains(e.target as Node)) {
-        profileMenu.classList.add('hidden');
+    userBtn.onclick =async function () {
+      const confirm = await blocks.popupConfirm("是否登出")
+      if (confirm) {
+        document.cookie = 'hubAuthToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        localStorage.removeItem('username');
+        window.location.reload();
       }
-    });
+    };
   }
    // 鼠标悬停效果功能
    const hoverArea = document.getElementById("hover-area") as HTMLElement;

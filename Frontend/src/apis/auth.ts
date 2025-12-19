@@ -7,6 +7,7 @@ async userRegister(username?: string, password?: string, email?: string): Promis
     // if (!username) username = (document.getElementById("username") as HTMLInputElement)?.value;
     // if (!password) password = (document.getElementById("password") as HTMLInputElement)?.value;
     // if (!email) email = (document.getElementById("email") as HTMLInputElement)?.value;
+
     if (!email) {
         blocks.popupConfirm("邮箱不能为空");
         return false;
