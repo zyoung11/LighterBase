@@ -112,7 +112,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 > [!IMPORTANT]
 >
-> 当单个项目大小限制为：**100MB** 
+> 单个项目大小限制为：**100MB** 
 >
 > 超过大小限制会报错：
 >
