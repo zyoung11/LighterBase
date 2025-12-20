@@ -113,17 +113,25 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 > [!IMPORTANT]
 >
-> 单个项目大小限制为：**100MB** 
+> - 单个项目大小限制为：**100MB** 
 >
-> 超过大小限制会报错：
+>   超过大小限制会报错：
 >
-> ```json
-> {
->     "data": "null",
->     "message": "项目连接已关闭：项目大小超过限制（xxx MB > 100 MB）",
->     "status": 403
-> }
-> ```
+>   ```json
+>   {
+>       "data": "null",
+>       "message": "项目连接已关闭：项目大小超过限制（xxx MB > 100 MB）",
+>       "status": 403
+>   }
+>   ```
+>
+> - 滑动窗口限流设置：每 **30s** 最多可发送 **100** 个请求
+>
+>   超过限制会报错：
+>
+>   ```http
+>   HTTP 429 "Too Many Requests"
+>   ```
 
 ## 一、用户API
 
@@ -1968,3 +1976,45 @@ cd LighterBase/Backend/web/LighterBaseHub
   ```
 
   http状态码：500
+
+### 6.5 性能监控页面
+
+- http方法：**GET**
+- URL：`/metrics`
+
+### 6.6 性能监控页面 API
+
+- http方法：**GET**
+
+- URL：`/metrics`
+
+- 请求头：
+
+  ```
+  Content-Type: application/json
+  ```
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  {
+      "pid": {
+          "cpu":0.4568381746582226, 
+          "ram":20516864,   			
+          "conns":3
+      },
+   	"os": {
+          "cpu":8.759124087593099,
+          "ram":3997155328,
+          "conns":44,
+          "total_ram":8245489664, 
+          "load_avg":0.51 
+      }
+  }
+  ```
+
+  
