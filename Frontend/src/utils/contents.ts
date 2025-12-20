@@ -139,28 +139,28 @@ const workspaceContent = {
                             </div>
                         </div>
 
-                        <!-- 下部分：SQL输入区域 (40% 高度) -->
-                        <div class="h-[40%] p-6 flex flex-col">
-                            <div class="flex-1 flex items-center">
-                                <div class="w-[80%] h-full relative">
-                                    <textarea
-                                        id="query-sql-input"
-                                        class="w-full h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg p-4 text-gray-200 placeholder-gray-500 resize-none focus:outline-none focus:border-[#4a4f52] scrollbar-hide overflow-y-auto"
-                                        placeholder="在这里输入SQL查询..."
-                                    ></textarea>
-                                </div>
-                                <div class="ml-4 flex flex-col space-y-2">
-                                    <button id="query-save-btn" class="w-12 h-12 px-2 py-2 hover:bg-[#3a3f41] rounded-full text-sm transition-colors mb-4">
-                                         <img src="${save}" class=" object-contain" alt="save">
-                                    </button>
-                                    <button id="query-execute-btn" class="w-12 h-12 px-1 py-1 rounded-full text-sm transition-colors">
-                                         <img src="${execute}" class=" object-contain" alt="execute">
-                                    </button>
+                         <!-- 下部分：SQL输入区域 (40% 高度) -->
+                         <div class="h-[40%] p-6 flex flex-col">
+                             <div class="flex-1 flex items-center justify-center">
+                                 <div class="w-[80%] h-full relative">
+                                     <textarea
+                                         id="query-sql-input"
+                                         class="w-full h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg p-4 text-gray-200 placeholder-gray-500 resize-none focus:outline-none focus:border-[#4a4f52] scrollbar-hide overflow-y-auto"
+                                         placeholder="在这里输入SQL查询..."
+                                     ></textarea>
+                                 </div>
+                                 <div class="ml-4 flex flex-col space-y-2">
+                                     <button id="query-save-btn" class="w-12 h-12 px-2 py-2 hover:bg-[#3a3f41] rounded-full text-sm transition-colors mb-4">
+                                          <img src="${save}" class=" object-contain" alt="save">
+                                     </button>
+                                     <button id="query-execute-btn" class="w-12 h-12 px-1 py-1 rounded-full text-sm transition-colors">
+                                          <img src="${execute}" class=" object-contain" alt="execute">
+                                     </button>
 
-                                    
-                                </div>
-                            </div>
-                        </div>
+                                     
+                                 </div>
+                             </div>
+                         </div>
                     </div>
 
                     <!-- 侧边栏 -->
