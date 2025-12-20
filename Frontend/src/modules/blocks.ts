@@ -10,13 +10,14 @@ popupConfirm(text: string): Promise<boolean> {
 
     const panel = document.createElement('div');
     panel.className =
-      'min-w-[280px] justify-center items-center rounded-xl bg-white/10 backdrop-blur-md text-gray-200 shadow-2xl p-6 border border-white/10';
+      'min-w-[280px] justify-center items-center rounded-xl bg-white/10 backdrop-blur-md text-gray-200 shadow-2xl p-6 border border-white/20 shadow-2xl';
 
     panel.innerHTML = `
       <p class="mb-5 text-center">${text}</p>
       <div class="flex justify-center gap-3">
-        <button id="cancelBtn" class="px-4 py-2 rounded-md border border-white/10 transition">No</button>
-        <button id="okBtn" class="text-black px-4 py-2 rounded-md bg-white transition">Yes</button>
+        <button id="cancelBtn" class="text-white px-4 py-2 rounded-md border border-gray-400 hover-gray-600 transition">No</button>
+        <button id="okBtn" class="text-white px-4 py-2 rounded-md border border-gray-400 hover:bg-gray-600 transition">Yes</button>
+
       </div>
     `;
 
@@ -50,7 +51,7 @@ bottomPopupConfirm(text: string): Promise<boolean> {
 
     // 创建底部弹窗
     const modal = document.createElement('div');
-    modal.className = 'max-w-[30%] flex fixed bottom-4 left-4 mx-auto justify-center items-center right-4 bg-[#1a1a1a] p-3 shadow-2xl rounded-full border border-gray-700';
+    modal.className = 'min-w-[280px] flex fixed bottom-4 left-4 mx-auto justify-center items-center right-4 bg-white/10 p-3 shadow-2xl rounded-full border border-white/20';
 
     modal.innerHTML = `
       <p id="modal-message" class=" text-gray-200">${text}</p>

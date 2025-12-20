@@ -507,7 +507,7 @@ const updateBottom = () => {
 
   if (checked.length > 0) {
     if (!logDeletePopup.isOpen) {
-       blocks.bottomPopupConfirm(`确定下载选中的 ${checked.length} 条日志为CSV文件吗？`)
+       blocks.popupConfirm(`确定下载选中的 ${checked.length} 条日志为CSV文件吗？`)
         .then(async (confirmed) => {
           logDeletePopup.isOpen = false;
           if (confirmed) {

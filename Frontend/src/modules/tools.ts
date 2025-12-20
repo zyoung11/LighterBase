@@ -1,7 +1,7 @@
 import {URL} from "../apis/api";
 import {jwtDecode} from "jwt-decode"
 import auth from "../apis/auth"
-
+import blocks from "./blocks";
 /**
  * 针对低带宽优化的图片压缩函数
  * @param imgSrc 图片源地址
@@ -78,10 +78,11 @@ import auth from "../apis/auth"
  * @param targetPage 要跳转的网页
  * @returns 压缩后的base64图片
  */
-async function checkAuthentication(token:string,targetPage:string) {
+async function checkAuthentication(token:string,tokenName:string,targetPage:string) {
   if (!token) {
     // console.log("没有找到JWT token，跳转到登录页面");
-    window.location.href = `/${targetPage}?apiUrl=${encodeURIComponent(URL)}`;
+    // window.location.href = `/${targetPage}?apiUrl=${encodeURIComponent(URL)}`;
+    window.location.href = `/${targetPage}`;
   }
 
   try {
@@ -89,13 +90,14 @@ async function checkAuthentication(token:string,targetPage:string) {
     const exp = Number(decoded.exp) * 1000;
 
     if (exp && exp < Date.now()) {
-      console.log("token已经过期，尝试刷新");
+      blocks.popupConfirm("token已经过期，尝试刷新");
       const newToken = await auth.reflashToken(URL,token);
-      document.cookie = `authToken=${newToken}; path=/;`;
+      document.cookie = `${tokenName}=${newToken}; path=/;`;
     }
   } catch (e) {
     // console.log("token解析失败，跳转到登录页面", e);
-    window.location.href = `/${targetPage}?apiUrl=${encodeURIComponent(URL)}`;
+    // window.location.href = `/${targetPage}?apiUrl=${encodeURIComponent(URL)}`;
+    window.location.href = `/${targetPage}`;
   }
 }
 

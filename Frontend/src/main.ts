@@ -23,7 +23,7 @@ import deleteImg from './icons/delete.svg'
 // async function initializeApp() {
 // await checkAuthentication(authToken,'welcome.html')
 // }
-await checkAuthentication(authToken,'projects')
+await checkAuthentication(authToken,'authToken','projects')
 // 启动应用
 // initializeApp();
 

@@ -22,7 +22,7 @@ let token = getCookie('hubAuthToken');
 
 //检查token
 if(token)
-checkAuthentication(token,'login')
+checkAuthentication(token,'hubAuthToken','login')
 // await checkAuthentication(hubToken,'login')
 // let token = hubToken
 let isEmpty = false;
