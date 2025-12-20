@@ -217,7 +217,7 @@ async function initializeDatabaseView() {
 async function initializeQueryView() {
   currentQueryId = null;
   await loadQueryHistory();
-  updateSaveButton();
+  // updateSaveButton();
 }
 
 async function loadQueryHistory() {
@@ -277,7 +277,7 @@ function selectQuery(query: any) {
       textarea.value = query.queries;
     }
   }
-  updateSaveButton();
+  // updateSaveButton();
   loadQueryHistory(); // 重新加载历史以更新选中状态样式
 }
 
@@ -293,19 +293,19 @@ async function deleteQueryItem(queryId: number) {
       if (resultsDiv) {
         resultsDiv.innerHTML = '<div class="text-gray-400 p-4">查询结果将显示在这里</div>';
       }
-      updateSaveButton();
+      // updateSaveButton();
     }
   } catch (error) {
     console.error('删除查询失败:', error);
   }
 }
 
-function updateSaveButton() {
-  const saveBtn = document.getElementById('query-save-btn') as HTMLButtonElement;
-  if (saveBtn) {
-    saveBtn.textContent = currentQueryId ? '更新' : '保存';
-  }
-}
+// function updateSaveButton() {
+//   const saveBtn = document.getElementById('query-save-btn') as HTMLButtonElement;
+//   if (saveBtn) {
+//     saveBtn.textContent = currentQueryId ? '更新' : '保存';
+//   }
+// }
 
 function displayQueryResult(result: any) {
   const resultsDiv = document.getElementById('query-results');
@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
             displayQueryResult(result);
             // 执行查询后，清除选中状态，按钮变回保存
             currentQueryId = null;
-            updateSaveButton();
+            // updateSaveButton();
             loadQueryHistory(); // 更新历史样式
           } catch (error) {
             console.error('执行查询失败:', error);

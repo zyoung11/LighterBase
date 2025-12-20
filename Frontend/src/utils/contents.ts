@@ -7,6 +7,8 @@ import logcontent from "../icons/pageWhite.svg";
 import date from "../icons/dateWhite.svg";
 import create from "../icons/createWhite.svg"
 import query from "../icons/searchWhite.svg"
+import save from "../icons/save.svg"
+import execute from "../icons/execute.svg"
 import permission from "../icons/permissionWhite.svg"
 import account from "../icons/userWhite.svg"
 const sidebarContent = {
@@ -144,12 +146,14 @@ const workspaceContent = {
                                     ></textarea>
                                 </div>
                                 <div class="ml-4 flex flex-col space-y-2">
-                                    <button id="query-save-btn" class="px-4 py-2 bg-[#3a3f41] hover:bg-[#4a4f52] rounded text-sm text-gray-300 transition-colors">
-                                        保存
+                                    <button id="query-save-btn" class="w-12 h-12 px-2 py-2 hover:bg-[#3a3f41] rounded-full text-sm transition-colors mb-4">
+                                         <img src="${save}" class=" object-contain" alt="save">
                                     </button>
-                                    <button id="query-execute-btn" class="px-4 py-2 bg-[#3a3f41] hover:bg-[#4a4f52] rounded text-sm text-gray-300 transition-colors">
-                                        执行
+                                    <button id="query-execute-btn" class="w-12 h-12 px-1 py-1 rounded-full text-sm transition-colors">
+                                         <img src="${execute}" class=" object-contain" alt="execute">
                                     </button>
+
+                                    
                                 </div>
                             </div>
                         </div>
