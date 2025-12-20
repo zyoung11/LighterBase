@@ -230,7 +230,8 @@ async function loadQueryHistory() {
       historyContainer.innerHTML = '';
       response.queries.forEach((query: any) => {
         const queryItem = document.createElement('div');
-        queryItem.className = 'flex items-center justify-between p-2 bg-[#2B2F31] rounded hover:bg-[#3a3f41] cursor-pointer';
+        queryItem.className = `flex items-center justify-between p-2 rounded cursor-pointer ${currentQueryId === query.id ? 'bg-[#4a4f52]' : 'bg-[#2B2F31] hover:bg-[#3a3f41]'}`;
+        queryItem.setAttribute('data-query-id', query.id.toString());
         queryItem.innerHTML = `
           <div class="flex-1 truncate text-sm text-gray-300" title="${query.queries}">
             ${query.queries.substring(0, 30)}${query.queries.length > 30 ? '...' : ''}
@@ -256,12 +257,28 @@ async function loadQueryHistory() {
 }
 
 function selectQuery(query: any) {
-  currentQueryId = query.id;
-  const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
-  if (textarea) {
-    textarea.value = query.queries;
+  const resultsDiv = document.getElementById('query-results');
+  if (resultsDiv) {
+    resultsDiv.innerHTML = '<div class="text-gray-400 p-4">查询结果将显示在这里</div>';
+  }
+
+  if (currentQueryId === query.id) {
+    // 再次点击，退出选中
+    currentQueryId = null;
+    const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
+    if (textarea) {
+      textarea.value = '';
+    }
+  } else {
+    // 选中
+    currentQueryId = query.id;
+    const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
+    if (textarea) {
+      textarea.value = query.queries;
+    }
   }
   updateSaveButton();
+  loadQueryHistory(); // 重新加载历史以更新选中状态样式
 }
 
 async function deleteQueryItem(queryId: number) {
@@ -272,6 +289,10 @@ async function deleteQueryItem(queryId: number) {
       currentQueryId = null;
       const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
       if (textarea) textarea.value = '';
+      const resultsDiv = document.getElementById('query-results');
+      if (resultsDiv) {
+        resultsDiv.innerHTML = '<div class="text-gray-400 p-4">查询结果将显示在这里</div>';
+      }
       updateSaveButton();
     }
   } catch (error) {
@@ -511,19 +532,23 @@ document.addEventListener('DOMContentLoaded', () => {
        return;
      }
 
-     if (target.closest('#query-execute-btn')) {
-       const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
-       if (textarea && textarea.value.trim()) {
-         try {
-           const result = await sql.runQuery({"queries":textarea.value});
-           displayQueryResult(result);
-         } catch (error) {
-           console.error('执行查询失败:', error);
-           displayQueryResult({ error: '执行查询失败' });
-         }
-       }
-       return;
-     }
+      if (target.closest('#query-execute-btn')) {
+        const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
+        if (textarea && textarea.value.trim()) {
+          try {
+            const result = await sql.runQuery({"queries":textarea.value});
+            displayQueryResult(result);
+            // 执行查询后，清除选中状态，按钮变回保存
+            currentQueryId = null;
+            updateSaveButton();
+            loadQueryHistory(); // 更新历史样式
+          } catch (error) {
+            console.error('执行查询失败:', error);
+            displayQueryResult({ error: '执行查询失败' });
+          }
+        }
+        return;
+      }
 
          if (target.closest( '#view-full-sql-btn')) {
         const textarea = document.getElementById('sql-input') as HTMLTextAreaElement;
