@@ -6,6 +6,7 @@ import level from "../icons/levelWhite.svg";
 import logcontent from "../icons/pageWhite.svg";
 import date from "../icons/dateWhite.svg";
 import create from "../icons/createWhite.svg"
+import query from "../icons/searchWhite.svg"
 import permission from "../icons/permissionWhite.svg"
 import account from "../icons/userWhite.svg"
 const sidebarContent = {
@@ -30,18 +31,6 @@ const sidebarContent = {
                     </button>
                 </div>
             `,
-  //   records:             `
-  //                             <div class="text-gray-300">
-  //                                 <p class="mb-2"><strong>查询语句:</strong></p>
-  //                                 <p class="bg-[#2B2F31] p-3 rounded">${
-  //                                   this.querySelector("p").textContent
-  //                                 }</p>
-  //                                 <p class="mt-4 mb-2"><strong>执行时间:</strong></p>
-  //                                 <p>${date} 14:30:25</p>
-  //                                 <p class="mt-4 mb-2"><strong>执行结果:</strong></p>
-  //                                 <p class="text-green-400">成功返回 2 行数据</p>
-  //                             </div>
-  //                         `,
   folder: `
     <div class="flex flex-col h-full">
       <div id="folder-table-list" class="flex-1 overflow-y-auto scrollbar-hide space-y-1 pr-1">
@@ -52,8 +41,12 @@ const sidebarContent = {
   database: `
                 <div class="space-y-3">
                     <button id="create-db" class="w-full flex mb-3 px-4 py-3 bg-[#1B1E1F] hover:bg-[#3a3f41] rounded-lg items-center text-left transition-colors">
-                       <img src ="${create}" class ="w-[15%] object-contain mr-2" alt="表的创建">
-                       <p class = "ml-[10%]">Create DB</p>
+                       <img src ="${create}" class ="w-[15%] object-contain mr-2" alt="表的设计">
+                       <p class = "ml-[10%]">Design DB</p>
+                    </button>
+                    <button id="Query-db" class="w-full flex mb-3 px-4 py-3 bg-[#1B1E1F] hover:bg-[#3a3f41] rounded-lg items-center text-left transition-colors">
+                       <img src ="${query}" class ="w-[15%] object-contain mr-2" alt="表的查询">
+                       <p class = "ml-[10%]">Query</p>
                     </button>
                     <button id="permissions" class="w-full flex px-4 py-3 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg items-center text-left transition-colors">
                        <img src ="${permission}" class ="w-[15%] object-contain mr-2" alt="权限">
