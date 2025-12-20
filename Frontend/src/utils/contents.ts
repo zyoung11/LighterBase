@@ -206,7 +206,7 @@ const workspaceContent = {
 <div class="flex-1 h-full flex flex-col bg-[#1B1E1F]">
   <!-- 顶部搜索 -->
   <div class="p-4 border-b border-gray-700">
-    <input id="logs-search" type="text" placeholder="搜索 id 或日志内容…"
+    <input id="logs-search" type="text" placeholder="搜索日志内容…"
            class="w-full px-4 py-2 bg-[#2B2F31] rounded-full focus:outline-none focus:border-[#4a4f52] border border-transparent">
   </div>
 

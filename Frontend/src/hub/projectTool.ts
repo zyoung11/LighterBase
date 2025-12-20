@@ -31,7 +31,7 @@ app.appendChild(gridContainer);
 const projectDetails = document.createElement('div');
 projectDetails.id = 'projectDetails';
 //oldColor:bg-[#1B1E1F]
-projectDetails.className = 'absolute right-[5%] top-[12%] w-3/5 h-4/5 bg-white/5 shadow-md shadow-white/30 bg-opacity-90 p-4 rounded-lg hidden z-5';
+projectDetails.className = 'absolute right-[5%] top-[12%] w-3/5 h-4/5 bg-white/5 shadow-md shadow-white/30 border border-white/10 bg-opacity-90 p-4 rounded-lg hidden z-5';
 projectDetails.innerHTML = `
     <div class=" flex space-x-4 justify-end">
        <button id="start-btn" class="w-10 h-10 border border-white/50 rounded-lg flex items-center justify-center transition-colors">
@@ -57,7 +57,7 @@ projectDetails.innerHTML = `
        </button>
      </div>
 <div class="w-full h-[40%] flex">
-  <img id="detail-avatar" class="w-[45%] h-full object-cover mb-4 rounded-md" src="${defaultImg}" onerror="this.src='${defaultImg}'">
+  <img id="detail-avatar" class="w-[45%] h-full object-cover mb-4 rounded-md border border-white/60" src="${defaultImg}" onerror="this.src='${defaultImg}'">
   <div class="ml-3 w-[50%] h-full flex flex-col">
   <h2 id="detail-name" class="text-2xl font-bold mb-4"></h2>
   <textarea id="detail-description" class="w-full h-full bg-[#1B1E1F] border border-white/10 bg-opacity-50 text-white p-2 rounded resize-none overflow-y-auto mb-4" readonly style="user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; cursor: default; pointer-events: none; outline: none; box-shadow: none;"></textarea>
@@ -139,7 +139,7 @@ async function renderBlock(block:any) {
     const compressedAvatar = await compressImage(block.project.project_avatar || '', 120, 0.4);
     block.element = document.createElement('div');
     //oldColor:bg-[#1B1E1F]
-    block.element.className = `absolute flex bg-white/5 shadow-sm shadow-white/40 rounded-md shadow-lg p-2 transition-all ease-in-out cursor-pointer pointer-events-auto grid grid-cols-2`;
+    block.element.className = `absolute flex bg-white/5 shadow-sm shadow-white/40 border border-white/10 rounded-md shadow-lg p-2 transition-all ease-in-out cursor-pointer pointer-events-auto grid grid-cols-2`;
     block.element.style.width = '28%';
     block.element.style.height = '22vh';
     // block.element.style.aspectRatio = "3/1"

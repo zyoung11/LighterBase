@@ -457,7 +457,7 @@ const tbody = document.getElementById('logs-tbody') as HTMLElement;
     const make=(n:number| string,active=false)=>{
       const btn=document.createElement('button');
       btn.textContent=String(n);
-      btn.className=`px-2 py-1 rounded border text-sm ${active?'bg-blue-600 border-blue-600':'bg-[#2B2F31] border-gray-600'}`;
+      btn.className=`px-2 py-1 rounded border text-sm ${active?'bg-gray-600 border-gray-600':'bg-[#2B2F31] border-gray-600'}`;
       if(typeof n==='number') btn.addEventListener('click',()=>{ this._showLogsPage=n; render(); });
       return btn;
     };
