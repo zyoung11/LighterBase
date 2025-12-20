@@ -62,7 +62,7 @@ const workspaceContent = {
                     <!-- 上部分：显示区域 (60% 高度) -->
                     <div class="h-[60%]  p-6 relative">
                         <div id="mount" class="h-full bg-[#15151D] border-2 border-dashed border-[#2B2F31] rounded-lg flex items-center justify-center">
-                            
+
                         </div>
                         <!-- API文档按钮 -->
                         <button id="api-docs-btn" class="absolute w-12 h-12 right-10 top-1/2 transform -translate-y-1/2 px-3 py-2 rounded transition-colors z-10">
@@ -75,14 +75,14 @@ const workspaceContent = {
 <div class="h-[40%] p-6 relative flex flex-col items-center space-x-4 justify-center">
    <div class = "w-full h-full flex justify-center items-center">
     <div class="relative w-[80%] h-full">
-        <textarea 
+        <textarea
             id="sql-input"
             class="**scrollbar-hide** overflow-y-auto w-full h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg p-4 text-gray-200 placeholder-gray-500 resize-none focus:outline-none focus:border-[#4a4f52]"
             placeholder="在这里输入SQL查询..."
         ></textarea>
         <!-- 查看完整SQL按钮 -->
-        <button 
-            id="view-full-sql-btn" 
+        <button
+            id="view-full-sql-btn"
             class="absolute top-2 right-2 px-3 py-1 bg-[#3a3f41] hover:bg-[#4a4f52] rounded text-xs text-gray-300 transition-colors"
             title="查看完整SQL"
         >
@@ -120,6 +120,48 @@ const workspaceContent = {
         </div>
     </div>
 </div>
+                </div>
+            `,
+  query: `
+                <div class="flex-1 flex">
+                    <!-- 主要内容区域 -->
+                    <div class="flex-1 flex flex-col">
+                        <!-- 上部分：显示区域 (60% 高度) -->
+                        <div class="h-[60%] p-6">
+                            <div id="query-results" class="h-full overflow-y-auto bg-[#15151D] border-2 border-dashed border-[#2B2F31] rounded-lg flex items-center justify-center text-gray-400">
+                                查询结果将显示在这里
+                            </div>
+                        </div>
+
+                        <!-- 下部分：SQL输入区域 (40% 高度) -->
+                        <div class="h-[40%] p-6 flex flex-col">
+                            <div class="flex-1 flex items-center">
+                                <div class="w-[80%] h-full relative">
+                                    <textarea
+                                        id="query-sql-input"
+                                        class="w-full h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg p-4 text-gray-200 placeholder-gray-500 resize-none focus:outline-none focus:border-[#4a4f52] scrollbar-hide overflow-y-auto"
+                                        placeholder="在这里输入SQL查询..."
+                                    ></textarea>
+                                </div>
+                                <div class="ml-4 flex flex-col space-y-2">
+                                    <button id="query-save-btn" class="px-4 py-2 bg-[#3a3f41] hover:bg-[#4a4f52] rounded text-sm text-gray-300 transition-colors">
+                                        保存
+                                    </button>
+                                    <button id="query-execute-btn" class="px-4 py-2 bg-[#3a3f41] hover:bg-[#4a4f52] rounded text-sm text-gray-300 transition-colors">
+                                        执行
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 侧边栏 -->
+                    <div class="w-64 bg-[#1B1E1F] border-l border-[#2B2F31] p-4">
+                        <h3 class="text-lg font-semibold text-gray-200 mb-4">查询历史</h3>
+                        <div id="query-history" class="space-y-2 max-h-[80vh] overflow-y-auto scrollbar-hide">
+                            <!-- 查询历史项将动态添加在这里 -->
+                        </div>
+                    </div>
                 </div>
             `,
   permissions: `

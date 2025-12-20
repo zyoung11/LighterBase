@@ -7,6 +7,10 @@ type theLogs = {
     logs: { id: number; log_text: string; created_at: string; level: number }[];
 }
 const sql = {
+
+//================================sql===============================
+
+    
     async createSql(payload: any): Promise<any> {
         try {
             const response = await fetch(`${URL}/api/create-table/create`, {
@@ -65,6 +69,11 @@ const sql = {
         }
     },
 
+
+//================================log===============================
+
+
+
     async getLogs(page: number, perPage: number): Promise<theLogs> {
     try {
         const res = await fetch(
@@ -115,32 +124,37 @@ const sql = {
   },
 
 
+//================================query===============================
+
+
+
 async getAllQueries(page = 1, perPage = 30): Promise<any> {
     try {
-        const response = await fetch(`${URL}/queries?page=${page}&perpage=${perPage}`, {
+        const res = await fetch(`${URL}/api/queries?page=${page}&perpage=${perPage}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${hubAuthToken}`
+                "Authorization": `Bearer ${authToken}`
             }
         });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
         }
-        return await response.json();
+        const data =await res.json();
+        return data;
     } catch (e) {
     }
 },
 
-async createQuery(queries: string): Promise<any> {
+async createQuery(queries:any): Promise<any> {
     try {
-        const response = await fetch(`${URL}/queries`, {
+        const response = await fetch(`${URL}/api/queries`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${hubAuthToken}`
+                "Authorization": `Bearer ${authToken}`
             },
-            body: JSON.stringify({ queries })
+            body: JSON.stringify(queries)
         });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -150,15 +164,15 @@ async createQuery(queries: string): Promise<any> {
     }
 },
 
-async updateQuery(queryId: number | string, queries: string): Promise<any> {
+async updateQuery(queryId: number, queries: any): Promise<any> {
     try {
-        const response = await fetch(`${URL}/queries/${queryId}`, {
+        const response = await fetch(`${URL}/api/queries/${queryId}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${hubAuthToken}`
+                "Authorization": `Bearer ${authToken}`
             },
-            body: JSON.stringify({ queries })
+            body: JSON.stringify(queries)
         });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -171,13 +185,13 @@ async updateQuery(queryId: number | string, queries: string): Promise<any> {
     }
 },
 
-async deleteQuery(queryId: number | string): Promise<any> {
+async deleteQuery(queryId: number): Promise<any> {
     try {
-        const response = await fetch(`${URL}/queries/${queryId}`, {
+        const response = await fetch(`${URL}/api/queries/${queryId}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${hubAuthToken}`
+                "Authorization": `Bearer ${authToken}`
             }
         });
         if (!response.ok) {
@@ -190,6 +204,34 @@ async deleteQuery(queryId: number | string): Promise<any> {
     } catch (e) {
     }
 },
+
+
+async runQuery(queries:any): Promise<any> {
+    try {
+        const response = await fetch(`${URL}/api/queries/run-queries`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${authToken}`
+            },
+            body: JSON.stringify(queries)
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (e) {
+    }
+},
+
+
+
+
+
+
+//================================hub的sql操作===============================
+
+
 
 
     async hubLastestSql(hubUrl:string,projectId:number): Promise<any> {

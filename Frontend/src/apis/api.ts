@@ -1,7 +1,7 @@
-// let URL ="http://localhost:8080"
-let URL ="http://www.smallwoodice.cn:8080"
-// let theURL = "http://localhost:8080"
-let theURL = "http://www.smallwoodice.cn:8080"
+let URL ="http://localhost:8080"
+// let URL ="http://www.smallwoodice.cn:8080"
+let theURL = "http://localhost:8080"
+// let theURL = "http://www.smallwoodice.cn:8080"
 const cookies = document.cookie;
 let authToken = "";
 const authTokenMatch = cookies.match(/authToken=([^;]*)/);
@@ -24,8 +24,8 @@ function setBaseUrl(url?: string): void {
   if (url && typeof url === 'string' && url.trim()) {
     URL = url.trim();
   } else {
-    // URL = "http://localhost:8080";
-    URL ="http://www.smallwoodice.cn:8080"
+    URL = "http://localhost:8080";
+    // URL ="http://www.smallwoodice.cn:8080"
   }
 }
 

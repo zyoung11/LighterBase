@@ -56,6 +56,9 @@ const rightSidebar = document.getElementById("right-sidebar") as HTMLElement;
 const defaultWorkspace = document.getElementById("default-workspace") as HTMLElement;
 const mainWorkspace = document.getElementById("main-workspace") as HTMLElement;
 
+// Query相关变量
+let currentQueryId: number | null = null;
+
 
 
 
@@ -211,6 +214,144 @@ async function initializeDatabaseView() {
   }
 }
 
+async function initializeQueryView() {
+  currentQueryId = null;
+  await loadQueryHistory();
+  updateSaveButton();
+}
+
+async function loadQueryHistory() {
+  const historyContainer = document.getElementById('query-history');
+  if (!historyContainer) return;
+
+  try {
+    const response = await sql.getAllQueries();
+    if (response && response.queries) {
+      historyContainer.innerHTML = '';
+      response.queries.forEach((query: any) => {
+        const queryItem = document.createElement('div');
+        queryItem.className = 'flex items-center justify-between p-2 bg-[#2B2F31] rounded hover:bg-[#3a3f41] cursor-pointer';
+        queryItem.innerHTML = `
+          <div class="flex-1 truncate text-sm text-gray-300" title="${query.queries}">
+            ${query.queries.substring(0, 30)}${query.queries.length > 30 ? '...' : ''}
+          </div>
+          <button class="ml-2 text-red-400 hover:text-red-300 text-xs" data-query-id="${query.id}">删</button>
+        `;
+        queryItem.addEventListener('click', (e) => {
+          if ((e.target as HTMLElement).hasAttribute('data-query-id')) {
+            // 删除按钮点击
+            const queryId = parseInt((e.target as HTMLElement).getAttribute('data-query-id')!);
+            deleteQueryItem(queryId);
+          } else {
+            // 查询项点击
+            selectQuery(query);
+          }
+        });
+        historyContainer.appendChild(queryItem);
+      });
+    }
+  } catch (error) {
+    console.error('加载查询历史失败:', error);
+  }
+}
+
+function selectQuery(query: any) {
+  currentQueryId = query.id;
+  const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
+  if (textarea) {
+    textarea.value = query.queries;
+  }
+  updateSaveButton();
+}
+
+async function deleteQueryItem(queryId: number) {
+  try {
+    await sql.deleteQuery(queryId);
+    await loadQueryHistory();
+    if (currentQueryId === queryId) {
+      currentQueryId = null;
+      const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
+      if (textarea) textarea.value = '';
+      updateSaveButton();
+    }
+  } catch (error) {
+    console.error('删除查询失败:', error);
+  }
+}
+
+function updateSaveButton() {
+  const saveBtn = document.getElementById('query-save-btn') as HTMLButtonElement;
+  if (saveBtn) {
+    saveBtn.textContent = currentQueryId ? '更新' : '保存';
+  }
+}
+
+function displayQueryResult(result: any) {
+  const resultsDiv = document.getElementById('query-results');
+  if (!resultsDiv) return;
+
+  if (result.error) {
+    resultsDiv.innerHTML = `<div class="text-red-400 p-4">${result.error}</div>`;
+    return;
+  }
+
+  let html = '<div class="p-4 text-gray-200">';
+  if (result.items && Array.isArray(result.items)) {
+    // 分页结果
+    const items = result.items;
+    if (items.length === 0) {
+      html += '无结果';
+    } else {
+      html += '<table class="w-full border-collapse border border-gray-600">';
+      // 表头
+      const keys = Object.keys(items[0]);
+      html += '<thead><tr>';
+      keys.forEach(key => {
+        html += `<th class="border border-gray-600 p-2 bg-[#2B2F31]">${key}</th>`;
+      });
+      html += '</tr></thead>';
+      // 表体
+      html += '<tbody>';
+      items.forEach((row: any) => {
+        html += '<tr>';
+        keys.forEach(key => {
+          html += `<td class="border border-gray-600 p-2">${row[key]}</td>`;
+        });
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+    }
+  } else if (Array.isArray(result)) {
+    // 直接数组结果
+    if (result.length === 0) {
+      html += '无结果';
+    } else {
+      html += '<table class="w-full border-collapse border border-gray-600">';
+      // 表头
+      const keys = Object.keys(result[0]);
+      html += '<thead><tr>';
+      keys.forEach(key => {
+        html += `<th class="border border-gray-600 p-2 bg-[#2B2F31]">${key}</th>`;
+      });
+      html += '</tr></thead>';
+      // 表体
+      html += '<tbody>';
+      result.forEach((row: any) => {
+        html += '<tr>';
+        keys.forEach(key => {
+          html += `<td class="border border-gray-600 p-2">${row[key]}</td>`;
+        });
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+    }
+  } else {
+    html += `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+  }
+  html += '</div>';
+  resultsDiv.innerHTML = html;
+}
+
 mainWorkspace.addEventListener('keydown', async (e) => {
 const sqlNotice = document.getElementById('sql-notice') as HTMLElement;
   const target = e.target as HTMLElement;
@@ -296,6 +437,17 @@ document.addEventListener('DOMContentLoaded', () => {
       (target.closest('#create-db') as HTMLElement).style.backgroundColor = '#2B2F31';
       return;
     }
+
+    if (target.closest('#Query-db')) {
+      mainWorkspace.innerHTML = workspaceContent.query;
+      initializeQueryView();
+      // 切换选中状态
+      document.querySelectorAll('#right-sidebar button').forEach(btn => {
+        (btn as HTMLElement).style.backgroundColor = '';
+      });
+      (target.closest('#Query-db') as HTMLElement).style.backgroundColor = '#2B2F31';
+      return;
+    }
   });
 
   mainWorkspace.addEventListener('click', async(e) => { 
@@ -341,9 +493,39 @@ document.addEventListener('DOMContentLoaded', () => {
          }
       }
       }
-    }
+     }
 
-        if (target.closest( '#view-full-sql-btn')) {
+     if (target.closest('#query-save-btn')) {
+       const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
+       if (textarea && textarea.value.trim()) {
+          if (currentQueryId) {
+            // 更新
+            await sql.updateQuery(currentQueryId,{"queries": textarea.value});
+            await loadQueryHistory();
+          } else {
+            // 保存
+            await sql.createQuery({"queries":textarea.value});
+            await loadQueryHistory();
+          }
+       }
+       return;
+     }
+
+     if (target.closest('#query-execute-btn')) {
+       const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
+       if (textarea && textarea.value.trim()) {
+         try {
+           const result = await sql.runQuery({"queries":textarea.value});
+           displayQueryResult(result);
+         } catch (error) {
+           console.error('执行查询失败:', error);
+           displayQueryResult({ error: '执行查询失败' });
+         }
+       }
+       return;
+     }
+
+         if (target.closest( '#view-full-sql-btn')) {
         const textarea = document.getElementById('sql-input') as HTMLTextAreaElement;
         const fullSQL = textarea.value;
 
