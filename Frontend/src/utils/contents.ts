@@ -67,9 +67,15 @@ const workspaceContent = {
 
                         </div>
                         <!-- API文档按钮 -->
-                        <button id="api-docs-btn" class="absolute w-12 h-12 right-10 top-1/2 transform -translate-y-1/2 px-3 py-2 rounded transition-colors z-10">
-                            <img src ="${apiIcon}" class ="object-contain" alt="API文档">
-                        </button>
+                        <div class="absolute right-10 top-1/2 z-10 transform -translate-y-1/2 flex flex-col">
+                          <button id="api-docs-btn" class="w-12 h-12 px-3 py-2 rounded transition-colors">
+                              <img src ="${apiIcon}" class ="object-contain" alt="API文档">
+                          </button>
+                          <button id="ai-generated" class="w-12 h-12 px-2 py-2 hover:bg-[#3a3f41] rounded-full text-sm transition-colors mb-4">
+                               <img src="${messageLight}" class=" object-contain" alt="AI-generated">
+                          </button>
+
+                        </div>
                     </div>
 
                     <!-- 下部分：SQL输入区域 (40% 高度) -->
@@ -92,12 +98,10 @@ const workspaceContent = {
         </button>
     </div>
     <div class="flex relative">
-        <button id="ai-generated" class="absolute left-[170%] w-12 h-12 px-2 py-2 hover:bg-[#3a3f41] rounded-full text-sm transition-colors mb-4">
-             <img src="${messageLight}" class=" object-contain" alt="AI-generated">
-        </button>
         <button id="sql-send" class="w-12 h-12 px-1 py-1 rounded-full text-sm transition-colors">
              <img src="${check}" class=" object-contain" alt="确认">
         </button>
+
     </div>
     </div>
    <p id = "sql-notice" class = "mt-3">请输入大写SQLite语句,"enter"渲染E-R图,点击右侧确认按钮提交</p>
