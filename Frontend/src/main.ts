@@ -7,8 +7,6 @@ import {authToken,URL} from "./apis/api";
 import blocks from "./modules/blocks";
 import admin from "./apis/admin";
 import sql from "./apis/sql";
-import {jwtDecode} from "jwt-decode"
-import auth from "./apis/auth"
 import aichat from "./modules/aiChat";
 import lighterBase from "./apis/auto";
 import { checkAuthentication } from "./modules/tools";
@@ -19,6 +17,7 @@ import databaseImg from './icons/databaseWhite.svg';
 import folderImg from './icons/folderWhite.svg';
 import recordsImg from './icons/analysisWhite.svg';
 import settingsImg from './icons/settingsWhite.svg';
+import deleteImg from './icons/delete.svg' 
 
 // 初始化应用
 // async function initializeApp() {
@@ -230,24 +229,25 @@ async function loadQueryHistory() {
       historyContainer.innerHTML = '';
       response.queries.forEach((query: any) => {
         const queryItem = document.createElement('div');
-        queryItem.className = `flex items-center justify-between p-2 rounded cursor-pointer ${currentQueryId === query.id ? 'bg-[#4a4f52]' : 'bg-[#2B2F31] hover:bg-[#3a3f41]'}`;
+        queryItem.className = `flex items-center p-2 rounded cursor-pointer ${currentQueryId === query.id ? 'bg-[#4a4f52]' : 'bg-[#2B2F31] hover:bg-[#3a3f41]'}`;
         queryItem.setAttribute('data-query-id', query.id.toString());
         queryItem.innerHTML = `
-          <div class="flex-1 truncate text-sm text-gray-300" title="${query.queries}">
+          <div class="w-[80%] text-sm text-gray-300" title="${query.queries}">
             ${query.queries.substring(0, 30)}${query.queries.length > 30 ? '...' : ''}
           </div>
-          <button class="ml-2 text-red-400 hover:text-red-300 text-xs" data-query-id="${query.id}">删</button>
+          <button class="w-[10%] bg-teansparent " data-query-id="${query.id}"><img src="${deleteImg}">  </button>
         `;
         queryItem.addEventListener('click', (e) => {
-          if ((e.target as HTMLElement).hasAttribute('data-query-id')) {
-            // 删除按钮点击
-            const queryId = parseInt((e.target as HTMLElement).getAttribute('data-query-id')!);
-            deleteQueryItem(queryId);
-          } else {
-            // 查询项点击
-            selectQuery(query);
-          }
-        });
+           const target = e.target as HTMLElement;
+           if (target.closest('button[data-query-id]')) {
+             // 删除按钮点击
+             const queryId = parseInt(target.closest('button[data-query-id]')!.getAttribute('data-query-id')!);
+             deleteQueryItem(queryId);
+           } else {
+             // 查询项点击
+             selectQuery(query);
+           }
+         });
         historyContainer.appendChild(queryItem);
       });
     }
@@ -282,6 +282,9 @@ function selectQuery(query: any) {
 }
 
 async function deleteQueryItem(queryId: number) {
+  const confirmed = await blocks.popupConfirm('确定要删除这个查询吗？');
+  if (!confirmed) return;
+
   try {
     await sql.deleteQuery(queryId);
     await loadQueryHistory();
