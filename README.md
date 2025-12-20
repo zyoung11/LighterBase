@@ -1756,6 +1756,14 @@ cd LighterBase/Backend/web/LighterBaseHub
   Content-Type: application/json
   ```
 
+- 请求体：
+
+  ```json
+  {
+      "queries": "value1"
+  }
+  ```
+
 - 预期返回：
 
   http状态码：200
