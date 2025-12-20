@@ -75,6 +75,7 @@ import blocks from "./blocks";
 /**
  * 针对低带宽优化的图片压缩函数
  * @param token 获取存储在cookie里的token
+ * @param tokenName 设置要更新的tokenName
  * @param targetPage 要跳转的网页
  * @returns 压缩后的base64图片
  */

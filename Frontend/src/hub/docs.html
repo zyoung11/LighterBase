@@ -22,39 +22,39 @@
   <!-- 中间内容 -->
   <div class="w-full h-full flex overflow-hidden justify-center">
     <!-- 左侧侧边栏 -->
-    <aside class="w-1/6 h-full bg-[#181A1B] p-4 ">
-      <ul class="space-y-2">
-        <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded text-lg font-semibold" data-section="intro">介绍</a>
-        </li>
-        <li>
-          <a href="#" class="block p-2 hover:bg-[#2B2F31] rounded text-lg font-semibold" data-section="install">库调用</a>
-          <ul class="ml-4 space-y-1" id="install-submenu">
-            <li><a href="#install-create-section"
-                class="block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium">创建</a></li>
-            <li><a href="#install-delete-section"
-                class="block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium">删除</a></li>
-            <li><a href="#install-update-section"
-                class="block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium">更新</a></li>
-            <li><a href="#install-search-section"
-                class="block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium">查询</a></li>
-          </ul>
-        </li>
-        <!-- <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded text-lg font-semibold" -->
-        <!-- data-section="api-reference">API 参考</a></li> -->
-        <li>
-          <a href="#" class="block p-2 hover:bg-[#2B2F31] rounded text-lg font-semibold" data-section="tutorials">教程</a>
-          <ul class="ml-4 space-y-1" id="tutorials-submenu">
-            <li><a href="#database-management"
-                class="block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium">数据库管理</a></li>
-            <li><a href="#log-management"
-                class="block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium">日志管理</a></li>
-            <li><a href="#file-management"
-                class="block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium">文件管理</a></li>
-            <li><a href="#settings" class="block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium">设置</a></li>
-          </ul>
-        </li>
-      </ul>
-    </aside>
+     <aside class="w-1/6 h-full bg-[#181A1B] p-4 ">
+       <ul class="space-y-2">
+         <li><a href="#" class="nav-link block p-2 hover:bg-[#2B2F31] rounded text-lg font-semibold" data-section="intro"><span class="number text-gray-400">1</span> 介绍</a>
+         </li>
+         <li>
+           <a href="#" class="nav-link block p-2 hover:bg-[#2B2F31] rounded text-lg font-semibold" data-section="install"><span class="number text-gray-400">2</span> 库调用</a>
+           <ul class="ml-4 space-y-1" id="install-submenu">
+             <li><a href="#install-create-section"
+                 class="nav-link block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium"><span class="number text-gray-400">2.1</span> 创建</a></li>
+             <li><a href="#install-delete-section"
+                 class="nav-link block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium"><span class="number text-gray-400">2.2</span> 删除</a></li>
+             <li><a href="#install-update-section"
+                 class="nav-link block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium"><span class="number text-gray-400">2.3</span> 更新</a></li>
+             <li><a href="#install-search-section"
+                 class="nav-link block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium"><span class="number text-gray-400">2.4</span> 查询</a></li>
+           </ul>
+         </li>
+         <!-- <li><a href="#" class="block p-2 hover:bg-[#2B2F31] rounded text-lg font-semibold" -->
+         <!-- data-section="api-reference">API 参考</a></li> -->
+         <li>
+           <a href="#" class="nav-link block p-2 hover:bg-[#2B2F31] rounded text-lg font-semibold" data-section="tutorials"><span class="number text-gray-400">3</span> 教程</a>
+           <ul class="ml-4 space-y-1" id="tutorials-submenu">
+             <li><a href="#database-management"
+                 class="nav-link block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium"><span class="number text-gray-400">3.1</span> 数据库管理</a></li>
+             <li><a href="#log-management"
+                 class="nav-link block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium"><span class="number text-gray-400">3.2</span> 日志管理</a></li>
+             <li><a href="#file-management"
+                 class="nav-link block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium"><span class="number text-gray-400">3.3</span> 文件管理</a></li>
+             <li><a href="#settings" class="nav-link block p-2 pl-4 hover:bg-[#2B2F31] rounded text-base font-medium"><span class="number text-gray-400">3.4</span> 设置</a></li>
+           </ul>
+         </li>
+       </ul>
+     </aside>
 
     <!-- 中间显示区域 -->
     <main class="w-[65%] overflow-y-auto p-8 relative">
@@ -106,17 +106,19 @@
     const sections = ['intro', 'install', 'api-reference', 'tutorials'];
     let currentSection = 'intro';
 
-    function showSection(sectionId) {
+    function showSection(sectionId, highlightParent = true) {
       document.querySelectorAll('.content-section').forEach(sec => sec.classList.add('hidden'));
       document.getElementById(sectionId).classList.remove('hidden');
       currentSection = sectionId;
 
-      // Remove highlight from all main links
-      document.querySelectorAll('aside a[data-section]').forEach(link => link.classList.remove('bg-[#3a3f41]'));
-      // Add highlight to current section link
-      const currentLink = document.querySelector(`aside a[data-section="${sectionId}"]`);
-      if (currentLink) {
-        currentLink.classList.add('bg-[#3a3f41]');
+      if (highlightParent) {
+        // Remove highlight from all nav-links
+        document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('bg-[#3a3f41]'));
+        // Add highlight to current section link
+        const currentLink = document.querySelector(`aside a[data-section="${sectionId}"]`);
+        if (currentLink) {
+          currentLink.classList.add('bg-[#3a3f41]');
+        }
       }
 
       // Scroll to top
@@ -142,6 +144,10 @@
         e.preventDefault();
         const section = e.target.dataset.section;
         if (section) {
+          // Remove highlight from all nav-links
+          document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('bg-[#3a3f41]'));
+          // Add highlight to this link
+          e.target.classList.add('bg-[#3a3f41]');
           showSection(section);
         }
       });
@@ -167,11 +173,6 @@
 
     // 初始化显示 intro
     showSection('intro');
-    // Initial highlight
-    const introLink = document.querySelector('aside a[data-section="intro"]');
-    if (introLink) {
-      introLink.classList.add('bg-[#3a3f41]');
-    }
 
 
     document.addEventListener('click', function (e) {
@@ -204,8 +205,12 @@
         const target = e.target.getAttribute('href').substring(1);
         // 确保切换到 install section
         if (currentSection !== 'install') {
-          showSection('install');
+          showSection('install', false);
         }
+        // Remove highlight from all nav-links
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('bg-[#3a3f41]'));
+        // Add highlight to clicked link
+        e.target.classList.add('bg-[#3a3f41]');
         // 滚动到对应锚点
         const main = document.querySelector('main');
         const element = document.getElementById(target);
@@ -217,8 +222,12 @@
         const target = e.target.getAttribute('href').substring(1);
         // 确保切换到 tutorials section
         if (currentSection !== 'tutorials') {
-          showSection('tutorials');
+          showSection('tutorials', false);
         }
+        // Remove highlight from all nav-links
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('bg-[#3a3f41]'));
+        // Add highlight to clicked link
+        e.target.classList.add('bg-[#3a3f41]');
         // 滚动到对应锚点
         const main = document.querySelector('main');
         const element = document.getElementById(target);
