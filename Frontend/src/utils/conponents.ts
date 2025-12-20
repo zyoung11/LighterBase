@@ -9,7 +9,7 @@ import 'highlight.js/styles/vs2015.css';
 import lighterBase from "../apis/auto";
 import blocks from "../modules/blocks";
 import manageIcon from "../icons/manageWhite.svg"
-
+import noDataImg from "../icons/noData.svg"
 let logDeletePopup: {
   element: HTMLElement | null;
   isOpen: boolean;
@@ -628,8 +628,8 @@ const updateBottom = () => {
   tables.forEach((t: string) => {
     const btn = document.createElement('button');
     btn.className =
-      'w-full text-left flex px-2 py-2 rounded hover:bg-[#2B2F31] transition-colors items-center text-base font-medium truncate';
-    btn.innerHTML = `<img src="${manageIcon}" alt="管理" class="w-[10%] mr-3">${t}`;
+      'w-full text-left text-[1.2rem] flex px-2 py-2 rounded hover:bg-[#2B2F31] transition-colors items-center text-base font-medium truncate';
+    btn.innerHTML = `<img src="${manageIcon}" alt="管理" class="w-[14%] mr-2">${t}`;
     btn.dataset.table = t;
     sidebarBox.appendChild(btn);
   });
@@ -650,7 +650,7 @@ const updateBottom = () => {
     try {
       const lb = new lighterBase(URL);
       const res = await lb.searchTable(payload, table, 1, 30);
-      console.log("查看表的响应res:",res)
+      // console.log("查看表的响应res:",res)
       renderTableInMain(res.items || [], table);
     } catch (err) {
       console.error(`查询表 ${table} 失败：`, err);
@@ -661,8 +661,9 @@ const updateBottom = () => {
     const main = document.getElementById('main-workspace');
     if (!items.length) {
       main!.innerHTML = `
-        <div class="flex-1 bg-[#1B1E1F] flex items-center justify-center">
-          <div class="text-gray-400 text-sm">表 “${table}” 暂无数据</div>
+        <div class="flex-1 bg-[#1B1E1F] flex flex-col items-center justify-center">
+          <img src="${noDataImg}" alt="No Data">
+          <div class="text-gray-400 text-[1.5rem]">表 "${table}" 暂无数据</div>
         </div>`;
       return;
     }

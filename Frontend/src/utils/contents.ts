@@ -43,16 +43,16 @@ const sidebarContent = {
   database: `
                 <div class="space-y-3">
                     <button id="create-db" class="w-full flex mb-3 px-4 py-3 bg-[#1B1E1F] hover:bg-[#3a3f41] rounded-lg items-center text-left transition-colors">
-                       <img src ="${create}" class ="w-[15%] object-contain mr-2" alt="表的设计">
-                       <p class = "ml-[10%]">Design DB</p>
+                       <img src ="${create}" class ="w-[15%] object-contain" alt="表的设计">
+                       <p class = "text-[1.1rem]  ml-[10%]">Design DB</p>
                     </button>
                     <button id="Query-db" class="w-full flex mb-3 px-4 py-3 bg-[#1B1E1F] hover:bg-[#3a3f41] rounded-lg items-center text-left transition-colors">
-                       <img src ="${query}" class ="w-[15%] object-contain mr-2" alt="表的查询">
-                       <p class = "ml-[10%]">Query</p>
+                       <img src ="${query}" class ="w-[15%] object-contain" alt="表的查询">
+                       <p class = "text-[1.1rem] ml-[10%]">Query</p>
                     </button>
                     <button id="permissions" class="w-full flex px-4 py-3 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg items-center text-left transition-colors">
-                       <img src ="${permission}" class ="w-[15%] object-contain mr-2" alt="权限">
-                       <p class = "ml-[10%]">Permission</p>
+                       <img src ="${permission}" class ="w-[15%] object-contain" alt="权限">
+                       <p class = "text-[1.1rem] ml-[10%]">Permission</p>
                     </button>
                 </div>
             `,
