@@ -530,7 +530,7 @@ run_test(
 
 run_test(
     "zy 执行一条Query 请求",
-    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/run-queries",
+    post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/queries/run-queries",
          headers={"Authorization": f"Bearer {app_token}",
                   "Content-Type": "application/json"},
         body={

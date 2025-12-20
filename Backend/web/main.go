@@ -14,12 +14,14 @@ import (
 	"strings"
 	"time"
 
-	inspectSQL "github.com/rqlite/sql"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/monitor"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	_ "github.com/mattn/go-sqlite3"
+	inspectSQL "github.com/rqlite/sql"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -101,8 +103,17 @@ type DBSet struct {
 func NewApp(name string, routes []Route) *fiber.App {
 	app := fiber.New(fiber.Config{AppName: name})
 
+	app.Use(recover.New())
 	app.Use(cors.New())
 	app.Use(logger.New())
+
+	app.Use(limiter.New(limiter.Config{
+		Max:               100,
+		Expiration:        30 * time.Second,
+		LimiterMiddleware: limiter.SlidingWindow{},
+	}))
+
+	app.Get("/metrics", monitor.New(monitor.Config{Title: "LighterBaseHub"}))
 
 	for _, r := range routes {
 		// 先收集需要用到的中间件
