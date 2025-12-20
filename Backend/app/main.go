@@ -106,18 +106,18 @@ func NewApp(name string, routes []Route) *fiber.App {
 
 	app.Use(cors.New())
 
-	app.Get("/metrics", monitor.New(monitor.Config{
-		Title:   "LighterBase",
-		Refresh: 300 * time.Millisecond,
-	}))
-
-	app.Use(logger.New())
-
 	app.Use(limiter.New(limiter.Config{
 		Max:               100,
 		Expiration:        30 * time.Second,
 		LimiterMiddleware: limiter.SlidingWindow{},
 	}))
+
+	app.Get("/metrics", monitor.New(monitor.Config{
+		Title:   "LighterBase",
+		Refresh: 500 * time.Millisecond,
+	}))
+
+	app.Use(logger.New())
 
 	for _, r := range routes {
 		// 先收集需要用到的中间件
