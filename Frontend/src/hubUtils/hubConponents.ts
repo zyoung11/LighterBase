@@ -40,6 +40,9 @@ function translatePage() {
 
 // 创建导航栏函数
 function createNavBar() {
+  const payload = parseJwt(token);
+  const currentUserId = payload ? payload.user_id || payload.id : null;
+
   const nav = document.createElement('nav');
   nav.className = 'flex justify-between items-center px-6 py-[1vh] rounded-lg bg-[#181A1B]';
 
@@ -89,12 +92,14 @@ function createNavBar() {
      projectsBtn.onclick = () => window.location.href = '/projects';
     leftDiv.appendChild(projectsBtn);
 
-     const adminBtn = document.createElement('button');
-     adminBtn.id='admin-link';
-     adminBtn.textContent = i18n.t('hub.navbar.admin');
-     adminBtn.className = 'bg-transparent text-white text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
-     adminBtn.onclick = () => window.location.href = '/admin';
-    leftDiv.appendChild(adminBtn);
+      if (currentUserId === 1) {
+        const adminBtn = document.createElement('button');
+        adminBtn.id='admin-link';
+        adminBtn.textContent = i18n.t('hub.navbar.admin');
+        adminBtn.className = 'bg-transparent text-white text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+        adminBtn.onclick = () => window.location.href = '/admin';
+        leftDiv.appendChild(adminBtn);
+      }
 
 
   nav.appendChild(leftDiv);
@@ -169,12 +174,12 @@ document.addEventListener('DOMContentLoaded', async () => {
      const pricingBtn = document.getElementById('pricing-link') as HTMLButtonElement;
      const downloadBtn = document.getElementById('download-link') as HTMLButtonElement;
      const projectsBtn = document.getElementById('projects-link') as HTMLButtonElement;
-     const adminBtn = document.getElementById('admin-link') as HTMLButtonElement;
-     docsBtn.textContent = i18n.t('hub.navbar.docs');
-     pricingBtn.textContent = i18n.t('hub.navbar.pricing');
-     downloadBtn.textContent = i18n.t('hub.navbar.download');
-     projectsBtn.textContent = i18n.t('hub.navbar.projects');
-     adminBtn.textContent = i18n.t('hub.navbar.admin');
+      const adminBtn = document.getElementById('admin-link') as HTMLButtonElement;
+      docsBtn.textContent = i18n.t('hub.navbar.docs');
+      pricingBtn.textContent = i18n.t('hub.navbar.pricing');
+      downloadBtn.textContent = i18n.t('hub.navbar.download');
+      projectsBtn.textContent = i18n.t('hub.navbar.projects');
+      if (adminBtn) adminBtn.textContent = i18n.t('hub.navbar.admin');
 
 
 
