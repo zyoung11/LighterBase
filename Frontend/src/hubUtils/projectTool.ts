@@ -196,7 +196,7 @@ block.element.style.pointerEvents = 'auto';
 // 初始化区块
 async function initializeBlocks() {
   if (!token) {
-    window.location.href = 'login.html';
+    window.location.href = 'login';
     return;
   }
 

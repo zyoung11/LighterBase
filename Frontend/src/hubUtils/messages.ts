@@ -3,6 +3,7 @@ import defaultImg from "../icons/projectsDefault.jpg";
 import auth from "../apis/auth";
 import { theURL,setBaseUrl } from "../apis/api";
 import blocks from "../modules/blocks";
+import { getCookie } from "../modules/tools";
 // --- 类型定义 ---
 interface Project {
     project_id: number;
@@ -13,7 +14,19 @@ interface Project {
     create_at: string;
     update_at: string;
 }
+
+let token = getCookie("hubAuthToken")!
+
+
+
 const init = () => {
+      if (!token) {
+        window.location.href = 'login';
+        return;
+      }
+
+
+    
     // 初始化筛选下拉菜单
     setupStatusDropdown('filter-received-btn', 'filter-received-menu', 'received-current-status', (status) => {
         loadReceivedInvitations(status);

@@ -1,12 +1,20 @@
 import projects from "../hubUtils/projects";
-
+import { getCookie } from "../modules/tools";
 const userTableBody = document.getElementById('userTableBody') as HTMLTableSectionElement;
 const refreshBtn = document.getElementById('refreshBtn') as HTMLButtonElement;
+
+let token = getCookie("hubAuthToken")!
 
 /**
  * 渲染用户列表
  */
 async function loadUsers() {
+
+      if (!token) {
+    window.location.href = 'login';
+    return;
+  }
+    
     userTableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-gray-500">Loading users...</td></tr>';
     
     try {
