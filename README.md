@@ -52,6 +52,8 @@
     * [6.2 查询日志](#62-查询日志)
     * [6.3 搜索日志](#63-搜索日志)
     * [6.4 检查是否已经注册](#64-检查是否已经注册)
+    * [6.5 性能监控页面](#65-性能监控页面)
+    * [6.6 性能监控页面 API](#66-性能监控页面-API)
 
 ## 启动程序
 
@@ -1991,7 +1993,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 - 请求头：
 
   ```
-  Content-Type: application/json
+  Accept: application/json
   ```
 
 - 预期返回：
