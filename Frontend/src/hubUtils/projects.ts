@@ -402,7 +402,23 @@ async confirmInvitation(notificationId: number, status: string){
   }
 },
 
+// ====================================性能监控=========================================
 
+async getMetrics():Promise<any>{
+  try{
+    const res =await fetch(`${URL}/metrics`,{
+      method:"GET",
+      headers:{
+        "Accept":"application/json"
+      }
+    });
+    const data = await res.json();
+    return data
+    
+  }catch(e){
+    throw e
+  }
+}
 
 
 }

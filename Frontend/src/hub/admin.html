@@ -6,21 +6,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="../icons/logoWhite.png" />
   <title>LighterBase</title>
-  <style id="fouc-fix">
+  <link rel="stylesheet" href="../../node_modules/uplot/dist/uPlot.min.css">
+  <script src="../tailwind.js"></script>
+  <style>
     body {
-      background: #1B1E1F;
-      opacity: 0;
-      transition: opacity 0.2s ease-in-out;
+      background: #121414;
+      color: #e5e7eb;
+    }
+
+    .u-legend.u-inline {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    /* 让图表容器自适应 */
+    .chart-container {
+      width: 100% !important;
+      height: 160px !important;
     }
   </style>
-  <script src="../tailwind.js"></script>
 </head>
 
-<body class="bg-[#121414] text-gray-200 min-h-screen flex flex-col"
+<body class="min-h-screen flex flex-col"
   style="background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 20px 20px;">
 
-
   <main class="flex-1 p-8 max-w-6xl mx-auto w-full">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-[#1B1E1F] border border-white/10 rounded-xl p-4 shadow-2xl">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-sm font-medium text-gray-400">CPU & RAM Usage</h3>
+          <span id="rtDisplay" class="text-xs text-[#46A3FF]">RT: --ms</span>
+        </div>
+        <div id="metricsChart" class="chart-container"></div>
+      </div>
+
+      <div class="bg-[#1B1E1F] border border-white/10 rounded-xl p-6 flex flex-col justify-center">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="text-center border-r border-white/5">
+            <p class="text-xs text-gray-500 uppercase">Connections</p>
+            <p id="connCount" class="text-3xl font-bold text-white">--</p>
+          </div>
+          <div class="text-center">
+            <p class="text-xs text-gray-500 uppercase">Load Avg</p>
+            <p id="loadAvg" class="text-3xl font-bold text-green-400">--</p>
+          </div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-white/5 text-center text-xs text-gray-400" id="osRamText">
+          OS Memory: -- / --
+        </div>
+      </div>
+    </div>
+
     <div class="bg-[#1B1E1F] border border-white/10 rounded-xl overflow-hidden shadow-2xl">
       <div class="p-6 border-b border-white/10 flex justify-between items-center">
         <h2 class="text-xl font-semibold">User Management</h2>
@@ -39,15 +75,13 @@
               <th class="px-6 py-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody id="userTableBody" class="divide-y divide-white/5">
-          </tbody>
+          <tbody id="userTableBody" class="divide-y divide-white/5"></tbody>
         </table>
       </div>
     </div>
   </main>
-
-  <script src="../hubUtils/hubAdmin.ts"></script>
   <script src="../hubUtils/hubConponents.ts"></script>
+  <script type="module" src="../hubUtils/hubAdmin.ts"></script>
 </body>
 
 </html>

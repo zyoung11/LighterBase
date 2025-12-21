@@ -24,6 +24,7 @@
     "marked-highlight": "^2.2.2",
     "open": "^10.0.0",
     "openai": "^6.7.0",
-    "sqlite-parser": "^1.0.1"
+    "sqlite-parser": "^1.0.1",
+    "uplot": "^1.6.32"
   }
 }
