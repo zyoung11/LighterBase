@@ -2019,4 +2019,15 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
+  指标：
   
+  1. 进程级别 (PID)
+     - **PID.CPU** - 当前Fiber进程的CPU使用率百分比
+     - **PID.RAM** - 当前Fiber进程占用的内存
+     - **PID.Conns** - 当前Fiber进程打开的TCP连接数
+  2. 系统级别 (OS)
+     - **OS.CPU** - 整个操作系统的CPU使用率百分比
+     - **OS.RAM** - 整个操作系统的已用内存
+     - **OS.TotalRAM** - 整个操作系统的总内存
+     - **OS.LoadAvg** - 系统负载（1分钟平均）
+     - **OS.Conns** - 整个操作系统的TCP连接总数
