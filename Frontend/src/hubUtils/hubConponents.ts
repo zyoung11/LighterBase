@@ -9,14 +9,9 @@ import defaultImg from "../icons/projectsDefault.jpg"
 import userIcon from '../icons/userWhite.svg';
 import messagesIcon from '../icons/messages.svg';
 // import { createLoader } from "../modules/loader";
-import { compressImage,checkAuthentication } from "../modules/tools";
+import { compressImage,checkAuthentication,getCookie } from "../modules/tools";
 import { i18n, createLanguageSwitcher } from "../modules/i18n";
 
-function getCookie(name: string) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(';').shift();
-}
 
 let token = getCookie('hubAuthToken');
 
@@ -103,7 +98,7 @@ function createNavBar() {
 
   nav.appendChild(leftDiv);
 
-  // 右侧：Login in 或 用户名
+  // 右侧：login in 或 用户名
    const rightDiv = document.createElement('div');
    rightDiv.className = 'relative flex items-center';
   const userBtn = document.createElement('button');

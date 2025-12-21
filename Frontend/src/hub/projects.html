@@ -57,8 +57,8 @@
       <div id="preview" class="w-full h-[70%] mb-4 p-3 bg-[#2B2F31] rounded-lg">
         <div class="flex items-start h-full">
           <div class="flex w-2/5 flex-col items-center mr-6">
-            <img id="preview-avatar" class="w-[100%] bg-white cursor-pointer rounded" style="aspect-ratio:1/1"
-              onerror="this.src='../icons/projectsDefault.jpg'">
+            <img id="preview-avatar" class="w-[100%] bg-white object-cover cursor-pointer rounded"
+              style="aspect-ratio:1/1" onerror="this.src='../icons/projectsDefault.jpg'">
             <p class="text-gray-400 text-xs mt-2">点击上传图片</p>
           </div>
           <div class="flex w-3/5 flex-col h-full">
@@ -133,7 +133,8 @@
       <div id="update-preview" class="w-full h-[70%] mb-4 p-3 bg-[#2B2F31] rounded-lg">
         <div class="flex items-start h-full">
           <div class="flex w-2/5 flex-col items-center mr-6">
-            <img id="update-preview-avatar" class="w-[100%] bg-white cursor-pointer rounded" style="aspect-ratio:1/1">
+            <img id="update-preview-avatar" class="w-[100%] bg-white object-cover  cursor-pointer rounded"
+              style="aspect-ratio:1/1">
             <p class="text-gray-400 text-xs mt-2">点击上传图片</p>
           </div>
           <div class="flex w-3/5 flex-col h-full">
@@ -161,15 +162,6 @@
 
   <script src="../hubUtils/hubConponents.ts"></script>
   <script src="../hubUtils/projectTool.ts"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      document.body.style.opacity = '1';
-      const styleTag = document.getElementById('fouc-fix');
-      if (styleTag) {
-        styleTag.remove();
-      }
-    });
-  </script>
 </body>
 
 </html>

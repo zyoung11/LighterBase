@@ -1,3 +1,4 @@
+import { playAudio } from "openai/helpers/audio.mjs";
 import { URL,hubAuthToken } from "../apis/api";
 import blocks from "../modules/blocks";
 const projects = {
@@ -308,7 +309,7 @@ async sendInvitation(payload:any){
       },
       body: JSON.stringify(payload)
     });
-
+    console.log(payload)
     if(res.ok){
       blocks.popupConfirm("邀请成功")
       return true

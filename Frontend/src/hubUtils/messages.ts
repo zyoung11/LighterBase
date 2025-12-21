@@ -187,6 +187,7 @@ async function loadReceivedInvitations(status: string) {
     if (!list) return;
 
     const data = await projects.getReceivedInvitations(status);
+    console.log("显示收到的消息：",data)
     list.innerHTML = '';
 
     data?.forEach(async (msg: any) => {
@@ -220,6 +221,7 @@ async function loadSentInvitations(status: string) {
     if (!list) return;
 
     const data = await projects.getSentInvitations(status);
+    console.log("显示发出的消息：",data)
     list.innerHTML = '';
 
     data?.forEach(async (msg: any) => {
@@ -227,7 +229,7 @@ async function loadSentInvitations(status: string) {
         item.className = "bg-white/5 p-4 rounded-lg border border-white/10 hover:border-white/20 transition";
         item.innerHTML = `
             <p class="text-[14px] text-gray-300">
-                You have invited <span class="text-[#46A3FF] font-medium">${msg.receiver.user_name || 'User'}</span> to collaborate with  <span class="text-[#46A3FF] font-medium">${msg.project.project_name} | ${msg.project_id}</span>
+                You have invited <span class="text-[#46A3FF] font-medium">${msg.receiver.user_name || 'User'}</span> to collaborate with  <span class="text-[#46A3FF] font-medium">${msg.project.project_name} | ${msg.project.project_id}</span>
             </p>
             <div class="flex justify-between mt-3 items-center">
                 <span class="text-[10px] text-gray-500 uppercase tracking-widest">${msg.create_at}</span>

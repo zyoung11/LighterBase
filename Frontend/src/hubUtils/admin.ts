@@ -26,7 +26,6 @@ async function loadUsers() {
                 <td class="px-6 py-4 font-mono text-sm text-gray-400">${user.user_id}</td>
                 <td class="px-6 py-4">
                     <div class="flex items-center space-x-3">
-                        <img src="${user.user_avatar || '../icons/default-avatar.png'}" class="w-8 h-8 rounded-full border border-white/10">
                         <span class="font-medium text-white">${user.user_name}</span>
                     </div>
                 </td>
