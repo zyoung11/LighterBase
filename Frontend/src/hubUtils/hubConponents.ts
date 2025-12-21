@@ -19,6 +19,7 @@ let token = getCookie('hubAuthToken');
 // if(token)
 // checkAuthentication(token,'hubAuthToken','login')
 // let token = hubToken
+
 let isEmpty = false;
 
 // 翻译页面函数
@@ -345,3 +346,11 @@ window.addEventListener('load', () => {
         styleTag.remove();
     }
 });
+
+
+// if (token) {
+//   console.log("执行")
+//   setInterval(() => {
+//     checkAuthentication(token, 'hubAuthToken', 'login');
+//   }, 1000);
+// }

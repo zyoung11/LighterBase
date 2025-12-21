@@ -95,7 +95,6 @@ async isLogin(){
 
 async reflashToken(url:string,currentToken:string) : Promise<any> {
     try{
-        console.log("开始刷新token")
         const res = await fetch(`${url}/api/auth/refresh`, {
             method: "POST",
             headers: {
@@ -104,8 +103,10 @@ async reflashToken(url:string,currentToken:string) : Promise<any> {
         });
         if (res.ok) {
             const data = await res.json();
-            console.log("查看更新后的token：",data.token)
+            console.log("查看",data)
             return data.token;
+        }else{
+            console.log("更新失败")
         }
         
     }catch(err){

@@ -86,11 +86,10 @@ async function checkAuthentication(token:string,tokenName:string,targetPage:stri
     // window.location.href = `/${targetPage}?apiUrl=${encodeURIComponent(URL)}`;
     window.location.href = `/${targetPage}`;
   }
-
   try {
     const decoded = jwtDecode(token);
     const exp = Number(decoded.exp) * 1000;
-
+    console.log("调用")
     if (exp && exp < Date.now()) {
       blocks.popupConfirm("token已经过期，尝试刷新");
       const newToken = await auth.reflashToken(URL,token);
