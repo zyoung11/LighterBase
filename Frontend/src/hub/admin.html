@@ -8,10 +8,12 @@
   <title>LighterBase</title>
   <link rel="stylesheet" href="../../node_modules/uplot/dist/uPlot.min.css">
   <script src="../tailwind.js"></script>
-  <style>
+  <style id="fouc-fix">
     body {
-      background: #121414;
       color: #e5e7eb;
+      background: #1B1E1F;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
     }
 
     .u-legend.u-inline {
@@ -27,33 +29,30 @@
   </style>
 </head>
 
-<body class="min-h-screen flex flex-col"
+<body class="fouc-fix bg-[#121414] text-gray-200 h-screen overflow-hidden flex flex-col"
   style="background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 20px 20px;">
-
   <main class="flex-1 p-8 max-w-6xl mx-auto w-full">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
       <div class="bg-[#1B1E1F] border border-white/10 rounded-xl p-4 shadow-2xl">
         <div class="flex justify-between items-center mb-2">
-          <h3 class="text-sm font-medium text-gray-400">CPU & RAM Usage</h3>
+          <h3 class="text-sm font-medium text-gray-400">CPU Usage</h3>
           <span id="rtDisplay" class="text-xs text-[#46A3FF]">RT: --ms</span>
         </div>
-        <div id="metricsChart" class="chart-container"></div>
+        <div id="cpuChart" class="chart-container"></div>
       </div>
 
-      <div class="bg-[#1B1E1F] border border-white/10 rounded-xl p-6 flex flex-col justify-center">
-        <div class="grid grid-cols-2 gap-4">
-          <div class="text-center border-r border-white/5">
-            <p class="text-xs text-gray-500 uppercase">Connections</p>
-            <p id="connCount" class="text-3xl font-bold text-white">--</p>
+      <div class="bg-[#1B1E1F] border border-white/10 rounded-xl p-4 shadow-2xl">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-sm font-medium text-gray-400">RAM Usage</h3>
+          <div class="text-center text-xs text-gray-400" id="osRamText">
+            OS Memory: -- / --
           </div>
-          <div class="text-center">
-            <p class="text-xs text-gray-500 uppercase">Load Avg</p>
-            <p id="loadAvg" class="text-3xl font-bold text-green-400">--</p>
+          <div class="flex space-x-4 text-xs text-gray-400">
+            <span>Connections: <span id="connCount" class="text-white">--</span></span>
+            <span>Load Avg: <span id="loadAvg" class="text-green-400">--</span></span>
           </div>
         </div>
-        <div class="mt-6 pt-4 border-t border-white/5 text-center text-xs text-gray-400" id="osRamText">
-          OS Memory: -- / --
-        </div>
+        <div id="ramChart" class="chart-container"></div>
       </div>
     </div>
 
@@ -81,7 +80,7 @@
     </div>
   </main>
   <script src="../hubUtils/hubConponents.ts"></script>
-  <script type="module" src="../hubUtils/hubAdmin.ts"></script>
+  <script src="../hubUtils/hubAdmin.ts"></script>
 </body>
 
 </html>

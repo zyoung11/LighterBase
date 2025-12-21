@@ -8,14 +8,17 @@ let token = getCookie("hubAuthToken")!;
 
 // --- 状态管理 ---
 const MAX_POINTS = 60; // 保留最近 30 秒数据 (60 * 500ms)
-let dataStack: [number[], number[], number[]] = [[], [], []]; // [timestamp, cpu, ram]
-let mainChart: uPlot;
+let dataStackCpu: [number[], number[]] = [[], []]; // [timestamp, cpu]
+let dataStackRam: [number[], number[], number[]] = [[], [], []]; // [timestamp, ram, os_ram]
+let cpuChart: uPlot;
+let ramChart: uPlot;
+let maxRam = 0;
 
 /**
- * 初始化 uPlot 图表
+ * 初始化 CPU uPlot 图表
  */
-function initChart() {
-    const container = document.getElementById('metricsChart')!;
+function initCpuChart() {
+    const container = document.getElementById('cpuChart')!;
     const opts: uPlot.Options = {
         width: container.clientWidth,
         height: 160,
@@ -26,23 +29,61 @@ function initChart() {
                 stroke: "#46A3FF",
                 width: 2,
                 fill: "rgba(70, 163, 255, 0.1)",
-            },
+            }
+        ],
+        axes: [
+            { show: false },
+            { grid: { stroke: "#2D2D2D" }, font: "10px Arial", stroke: "#A0A0A0", scale: 'cpu' }
+        ],
+        scales: {
+            cpu: {
+                range: [0, 100]
+            }
+        },
+        cursor: { show: true, drag: { setScale: false } },
+        legend: { show: true }
+    };
+
+    cpuChart = new uPlot(opts, dataStackCpu, container);
+}
+
+/**
+ * 初始化 RAM uPlot 图表
+ */
+function initRamChart() {
+    const container = document.getElementById('ramChart')!;
+    const opts: uPlot.Options = {
+        width: container.clientWidth,
+        height: 160,
+        series: [
+            {}, // 时间轴
             {
                 label: "RAM (MB)",
                 stroke: "#10B981",
                 width: 2,
                 fill: "rgba(16, 185, 129, 0.1)",
+            },
+            {
+                label: "OS Memory (MB)",
+                stroke: "#F59E0B",
+                width: 2,
+                fill: "rgba(245, 158, 11, 0.1)",
             }
         ],
         axes: [
             { show: false },
-            { grid: { stroke: "#2D2D2D" }, font: "10px Arial", stroke: "#A0A0A0" }
+            { grid: { stroke: "#2D2D2D" }, font: "10px Arial", stroke: "#A0A0A0", scale: 'ram' }
         ],
+        scales: {
+            ram: {
+                range: [0, maxRam || 1024] // 默认1GB
+            }
+        },
         cursor: { show: true, drag: { setScale: false } },
         legend: { show: true }
     };
 
-    mainChart = new uPlot(opts, dataStack, container);
+    ramChart = new uPlot(opts, dataStackRam, container);
 }
 
 /**
@@ -65,17 +106,26 @@ async function startMonitoring() {
 
             // 更新图表数据
             const now = Math.floor(Date.now() / 1000);
-            dataStack[0].push(now);
-            dataStack[1].push(metrics.pid.cpu * 100); // 转换为百分比
-            dataStack[2].push(metrics.pid.ram / 1024 / 1024); // 转换为 MB
+            dataStackCpu[0].push(now);
+            dataStackCpu[1].push(metrics.pid.cpu * 100); // 转换为百分比
 
-            if (dataStack[0].length > MAX_POINTS) {
-                dataStack[0].shift();
-                dataStack[1].shift();
-                dataStack[2].shift();
+            dataStackRam[0].push(now);
+            dataStackRam[1].push(metrics.pid.ram / 1024 / 1024); // 转换为 MB
+            dataStackRam[2].push(metrics.os.ram / 1024 / 1024); // OS RAM MB
+
+            maxRam = Math.max(maxRam, metrics.os.total_ram / 1024 / 1024);
+            ramChart.setScale('ram', { min: 0, max: maxRam });
+
+            if (dataStackCpu[0].length > MAX_POINTS) {
+                dataStackCpu[0].shift();
+                dataStackCpu[1].shift();
+                dataStackRam[0].shift();
+                dataStackRam[1].shift();
+                dataStackRam[2].shift();
             }
 
-            mainChart.setData(dataStack);
+            cpuChart.setData(dataStackCpu);
+            ramChart.setData(dataStackRam);
         } catch (e) {
             console.error("Monitoring fail:", e);
         }
@@ -86,10 +136,6 @@ async function startMonitoring() {
  * 原有用户管理逻辑
  */
 async function loadUsers() {
-    if (!token) {
-        window.location.href = 'login';
-        return;
-    }
     
     userTableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-gray-500">Loading users...</td></tr>';
     
@@ -140,12 +186,19 @@ async function loadUsers() {
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
-    initChart();
+    if (!token) {
+        window.location.href = 'login';
+        return;
+    }
+
+    initCpuChart();
+    initRamChart();
     startMonitoring();
     loadUsers();
-    
+
     refreshBtn.addEventListener('click', loadUsers);
     window.addEventListener("resize", () => {
-        mainChart.setSize({ width: document.getElementById('metricsChart')!.clientWidth, height: 160 });
+        cpuChart.setSize({ width: document.getElementById('cpuChart')!.clientWidth, height: 160 });
+        ramChart.setSize({ width: document.getElementById('ramChart')!.clientWidth, height: 160 });
     });
 });
