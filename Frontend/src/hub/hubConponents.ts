@@ -21,9 +21,8 @@ function getCookie(name: string) {
 let token = getCookie('hubAuthToken');
 
 //检查token
-if(token)
-checkAuthentication(token,'hubAuthToken','login')
-// await checkAuthentication(hubToken,'login')
+// if(token)
+// checkAuthentication(token,'hubAuthToken','login')
 // let token = hubToken
 let isEmpty = false;
 
@@ -112,7 +111,7 @@ function createNavBar() {
     // 添加消息按钮（放在语言切换按钮左边）
     const navMessageBtn = document.createElement('button');
     navMessageBtn.id = 'nav-message-btn';
-    navMessageBtn.className = 'bg-transparent text-white border-none w-10 h-10 rounded-full cursor-pointer hover:bg-[#3a3f41] flex items-center justify-center';
+    navMessageBtn.className = 'bg-transparent text-white border-none w-10 h-10 rounded-full cursor-pointer hover:scale-110 flex items-center justify-center';
     navMessageBtn.onclick = () => window.location.href = '/messages'; // 假设跳转到消息页面
 
     const messageIcon = document.createElement('img');
@@ -138,6 +137,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   if(officeImg && gitImg){
   officeImg.src = office;
   gitImg.src = githubImg;
+
+
+  if(token)
+  checkAuthentication(token,'hubAuthToken','login')
 }
 // 生成导航栏
   const newNav = createNavBar();

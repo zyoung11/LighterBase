@@ -80,6 +80,7 @@ import blocks from "./blocks";
  * @returns 压缩后的base64图片
  */
 async function checkAuthentication(token:string,tokenName:string,targetPage:string) {
+
   if (!token) {
     // console.log("没有找到JWT token，跳转到登录页面");
     // window.location.href = `/${targetPage}?apiUrl=${encodeURIComponent(URL)}`;
@@ -101,6 +102,7 @@ async function checkAuthentication(token:string,tokenName:string,targetPage:stri
     // window.location.href = `/${targetPage}?apiUrl=${encodeURIComponent(URL)}`;
     window.location.href = `/${targetPage}`;
   }
+
 }
 
 
