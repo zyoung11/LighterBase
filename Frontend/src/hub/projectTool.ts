@@ -133,6 +133,8 @@ function gridToPixel(position:any) {
 
 // 创建或更新一个区块的 DOM 元素
 async function renderBlock(block:any) {
+  const payload = parseJwt(token);
+  const currentUserId = payload ? payload.user_id || payload.id : null;
   if (!block.element) {
     // 首次创建元素
     const originAvatar = block.project.project_avatar
@@ -154,7 +156,8 @@ async function renderBlock(block:any) {
             <p class="text-gray-400 text-xs">${i18n.t('common.created')}${block.project.create_at}</p>
             <p class="text-gray-400 text-xs">${i18n.t('common.updated')}${block.project.update_at}</p>
           </div>
-          <div class="flex justify-end mt-2">
+          <div class="flex justify-end mt-2 items-center">
+             ${block.project.user_id !== currentUserId ? '<div class="w-2 h-2 bg-[#46A3FF] rounded-full mr-2"></div>' : ''}
              <button id="update-btn-${block.id}" class="w-6 h-6 border border-white/50 rounded flex items-center justify-center transition-colors">
               <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -242,13 +245,6 @@ async function initializeBlocks() {
 function selectBlock(selectedId:number) {
   const selected = blocks.find(b => b.id === selectedId);
   if (!selected) return;
-  // const payload = parseJwt(token);
-  // const userId = payload ? payload.user_id || payload.id : null;
-  // if (!userId) {
-  //    console.error('Unable to get userid from token');
-  //   return;
-  // }
-  // console.log("查看选中的：",selected)
   const userId = selected.project.user_id
   if (!userId) {
     return;
