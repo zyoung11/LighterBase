@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -25,7 +26,7 @@ type routeItem struct {
 }
 
 type config struct {
-	Port   string      `json:"port"`
+	Port   int         `json:"port"`
 	Routes []routeItem `json:"routes"`
 }
 
@@ -77,10 +78,5 @@ func main() {
 	})
 
 	port := cfg.Port
-	if port == "" {
-		port = ":8090"
-	} else if port[0] != ':' {
-		port = ":" + port
-	}
-	log.Fatal(app.Listen(port))
+	log.Fatal(app.Listen(fmt.Sprintf(":%d", port)))
 }

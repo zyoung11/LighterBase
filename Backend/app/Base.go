@@ -2,13 +2,13 @@ package main
 
 import (
 	"LighterBase/database"
-	"context"
 	"database/sql"
 	"embed"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"os/user"
@@ -17,20 +17,26 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/compress"
-	"github.com/gofiber/fiber/v2/middleware/etag"
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/monitor"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/etag"
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
+
+	"github.com/golang-jwt/jwt/v5"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 //go:embed config/jwt_secrets.json
 //go:embed SQL/schema.sql
 var schemaFS embed.FS
-
-//go:embed build/*
-var embeddedFiles embed.FS
 
 var (
 	queries *database.Queries
@@ -83,11 +89,6 @@ func GenerateWebJWT(userID int64) (string, time.Time, error) {
 	return generateJWT(userID, jwtSecrets.WebJWTSecret)
 }
 
-// GenerateBaasJWT 为BaaS应用生成JWT
-func GenerateBaasJWT(userID int64) (string, time.Time, error) {
-	return generateJWT(userID, jwtSecrets.BaasJWTSecret)
-}
-
 // generateJWT 内部JWT生成函数
 func generateJWT(userID int64, secret string) (string, time.Time, error) {
 	expirationTime := time.Now().Add(48 * time.Hour)
@@ -112,11 +113,6 @@ func generateJWT(userID int64, secret string) (string, time.Time, error) {
 // ParseWebJWT 解析并验证Web管理后台的JWT
 func ParseWebJWT(tokenString string) (int64, error) {
 	return parseJWT(tokenString, jwtSecrets.WebJWTSecret)
-}
-
-// ParseBaasJWT 解析并验证BaaS应用的JWT
-func ParseBaasJWT(tokenString string) (int64, error) {
-	return parseJWT(tokenString, jwtSecrets.BaasJWTSecret)
 }
 
 // parseJWT 内部JWT解析函数
@@ -155,98 +151,116 @@ func JWTMiddleware(c *fiber.Ctx) error {
 	return c.Next()
 }
 
-//------------------------------------init--------------------------------------
+// ------------------------------------init--------------------------------------
 
-func Run(name string, port int, routes []Route) {
-	app := NewApp(name, routes)
-	log.Fatal(app.Listen(fmt.Sprintf(":%d", port)))
+//go:embed build/*
+var buildFS embed.FS
+
+//go:embed routes.json
+var routesJSON []byte
+
+type routeItem struct {
+	Path string `json:"path"`
+	File string `json:"file"`
 }
 
-// loadExistingProjects 加载已有项目的数据库连接
-func loadExistingProjects() {
-	baseDir := "./LighterBaseData/Apps"
+type config struct {
+	Port   int         `json:"port"`
+	Routes []routeItem `json:"routes"`
+}
 
-	// 检查目录是否存在
-	if _, err := os.Stat(baseDir); os.IsNotExist(err) {
-		return
+func NewApp(name string, routes []Route) (*fiber.App, int) {
+	var cfg config
+	if err := json.Unmarshal(routesJSON, &cfg); err != nil {
+		log.Fatalf("routes.json 格式错误: %v", err)
 	}
 
-	// 遍历用户目录
-	userDirs, err := os.ReadDir(baseDir)
-	if err != nil {
-		log.Printf("无法读取用户目录: %v", err)
-		return
-	}
+	app := fiber.New(fiber.Config{AppName: name})
 
-	for _, userDir := range userDirs {
-		if !userDir.IsDir() {
-			continue
+	app.Use(recover.New())
+
+	app.Use(compress.New())
+	app.Use(etag.New())
+
+	app.Use(cors.New())
+
+	app.Use(limiter.New(limiter.Config{
+		Max:               100,
+		Expiration:        30 * time.Second,
+		LimiterMiddleware: limiter.SlidingWindow{},
+	}))
+
+	app.Get("/metrics", monitor.New(monitor.Config{
+		Title:   "LighterBase",
+		Refresh: 500 * time.Millisecond,
+	}))
+
+	app.Use(logger.New())
+
+	for _, r := range routes {
+		// 先收集需要用到的中间件
+		var mws []fiber.Handler
+
+		// 1. 如果路由需要 projectMiddleware
+		if !strings.Contains(r.Path, "/:userId/:projectId/init") &&
+			strings.Contains(r.Path, ":userId") &&
+			strings.Contains(r.Path, ":projectId") {
+			mws = append(mws, projectMiddleware)
 		}
 
-		userID := userDir.Name()
-		userPath := filepath.Join(baseDir, userID)
+		// 2. 如果路由需要 JWT 鉴权
+		if r.AuthRequired {
+			mws = append(mws, JWTMiddleware)
+		}
 
-		// 遍历项目目录
-		projectDirs, err := os.ReadDir(userPath)
+		// 把中间件和最终处理器一起展开
+		app.Add(strings.ToUpper(r.Method), r.Path,
+			append(mws, r.Handler)...)
+	}
+
+	for _, r := range cfg.Routes {
+		target := filepath.Join("build", r.File)
+		app.Get(r.Path, func(c *fiber.Ctx) error {
+			data, err := buildFS.ReadFile(target)
+			if err != nil {
+				return c.Status(404).SendString("File not found")
+			}
+
+			contentType := "text/html"
+			if filepath.Ext(r.File) == ".css" {
+				contentType = "text/css"
+			} else if filepath.Ext(r.File) == ".js" {
+				contentType = "application/javascript"
+			} else if filepath.Ext(r.File) == ".json" {
+				contentType = "application/json"
+			}
+
+			c.Set("Content-Type", contentType)
+			return c.Send(data)
+		})
+	}
+
+	app.Use("/", filesystem.New(filesystem.Config{
+		Root:       http.FS(buildFS),
+		PathPrefix: "build",
+		MaxAge:     86400,
+	}))
+
+	app.Use("*", func(c *fiber.Ctx) error {
+		data, err := buildFS.ReadFile("build/index.html")
 		if err != nil {
-			log.Printf("无法读取用户 %s 的项目目录: %v", userID, err)
-			continue
+			return c.Status(404).SendString("Index file not found")
 		}
+		c.Set("Content-Type", "text/html")
+		return c.Send(data)
+	})
 
-		for _, projectDir := range projectDirs {
-			if !projectDir.IsDir() {
-				continue
-			}
+	return app, cfg.Port
+}
 
-			projectID := projectDir.Name()
-			projectPath := filepath.Join(userPath, projectID)
-
-			// 检查数据库文件是否存在
-			metaDBPath := filepath.Join(projectPath, "metaDate.db")
-			dataDBPath := filepath.Join(projectPath, "data.db")
-
-			if _, err := os.Stat(metaDBPath); os.IsNotExist(err) {
-				continue
-			}
-			if _, err := os.Stat(dataDBPath); os.IsNotExist(err) {
-				continue
-			}
-
-			// 打开数据库连接
-			metaDB, err := sql.Open("sqlite3", metaDBPath)
-			if err != nil {
-				log.Printf("无法打开元数据库 %s: %v", metaDBPath, err)
-				continue
-			}
-
-			dataDB, err := sql.Open("sqlite3", dataDBPath)
-			if err != nil {
-				log.Printf("无法打开数据数据库 %s: %v", dataDBPath, err)
-				metaDB.Close()
-				continue
-			}
-
-			// 初始化查询
-			queries := database.New(metaDB)
-
-			// 生成写日志闭包
-			logFn := func(logText string) {
-				_ = queries.CreateLog(context.Background(), logText)
-			}
-
-			// 保存连接到全局map
-			key := fmt.Sprintf("%s/%s", userID, projectID)
-			dbMap[key] = &DBSet{
-				Queries: queries,
-				DataDB:  dataDB,
-				LogFn:   logFn,
-			}
-
-			log.Printf("已加载项目: %s", key)
-		}
-	}
-
-	log.Printf("完成加载已有项目，共加载 %d 个项目", len(dbMap))
+func Run(name string, routes []Route) {
+	app, port := NewApp(name, routes)
+	log.Fatal(app.Listen(fmt.Sprintf(":%d", port)))
 }
 
 // initDB 初始化数据库
@@ -304,7 +318,7 @@ func web() {
 
 	go func() {
 		time.Sleep(300 * time.Millisecond)
-		openBrowser("http:localhost:8090")
+		openBrowser("http://localhost:8090")
 	}()
 
 	log.Fatal(app.Listen(":8090"))
@@ -362,7 +376,7 @@ func initBackend(projectName string, Port int) {
 		openBrowser(fmt.Sprintf("http://localhost:%v", Port))
 	}()
 
-	Run(projectName, Port, routes)
+	Run(projectName, routes)
 }
 
 //--------------------------------helper-func-------------------------------------

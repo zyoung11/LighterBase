@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"reflect"
 	"regexp"
@@ -15,19 +14,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gofiber/fiber/v2/middleware/limiter"
-	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/gofiber/fiber/v2/middleware/monitor"
-	"github.com/gofiber/fiber/v2/middleware/recover"
 	_ "github.com/mattn/go-sqlite3"
 	inspectSQL "github.com/rqlite/sql"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/compress"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/etag"
-	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -95,64 +86,6 @@ type DBSet struct {
 }
 
 //------------------------------------init--------------------------------------
-
-func NewApp(name string, routes []Route) *fiber.App {
-	app := fiber.New(fiber.Config{AppName: name})
-
-	app.Use(recover.New())
-
-	app.Use(compress.New())
-	app.Use(etag.New())
-
-	app.Use(cors.New())
-
-	app.Use(limiter.New(limiter.Config{
-		Max:               100,
-		Expiration:        30 * time.Second,
-		LimiterMiddleware: limiter.SlidingWindow{},
-	}))
-
-	app.Get("/metrics", monitor.New(monitor.Config{
-		Title:   "LighterBase",
-		Refresh: 500 * time.Millisecond,
-	}))
-
-	app.Use(logger.New())
-
-	for _, r := range routes {
-		// 先收集需要用到的中间件
-		var mws []fiber.Handler
-
-		// 1. 如果路由需要 projectMiddleware
-		if !strings.Contains(r.Path, "/:userId/:projectId/init") &&
-			strings.Contains(r.Path, ":userId") &&
-			strings.Contains(r.Path, ":projectId") {
-			mws = append(mws, projectMiddleware)
-		}
-
-		// 2. 如果路由需要 JWT 鉴权
-		if r.AuthRequired {
-			mws = append(mws, JWTMiddleware)
-		}
-
-		// 把中间件和最终处理器一起展开
-		app.Add(strings.ToUpper(r.Method), r.Path,
-			append(mws, r.Handler)...)
-	}
-
-	app.Use("/", filesystem.New(filesystem.Config{
-		Root:       http.FS(embeddedFiles),
-		PathPrefix: "build",
-		Index:      "index.html",
-		MaxAge:     86400,
-	}))
-
-	app.Use("*", func(c *fiber.Ctx) error {
-		return filesystem.SendFile(c, http.FS(embeddedFiles), "build/index.html")
-	})
-
-	return app
-}
 
 func runSchema(db *sql.DB) error {
 	schemaBytes, err := schemaFS.ReadFile("SQL/schema.sql")

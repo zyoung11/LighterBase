@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -18,6 +19,16 @@ import (
 const baseDir string = "./LighterBaseData/Apps"
 
 //-------------------------------------helper-func-------------------------------------
+
+// GenerateBaasJWT 为BaaS应用生成JWT
+func GenerateBaasJWT(userID int64) (string, time.Time, error) {
+	return generateJWT(userID, jwtSecrets.BaasJWTSecret)
+}
+
+// ParseBaasJWT 解析并验证BaaS应用的JWT
+func ParseBaasJWT(tokenString string) (int64, error) {
+	return parseJWT(tokenString, jwtSecrets.BaasJWTSecret)
+}
 
 // updateProjectSize 计算项目文件夹大小（单位MB），并更新到数据库
 func updateProjectSize(ctx context.Context, project database.Project) error {
@@ -56,6 +67,93 @@ func updateProjectSize(ctx context.Context, project database.Project) error {
 
 	// log.Printf("Updated size for project %d (user %d) to %.2f MB", project.ProjectID, project.UserID, sizeMB)
 	return nil
+}
+
+// loadExistingProjects 加载已有项目的数据库连接
+func loadExistingProjects() {
+	baseDir := "./LighterBaseData/Apps"
+
+	// 检查目录是否存在
+	if _, err := os.Stat(baseDir); os.IsNotExist(err) {
+		return
+	}
+
+	// 遍历用户目录
+	userDirs, err := os.ReadDir(baseDir)
+	if err != nil {
+		log.Printf("无法读取用户目录: %v", err)
+		return
+	}
+
+	for _, userDir := range userDirs {
+		if !userDir.IsDir() {
+			continue
+		}
+
+		userID := userDir.Name()
+		userPath := filepath.Join(baseDir, userID)
+
+		// 遍历项目目录
+		projectDirs, err := os.ReadDir(userPath)
+		if err != nil {
+			log.Printf("无法读取用户 %s 的项目目录: %v", userID, err)
+			continue
+		}
+
+		for _, projectDir := range projectDirs {
+			if !projectDir.IsDir() {
+				continue
+			}
+
+			projectID := projectDir.Name()
+			projectPath := filepath.Join(userPath, projectID)
+
+			// 检查数据库文件是否存在
+			metaDBPath := filepath.Join(projectPath, "metaDate.db")
+			dataDBPath := filepath.Join(projectPath, "data.db")
+
+			if _, err := os.Stat(metaDBPath); os.IsNotExist(err) {
+				continue
+			}
+			if _, err := os.Stat(dataDBPath); os.IsNotExist(err) {
+				continue
+			}
+
+			// 打开数据库连接
+			metaDB, err := sql.Open("sqlite3", metaDBPath)
+			if err != nil {
+				log.Printf("无法打开元数据库 %s: %v", metaDBPath, err)
+				continue
+			}
+
+			dataDB, err := sql.Open("sqlite3", dataDBPath)
+			if err != nil {
+				log.Printf("无法打开数据数据库 %s: %v", dataDBPath, err)
+				metaDB.Close()
+				continue
+			}
+
+			// 初始化查询
+			queries := database.New(metaDB)
+
+			// 生成写日志闭包
+			logFn := func(logText string) {
+				_ = queries.CreateLog(context.Background(), logText)
+			}
+
+			// 保存连接到全局map
+			key := fmt.Sprintf("%s/%s", userID, projectID)
+			dbMap[key] = &DBSet{
+				Queries: queries,
+				DataDB:  dataDB,
+				LogFn:   logFn,
+			}
+
+			log.Printf("已加载项目: %s", key)
+		}
+	}
+
+	log.Printf("完成加载已有项目，共加载 %d 个项目", len(dbMap))
 }
 
 //---------------------------------------routing---------------------------------------
