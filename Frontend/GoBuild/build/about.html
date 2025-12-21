@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于我们 - Go Fiber Web 服务器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            padding: 3rem 0;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .content {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+        
+        .about-section {
+            margin-bottom: 3rem;
+        }
+        
+        .about-section h2 {
+            color: #48bb78;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .tech-item {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .tech-item:hover {
+            transform: translateY(-3px);
+        }
+        
+        .tech-item h4 {
+            color: #48bb78;
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background: #48bb78;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #38a169;
+            transform: scale(1.05);
+        }
+        
+        .btn-secondary {
+            background: #667eea;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a67d8;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+            color: #718096;
+        }
+        
+        .features-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .features-list li {
+            padding: 0.5rem 0;
+            padding-left: 2rem;
+            position: relative;
+        }
+        
+        .features-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #48bb78;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 2rem 1rem;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📖 关于我们</h1>
+            <p class="subtitle">了解 Go Fiber Web 服务器的技术架构和功能特性</p>
+        </header>
+        
+        <div class="content">
+            <div class="about-section">
+                <h2>项目简介</h2>
+                <p>Go Fiber Web 服务器是一个基于 Go Fiber 框架构建的高性能 Web 服务器，专门设计用于快速部署静态网站和单页应用。</p>
+                <p>该项目采用现代化的 Go 语言开发，结合 Fiber 框架的高性能特性，提供了简单易用的静态文件服务和路由配置功能。</p>
+            </div>
+            
+            <div class="about-section">
+                <h2>技术栈</h2>
+                <div class="tech-stack">
+                    <div class="tech-item">
+                        <h4>Go Fiber</h4>
+                        <p>高性能 HTTP 框架</p>
+                    </div>
+                    <div class="tech-item">
+                        <h4>Go 1.25+</h4>
+                        <p>编程语言</p>
+                    </div>
+                    <div class="tech-item">
+                        <h4>Embed FS</h4>
+                        <p>文件嵌入系统</p>
+                    </div>
+                    <div class="tech-item">
+                        <h4>JSON 配置</h4>
+                        <p>路由配置文件</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="about-section">
+                <h2>主要特性</h2>
+                <ul class="features-list">
+                    <li>⚡ 极快的响应速度，基于 Fiber 框架的高性能特性</li>
+                    <li>📁 自动服务 build 目录下的静态文件</li>
+                    <li>🛣️ 通过 routes.json 文件配置自定义路由</li>
+                    <li>🔧 支持中间件：压缩、ETag、文件系统缓存</li>
+                    <li>🚀 单文件部署，无需额外依赖</li>
+                    <li>📱 响应式设计，支持移动设备</li>
+                    <li>🔒 内置安全特性，防止目录遍历攻击</li>
+                    <li>⚙️ 易于配置和扩展</li>
+                </ul>
+            </div>
+            
+            <div class="about-section">
+                <h2>使用方法</h2>
+                <p>1. 将 HTML、CSS、JS 等静态文件放入 build 目录</p>
+                <p>2. 在 routes.json 中配置路由映射</p>
+                <p>3. 运行 go build 编译程序</p>
+                <p>4. 执行生成的可执行文件启动服务器</p>
+                <p>默认服务器运行在端口 8090，可通过浏览器访问 http://localhost:8090</p>
+            </div>
+            
+            <div class="nav-links">
+                <a href="/" class="btn">🏠 返回首页</a>
+                <a href="/about" class="btn btn-secondary">📖 刷新页面</a>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2024 Go Fiber Web 服务器 | 版本 1.0.0</p>
+            <p>技术栈：Go 1.25 + Fiber v2 + Embed FS</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "port": "80",
+  "routes": [
+    {
+      "path": "/",
+      "file": "index.html"
+    },
+    {
+      "path": "/about",
+      "file": "about.html"
+    }
+  ]
+}

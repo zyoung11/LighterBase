@@ -2,8 +2,10 @@ package main
 
 import (
 	"embed"
+	"encoding/json"
 	"log"
 	"net/http"
+	"path/filepath"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
@@ -14,22 +16,71 @@ import (
 //go:embed build/*
 var buildFS embed.FS
 
-func main() {
-	app := fiber.New()
+//go:embed routes.json
+var routesJSON []byte
 
+type routeItem struct {
+	Path string `json:"path"`
+	File string `json:"file"`
+}
+
+type config struct {
+	Port   string      `json:"port"`
+	Routes []routeItem `json:"routes"`
+}
+
+func main() {
+	var cfg config
+	if err := json.Unmarshal(routesJSON, &cfg); err != nil {
+		log.Fatalf("routes.json 格式错误: %v", err)
+	}
+
+	app := fiber.New()
 	app.Use(compress.New())
 	app.Use(etag.New())
+
+	for _, r := range cfg.Routes {
+		target := filepath.Join("build", r.File)
+		app.Get(r.Path, func(c *fiber.Ctx) error {
+			data, err := buildFS.ReadFile(target)
+			if err != nil {
+				return c.Status(404).SendString("File not found")
+			}
+
+			contentType := "text/html"
+			if filepath.Ext(r.File) == ".css" {
+				contentType = "text/css"
+			} else if filepath.Ext(r.File) == ".js" {
+				contentType = "application/javascript"
+			} else if filepath.Ext(r.File) == ".json" {
+				contentType = "application/json"
+			}
+
+			c.Set("Content-Type", contentType)
+			return c.Send(data)
+		})
+	}
 
 	app.Use("/", filesystem.New(filesystem.Config{
 		Root:       http.FS(buildFS),
 		PathPrefix: "build",
-		Index:      "index.html",
 		MaxAge:     86400,
 	}))
 
 	app.Use("*", func(c *fiber.Ctx) error {
-		return filesystem.SendFile(c, http.FS(buildFS), "build/index.html")
+		data, err := buildFS.ReadFile("build/index.html")
+		if err != nil {
+			return c.Status(404).SendString("Index file not found")
+		}
+		c.Set("Content-Type", "text/html")
+		return c.Send(data)
 	})
 
-	log.Fatal(app.Listen(":80"))
+	port := cfg.Port
+	if port == "" {
+		port = ":8090"
+	} else if port[0] != ':' {
+		port = ":" + port
+	}
+	log.Fatal(app.Listen(port))
 }
