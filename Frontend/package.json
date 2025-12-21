@@ -4,8 +4,9 @@
   "type": "module",
   "scripts": {
     "d": "bun run localServer.ts",
-    "s": "scp lighterBaseWeb root@8.145.38.212:/root/lb",
+    "s": "scp web root@8.145.38.212:/root/lb",
     "b": "bun build ./server.ts --compile --outfile lighterBaseWeb",
+    "bd": "bun build ./src/*.html ./src/hub/*.html --outdir dist --target browser --minify",
     "bs": "bun build ./localServer.ts --compile --outfile testLighterBaseWeb"
   },
   "private": true,

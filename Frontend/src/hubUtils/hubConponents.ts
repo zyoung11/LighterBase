@@ -3,13 +3,13 @@
 import blocks from "../modules/blocks";
 import logoIcon from "../icons/logoWhite.png"
 import projects from "./projects"
-import office from '../icons/official'
+import office from '../icons/official.jpg'
 import githubImg from '../icons/git.svg'
 import defaultImg from "../icons/projectsDefault.jpg"
 import userIcon from '../icons/userWhite.svg';
 import messagesIcon from '../icons/messages.svg';
 // import { createLoader } from "../modules/loader";
-import { compressImage,checkAuthentication,getCookie } from "../modules/tools";
+import { compressImage,checkAuthentication,getCookie,parseJwt } from "../modules/tools";
 import { i18n, createLanguageSwitcher } from "../modules/i18n";
 
 

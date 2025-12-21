@@ -2,12 +2,44 @@
   "port": 80,
   "routes": [
     {
-      "path": "/",
-      "file": "index.html"
+      "path": "/index",
+      "file": "./src/index.html"
     },
     {
-      "path": "/about",
-      "file": "about.html"
+      "path": "/welcome",
+      "file": "./src/welcome.html"
+    },
+    {
+      "path": "/admin",
+      "file": "./src/hub/admin.html"
+    },
+    {
+      "path": "/docs",
+      "file": "./src/hub/docs.html"
+    },
+    {
+      "path": "/download",
+      "file": "./src/hub/download.html"
+    },
+    {
+      "path": "/",
+      "file": "./src/hub/hub.html"
+    },
+    {
+      "path": "/login",
+      "file": "./src/hub/login.html"
+    },
+    {
+      "path": "/messages",
+      "file": "./src/hub/messages.html"
+    },
+    {
+      "path": "/pricing",
+      "file": "./src/hub/pricing.html"
+    },
+    {
+      "path": "/projects",
+      "file": "./src/hub/projects.html"
     }
   ]
 }

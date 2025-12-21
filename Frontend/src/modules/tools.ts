@@ -77,7 +77,7 @@ import blocks from "./blocks";
  * @param token 获取存储在cookie里的token
  * @param tokenName 设置要更新的tokenName
  * @param targetPage 要跳转的网页
- * @returns 压缩后的base64图片
+ * @returns 没有
  */
 async function checkAuthentication(token:string,tokenName:string,targetPage:string) {
 
@@ -101,7 +101,6 @@ async function checkAuthentication(token:string,tokenName:string,targetPage:stri
     // window.location.href = `/${targetPage}?apiUrl=${encodeURIComponent(URL)}`;
     window.location.href = `/${targetPage}`;
   }
-
 }
 
 
