@@ -28,6 +28,7 @@ var routes = []Route{
 	// 用户相关
 	{Method: "POST", Path: "/api/users/register", Handler: register, AuthRequired: false},
 	{Method: "POST", Path: "/api/users/login", Handler: login, AuthRequired: false},
+	{Method: "POST", Path: "/api/users/refresh", Handler: refreshWebToken, AuthRequired: true},
 	{Method: "GET", Path: "/api/users", Handler: listUsers, AuthRequired: true},
 	{Method: "GET", Path: "/api/users/:id", Handler: getUser, AuthRequired: true},
 	{Method: "PUT", Path: "/api/users/:id", Handler: updateUser, AuthRequired: true},

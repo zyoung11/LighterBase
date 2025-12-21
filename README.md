@@ -5,11 +5,12 @@
 * [一、用户API](#一用户api)
   * [1. 用户注册](#1-用户注册)
   * [2. 用户登录](#2-用户登录)
-  * [3. 获取所有用户](#3-获取所有用户)
-  * [4. 获取单个用户](#4-获取单个用户)
-  * [5. 更新用户](#5-更新用户)
-  * [6. 删除用户](#6-删除用户)
-  * [7. 检查是否已经注册](#7-检查是否已经注册)
+  * [3. 刷新 token](#3-刷新-token)
+  * [4. 获取所有用户](#3-获取所有用户)
+  * [5. 获取单个用户](#4-获取单个用户)
+  * [6. 更新用户](#5-更新用户)
+  * [7. 删除用户](#6-删除用户)
+  * [8. 检查是否已经注册](#7-检查是否已经注册)
 * [二、项目API](#二项目api)
   * [1. 创建项目](#1-创建项目)
   * [2. 获取当前用户的所有项目](#2-获取当前用户的所有项目)
@@ -243,7 +244,43 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-### 3. 获取所有用户
+### 3. 刷新 token
+
+- http方法：**POST**
+
+- URL：`/users/refresh`
+
+- 请求头：
+
+  ```
+  Content-Type: application/json
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  {
+    "user": {
+      "user_id": 1,
+      "user_name": "string",
+      "password_hash": "string",
+      "email": "string",
+      "user_avatar": null,
+      "create_at": "2023-01-01 00:00:00",
+      "update_at": "2023-01-01 00:00:00"
+    },
+  	"expire": "2023-01-01 00:00:00",
+   	"token": "jwt_token_string"
+  }
+  ```
+
+
+### 4. 获取所有用户
 
 > [!IMPORTANT]
 >
@@ -256,6 +293,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 - 请求头：
 
   ```
+  Content-Type: application/json
   Authorization: Bearer <jwt_token>
   ```
 
@@ -298,7 +336,7 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-### 4. 获取单个用户
+### 5. 获取单个用户
 
 - http方法：**GET**
 
@@ -307,6 +345,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 - 请求头：
 
   ```
+  Content-Type: application/json
   Authorization: Bearer <jwt_token>
   ```
 
@@ -338,7 +377,7 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-### 5. 更新用户
+### 6. 更新用户
 
 - http方法：**PUT**
 
@@ -389,7 +428,7 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-### 6. 删除用户
+### 7. 删除用户
 
 - http方法：**DELETE**
 
@@ -421,7 +460,7 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-### 7. 检查是否已经注册
+### 8. 检查是否已经注册
 
 - http方法：**GET**
 

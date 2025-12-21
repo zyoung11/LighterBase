@@ -854,3 +854,30 @@ func checkInit(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{"init": count > 0})
 }
+
+// refreshWebToken 刷新Web管理后台JWT
+func refreshWebToken(c *fiber.Ctx) error {
+	// 获取当前用户ID
+	currentUserID, ok := c.Locals("userID").(int64)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	// 检查用户是否存在
+	user, err := queries.GetUserByID(c.Context(), currentUserID)
+	if err != nil {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "User not found"})
+	}
+
+	// 生成新的Web管理后台JWT
+	token, expire, err := GenerateWebJWT(user.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate token"})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"user":   userToResponse(user),
+		"token":  token,
+		"expire": expire.Format(time.RFC3339),
+	})
+}
