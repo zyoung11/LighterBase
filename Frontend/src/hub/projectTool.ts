@@ -250,6 +250,8 @@ function selectBlock(selectedId:number) {
     return;
   }
   const projectId = selected.project.project_id;
+  const payload = parseJwt(token);
+  const currentUserId = payload ? payload.user_id || payload.id : null;
   // const sqlUrl = `http://localhost:8080/${userId}/${projectId}`;
   // 移除所有项目的边框
   blocks.forEach(block => {
@@ -317,16 +319,21 @@ function selectBlock(selectedId:number) {
       };
     }
 
-    // 添加邀请事件
-    const inviteBtn = projectDetails.querySelector('#invite-btn') as HTMLButtonElement;
-    if (inviteBtn) {
-      inviteBtn.onclick = async () => {
-        setBaseUrl();
-        const projectUrl = `${theURL}/${userId}/${projectId}`;
-        // console.log(projectUrl)
-        setBaseUrl(projectUrl);
-        
-        const isEmpty = await auth.isLogin();
+     // 添加邀请事件
+     const inviteBtn = projectDetails.querySelector('#invite-btn') as HTMLButtonElement;
+     if (inviteBtn) {
+       inviteBtn.onclick = async () => {
+         if (selected.project.user_id !== currentUserId) {
+           await popBlocks.popupConfirm("你不是当前项目的创建者");
+           return;
+         }
+
+         setBaseUrl();
+         const projectUrl = `${theURL}/${userId}/${projectId}`;
+         // console.log(projectUrl)
+         setBaseUrl(projectUrl);
+
+         const isEmpty = await auth.isLogin();
 
         if (!isEmpty) {
           await popBlocks.popupConfirm("请先注册用户");
@@ -399,13 +406,18 @@ function selectBlock(selectedId:number) {
       };
     }
 
-   // 添加删除事件
-   if (deleteBtn) {
-    deleteBtn.onclick = async () => {
-      if (!token) return;
+    // 添加删除事件
+    if (deleteBtn) {
+     deleteBtn.onclick = async () => {
+       if (!token) return;
 
-       const confirm = await popBlocks.popupConfirm("Are you sure to delete the project?")
-      if(confirm){
+       if (selected.project.user_id !== currentUserId) {
+         await popBlocks.popupConfirm("你不是当前项目的创建者");
+         return;
+       }
+
+        const confirm = await popBlocks.popupConfirm("Are you sure to delete the project?")
+       if(confirm){
       // 删除项目
       await projects.deleteProject(selectedId, token);
       }
