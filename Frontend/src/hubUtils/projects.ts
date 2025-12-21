@@ -5,7 +5,7 @@ const projects = {
 
 // ====================================用户=========================================
 
-async getAllUsers(hubAuthToken:string){
+async getAllUsers(){
   try{
     const res = await fetch(`${URL}/api/users`,{
       method:"GET",
@@ -47,7 +47,7 @@ async getSingleUser(id: number){
   }
 },
 
-async updateUser(id: number, data: {user_name: string, password: string, user_avatar: string}, hubAuthToken: string){
+async updateUser(id: number, data: {user_name: string, password: string, user_avatar: string}){
   try{
     const res = await fetch(`${URL}/api/users/${id}`,{
       method:"PUT",
@@ -69,7 +69,7 @@ async updateUser(id: number, data: {user_name: string, password: string, user_av
   }
 },
 
-async deleteUser(id: number, hubAuthToken: string){
+async deleteUser(id: number){
   try{
     const res = await fetch(`${URL}/api/users/${id}`,{
       method:"DELETE",

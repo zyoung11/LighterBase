@@ -93,6 +93,14 @@ function createNavBar() {
      projectsBtn.onclick = () => window.location.href = '/projects';
     leftDiv.appendChild(projectsBtn);
 
+     const adminBtn = document.createElement('button');
+     adminBtn.id='admin-link';
+     adminBtn.textContent = i18n.t('hub.navbar.admin');
+     adminBtn.className = 'bg-transparent text-white text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+     adminBtn.onclick = () => window.location.href = '/admin';
+    leftDiv.appendChild(adminBtn);
+
+
   nav.appendChild(leftDiv);
 
   // 右侧：Login in 或 用户名
@@ -156,7 +164,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 监听语言变化事件，更新未登录状态的用户按钮文本
   window.addEventListener('languageChanged', () => {
-    const userBtn = document.getElementById('user-link') as HTMLButtonElement;
+    // const userBtn = document.getElementById('user-link') as HTMLButtonElement;
     const username = localStorage.getItem('username');
     if (!token || !username) {
       // 未登录时显示图标，不设置文本
@@ -165,10 +173,15 @@ document.addEventListener('DOMContentLoaded', async () => {
      const pricingBtn = document.getElementById('pricing-link') as HTMLButtonElement;
      const downloadBtn = document.getElementById('download-link') as HTMLButtonElement;
      const projectsBtn = document.getElementById('projects-link') as HTMLButtonElement;
+     const adminBtn = document.getElementById('admin-link') as HTMLButtonElement;
      docsBtn.textContent = i18n.t('hub.navbar.docs');
      pricingBtn.textContent = i18n.t('hub.navbar.pricing');
      downloadBtn.textContent = i18n.t('hub.navbar.download');
      projectsBtn.textContent = i18n.t('hub.navbar.projects');
+     adminBtn.textContent = i18n.t('hub.navbar.admin');
+
+
+
     
     // 重新翻译整个页面
     translatePage();

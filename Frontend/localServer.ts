@@ -7,7 +7,7 @@ import WelcomePage from './src/welcome.html';
 import ProjectPage from './src/hub/projects.html'
 import DownloadPage from './src/hub/download.html';
 import MessagesPage from './src/hub/messages.html'
-
+import AdminPage from './src/hub/admin.html'
 
 import open from 'open';
 
@@ -50,6 +50,13 @@ const server = Bun.serve({
     "/projects":ProjectPage,
     "/projects.html":ProjectPage,
     "/hub/projects.html":ProjectPage,
+
+
+    //管理界面
+    "/admin":AdminPage,
+    "/admin.html":AdminPage,
+    "/hub/admin.html":AdminPage,
+
 
 
     "/messages":MessagesPage,

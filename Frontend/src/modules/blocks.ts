@@ -153,7 +153,97 @@ createButton(text: string): HTMLButtonElement {
   });
 
   return button;
-}
+},
+
+// 创建导航栏函数
+// function createNavBar() {
+//   const nav = document.createElement('nav');
+//   nav.className = 'flex justify-between items-center px-6 py-[1vh] rounded-lg bg-[#181A1B]';
+
+//   // 左侧：Logo、Pricing、Docs
+//   const leftDiv = document.createElement('div');
+//   leftDiv.className = 'flex items-center space-x-4';
+
+//    const logoBtn = document.createElement('button');
+//    logoBtn.className = 'flex items-center space-x-2';
+//    logoBtn.onclick = () => window.location.href = '/';
+//   const logoImg = document.createElement('img');
+//   logoImg.src = logoIcon;
+//   logoImg.className = 'w-[5vh] h-[5vh]';
+//   logoImg.alt = 'Logo';
+//   const logoSpan = document.createElement('span');
+//   logoSpan.className = 'text-[1.5rem] font-bold';
+//   logoSpan.textContent = 'LighterBase';
+//   logoBtn.appendChild(logoImg);
+//   logoBtn.appendChild(logoSpan);
+//   leftDiv.appendChild(logoBtn);
+
+//  const pricingBtn = document.createElement('button');
+//     pricingBtn.id='pricing-link';
+//     pricingBtn.textContent = i18n.t('hub.navbar.pricing');
+//     pricingBtn.className = 'bg-transparent text-white text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+//     pricingBtn.onclick = () => window.location.href = '/pricing';
+//    leftDiv.appendChild(pricingBtn);
+
+//     const docsBtn = document.createElement('button');
+//     docsBtn.id='docs-link';
+//     docsBtn.textContent = i18n.t('hub.navbar.docs');
+//     docsBtn.className = 'bg-transparent text-white text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+//     docsBtn.onclick = () => window.location.href = '/docs';
+//    leftDiv.appendChild(docsBtn);
+
+//      const downloadBtn = document.createElement('button');
+//      downloadBtn.id='download-link';
+//      downloadBtn.textContent = i18n.t('hub.navbar.download');
+//      downloadBtn.className = 'bg-transparent text-white text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+//      downloadBtn.onclick = () => window.location.href = '/download';
+//     leftDiv.appendChild(downloadBtn);
+
+//      const projectsBtn = document.createElement('button');
+//      projectsBtn.id='projects-link';
+//      projectsBtn.textContent = i18n.t('hub.navbar.projects');
+//      projectsBtn.className = 'bg-transparent text-white text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+//      projectsBtn.onclick = () => window.location.href = '/projects';
+//     leftDiv.appendChild(projectsBtn);
+
+//   nav.appendChild(leftDiv);
+
+//   // 右侧：Login in 或 用户名
+//    const rightDiv = document.createElement('div');
+//    rightDiv.className = 'relative flex items-center';
+//   const userBtn = document.createElement('button');
+//      userBtn.id = 'user-link';
+//      userBtn.className = ' bg-[#46A3FF] text-white text-[1.5rem] border border-white w-[4vh] h-[4vh] rounded-full cursor-pointer hover:bg-[#2E96FF] flex items-center justify-center';
+//      userBtn.onclick = () => window.location.href = '/login';
+
+//      const iconImg = document.createElement('img');
+//      iconImg.src = userIcon;
+//      iconImg.className = 'w-6 h-6';
+//      userBtn.appendChild(iconImg);
+
+//     // 添加消息按钮（放在语言切换按钮左边）
+//     const navMessageBtn = document.createElement('button');
+//     navMessageBtn.id = 'nav-message-btn';
+//     navMessageBtn.className = 'bg-transparent text-white border-none w-10 h-10 rounded-full cursor-pointer hover:scale-110 flex items-center justify-center';
+//     navMessageBtn.onclick = () => window.location.href = '/messages'; // 假设跳转到消息页面
+
+//     const messageIcon = document.createElement('img');
+//     messageIcon.src = messagesIcon;
+//     messageIcon.className = 'w-[3vh] h-[3vh]';
+//     navMessageBtn.appendChild(messageIcon);
+//     rightDiv.appendChild(navMessageBtn);
+
+//     // 添加语言切换按钮（放在用户名左边）
+//     const languageSwitcher = createLanguageSwitcher();
+//     rightDiv.appendChild(languageSwitcher);
+
+//     rightDiv.appendChild(userBtn);
+
+//   nav.appendChild(rightDiv);
+
+//   return nav;
+// }
+
 
 
 

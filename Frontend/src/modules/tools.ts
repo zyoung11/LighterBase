@@ -95,7 +95,7 @@ async function checkAuthentication(token:string,tokenName:string,targetPage:stri
       blocks.popupConfirm("token已经过期，尝试刷新");
       const newToken = await auth.reflashToken(URL,token);
       document.cookie = `${tokenName}=${newToken}; path=/;`;
-      window.location.href = `/${targetPage}`;
+      // window.location.href = `/${targetPage}`;
     }
   } catch (e) {
     // console.log("token解析失败，跳转到登录页面", e);
