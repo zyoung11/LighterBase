@@ -34,7 +34,8 @@ projectDetails.id = 'projectDetails';
 projectDetails.className = 'absolute right-[5%] top-[12%] w-3/5 h-4/5 bg-white/5 shadow-md shadow-white/30 border border-white/10 bg-opacity-90 p-4 rounded-lg hidden z-5';
 projectDetails.innerHTML = `
     <div class=" flex space-x-4 justify-end">
-       <button id="start-btn" class="w-10 h-10 border border-white/50 rounded-lg flex items-center justify-center transition-colors">
+        <div id="project-size" class="w-14 h-6 border border-white/50 rounded-full flex items-center justify-center text-white text-sm font-bold"></div>
+        <button id="start-btn" class="w-10 h-10 border border-white/50 rounded-lg flex items-center justify-center transition-colors">
          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -249,6 +250,11 @@ function selectBlock(selectedId:number) {
   if (!userId) {
     return;
   }
+  const size = selected.project.project_size || 0;
+  if (size > 100) {
+    popBlocks.popupConfirm(`项目连接已关闭：项目大小超过限制（${size} MB > 100 MB）`);
+    return;
+  }
   const projectId = selected.project.project_id;
   const payload = parseJwt(token);
   const currentUserId = payload ? payload.user_id || payload.id : null;
@@ -293,6 +299,17 @@ function selectBlock(selectedId:number) {
     // });
     detailName.textContent = selected.project.project_name;
     detailDescription.textContent = selected.project.project_description;
+    const projectSizeElement = projectDetails.querySelector('#project-size') as HTMLElement;
+    if (projectSizeElement) {
+      const size = selected.project.project_size;
+      projectSizeElement.textContent = `${size} Mb`;
+      let bgColor = '';
+      if (size < 50) bgColor = 'bg-green-500';
+      else if (size < 80) bgColor = 'bg-yellow-500';
+      else if (size < 100) bgColor = 'bg-orange-500';
+      else bgColor = 'bg-red-500';
+      projectSizeElement.className = `w-16 h-10 border border-white/50 rounded-full flex items-center justify-center text-white text-sm font-bold ${bgColor}`;
+    }
     initializeDatabaseView(URL,projectId)
      }
    // 添加开始事件
@@ -458,11 +475,6 @@ function selectBlock(selectedId:number) {
 
   // 重新render所有
   blocks.forEach(renderBlock);
-
-  // 监听语言变化事件，更新项目详情文本
-  // window.addEventListener('languageChanged', () => {
-  //   updateProjectDetailText(selected);
-  // });
 }
 
 async function initializeDatabaseView(hubUrl:string,projectId:number) {
@@ -506,9 +518,6 @@ async function initializeDatabaseView(hubUrl:string,projectId:number) {
   // }
 }
 
-
-
-
 // 更新项目详情文本的函数
 // function updateProjectDetailText(selected: any) {
 //   const startBtn = projectDetails.querySelector('#start-btn') as HTMLButtonElement;
@@ -533,10 +542,7 @@ async function initializeStartModal(userId: string, projectId: number) {
     return;
   }
 
-
     const projectUrl = `${theURL}/${userId}/${projectId}`;
-    // const projectUrl = `http://www.smallwoodice.cn:8080/${userId}/${projectId}`;
-    // console.log(projectUrl)
     setBaseUrl(projectUrl);
 
   // 检查是否为空数据库
@@ -581,8 +587,6 @@ async function initializeStartModal(userId: string, projectId: number) {
       await auth.userLogin(startUsernameInput.value, startPasswordInput.value);
     }
 
-    // 设置URL并跳转
-    // window.location.href = `/index?apiUrl=${encodeURIComponent(projectUrl)}`;
   };
 }
 

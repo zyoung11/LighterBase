@@ -399,7 +399,11 @@ async confirmInvitation(notificationId: number, status: string){
   }catch(e){
     console.log("确认邀请失败：",e)
   }
-}
+},
+
+
+
+
 }
 
 export default projects;
