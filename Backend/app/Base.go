@@ -156,7 +156,7 @@ func JWTMiddleware(c *fiber.Ctx) error {
 //go:embed build/*
 var buildFS embed.FS
 
-//go:embed routes.json
+//go:embed config/routes.json
 var routesJSON []byte
 
 type routeItem struct {
