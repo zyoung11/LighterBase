@@ -13,7 +13,7 @@ const sql = {
     
     async createSql(payload: any): Promise<any> {
         try {
-            const response = await fetch(`${URL}/api/create-table/create`, {
+            const res = await fetch(`${URL}/api/create-table/create`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -21,11 +21,13 @@ const sql = {
                 },
                 body: JSON.stringify(payload)
             });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            if (!res.ok) {
+                return false
+            }else{
+            return true
+            // const data = await res.json();
+            // return data;
             }
-            const data = await response.json();
-            return data;
         } catch (error) {
             console.error("Error creating SQL:", error);
             throw error;

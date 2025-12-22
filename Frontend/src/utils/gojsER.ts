@@ -114,7 +114,7 @@ const gojsER = {
         ),
         "undoManager.isEnabled": true,
         allowZoom:false,
-        allowSelect:false 
+        allowSelect:false,
       }
     );
 

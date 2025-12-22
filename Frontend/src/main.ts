@@ -377,25 +377,29 @@ function displayQueryResult(result: any) {
 }
 
 mainWorkspace.addEventListener('keydown', async (e) => {
-const sqlNotice = document.getElementById('sql-notice') as HTMLElement;
-  const target = e.target as HTMLElement;
+ const sqlNotice = document.getElementById('sql-notice') as HTMLElement;
+   const target = e.target as HTMLElement;
 
-  if (target.id === 'sql-input' && target.tagName === 'TEXTAREA') {
-    const textarea = target as HTMLTextAreaElement;
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      
-      try {
-        const ast = sqliteParser(textarea.value);
-        const tables = gojsER.extract(ast);
-        requestAnimationFrame(() => { 
-          gojsER.drawER(tables, 'mount');
-        });
-      } catch (error) {
-        console.error("SQL解析错误:", error);
-        sqlNotice.style.color = "red"
-        sqlNotice.textContent = "请输入正确的SQL语句"
-      }
+   if (target.id === 'sql-input' && target.tagName === 'TEXTAREA') {
+     const textarea = target as HTMLTextAreaElement;
+     if (e.key === 'Enter' && !e.shiftKey) {
+       e.preventDefault();
+
+       try {
+         const ast = sqliteParser(textarea.value);
+         const tables = gojsER.extract(ast);
+         requestAnimationFrame(() => {
+           gojsER.drawER(tables, 'mount');
+         });
+       } catch (e) {
+         console.error("SQL解析错误:", e);
+         sqlNotice.style.color = "red"
+         sqlNotice.textContent = "请输入正确的SQL语句"
+         setTimeout(() => {
+           sqlNotice.style.color = "";
+           sqlNotice.textContent = "请输入大写SQLite语句,\"enter\"渲染E-R图,点击右侧确认按钮提交";
+         }, 500);
+       }
     } else if (e.key === 'Enter' && e.shiftKey) {
       e.preventDefault();
       
@@ -493,31 +497,38 @@ document.addEventListener('DOMContentLoaded', () => {
        return;
      }
 
-    if(target.closest('#sql-send')){
-       const sqlSendBtn = document.getElementById('sql-send') as HTMLButtonElement;
-      const success = await blocks.popupConfirm("提交后将不能修改")
-      if(success){
-      const textarea = document.getElementById('sql-input') as HTMLTextAreaElement | null;
-      if (textarea) {
-        let sqlValue = textarea.value;
-        
-        const usersTablePattern = /CREATE TABLE users \([\s\S]*?;\n*/i;
-        sqlValue = sqlValue.replace(usersTablePattern, '');
-        
-        sqlValue = sqlValue.replace(/^\s*[\r\n]/gm, '').trim();
-        
-        const payload = {
-          "SQL": sqlValue,
-        };
-        console.log('payload:', payload);
-        await sql.createSql(payload);
-         if (sqlSendBtn) {
-           sqlSendBtn.disabled = true;
-           sqlSendBtn.style.opacity = '0.5';
+     if(target.closest('#sql-send')){
+        const sqlSendBtn = document.getElementById('sql-send') as HTMLButtonElement;
+       const textarea = document.getElementById('sql-input') as HTMLTextAreaElement | null;
+       if (textarea) {
+         let sqlValue = textarea.value;
+
+         const usersTablePattern = /CREATE TABLE users \([\s\S]*?;\n*/i;
+         sqlValue = sqlValue.replace(usersTablePattern, '');
+
+         sqlValue = sqlValue.replace(/^\s*[\r\n]/gm, '').trim();
+
+         try {
+           sqliteParser(sqlValue);
+         } catch (e) {
+           await blocks.popupConfirm("请输入正确的sql");
+           return;
          }
+
+         const success = await blocks.popupConfirm("提交后将不能修改")
+         if(success){
+           const payload = {
+             "SQL": sqlValue,
+           };
+           console.log('payload:', payload);
+           await sql.createSql(payload);
+            if (sqlSendBtn) {
+              sqlSendBtn.disabled = true;
+              sqlSendBtn.style.opacity = '0.5';
+            }
+         }
+       }
       }
-      }
-     }
 
      if (target.closest('#query-save-btn')) {
        const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
