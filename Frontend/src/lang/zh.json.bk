@@ -11,28 +11,28 @@
   },
   "hub": {
     "slogan": {
-      "build": "轻舟已过万重山",
-      "minutes": "分钟级的后台开发",
-      "platform": "Lighterbase 是低代码后端开发平台。",
-      "editing": "何不尝试以SQL来构建后端的全新体验。"
+      "build": "以更轻的方式构建",
+      "minutes": "只需几分钟",
+      "platform": "Lighterbase 是程序开发平台。",
+      "editing": "以后端编辑的新方式彻底改变过去。"
     },
     "buttons": {
-      "getStart": "开始"
+      "getStart": "开始使用"
     },
     "footer": {
-      "trusted": "自成标杆，自琢成器",
+      "trusted": "我们自己信任",
       "github": "LighterBase",
       "icp": "京公网安备11011402055062号"
     },
     "navbar": {
       "logo": "LighterBase",
-      "pricing": "价格",
+      "pricing": "定价",
       "docs": "文档",
       "download": "下载",
       "projects": "项目",
-      "admin": "后台",
+      "admin": "管理",
       "login": "登录",
-      "logout": "登出",
+      "logout": "退出",
       "messages": "消息",
       "setting": "设置"
     }
@@ -42,7 +42,7 @@
       "free": "完全免费!!"
     },
     "subtitle": {
-      "efficient": "开放且高效，何不马上体验"
+      "efficient": "开放且高效"
     },
     "music": {
       "play": "▶️",
@@ -51,7 +51,7 @@
   },
   "login": {
     "welcome": {
-      "title": "花径不曾缘客扫，蓬门今始为君开"
+      "title": "欢迎使用 LighterBase"
     },
     "toggle": {
       "login": "登录",
@@ -115,15 +115,15 @@
     },
     "navigation": {
       "database": "数据库",
-      "folder": "文件管理",
-      "analysis": "日志分析",
+      "folder": "文件",
+      "analysis": "分析",
       "settings": "设置"
     }
   },
   "download": {
     "title": "LighterBase",
-    "slogan": "更轻的搭建方式，更轻的LighterBase，更轻快的生活方式",
-    "release": "2025.12.12 beta版本发布",
+    "slogan": "更轻的方式，更轻的数据库，更轻的生活",
+    "release": "2025.12.12 base正式发布",
     "contact": "联系我们"
   },
   "projects": {

@@ -11,6 +11,7 @@ Backend/web/test/uv.lock
 Frontend/lighterBaseWeb
 Frontend/backup
 Frontend/GoBuild/build
+Frontend/GoBuild/web
 =======
 Backend/web/LighterBaseHubData
 Backend/web/test_build
