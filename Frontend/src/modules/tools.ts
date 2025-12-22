@@ -2,6 +2,7 @@ import {URL} from "../apis/api";
 import {jwtDecode} from "jwt-decode"
 import auth from "../apis/auth"
 import blocks from "./blocks";
+import projects from "../hubUtils/projects";
 /**
  * 针对低带宽优化的图片压缩函数
  * @param imgSrc 图片源地址
@@ -92,8 +93,13 @@ async function checkAuthentication(token:string,tokenName:string,targetPage:stri
     console.log("调用")
     if (exp && exp < Date.now()) {
       blocks.popupConfirm("token已经过期，尝试刷新");
-      const newToken = await auth.reflashToken(URL,token);
-      document.cookie = `${tokenName}=${newToken}; path=/;`;
+      if(tokenName == "authToken"){
+          const newToken = await auth.reflashToken(URL,token);
+          document.cookie = `${tokenName}=${newToken}; path=/;`;
+      }else if(tokenName == "hubAuthToken"){
+          const newToken = await projects.refreshHubToken(URL,token);
+          document.cookie = `${tokenName}=${newToken}; path=/;`;
+      }
       // window.location.href = `/${targetPage}`;
     }
   } catch (e) {

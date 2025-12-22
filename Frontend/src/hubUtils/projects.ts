@@ -106,6 +106,27 @@ async checkInit(){
   }
 },
 
+async refreshHubToken(URL:string,theToken:string){
+  try{
+    const res = await fetch(`${URL}/api/users/refresh`,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":`Bearer ${theToken}`
+      }
+    });
+
+    if(res.ok){
+      const data =await res.json()
+      return data.token
+    }
+
+  
+  }catch(e){
+    console.log("获取所有用户失败：",e)
+  }
+},
+
 
 
 // ====================================项目=========================================
