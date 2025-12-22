@@ -112,7 +112,9 @@ const gojsER = {
         layout: $(godraw.LayeredDigraphLayout,
           { direction: 0, layerSpacing: 80, columnSpacing: 60 } 
         ),
-        "undoManager.isEnabled": true, 
+        "undoManager.isEnabled": true,
+        allowZoom:false,
+        allowSelect:false 
       }
     );
 

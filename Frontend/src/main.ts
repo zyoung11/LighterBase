@@ -203,12 +203,12 @@ async function initializeDatabaseView() {
     try {
       const ast = sqliteParser(initialSQL);
       const tables = gojsER.extract(ast);
-      console.log("提取的表结构:", tables);
+      // console.log("提取的表结构:", tables);
       requestAnimationFrame(() => { 
         gojsER.drawER(tables, 'mount');
       });
-    } catch (error) {
-      console.error("初始SQL解析错误:", error);
+    } catch (e) {
+      console.error("初始SQL解析错误:", e);
     }
   }
 }
