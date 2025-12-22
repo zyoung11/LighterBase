@@ -21,7 +21,7 @@ SELECT * FROM users
 WHERE user_name = ? LIMIT 1;
 
 -- name: ListAllUsers :many
-SELECT * FROM users;
+SELECT * FROM users ORDER BY user_id DESC LIMIT ? OFFSET ?;
 
 -- name: UpdateUser :one
 UPDATE users

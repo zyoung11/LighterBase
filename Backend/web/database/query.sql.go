@@ -716,11 +716,16 @@ func (q *Queries) ListAllProjectsForRestore(ctx context.Context) ([]Project, err
 }
 
 const listAllUsers = `-- name: ListAllUsers :many
-SELECT user_id, user_name, password_hash, email, user_avatar, create_at, update_at FROM users
+SELECT user_id, user_name, password_hash, email, user_avatar, create_at, update_at FROM users ORDER BY user_id DESC LIMIT ? OFFSET ?
 `
 
-func (q *Queries) ListAllUsers(ctx context.Context) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, listAllUsers)
+type ListAllUsersParams struct {
+	Limit  int64
+	Offset int64
+}
+
+func (q *Queries) ListAllUsers(ctx context.Context, arg ListAllUsersParams) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, listAllUsers, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

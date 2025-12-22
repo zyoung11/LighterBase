@@ -729,7 +729,29 @@ func listUsers(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Forbidden"})
 	}
 
-	users, err := queries.ListAllUsers(c.Context())
+	// 解析分页参数
+	page := c.QueryInt("page", 1)
+	perPage := c.QueryInt("perpage", 30)
+
+	if page < 1 || perPage < 1 || perPage > 100 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid pagination parameters"})
+	}
+
+	// 获取总数
+	total, err := queries.CountUsers(c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to count users"})
+	}
+
+	// 计算分页
+	totalPages := int((total + int64(perPage) - 1) / int64(perPage))
+	offset := (page - 1) * perPage
+
+	// 获取用户列表
+	users, err := queries.ListAllUsers(c.Context(), database.ListAllUsersParams{
+		Limit:  int64(perPage),
+		Offset: int64(offset),
+	})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch users"})
 	}
@@ -739,7 +761,13 @@ func listUsers(c *fiber.Ctx) error {
 		response = append(response, userToResponse(user))
 	}
 
-	return c.JSON(response)
+	return c.JSON(fiber.Map{
+		"page":       page,
+		"perPage":    perPage,
+		"totalPages": totalPages,
+		"totalItems": total,
+		"users":      response,
+	})
 }
 
 // 获取单个用户
