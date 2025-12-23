@@ -217,6 +217,30 @@ async function initializeDatabaseView() {
 async function initializeQueryView() {
   currentQueryId = null;
   await loadQueryHistory();
+  // 默认渲染第一个查询历史
+  try {
+    const response = await sql.getAllQueries();
+    if (response && response.queries && response.queries.length > 0) {
+      const firstQuery = response.queries[0];
+      currentQueryId = firstQuery.id;
+      const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
+      if (textarea) {
+        textarea.value = firstQuery.queries;
+      }
+      // 执行查询并渲染表格
+      try {
+        const result = await sql.runQuery({"queries": firstQuery.queries});
+        renderUserTable(result,'query-results');
+      } catch (error) {
+        console.error('执行查询失败:', error);
+        displayQueryResult({ error: '执行查询失败' });
+      }
+      // 重新加载历史以更新选中状态样式
+      loadQueryHistory();
+    }
+  } catch (error) {
+    console.error('加载查询历史失败:', error);
+  }
   // updateSaveButton();
 }
 
@@ -238,7 +262,7 @@ async function loadQueryHistory() {
           </div>
           <button class="w-[10%] bg-teansparent " data-query-id="${query.id}"><img src="${deleteImg}">  </button>
         `;
-        queryItem.addEventListener('click', (e) => {
+        queryItem.addEventListener('click', async (e) => {
            const target = e.target as HTMLElement;
            if (target.closest('button[data-query-id]')) {
              // 删除按钮点击
@@ -246,7 +270,7 @@ async function loadQueryHistory() {
              deleteQueryItem(queryId);
            } else {
              // 查询项点击
-             selectQuery(query);
+             await selectQuery(query);
            }
          });
         historyContainer.appendChild(queryItem);
@@ -257,7 +281,7 @@ async function loadQueryHistory() {
   }
 }
 
-function selectQuery(query: any) {
+async function selectQuery(query: any) {
   const resultsDiv = document.getElementById('query-results');
   if (resultsDiv) {
     resultsDiv.innerHTML = '<div class="text-gray-400 p-4">查询结果将显示在这里</div>';
@@ -276,6 +300,14 @@ function selectQuery(query: any) {
     const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
     if (textarea) {
       textarea.value = query.queries;
+    }
+    // 执行查询并渲染表格
+    try {
+      const result = await sql.runQuery({"queries": query.queries});
+      renderUserTable(result,'query-results');
+    } catch (error) {
+      console.error('执行查询失败:', error);
+      displayQueryResult({ error: '执行查询失败' });
     }
   }
   // updateSaveButton();
