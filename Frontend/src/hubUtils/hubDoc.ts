@@ -1,29 +1,37 @@
-// hubDoc.ts
+async function loadExternalHtml(fileName: string): Promise<{ html: string; styles: string }> {
+  try {
+    const response = await fetch(`/docs/${fileName}`);
+    if (!response.ok) throw new Error(`Failed to load ${fileName}`);
+    const text = await response.text();
 
-import { marked } from "marked";
-import { markedHighlight } from "marked-highlight";
-import hljs from 'highlight.js/lib/core'; 
-import sql from 'highlight.js/lib/languages/sql'; 
-import plaintext from 'highlight.js/lib/languages/plaintext';
-import json from 'highlight.js/lib/languages/json'; 
-import bash from 'highlight.js/lib/languages/bash';
-import javascript from 'highlight.js/lib/languages/javascript';
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(text, 'text/html');
 
-hljs.registerLanguage('sql', sql);
-hljs.registerLanguage('plaintext', plaintext);
-hljs.registerLanguage('json', json);
-hljs.registerLanguage('javascript', javascript);
-hljs.registerLanguage('js', javascript);
-hljs.registerLanguage('bash', bash);
-hljs.registerLanguage('shell', bash);
+    // 提取样式
+    const styleElements = doc.querySelectorAll('style');
+    let styles = '';
+    styleElements.forEach(style => {
+      styles += style.textContent || '';
+    });
 
-marked.use(markedHighlight({
-  langPrefix: 'hljs language-',
-  highlight(code, lang) {
-    const language = hljs.getLanguage(lang) ? lang : 'plaintext'; 
-    return hljs.highlight(code, { language }).value;
+    // 返回 body 的 HTML 和样式
+    return {
+      html: doc.body.innerHTML,
+      styles: styles
+    };
+
+  } catch (error) {
+    console.error('Error loading HTML:', error);
+    return {
+      html: `<div style="color:red">加载文档失败: ${fileName}</div>`,
+      styles: ''
+    };
   }
-}));
+}
+
+
+
+
 
 const applyLazyLoading = (html: string): string => {
     return html.replace(/<img\s+([^>]*?)>/gi, (match, attrs) => {
@@ -34,30 +42,44 @@ const applyLazyLoading = (html: string): string => {
     });
 };
 
+// ✅ 改为异步函数
 (async () => {
-  document.getElementById('fouc-fix')?.remove();
+  const foucFix = document.getElementById('fouc-fix');
+  if (foucFix) foucFix.remove();
 
-  // 动态导入并渲染 Intro 内容
-  const { intro_md_content } = await import('../docs/intro_md_content'); 
-  const introCont = document.getElementById('intro-cont') as HTMLElement;
+  // 渲染 Intro 内容 (使用 fetch 加载)
+  const introCont = document.getElementById('intro-cont');
   if (introCont) {
-    const rawHtml = await marked.parse(intro_md_content);
+    const { html: rawHtml, styles } = await loadExternalHtml('intro.html');
+    if (styles) {
+      const styleEl = document.createElement('style');
+      styleEl.textContent = styles;
+      document.head.appendChild(styleEl);
+    }
     introCont.innerHTML = applyLazyLoading(rawHtml);
   }
 
-  // 动态导入并渲染 Install 内容
-  const { library_md_content } = await import('../docs/library_md_content');
-  const installIntro = document.getElementById('install-intro') as HTMLElement;
+  // 渲染 Install 内容
+  const installIntro = document.getElementById('install-intro');
   if (installIntro) {
-    const rawHtml = await marked.parse(library_md_content);
+    const { html: rawHtml, styles } = await loadExternalHtml('library.html');
+    if (styles) {
+      const styleEl = document.createElement('style');
+      styleEl.textContent = styles;
+      document.head.appendChild(styleEl);
+    }
     installIntro.innerHTML = applyLazyLoading(rawHtml);
   }
 
-  // 动态导入并渲染 Tutorials 内容
-  const { tutorial_md_content } = await import('../docs/tutorial_md_content');
-  const tutorialsCont = document.getElementById('tutorials-cont') as HTMLElement;
+  // 渲染 Tutorials 内容
+  const tutorialsCont = document.getElementById('tutorials-cont');
   if (tutorialsCont) {
-    const rawHtml = await marked.parse(tutorial_md_content);
+    const { html: rawHtml, styles } = await loadExternalHtml('tutorial.html');
+    if (styles) {
+      const styleEl = document.createElement('style');
+      styleEl.textContent = styles;
+      document.head.appendChild(styleEl);
+    }
     tutorialsCont.innerHTML = applyLazyLoading(rawHtml);
   }
 })();
