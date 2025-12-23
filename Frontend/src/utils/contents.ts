@@ -294,7 +294,7 @@ query: `
                     </div>
                     <div class="flex items-center justify-between mt-2">
                         <span class="text-sm font-medium text-gray-300">模型 ID:</span>
-                        <span class="text-sm text-gray-400 bg-[#3a3f41] px-3 py-1 rounded-lg">glm-4</span>
+                        <span class="text-sm text-gray-400 bg-[#3a3f41] px-3 py-1 rounded-lg">glm-4.5-flash</span>
                     </div>
                     <div class="flex items-center justify-between mt-2">
                         <span class="text-sm font-medium text-gray-300">状态:</span>

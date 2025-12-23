@@ -19,7 +19,7 @@ const AI_MODELS: AIModel[] = [
 ];
 
 const FIXED_MODEL_ID = 'glm';
-const FIXED_API_KEY = '7ad1a9308d61469d82112c6463294884.YxmHtpe1vKgTnBDy'; // Replace with your actual API key
+const FIXED_API_KEY = '2bf25473aade4fbea7f98e7e8efe8693.T6awvus0jy6ERNy6'; // Replace with your actual API key
 
 const CHAT_HISTORY_KEY = 'aiChatHistory';
 

@@ -8,7 +8,7 @@ let token = getCookie("hubAuthToken")!;
 
 // --- 状态管理 ---
 const MAX_POINTS = 60; // 保留最近 30 秒数据 (60 * 500ms)
-let dataStackCpu: [number[], number[]] = [[], []]; // [timestamp, cpu]
+let dataStackCpu: [number[], number[], number[]] = [[], [], []]; // [timestamp, pid_cpu, os_cpu]
 let dataStackRam: [number[], number[], number[]] = [[], [], []]; // [timestamp, ram, os_ram]
 let cpuChart: uPlot;
 let ramChart: uPlot;
@@ -25,15 +25,21 @@ function initCpuChart() {
         series: [
             {}, // 时间轴
             {
-                label: "CPU (%)",
+                label: "PID CPU (%)",
                 stroke: "#46A3FF",
                 width: 2,
                 fill: "rgba(70, 163, 255, 0.1)",
+            },
+            {
+                label: "OS CPU (%)",
+                stroke: "#10B981",
+                width: 2,
+                fill: "rgba(16, 185, 129, 0.1)",
             }
         ],
         axes: [
             { show: false },
-            { grid: { stroke: "#2D2D2D" }, font: "10px Arial", stroke: "#A0A0A0", scale: 'cpu' }
+            { grid: { stroke: "#2D2D2D" }, font: "10px Arial", stroke: "#A0A0A0" }
         ],
         scales: {
             cpu: {
@@ -107,7 +113,8 @@ async function startMonitoring() {
             // 更新图表数据
             const now = Math.floor(Date.now() / 1000);
             dataStackCpu[0].push(now);
-            dataStackCpu[1].push(metrics.pid.cpu * 100); // 转换为百分比
+            dataStackCpu[1].push(metrics.pid.cpu); // PID CPU 使用率
+            dataStackCpu[2].push(metrics.os.cpu); // OS CPU 使用率
 
             dataStackRam[0].push(now);
             dataStackRam[1].push(metrics.pid.ram / 1024 / 1024); // 转换为 MB
@@ -119,6 +126,7 @@ async function startMonitoring() {
             if (dataStackCpu[0].length > MAX_POINTS) {
                 dataStackCpu[0].shift();
                 dataStackCpu[1].shift();
+                dataStackCpu[2].shift();
                 dataStackRam[0].shift();
                 dataStackRam[1].shift();
                 dataStackRam[2].shift();
