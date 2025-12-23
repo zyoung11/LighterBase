@@ -288,7 +288,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 
 - http方法：**GET**
 
-- URL：`/users`
+- URL：`/users?page={x}&perpage={y}`
 
 - 请求头：
 
