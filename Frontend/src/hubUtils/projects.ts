@@ -116,10 +116,11 @@ async refreshHubToken(URL:string,theToken:string){
       }
     });
 
-    if(res.ok){
+    // if(res.ok){
       const data =await res.json()
+      console.log("查看",data)
       return data.token
-    }
+    // }
 
   
   }catch(e){

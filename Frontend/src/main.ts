@@ -10,7 +10,7 @@ import sql from "./apis/sql";
 import aichat from "./modules/aiChat";
 import lighterBase from "./apis/auto";
 import { checkAuthentication } from "./modules/tools";
-
+import { renderUserTable } from "./modules/table";
 // Import images
 import logoImg from './icons/logoWhite.png';
 import databaseImg from './icons/databaseWhite.svg';
@@ -26,6 +26,7 @@ import deleteImg from './icons/delete.svg'
 await checkAuthentication(authToken,'authToken','projects')
 // 启动应用
 // initializeApp();
+console.log(authToken)
 
 // Set imported images
 function setImportedImages() {
@@ -551,7 +552,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (textarea && textarea.value.trim()) {
           try {
             const result = await sql.runQuery({"queries":textarea.value});
-            displayQueryResult(result);
+            renderUserTable(result,'query-results')
+            // displayQueryResult(result);
             // 执行查询后，清除选中状态，按钮变回保存
             currentQueryId = null;
             // updateSaveButton();

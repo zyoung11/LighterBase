@@ -95,9 +95,11 @@ async function checkAuthentication(token:string,tokenName:string,targetPage:stri
       blocks.popupConfirm("token已经过期，尝试刷新");
       if(tokenName == "authToken"){
           const newToken = await auth.reflashToken(URL,token);
+          console.log(tokenName,newToken)
           document.cookie = `${tokenName}=${newToken}; path=/;`;
       }else if(tokenName == "hubAuthToken"){
           const newToken = await projects.refreshHubToken(URL,token);
+          console.log(tokenName,newToken)
           document.cookie = `${tokenName}=${newToken}; path=/;`;
       }
       // window.location.href = `/${targetPage}`;

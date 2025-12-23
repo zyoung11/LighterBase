@@ -18,6 +18,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@tanstack/table-core": "^8.21.3",
     "gojs": "^3.1.0",
     "highlight.js": "^11.11.1",
     "jwt-decode": "^4.0.0",

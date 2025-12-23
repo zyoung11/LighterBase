@@ -128,50 +128,55 @@ const workspaceContent = {
 </div>
                 </div>
             `,
-  query: `
-                <div class="flex-1 flex">
-                    <!-- 主要内容区域 -->
-                    <div class="flex-1 flex flex-col">
-                        <!-- 上部分：显示区域 (60% 高度) -->
-                        <div class="h-[60%] p-6">
-                            <div id="query-results" class="h-full overflow-y-auto bg-[#15151D] border-2 border-dashed border-[#2B2F31] rounded-lg flex items-center justify-center text-gray-400">
-                                查询结果将显示在这里
-                            </div>
-                        </div>
 
-                         <!-- 下部分：SQL输入区域 (40% 高度) -->
-                         <div class="h-[40%] p-6 flex flex-col">
-                             <div class="flex-1 flex items-center justify-center">
-                                 <div class="w-[80%] h-full relative">
-                                     <textarea
-                                         id="query-sql-input"
-                                         class="w-full h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg p-4 text-gray-200 placeholder-gray-500 resize-none focus:outline-none focus:border-[#4a4f52] scrollbar-hide overflow-y-auto"
-                                         placeholder="在这里输入SQL查询..."
-                                     ></textarea>
-                                 </div>
-                                 <div class="ml-4 flex flex-col space-y-2">
-                                     <button id="query-save-btn" class="w-12 h-12 px-2 py-2 hover:bg-[#3a3f41] rounded-full text-sm transition-colors mb-4">
-                                          <img src="${save}" class=" object-contain" alt="save">
-                                     </button>
-                                     <button id="query-execute-btn" class="w-12 h-12 px-1 py-1 rounded-full text-sm transition-colors">
-                                          <img src="${execute}" class=" object-contain" alt="execute">
-                                     </button>
-
-                                     
-                                 </div>
-                             </div>
-                         </div>
-                    </div>
-
-                    <!-- 侧边栏 -->
-                    <div class="w-64 bg-[#1B1E1F] border-l border-[#2B2F31] p-4">
-                        <h3 class="text-lg font-semibold text-gray-200 mb-4">查询历史</h3>
-                        <div id="query-history" class="space-y-2 max-h-[80vh] overflow-y-auto scrollbar-hide">
-                            <!-- 查询历史项将动态添加在这里 -->
-                        </div>
-                    </div>
+query: `
+    <div class="flex-1 flex">
+        <!-- 主要内容区域 -->
+        <div class="flex-1 flex flex-col h-full">
+            
+            <!-- 上部分：显示区域 (60% 高度) -->
+            <div class="h-[60%] p-6 flex flex-col min-h-0">
+                <!-- 这里的 ID 对应 JS 调用的容器 -->
+                <div id="query-results" class="bg-[#15151D] border border-[#2B2F31] rounded-lg flex flex-col overflow-hidden h-full relative">
+                    <!-- JS 将在这里动态插入 表头滚动区 和 表体滚动区 -->
                 </div>
-            `,
+            </div>
+
+            <!-- 下部分：SQL输入区域 (40% 高度) -->
+            <div class="h-[40%] p-6 flex flex-col min-h-0 border-t border-[#2B2F31]">
+                 <div class="flex-1 flex items-center justify-center min-h-0">
+                     <div class="w-[80%] h-full relative">
+                         <textarea
+                             id="query-sql-input"
+                             class="w-full h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg p-4 text-gray-200 placeholder-gray-500 resize-none focus:outline-none focus:border-[#4a4f52] overflow-y-auto font-mono text-sm"
+                             placeholder="在这里输入SQL查询..."
+                         ></textarea>
+                     </div>
+                     <div class="ml-4 flex flex-col space-y-2">
+                         <button id="query-save-btn" class="w-12 h-12 px-2 py-2 hover:bg-[#3a3f41] rounded-full text-sm transition-colors mb-4 flex items-center justify-center">
+                              <img src="${save}" class="object-contain" alt="save">
+                         </button>
+                         <button id="query-execute-btn" class="w-12 h-12 px-1 py-1 rounded-full text-sm transition-colors flex items-center justify-center hover:bg-[#3a3f41]">
+                              <img src="${execute}" class="object-contain" alt="execute">
+                         </button>
+                     </div>
+                 </div>
+            </div>
+        </div>
+
+        <!-- 侧边栏 -->
+        <div class="w-64 bg-[#1B1E1F] border-l border-[#2B2F31] p-4 flex flex-col">
+            <h3 class="text-lg font-semibold text-gray-200 mb-4">查询历史</h3>
+            <div id="query-history" class="space-y-2 flex-1 overflow-y-auto scrollbar-hide">
+                <!-- 动态历史 -->
+            </div>
+        </div>
+    </div>
+`,
+
+
+
+
   permissions: `
         <div class="bg-[#1B1E1F] p-6 h-full flex flex-col">
             <h3 class="text-lg font-semibold mb-4">数据库表权限管理</h3>

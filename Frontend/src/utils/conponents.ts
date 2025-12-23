@@ -20,6 +20,8 @@ let logDeletePopup: {
   checkedIds: []
 };
 
+
+//==========================api文档============================
 const renderer = new Renderer();
 renderer.code = function({ text, lang, escaped }) {
   const langStr = lang || '';
@@ -49,6 +51,10 @@ function extractStatusCode(logText: string): number | null {
     }
     return null;
 }
+
+
+//==========================log============================
+
 
 interface LogDisplay {
     level: string; // 日志级别名称 (e.g., INFO, WARN, ERROR)
@@ -96,6 +102,9 @@ const conponents = {
         }
      });
   },
+
+//==========================permissions============================
+
 
 async showPermissions() {
   const permissionTableBody = document.getElementById("permissions-table-body") as HTMLElement;
@@ -226,6 +235,8 @@ async showPermissions() {
     console.error(e);
   }
 },
+
+//==========================api文档============================
 
 
 async showTableMdContent() {
@@ -387,6 +398,12 @@ async showTableMdContent() {
  _showLogsPage: 1,
  selectedIds: [] as number[],
  currentSearch: '',
+
+
+//==========================log============================
+
+
+
 
  showLogs() {
   const render = async () => {
@@ -604,18 +621,10 @@ const updateBottom = () => {
   });
   },
 
-  showImageTooltip(imageSrc: string, left: number, top: number) {
-    const tooltip = document.createElement('div');
-    tooltip.className = 'fixed z-50 bg-[#2B2F31] text-gray-200 p-4 rounded-lg shadow-lg';
-    tooltip.style.left = left + 'px';
-    tooltip.style.top = top + 'px';
-    tooltip.innerHTML = `<img src="${imageSrc}" alt="图片" style="max-width: 300px; max-height: 300px;">`;
-    document.body.appendChild(tooltip);
 
-    tooltip.addEventListener('mouseleave', () => {
-      tooltip.remove();
-    });
-  },
+//==========================table============================
+
+
 
   async showFolderTables() {
   const sidebarBox = document.getElementById('folder-table-list');
@@ -650,7 +659,7 @@ const updateBottom = () => {
     try {
       const lb = new lighterBase(URL);
       const res = await lb.searchTable(payload, table, 1, 30);
-      // console.log("查看表的响应res:",res)
+      console.log("查看表的响应res:",res)
       renderTableInMain(res.items || [], table);
     } catch (err) {
       console.error(`查询表 ${table} 失败：`, err);
@@ -711,7 +720,7 @@ const updateBottom = () => {
 
     if (full.startsWith('data:image/')) {
       // 显示图片tooltip
-      this.showImageTooltip(full, rect.left, rect.top - 5);
+      blocks.showImageTooltip(full, rect.left, rect.top - 5);
     } else {
       // 显示文本tooltip
       blocks.showTooltipWithCopy(full, rect.left, rect.top - 5);
