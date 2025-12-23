@@ -304,26 +304,32 @@ cd LighterBase/Backend/web/LighterBaseHub
   返回体：
 
   ```json
-  [
-    {
-      "user_id": 1,
-      "user_name": "string",
-      "password_hash": "string",
-      "email": "string",
-      "user_avatar": null,
-      "create_at": "2023-01-01 00:00:00",
-      "update_at": "2023-01-01 00:00:00"
-    },
-    {
-      "user_id": 2
-      "user_name": "string",
-      "password_hash": "string",
-      "email": "string",
-      "user_avatar": null,
-      "create_at": "2023-01-01 00:00:00",
-      "update_at": "2023-01-01 00:00:00"
-    }
-  ]
+  {
+      "page": 0,
+      "perPage": 30,
+      "totalPages": 1,
+      "totalItems": 2,
+      "users": [
+            {
+              "user_id": 1,
+              "user_name": "string",
+              "password_hash": "string",
+              "email": "string",
+              "user_avatar": null,
+              "create_at": "2023-01-01 00:00:00",
+              "update_at": "2023-01-01 00:00:00"
+            },
+            {
+              "user_id": 2
+              "user_name": "string",
+              "password_hash": "string",
+              "email": "string",
+              "user_avatar": null,
+              "create_at": "2023-01-01 00:00:00",
+              "update_at": "2023-01-01 00:00:00"
+            }
+      ]
+  }
   ```
   
   http状态码：401, 403, 500
