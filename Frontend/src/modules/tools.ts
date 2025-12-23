@@ -80,33 +80,56 @@ import projects from "../hubUtils/projects";
  * @param targetPage 要跳转的网页
  * @returns 没有
  */
-async function checkAuthentication(token:string,tokenName:string,targetPage:string) {
+let isRefreshing = false;
 
-  if (!token) {
-    // console.log("没有找到JWT token，跳转到登录页面");
-    // window.location.href = `/${targetPage}?apiUrl=${encodeURIComponent(URL)}`;
+async function checkAuthentication(token: string, tokenName: string, targetPage: string) {
+  if (!token || token == null || token === '') {
     window.location.href = `/${targetPage}`;
+    return;
   }
+
   try {
     const decoded = jwtDecode(token);
-    const exp = Number(decoded.exp) * 1000;
-    console.log("调用")
-    if (exp && exp < Date.now()) {
-      blocks.popupConfirm("token已经过期，尝试刷新");
-      if(tokenName == "authToken"){
-          const newToken = await auth.reflashToken(URL,token);
-          console.log(tokenName,newToken)
-          document.cookie = `${tokenName}=${newToken}; path=/;`;
-      }else if(tokenName == "hubAuthToken"){
-          const newToken = await projects.refreshHubToken(URL,token);
-          console.log(tokenName,newToken)
-          document.cookie = `${tokenName}=${newToken}; path=/;`;
+    const exp = Number(decoded.exp) * 1000; // 转换为毫秒
+    const now = Date.now();
+    const fiveMinutes = 5 * 60 * 1000; // 5分钟的毫秒数
+
+    if (exp && exp < now + fiveMinutes && exp > now) {
+      
+      if (isRefreshing) {
+        return;
       }
-      // window.location.href = `/${targetPage}`;
+
+      isRefreshing = true;
+      // console.log("Token即将过期，尝试自动刷新...");
+
+      try {
+        let newToken = "";
+        
+        if (tokenName === "authToken") {
+          newToken = await auth.reflashToken(URL, token);
+        } else if (tokenName === "hubAuthToken") {
+          newToken = await projects.refreshHubToken(URL, token);
+        }
+
+        if (newToken) {
+          document.cookie = `${tokenName}=${newToken}; path=/;`;
+          // console.log("Token刷新成功");
+        }
+      } catch (refreshError) {
+        // console.error("Token刷新失败", refreshError);
+        window.location.href = `/${targetPage}`;
+      } finally {
+        isRefreshing = false;
+      }
+    
+    } else if (exp && exp <= now) {
+      blocks.popupConfirm("token已经过期，请重新登录");
+      window.location.href = `/${targetPage}`;
     }
+
   } catch (e) {
-    // console.log("token解析失败，跳转到登录页面", e);
-    // window.location.href = `/${targetPage}?apiUrl=${encodeURIComponent(URL)}`;
+    console.error("token解析失败", e);
     window.location.href = `/${targetPage}`;
   }
 }

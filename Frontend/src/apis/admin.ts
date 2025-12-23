@@ -1,7 +1,9 @@
 import { URL,authToken } from "./api.ts";
+import { checkAuthentication } from "../modules/tools.ts";
 
 const admin ={
     async getRecords(): Promise<any> {
+        await checkAuthentication(authToken,'authToken','projects')
         try{
             const res = await fetch(`${URL}/api/security`, {
                 method: "GET",
@@ -40,6 +42,7 @@ const admin ={
     // },
 
     async deleteAuth(table:string): Promise<any> {
+        await checkAuthentication(authToken,'authToken','projects')
         try{
             const res = await fetch(`${URL}/api/security/${table}`, {
                 method: "DELETE",
@@ -56,6 +59,7 @@ const admin ={
     },
 
     async updateAuth(table:string,payload:any): Promise<any> {
+        await checkAuthentication(authToken,'authToken','projects')
         console.log("选择的表：",table,"更新权限：",payload);
         try{
             const res = await fetch(`${URL}/api/security/${table}`, {

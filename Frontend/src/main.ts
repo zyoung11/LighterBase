@@ -5,11 +5,11 @@ import gojsER from "./utils/gojsER";
 import sqliteParser from "sqlite-parser";
 import {authToken,URL} from "./apis/api";
 import blocks from "./modules/blocks";
-import admin from "./apis/admin";
+// import admin from "./apis/admin";
 import sql from "./apis/sql";
 import aichat from "./modules/aiChat";
 import lighterBase from "./apis/auto";
-import { checkAuthentication } from "./modules/tools";
+// import { checkAuthentication } from "./modules/tools";
 import { renderUserTable } from "./modules/table";
 // Import images
 import logoImg from './icons/logoWhite.png';
@@ -23,7 +23,7 @@ import deleteImg from './icons/delete.svg'
 // async function initializeApp() {
 // await checkAuthentication(authToken,'welcome.html')
 // }
-await checkAuthentication(authToken,'authToken','projects')
+// await checkAuthentication(authToken,'authToken','projects')
 // 启动应用
 // initializeApp();
 console.log(authToken)

@@ -1,9 +1,11 @@
 import { URL ,authToken,hubAuthToken} from "./api.ts";
 import blocks from "../modules/blocks.ts";
+import { checkAuthentication } from "../modules/tools.ts";
 
 
 const auth ={
 async userRegister(username?: string, password?: string, email?: string): Promise<boolean> {
+    await checkAuthentication(hubAuthToken,'hubAuthToken','projects')
     // if (!username) username = (document.getElementById("username") as HTMLInputElement)?.value;
     // if (!password) password = (document.getElementById("password") as HTMLInputElement)?.value;
     // if (!email) email = (document.getElementById("email") as HTMLInputElement)?.value;
@@ -93,8 +95,9 @@ async isLogin(){
     }
 },
 
-async reflashToken(url:string,currentToken:string) : Promise<any> {
-    try{
+ async reflashToken(url:string,currentToken:string) : Promise<any> {
+     await checkAuthentication(currentToken,'authToken','projects')
+     try{
         const res = await fetch(`${url}/api/auth/refresh`, {
             method: "POST",
             headers: {

@@ -148,9 +148,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   gitImg.src = githubImg;
 
 
-  if(token)
-  checkAuthentication(token,'hubAuthToken','login')
-}
 // 生成导航栏
   const newNav = createNavBar();
   document.body.insertBefore(newNav, document.body.firstChild);

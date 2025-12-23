@@ -1,4 +1,5 @@
 import { URL,authToken,hubAuthToken } from "./api.ts";
+import { checkAuthentication } from "../modules/tools.ts";
 type theLogs = {
     page: number;
     perPage: number;
@@ -13,6 +14,7 @@ const sql = {
     
     async createSql(payload: any): Promise<any> {
         try {
+            await checkAuthentication(authToken,'authToken','projects')
             const res = await fetch(`${URL}/api/create-table/create`, {
                 method: "POST",
                 headers: {
@@ -35,6 +37,7 @@ const sql = {
     },
 
     async lastestSql(): Promise<any> {
+        await checkAuthentication(authToken,'authToken','projects')
         try {
             const response = await fetch(`${URL}/api/sqls/latest`, {
                 method: "GET",
@@ -55,6 +58,7 @@ const sql = {
     },
 
     async getTableAll(){
+        await checkAuthentication(authToken,'authToken','projects')
         try {
             const response = await fetch(`${URL}/api/query/tables`, {
                 method: "GET",
@@ -77,6 +81,7 @@ const sql = {
 
 
     async getLogs(page: number, perPage: number): Promise<theLogs> {
+    await checkAuthentication(authToken,'authToken','projects')
     try {
         const res = await fetch(
         `${URL}/api/query/logs?page=${page}&perpage=${perPage}`,
@@ -100,6 +105,7 @@ const sql = {
 
 
       async searchLogs(page: number = 1,perPage: number = 30,query: string = ''):  Promise<theLogs> {
+    await checkAuthentication(authToken,'authToken','projects')
     try {
       const res = await fetch(
         `${URL}/api/search/logs?page=${page}&perpage=${perPage}`,
@@ -131,6 +137,7 @@ const sql = {
 
 
 async getAllQueries(page = 1, perPage = 30): Promise<any> {
+    await checkAuthentication(authToken,'authToken','projects')
     try {
         const res = await fetch(`${URL}/api/queries?page=${page}&perpage=${perPage}`, {
             method: "GET",
@@ -149,6 +156,7 @@ async getAllQueries(page = 1, perPage = 30): Promise<any> {
 },
 
 async createQuery(queries:any): Promise<any> {
+    await checkAuthentication(authToken,'authToken','projects')
     try {
         const response = await fetch(`${URL}/api/queries`, {
             method: "POST",
@@ -167,6 +175,7 @@ async createQuery(queries:any): Promise<any> {
 },
 
 async updateQuery(queryId: number, queries: any): Promise<any> {
+    await checkAuthentication(authToken,'authToken','projects')
     try {
         const response = await fetch(`${URL}/api/queries/${queryId}`, {
             method: "PUT",
@@ -188,6 +197,7 @@ async updateQuery(queryId: number, queries: any): Promise<any> {
 },
 
 async deleteQuery(queryId: number): Promise<any> {
+    await checkAuthentication(authToken,'authToken','projects')
     try {
         const response = await fetch(`${URL}/api/queries/${queryId}`, {
             method: "DELETE",
@@ -209,6 +219,7 @@ async deleteQuery(queryId: number): Promise<any> {
 
 
 async runQuery(queries:any): Promise<any> {
+    await checkAuthentication(authToken,'authToken','projects')
     try {
         const response = await fetch(`${URL}/api/queries/run-queries`, {
             method: "POST",
@@ -239,6 +250,7 @@ async runQuery(queries:any): Promise<any> {
 
 
     async hubLastestSql(hubUrl:string,projectId:number): Promise<any> {
+        await checkAuthentication(hubAuthToken,'hubAuthToken','projects')
         try {
             const response = await fetch(`${hubUrl}/api/projects/sql/${projectId}`, {
                 method: "GET",
