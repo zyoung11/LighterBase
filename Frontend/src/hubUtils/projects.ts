@@ -8,7 +8,7 @@ const projects = {
 // ====================================用户=========================================
 
 async getAllUsers(){
-  await checkAuthentication(hubAuthToken,'hubAuthToken','projects')
+  await checkAuthentication(hubAuthToken,'hubAuthToken','login')
   try{
     const res = await fetch(`${URL}/api/users`,{
       method:"GET",
@@ -31,7 +31,7 @@ async getAllUsers(){
 },
 
 async getSingleUser(id: number){
-  await checkAuthentication(hubAuthToken,'hubAuthToken','projects')
+  await checkAuthentication(hubAuthToken,'hubAuthToken','login')
   try{
     const res = await fetch(`${URL}/api/users/${id}`,{
       method:"GET",
@@ -52,7 +52,7 @@ async getSingleUser(id: number){
 },
 
 async updateUser(id: number, data: {user_name: string, password: string, user_avatar: string}){
-  await checkAuthentication(hubAuthToken,'hubAuthToken','projects')
+  await checkAuthentication(hubAuthToken,'hubAuthToken','login')
   try{
     const res = await fetch(`${URL}/api/users/${id}`,{
       method:"PUT",
@@ -75,7 +75,7 @@ async updateUser(id: number, data: {user_name: string, password: string, user_av
 },
 
 async deleteUser(id: number){
-  await checkAuthentication(hubAuthToken,'hubAuthToken','projects')
+  await checkAuthentication(hubAuthToken,'hubAuthToken','login')
   try{
     const res = await fetch(`${URL}/api/users/${id}`,{
       method:"DELETE",
@@ -112,7 +112,7 @@ async checkInit(){
 },
 
 async refreshHubToken(URL:string,theToken:string){
-  await checkAuthentication(theToken,'hubAuthToken','projects')
+  await checkAuthentication(theToken,'hubAuthToken','login')
   try{
     const res = await fetch(`${URL}/api/users/refresh`,{
       method:"POST",
@@ -141,7 +141,7 @@ async refreshHubToken(URL:string,theToken:string){
 
 
 async createProject(data: {project_name: string, project_avatar: string, project_description: string}, hubAuthToken: string){
-  await checkAuthentication(hubAuthToken,'hubAuthToken','projects')
+  await checkAuthentication(hubAuthToken,'hubAuthToken','login')
   try{
     const res = await fetch(`${URL}/api/projects`,{
       method:"POST",
@@ -164,7 +164,7 @@ async createProject(data: {project_name: string, project_avatar: string, project
 },
 
 async getAllProjects(){
-  await checkAuthentication(hubAuthToken,'hubAuthToken','projects')
+  await checkAuthentication(hubAuthToken,'hubAuthToken','login')
   try{
     const res = await fetch(`${URL}/api/projects`,{
       method:"GET",
@@ -186,7 +186,7 @@ async getAllProjects(){
 },
 
 async getSingleProject(id: number){
-  await checkAuthentication(hubAuthToken,'hubAuthToken','projects')
+  await checkAuthentication(hubAuthToken,'hubAuthToken','login')
   try{
     const res = await fetch(`${URL}/api/projects/${id}`,{
       method:"GET",
@@ -207,7 +207,7 @@ async getSingleProject(id: number){
 },
 
 async updateProject(id: number, data: {project_name: string, project_avatar: string, project_description: string}, hubAuthToken: string){
-  await checkAuthentication(hubAuthToken,'hubAuthToken','projects')
+  await checkAuthentication(hubAuthToken,'hubAuthToken','login')
   try{
     const res = await fetch(`${URL}/api/projects/${id}`,{
       method:"PUT",
@@ -230,7 +230,7 @@ async updateProject(id: number, data: {project_name: string, project_avatar: str
 },
 
 async deleteProject(id: number, hubAuthToken: string){
-  await checkAuthentication(hubAuthToken,'hubAuthToken','projects')
+  await checkAuthentication(hubAuthToken,'hubAuthToken','login')
   try{
     const res = await fetch(`${URL}/api/projects/${id}`,{
       method:"DELETE",
@@ -278,7 +278,7 @@ async downloadApp(os: string) {
 
 
 async downloadProject(projectId: number, hubAuthToken: string){
-  await checkAuthentication(hubAuthToken,'hubAuthToken','projects')
+  await checkAuthentication(hubAuthToken,'hubAuthToken','login')
   try{
     const res = await fetch(`${URL}/api/projects/download/${projectId}`,{
       method:"GET",
@@ -332,7 +332,7 @@ async downloadProject(projectId: number, hubAuthToken: string){
 
 //可选 admin 或 readonly
 async sendInvitation(payload:any){
-  await checkAuthentication(hubAuthToken,'hubAuthToken','projects')
+  await checkAuthentication(hubAuthToken,'hubAuthToken','login')
   const tempUrl = "http://localhost:8080"
   // const tempUrl = "http://www.smallwoodice.cn:8080"
   try{
@@ -368,7 +368,7 @@ async sendInvitation(payload:any){
 // /disagree 	获取该用户发送的所有的不同意的邀请
 // /pending 	获取该用户发送的所有的待同意的邀请
 async getSentInvitations(status: string){
-  await checkAuthentication(hubAuthToken,'hubAuthToken','projects')
+  await checkAuthentication(hubAuthToken,'hubAuthToken','login')
   try{
     const res = await fetch(`${URL}/api/team/send/${status}`,{
       method:"GET",
@@ -396,7 +396,7 @@ async getSentInvitations(status: string){
 // /disagree 	获取该用户发送的所有的不同意的邀请
 // /pending 	获取该用户发送的所有的待同意的邀请
 async getReceivedInvitations(status: string){
-  await checkAuthentication(hubAuthToken,'hubAuthToken','projects')
+  await checkAuthentication(hubAuthToken,'hubAuthToken','login')
   try{
     const res = await fetch(`${URL}/api/team/receive/${status}`,{
       method:"GET",
@@ -421,7 +421,7 @@ async getReceivedInvitations(status: string){
 // /agree 	同意邀请
 // disagree 	不同意邀请
 async confirmInvitation(notificationId: number, status: string){
-  await checkAuthentication(hubAuthToken,'hubAuthToken','projects')
+  await checkAuthentication(hubAuthToken,'hubAuthToken','login')
   try{
     const res = await fetch(`${URL}/api/team/confirm/${notificationId}/${status}`,{
       method:"PUT",

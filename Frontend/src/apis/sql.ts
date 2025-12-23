@@ -250,7 +250,7 @@ async runQuery(queries:any): Promise<any> {
 
 
     async hubLastestSql(hubUrl:string,projectId:number): Promise<any> {
-        await checkAuthentication(hubAuthToken,'hubAuthToken','projects')
+        await checkAuthentication(hubAuthToken,'hubAuthToken','login')
         try {
             const response = await fetch(`${hubUrl}/api/projects/sql/${projectId}`, {
                 method: "GET",

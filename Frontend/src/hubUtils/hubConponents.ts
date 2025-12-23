@@ -9,16 +9,12 @@ import defaultImg from "../icons/projectsDefault.jpg"
 import userIcon from '../icons/userWhite.svg';
 import messagesIcon from '../icons/messages.svg';
 // import { createLoader } from "../modules/loader";
-import { compressImage,checkAuthentication,getCookie,parseJwt } from "../modules/tools";
+import { compressImage,getCookie,parseJwt } from "../modules/tools";
 import { i18n, createLanguageSwitcher } from "../modules/i18n";
 
 
 let token = getCookie('hubAuthToken');
 
-//检查token
-// if(token)
-// checkAuthentication(token,'hubAuthToken','login')
-// let token = hubToken
 
 let isEmpty = false;
 
@@ -148,6 +144,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   gitImg.src = githubImg;
 
 
+}
 // 生成导航栏
   const newNav = createNavBar();
   document.body.insertBefore(newNav, document.body.firstChild);
@@ -349,10 +346,3 @@ window.addEventListener('load', () => {
     }
 });
 
-
-// if (token) {
-//   console.log("执行")
-//   setInterval(() => {
-//     checkAuthentication(token, 'hubAuthToken', 'login');
-//   }, 1000);
-// }

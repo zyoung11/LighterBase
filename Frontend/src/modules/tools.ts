@@ -83,10 +83,10 @@ import projects from "../hubUtils/projects";
 let isRefreshing = false;
 
 async function checkAuthentication(token: string, tokenName: string, targetPage: string) {
-  if (!token || token == null || token === '') {
-    window.location.href = `/${targetPage}`;
-    return;
-  }
+  // if (!token || token == null || token === '') {
+  //   window.location.href = `/${targetPage}`;
+  //   return;
+  // }
 
   try {
     const decoded = jwtDecode(token);
@@ -114,11 +114,13 @@ async function checkAuthentication(token: string, tokenName: string, targetPage:
 
         if (newToken) {
           document.cookie = `${tokenName}=${newToken}; path=/;`;
+          return
           // console.log("Token刷新成功");
         }
       } catch (refreshError) {
         // console.error("Token刷新失败", refreshError);
         window.location.href = `/${targetPage}`;
+        return
       } finally {
         isRefreshing = false;
       }
@@ -126,11 +128,13 @@ async function checkAuthentication(token: string, tokenName: string, targetPage:
     } else if (exp && exp <= now) {
       blocks.popupConfirm("token已经过期，请重新登录");
       window.location.href = `/${targetPage}`;
+      return
     }
 
   } catch (e) {
     console.error("token解析失败", e);
     window.location.href = `/${targetPage}`;
+    return
   }
 }
 
