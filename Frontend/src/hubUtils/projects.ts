@@ -7,10 +7,10 @@ const projects = {
 
 // ====================================用户=========================================
 
-async getAllUsers(){
+async getAllUsers(x:number,y:number){
   await checkAuthentication(hubAuthToken,'hubAuthToken','login')
   try{
-    const res = await fetch(`${URL}/api/users`,{
+    const res = await fetch(`${URL}/api/users?page=${x}&perpage=${y}`,{
       method:"GET",
       headers:{
         // "Content-Type":"application/json",
@@ -21,7 +21,7 @@ async getAllUsers(){
     if(res.ok){
       const data =await res.json()
       console.log(data)
-      return data
+      return data.users
     }
 
   

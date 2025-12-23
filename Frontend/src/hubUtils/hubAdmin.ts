@@ -99,7 +99,7 @@ async function startMonitoring() {
     setInterval(async () => {
         try {
             const start = performance.now();
-            const metrics = await (projects as any).getMetrics(); // 假设已按你提供的格式添加
+            const metrics = await (projects as any).getMetrics();
             const end = performance.now();
 
             // 更新实时数值
@@ -113,12 +113,12 @@ async function startMonitoring() {
             // 更新图表数据
             const now = Math.floor(Date.now() / 1000);
             dataStackCpu[0].push(now);
-            dataStackCpu[1].push(metrics.pid.cpu); // PID CPU 使用率
-            dataStackCpu[2].push(metrics.os.cpu); // OS CPU 使用率
+            dataStackCpu[1].push(metrics.pid.cpu);
+            dataStackCpu[2].push(metrics.os.cpu);
 
             dataStackRam[0].push(now);
-            dataStackRam[1].push(metrics.pid.ram / 1024 / 1024); // 转换为 MB
-            dataStackRam[2].push(metrics.os.ram / 1024 / 1024); // OS RAM MB
+            dataStackRam[1].push(metrics.pid.ram / 1024 / 1024);
+            dataStackRam[2].push(metrics.os.ram / 1024 / 1024);
 
             maxRam = Math.max(maxRam, metrics.os.total_ram / 1024 / 1024);
             ramChart.setScale('ram', { min: 0, max: maxRam });
@@ -141,41 +141,40 @@ async function startMonitoring() {
 }
 
 /**
- * 原有用户管理逻辑
+ * 用户列表加载逻辑
  */
 async function loadUsers() {
+    // 1. 修复：调用 getAllUsers 时补充必要的 page 和 perPage 参数
+    // 2. 修改：接收返回的完整对象，从中提取 users 数组
+    const response = await projects.getAllUsers(1, 30);
     
     userTableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-gray-500">Loading users...</td></tr>';
     
-    try {
-        const users = await projects.getAllUsers();
-        if (!users || !Array.isArray(users)) {
-            userTableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-red-400">Failed to load users.</td></tr>';
-            return;
-        }
-
-        userTableBody.innerHTML = '';
-        users.forEach((user: any) => {
-            const row = document.createElement('tr');
-            row.className = "hover:bg-white/5 transition-colors group";
-            row.innerHTML = `
-                <td class="px-6 py-4 font-mono text-sm text-gray-400">${user.user_id}</td>
-                <td class="px-6 py-4 font-medium text-white">${user.user_name}</td>
-                <td class="px-6 py-4 text-gray-400">${user.email}</td>
-                <td class="px-6 py-4 text-sm text-gray-500">${new Date(user.create_at).toLocaleDateString()}</td>
-                <td class="px-6 py-4 text-right">
-                    <button onclick="editUser(${user.user_id})" class="text-[#46A3FF] hover:underline text-sm">Edit</button>
-                    <button onclick="handleDelete(${user.user_id})" class="text-red-400 hover:text-red-300 text-sm ml-4">Delete</button>
-                </td>
-            `;
-            userTableBody.appendChild(row);
-        });
-    } catch (error) {
-        console.error("Admin Load Error:", error);
+    if (!response || !response.users || !Array.isArray(response.users)) {
+        userTableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-red-400">Failed to load users.</td></tr>';
+        return;
     }
+
+    userTableBody.innerHTML = '';
+    response.users.forEach((user: any) => {
+        const row = document.createElement('tr');
+        row.className = "hover:bg-white/5 transition-colors group";
+        
+        // 3. 修改：删除了 "Edit" 按钮及其相关调用
+        row.innerHTML = `
+            <td class="px-6 py-4 font-mono text-sm text-gray-400">${user.user_id}</td>
+            <td class="px-6 py-4 font-medium text-white">${user.user_name}</td>
+            <td class="px-6 py-4 text-gray-400">${user.email}</td>
+            <td class="px-6 py-4 text-sm text-gray-500">${new Date(user.create_at).toLocaleDateString()}</td>
+            <td class="px-6 py-4 text-right">
+                <button onclick="handleDelete(${user.user_id})" class="text-red-400 hover:text-red-300 text-sm">Delete</button>
+            </td>
+        `;
+        userTableBody.appendChild(row);
+    });
 }
 
-// 绑定到 window 以便 HTML 的 onclick 调用
+// 绑定到 window 的删除功能
 (window as any).handleDelete = async (id: number) => {
     if (confirm(`Delete user #${id}?`)) {
         if (await projects.deleteUser(id) === null) {
@@ -185,12 +184,7 @@ async function loadUsers() {
     }
 };
 
-(window as any).editUser = async (id: number) => {
-    const newName = prompt("New username:");
-    if (newName && await projects.updateUser(id, { user_name: newName, password: "", user_avatar: "" })) {
-        loadUsers();
-    }
-};
+// 4. 修改：已移除 window.editUser 绑定
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
