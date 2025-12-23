@@ -144,19 +144,18 @@ async function startMonitoring() {
  * 用户列表加载逻辑
  */
 async function loadUsers() {
-    // 1. 修复：调用 getAllUsers 时补充必要的 page 和 perPage 参数
-    // 2. 修改：接收返回的完整对象，从中提取 users 数组
     const response = await projects.getAllUsers(1, 30);
-    
+    // console.log('API response:', response);
+
     userTableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-gray-500">Loading users...</td></tr>';
-    
-    if (!response || !response.users || !Array.isArray(response.users)) {
+
+    if (!response || !Array.isArray(response)) {
         userTableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-red-400">Failed to load users.</td></tr>';
         return;
     }
 
     userTableBody.innerHTML = '';
-    response.users.forEach((user: any) => {
+    response.forEach((user: any) => {
         const row = document.createElement('tr');
         row.className = "hover:bg-white/5 transition-colors group";
         
