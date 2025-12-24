@@ -206,7 +206,11 @@ async function initializeDatabaseView() {
     } catch (err) {
       console.error("SQL解析错误:", err);
       sqlNotice.style.color = "red";
-      sqlNotice.textContent = "SQL语法错误";
+      if (err instanceof Error && err.message) {
+        sqlNotice.textContent = err.message;
+      } else {
+        sqlNotice.textContent = "SQL语法错误";
+      }
       setTimeout(() => {
         sqlNotice.style.color = "";
         sqlNotice.textContent = "请输入大写SQLite语句, Enter 渲染E-R图";
