@@ -35,8 +35,8 @@ projectDetails.className = 'absolute right-[5%] top-[12%] w-3/5 h-4/5 bg-white/5
 projectDetails.innerHTML = `
     <div class=" flex space-x-4 justify-end mb-4">
         <div id="project-size" class="w-14 h-6 border border-white/50 rounded-full flex items-center justify-center text-white text-sm font-bold"></div>
-        <button id="start-btn" class="w-10 h-10 border border-white/50 rounded-lg flex items-center justify-center transition-colors">
-         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button id="start-btn" class="relative overflow-hidden w-10 h-10 border border-white/50 rounded-lg flex items-center justify-center transition-all duration-500 ease-in-out hover:scale-110 hover:shadow-lg hover:border-white dynamic-glow">
+         <svg class="w-6 h-6 text-white z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
          </svg>
