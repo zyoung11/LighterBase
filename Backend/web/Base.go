@@ -190,8 +190,8 @@ func GenerateBaasJWT(userID int64) (string, time.Time, error) {
 
 // generateJWT 内部JWT生成函数
 func generateJWT(userID int64, secret string) (string, time.Time, error) {
-	// expirationTime := time.Now().Add(48 * time.Hour)
-	expirationTime := time.Now().Add(10 * time.Minute)
+	expirationTime := time.Now().Add(48 * time.Hour)
+	// expirationTime := time.Now().Add(10 * time.Minute)
 
 	claims := &MyCustomClaims{
 		UserID: userID,
