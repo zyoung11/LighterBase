@@ -744,15 +744,34 @@ document.addEventListener('click', (e) => {
       const code = container.querySelector('code');
       if (code) {
         const text = code.textContent || '';
-        navigator.clipboard.writeText(text).then(() => {
-          const original = target.textContent;
-          target.textContent = '已复制';
-          setTimeout(() => {
-            target.textContent = original;
-          }, 500);
-        }).catch(err => {
-          console.error('复制失败:', err);
-        });
+        const original = target.textContent;
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+            target.textContent = '已复制';
+            setTimeout(() => {
+              target.textContent = original;
+            }, 500);
+          }).catch(err => {
+            console.error('复制失败:', err);
+          });
+        } else {
+          // 备用方法 for HTTP
+          const textArea = document.createElement('textarea');
+          textArea.value = text;
+          document.body.appendChild(textArea);
+          textArea.select();
+          try {
+            document.execCommand('copy');
+            target.textContent = '已复制';
+            setTimeout(() => {
+              target.textContent = original;
+            }, 500);
+          } catch (err) {
+            console.error('复制失败:', err);
+          }
+          document.body.removeChild(textArea);
+        }
       }
     }
   }

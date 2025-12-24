@@ -194,10 +194,10 @@ marked.setOptions({
 
 const aichat = {
 
-bindCopyButtons() {
+    bindCopyButtons() {
         const copyButtons = document.querySelectorAll('.copy-code-btn');
         copyButtons.forEach(button => {
-            
+
             if (button.getAttribute('data-listener-added') === 'true') {
                 return;
             }
@@ -205,22 +205,40 @@ bindCopyButtons() {
 
             button.addEventListener('click', () => {
                 const codeElement = button.closest('.code-block-container')?.querySelector('code');
-                const codeToCopy = codeElement ? codeElement.textContent : ''; 
-                
+                const codeToCopy = codeElement ? codeElement.textContent : '';
+
                 // const encodedCode = button.getAttribute('data-code');
                 // const codeToCopy = encodedCode ? decodeURIComponent(encodedCode) : '';
 
                 if (codeToCopy) {
-                    navigator.clipboard.writeText(codeToCopy).then(() => {
-                        const originalText = button.querySelector('.copy-text')!.textContent;
-                        button.querySelector('.copy-text')!.textContent = '已复制!';
-                        
-                        setTimeout(() => {
-                            button.querySelector('.copy-text')!.textContent = originalText;
-                        }, 2000);
-                    }).catch(err => {
-                        console.error('复制失败: ', err);
-                    });
+                    const originalText = button.querySelector('.copy-text')!.textContent;
+
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(codeToCopy).then(() => {
+                            button.querySelector('.copy-text')!.textContent = '已复制!';
+                            setTimeout(() => {
+                                button.querySelector('.copy-text')!.textContent = originalText;
+                            }, 2000);
+                        }).catch(err => {
+                            console.error('复制失败: ', err);
+                        });
+                    } else {
+                        // 备用方法 for HTTP
+                        const textArea = document.createElement('textarea');
+                        textArea.value = codeToCopy;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        try {
+                            document.execCommand('copy');
+                            button.querySelector('.copy-text')!.textContent = '已复制!';
+                            setTimeout(() => {
+                                button.querySelector('.copy-text')!.textContent = originalText;
+                            }, 2000);
+                        } catch (err) {
+                            console.error('复制失败: ', err);
+                        }
+                        document.body.removeChild(textArea);
+                    }
                 }
             });
         });

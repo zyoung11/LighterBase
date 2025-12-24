@@ -26,7 +26,7 @@ import deleteImg from './icons/delete.svg'
 // await checkAuthentication(authToken,'authToken','projects')
 // 启动应用
 // initializeApp();
-console.log(authToken)
+// console.log(authToken)
 
 // Set imported images
 function setImportedImages() {
@@ -255,8 +255,7 @@ async function loadQueryHistory() {
       response.queries.forEach((query: any) => {
         const queryItem = document.createElement('div');
         queryItem.className = `flex items-center p-2 rounded cursor-pointer ${currentQueryId === query.id ? 'bg-[#4a4f52]' : 'bg-[#2B2F31] hover:bg-[#3a3f41]'}`;
-        queryItem.setAttribute('data-query-id', query.id.toString());
-        queryItem.innerHTML = `
+        queryItem.setAttribute('data-query-id', query.id.toString()); queryItem.innerHTML = `
           <div class="w-[80%] text-sm text-gray-300" title="${query.queries}">
             ${query.queries.substring(0, 30)}${query.queries.length > 30 ? '...' : ''}
           </div>
@@ -638,14 +637,32 @@ document.addEventListener('click', (e) => {
         const btn = target as HTMLButtonElement;
         const originalText = btn.textContent;
 
-        navigator.clipboard.writeText(text).then(() => {
-            btn.textContent = '已复制！';
-            setTimeout(() => {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+                btn.textContent = '已复制！';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 500);
+            }).catch(() => {
                 btn.textContent = originalText;
-            }, 500);
-        }).catch(e => {
-            btn.textContent = originalText;
-        });
+            });
+        } else {
+            // 备用方法 for HTTP
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                btn.textContent = '已复制！';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 500);
+            } catch (e) {
+                btn.textContent = originalText;
+            }
+            document.body.removeChild(textArea);
+        }
     }
 });
 

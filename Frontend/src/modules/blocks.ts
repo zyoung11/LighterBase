@@ -122,10 +122,26 @@ showTooltipWithCopy(content: string, left: number, top: number) {
 
   const copyBtn = tooltip.querySelector('#copy-btn') as HTMLButtonElement;
   copyBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText(content).then(() => {
-      copyBtn.innerHTML = '✅';
-      setTimeout(() => copyBtn.innerHTML = copyIcon, 200);
-    });
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(content).then(() => {
+        copyBtn.innerHTML = '✅';
+        setTimeout(() => copyBtn.innerHTML = copyIcon, 200);
+      });
+    } else {
+      // 备用方法 for HTTP
+      const textArea = document.createElement('textarea');
+      textArea.value = content;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        copyBtn.innerHTML = '✅';
+        setTimeout(() => copyBtn.innerHTML = copyIcon, 200);
+      } catch (e) {
+        console.error('复制失败:', e);
+      }
+      document.body.removeChild(textArea);
+    }
   });
 
   tooltip.addEventListener('mouseleave', () => {
