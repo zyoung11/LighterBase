@@ -33,7 +33,7 @@ projectDetails.id = 'projectDetails';
 //oldColor:bg-[#1B1E1F]
 projectDetails.className = 'absolute right-[5%] top-[12%] w-3/5 h-4/5 bg-white/5 shadow-md shadow-white/30 border border-white/10 bg-opacity-90 p-4 rounded-lg hidden z-5';
 projectDetails.innerHTML = `
-    <div class=" flex space-x-4 justify-end">
+    <div class=" flex space-x-4 justify-end mb-4">
         <div id="project-size" class="w-14 h-6 border border-white/50 rounded-full flex items-center justify-center text-white text-sm font-bold"></div>
         <button id="start-btn" class="w-10 h-10 border border-white/50 rounded-lg flex items-center justify-center transition-colors">
          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
