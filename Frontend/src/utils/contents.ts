@@ -42,15 +42,15 @@ const sidebarContent = {
   `,
   database: `
                 <div class="space-y-3">
-                    <button id="create-db" class="w-full flex mb-3 px-4 py-3 bg-[#1B1E1F] hover:bg-[#3a3f41] rounded-lg items-center text-left transition-colors">
+                    <button id="create-db" class="w-full flex mb-3 px-4 py-3 hover:scale-105 rounded-lg items-center text-left transition-colors">
                        <img src ="${create}" class ="w-[15%] object-contain" alt="表的设计">
                        <p class = "text-[1.1rem]  ml-[10%]">Design DB</p>
                     </button>
-                    <button id="Query-db" class="w-full flex mb-3 px-4 py-3 bg-[#1B1E1F] hover:bg-[#3a3f41] rounded-lg items-center text-left transition-colors">
+                    <button id="Query-db" class="w-full flex mb-3 px-4 py-3 hover:scale-105 rounded-lg items-center text-left transition-colors">
                        <img src ="${query}" class ="w-[15%] object-contain" alt="表的查询">
                        <p class = "text-[1.1rem] ml-[10%]">Query</p>
                     </button>
-                    <button id="permissions" class="w-full flex px-4 py-3 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg items-center text-left transition-colors">
+                    <button id="permissions" class="w-full flex px-4 py-3 hover:scale-105 rounded-lg items-center text-left transition-colors">
                        <img src ="${permission}" class ="w-[15%] object-contain" alt="权限">
                        <p class = "text-[1.1rem] ml-[10%]">Permission</p>
                     </button>
@@ -410,11 +410,11 @@ const apiMarked = {
 </div>
 
 \`\`\`javascript
-import LighterBase from 'lighter-base';
+import LighterBase from 'lighterbase';
 
 const lb = new LighterBase('https://your-api-endpoint.com');
 
-...
+//...
 
 const payload = {
       "Field1": "value1",
@@ -505,11 +505,11 @@ const insertData = await lb.insertTable(payload, "table_name");
 </div>
 
 \`\`\`javascript
-import LighterBase from 'lighter-base';
+import LighterBase from 'lighterbase';
 
 const lb = new LighterBase('https://your-api-endpoint.com');
 
-...
+//...
 
 const payload = {
       "WHERE": "id = 42"
@@ -600,11 +600,11 @@ null
 </div>
 
 \`\`\`javascript
-import LighterBase from 'lighter-base';
+import LighterBase from 'lighterbase';
 
 const lb = new LighterBase('https://your-api-endpoint.com');
 
-...
+//...
 
 const payload = {
       "set": {
@@ -708,11 +708,11 @@ null
 </div>
 
 \`\`\`javascript
-import LighterBase from 'lighter-base';
+import LighterBase from 'lighterbase';
 
 const lb = new LighterBase('https://your-api-endpoint.com');
 
-...
+//...
 
 const payload = {
       "SELECT": ["Field1", "Field2", "Field3"],

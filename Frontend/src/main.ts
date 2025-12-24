@@ -67,6 +67,10 @@ let currentQueryId: number | null = null;
   conponents.hideRightSlidebar
 );
 
+
+//===================================setting======================================
+
+
 (document.getElementById("settings-btn") as HTMLElement).addEventListener(
   "click",
   () => {
@@ -107,6 +111,11 @@ let currentQueryId: number | null = null;
 );
 
 
+
+//===================================log======================================
+
+
+
   (document.getElementById('records-btn') as HTMLElement).addEventListener('click', () => {
     rightSidebar.classList.add('hidden');
     currentSection = 'records';
@@ -115,6 +124,7 @@ let currentQueryId: number | null = null;
     conponents.showLogs(); 
   });
 
+//===================================table======================================
 
 (document.getElementById("folder-btn") as HTMLElement).addEventListener(
   "click",
@@ -130,6 +140,7 @@ let currentQueryId: number | null = null;
   }
 );
 
+//===================================database======================================
 
 
 (document.getElementById("database-btn") as HTMLElement).addEventListener(
