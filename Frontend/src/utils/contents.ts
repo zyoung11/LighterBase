@@ -100,7 +100,7 @@ const workspaceContent = {
 
     </div>
     </div>
-   <p id = "sql-notice" class = "mt-3">请输入大写SQLite语句,"enter"渲染E-R图,点击右侧确认按钮提交</p>
+    <p id = "sql-notice" class = "mt-3">请输入大写SQLite语句, Enter 渲染E-R图, 点击右侧确认按钮提交</p>
 </div>
 
 <!-- 弹出窗口模态框 -->
@@ -141,13 +141,12 @@ query: `
             <!-- 下部分：SQL输入区域 (40% 高度) -->
             <div class="h-[40%] p-6 flex flex-col min-h-0 border-t border-[#2B2F31]">
                  <div class="flex-1 flex items-center justify-center min-h-0">
-                     <div class="w-[80%] h-full relative">
-                         <textarea
-                             id="query-sql-input"
-                             class="w-full h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg p-4 text-gray-200 placeholder-gray-500 resize-none focus:outline-none focus:border-[#4a4f52] overflow-y-auto font-mono text-sm"
-                             placeholder="在这里输入SQL查询..."
-                         ></textarea>
-                     </div>
+                      <div class="w-[80%] h-full relative">
+                          <div
+                              id="query-sql-input"
+                              class="w-full h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg overflow-hidden"
+                          ></div>
+                      </div>
                      <div class="ml-4 flex flex-col space-y-2">
                          <button id="query-save-btn" class="w-12 h-12 px-2 py-2 hover:bg-[#3a3f41] rounded-full text-sm transition-colors mb-4 flex items-center justify-center">
                               <img src="${save}" class="object-contain" alt="save">

@@ -8,7 +8,7 @@ import sql from "./apis/sql";
 import aichat from "./modules/aiChat";
 import lighterBase from "./apis/auto";
 import { renderUserTable } from "./modules/table";
-import { initSqlEditor, getSqlValue, setSqlValue } from "./modules/tools";
+import { initSqlEditor, getSqlValue, setSqlValue } from "./modules/sqlEditor";
 // Import images
 import logoImg from './icons/logoWhite.png';
 import databaseImg from './icons/databaseWhite.svg';
@@ -194,7 +194,25 @@ async function initializeDatabaseView() {
   }
 
   // 初始化SQL编辑器
-  initSqlEditor(hasExistingContent, initialSQL.length, initialSQL);
+  initSqlEditor(hasExistingContent, initialSQL.length, initialSQL, "sql-input-wrapper", async (sqlValue) => {
+    // 当按Enter时渲染ER图
+    const sqlNotice = document.getElementById('sql-notice') as HTMLElement;
+    try {
+      const ast = sqliteParser(sqlValue);
+      const tables = gojsER.extract(ast);
+      requestAnimationFrame(() => {
+        gojsER.drawER(tables, 'mount');
+      });
+    } catch (err) {
+      console.error("SQL解析错误:", err);
+      sqlNotice.style.color = "red";
+      sqlNotice.textContent = "SQL语法错误";
+      setTimeout(() => {
+        sqlNotice.style.color = "";
+        sqlNotice.textContent = "请输入大写SQLite语句, Enter 渲染E-R图";
+      }, 2000);
+    }
+  });
 
 
 mainWorkspace.addEventListener('manual-render-trigger', async (e: any) => {
@@ -267,6 +285,22 @@ mainWorkspace.addEventListener('manual-render-trigger', async (e: any) => {
 
 async function initializeQueryView() {
   currentQueryId = null;
+
+  // 初始化SQL编辑器
+  initSqlEditor(false, 0, "", "query-sql-input", async (sqlValue) => {
+    // 当按Enter时执行查询
+    try {
+      const result = await sql.runQuery({"queries": sqlValue});
+      renderUserTable(result,'query-results');
+      // 执行查询后，清除选中状态，按钮变回保存
+      currentQueryId = null;
+      loadQueryHistory();
+    } catch (e) {
+      console.error('执行查询失败:', e);
+      displayQueryResult({ error: '执行查询失败' });
+    }
+  });
+
   await loadQueryHistory();
   // 默认渲染第一个查询历史
   try {
@@ -274,10 +308,7 @@ async function initializeQueryView() {
     if (response && response.queries && response.queries.length > 0) {
       const firstQuery = response.queries[0];
       currentQueryId = firstQuery.id;
-      const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
-      if (textarea) {
-        textarea.value = firstQuery.queries;
-      }
+      setSqlValue(firstQuery.queries);
       // 执行查询并渲染表格
       try {
         const result = await sql.runQuery({"queries": firstQuery.queries});
@@ -340,17 +371,11 @@ async function selectQuery(query: any) {
   if (currentQueryId === query.id) {
     // 再次点击，退出选中
     currentQueryId = null;
-    const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
-    if (textarea) {
-      textarea.value = '';
-    }
+    setSqlValue('');
   } else {
     // 选中
     currentQueryId = query.id;
-    const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
-    if (textarea) {
-      textarea.value = query.queries;
-    }
+    setSqlValue(query.queries);
     // 执行查询并渲染表格
     try {
       const result = await sql.runQuery({"queries": query.queries});
@@ -373,8 +398,7 @@ async function deleteQueryItem(queryId: number) {
     await loadQueryHistory();
     if (currentQueryId === queryId) {
       currentQueryId = null;
-      const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
-      if (textarea) textarea.value = '';
+      setSqlValue('');
       const resultsDiv = document.getElementById('query-results');
       if (resultsDiv) {
         resultsDiv.innerHTML = '<div class="text-gray-400 p-4">查询结果将显示在这里</div>';
@@ -611,40 +635,40 @@ document.addEventListener('DOMContentLoaded', () => {
           }
        }
 
-     if (target.closest('#query-save-btn')) {
-       const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
-       if (textarea && textarea.value.trim()) {
-          if (currentQueryId) {
-            // 更新
-            await sql.updateQuery(currentQueryId,{"queries": textarea.value});
-            await loadQueryHistory();
-          } else {
-            // 保存
-            await sql.createQuery({"queries":textarea.value});
-            await loadQueryHistory();
-          }
-       }
-       return;
-     }
-
-      if (target.closest('#query-execute-btn')) {
-        const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
-        if (textarea && textarea.value.trim()) {
-          try {
-            const result = await sql.runQuery({"queries":textarea.value});
-            renderUserTable(result,'query-results')
-            // displayQueryResult(result);
-            // 执行查询后，清除选中状态，按钮变回保存
-            currentQueryId = null;
-            // updateSaveButton();
-            loadQueryHistory(); // 更新历史样式
-          } catch (e) {
-            console.error('执行查询失败:', e);
-            displayQueryResult({ error: '执行查询失败' });
-          }
+      if (target.closest('#query-save-btn')) {
+        const sqlValue = getSqlValue();
+        if (sqlValue && sqlValue.trim()) {
+           if (currentQueryId) {
+             // 更新
+             await sql.updateQuery(currentQueryId,{"queries": sqlValue});
+             await loadQueryHistory();
+           } else {
+             // 保存
+             await sql.createQuery({"queries": sqlValue});
+             await loadQueryHistory();
+           }
         }
         return;
       }
+
+       if (target.closest('#query-execute-btn')) {
+         const sqlValue = getSqlValue();
+         if (sqlValue && sqlValue.trim()) {
+           try {
+             const result = await sql.runQuery({"queries": sqlValue});
+             renderUserTable(result,'query-results')
+             // displayQueryResult(result);
+             // 执行查询后，清除选中状态，按钮变回保存
+             currentQueryId = null;
+             // updateSaveButton();
+             loadQueryHistory(); // 更新历史样式
+           } catch (e) {
+             console.error('执行查询失败:', e);
+             displayQueryResult({ error: '执行查询失败' });
+           }
+         }
+         return;
+       }
 
           if (target.closest( '#view-full-sql-btn')) {
          const fullSQL = getSqlValue();
