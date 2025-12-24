@@ -349,11 +349,11 @@ func loadExistingProjects() {
 				connManager.RegisterConnection(key, dbSet)
 			}
 
-			log.Printf("已加载项目: %s", key)
+			// log.Printf("已加载项目: %s", key)
 		}
 	}
 
-	log.Printf("完成加载已有项目，共加载 %d 个项目", len(dbMap))
+	// log.Printf("完成加载已有项目，共加载 %d 个项目", len(dbMap))
 }
 
 // initDB 初始化数据库
