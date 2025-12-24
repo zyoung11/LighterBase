@@ -1,6 +1,7 @@
 import uPlot from "uplot";
 import projects from "../hubUtils/projects";
 import { getCookie } from "../modules/tools";
+import blocks from "../modules/blocks";
 
 const userTableBody = document.getElementById('userTableBody') as HTMLTableSectionElement;
 const refreshBtn = document.getElementById('refreshBtn') as HTMLButtonElement;
@@ -175,9 +176,9 @@ async function loadUsers() {
 
 // 绑定到 window 的删除功能
 (window as any).handleDelete = async (id: number) => {
-    if (confirm(`Delete user #${id}?`)) {
+    if (await blocks.popupConfirm("确认删除该用户吗？")) {
         if (await projects.deleteUser(id) === null) {
-            alert("Deleted");
+            blocks.popupConfirm("已删除");
             loadUsers();
         }
     }

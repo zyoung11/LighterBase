@@ -1,1542 +1,310 @@
 <!doctype html>
 <html>
-
 <head>
-  <meta charset='UTF-8'>
-  <meta name='viewport' content='width=device-width initial-scale=1'>
-  <style type='text/css'>
-    html {
-      overflow-x: initial !important;
-    }
-  </style>
-  <style type='text/css' id="style-base">
-    :root {
-      --bg-color: #ffffff;
-      --text-color: #333333;
-      --select-text-bg-color: #B5D6FC;
-      --select-text-font-color: auto;
-      --monospace: "Lucida Console", Consolas, "Courier", monospace;
-      --title-bar-height: 20px;
-    }
-
-    .mac-os-11 {
-      --title-bar-height: 28px;
-    }
-
-    html {
-      font-size: 14px;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      font-family: "Helvetica Neue", Helvetica, Arial, "Segoe UI Emoji", "SF Pro", sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    h1,
-    h2,
-    h3,
-    h4,
-    h5 {
-      white-space: pre-wrap;
-    }
-
-    body {
-      margin: 0px;
-      padding: 0px;
-      height: auto;
-      inset: 0px;
-      font-size: 1rem;
-      line-height: 1.42857;
-      overflow-x: hidden;
-      background: inherit;
-    }
-
-    iframe {
-      margin: auto;
-    }
-
-    a.url {
-      word-break: break-all;
-    }
-
-    a:active,
-    a:hover {
-      outline: 0px;
-    }
-
-    .in-text-selection,
-    ::selection {
-      text-shadow: none;
-      background: var(--select-text-bg-color);
-      color: var(--select-text-font-color);
-    }
-
-    #write {
-      margin: 0px auto;
-      height: auto;
-      width: inherit;
-      word-break: normal;
-      overflow-wrap: break-word;
-      position: relative;
-      white-space: normal;
-      overflow-x: visible;
-      padding-top: 36px;
-    }
-
-    #write.first-line-indent p {
-      text-indent: 2em;
-    }
-
-    #write.first-line-indent li p,
-    #write.first-line-indent p *,
-    #write.first-line-indent svg * {
-      text-indent: 0px;
-    }
-
-    #write.first-line-indent li {
-      margin-left: 2em;
-    }
-
-    .for-image #write {
-      padding-left: 8px;
-      padding-right: 8px;
-    }
-
-    body.typora-export {
-      padding-left: 30px;
-      padding-right: 30px;
-    }
-
-    .typora-export .footnote-line,
-    .typora-export li,
-    .typora-export p {
-      white-space: pre-wrap;
-    }
-
-    .typora-export .task-list-item input {
-      pointer-events: none;
-    }
-
-    @media screen and (max-width: 500px) {
-      body.typora-export {
-        padding-left: 0px;
-        padding-right: 0px;
-      }
-
-      #write {
-        padding-left: 20px;
-        padding-right: 20px;
-      }
-    }
-
-    #write li>figure:last-child {
-      margin-bottom: 0.5rem;
-    }
-
-    #write ol,
-    #write ul {
-      position: relative;
-    }
-
-    img {
-      max-width: 100%;
-      vertical-align: middle;
-      image-orientation: from-image;
-    }
-
-    button,
-    input,
-    select,
-    textarea {
-      color: inherit;
-      font: inherit;
-    }
-
-    input[type="checkbox"],
-    input[type="radio"] {
-      line-height: normal;
-      padding: 0px;
-    }
-
-    *,
-    ::after,
-    ::before {
-      box-sizing: border-box;
-    }
-
-    #write h1,
-    #write h2,
-    #write h3,
-    #write h4,
-    #write h5,
-    #write h6,
-    #write p,
-    #write pre {
-      width: inherit;
-      position: relative;
-    }
-
-    #write svg h1,
-    #write svg h2,
-    #write svg h3,
-    #write svg h4,
-    #write svg h5,
-    #write svg h6,
-    #write svg p {
-      position: static;
-    }
-
-    .nodeLabel p {
-      padding-right: 2px;
-      padding-left: 2px;
-    }
-
-    .typora-export .nodeLabel p {
-      padding-right: 0px;
-      padding-left: 0px;
-    }
-
-    foreignobject {
-      overflow: visible;
-    }
-
-    p {
-      line-height: inherit;
-    }
-
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-      break-after: avoid-page;
-      break-inside: avoid;
-      orphans: 4;
-    }
-
-    p {
-      orphans: 4;
-    }
-
-    li p {
-      orphans: 1;
-    }
-
-    h1 {
-      font-size: 2rem;
-    }
-
-    h2 {
-      font-size: 1.8rem;
-    }
-
-    h3 {
-      font-size: 1.6rem;
-    }
-
-    h4 {
-      font-size: 1.4rem;
-    }
-
-    h5 {
-      font-size: 1.2rem;
-    }
-
-    h6 {
-      font-size: 1rem;
-    }
-
-    .md-math-block,
-    .md-rawblock,
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6,
-    p {
-      margin-top: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .md-blockmeta {
-      color: rgb(204, 204, 204);
-      font-weight: 700;
-      font-style: italic;
-    }
-
-    a {
-      cursor: pointer;
-    }
-
-    sup.md-footnote {
-      padding: 2px 4px;
-      background-color: rgba(238, 238, 238, 0.7);
-      color: rgb(85, 85, 85);
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    sup.md-footnote a,
-    sup.md-footnote a:hover {
-      color: inherit;
-      text-transform: inherit;
-      text-decoration: inherit;
-    }
-
-    #write input[type="checkbox"] {
-      cursor: pointer;
-      width: inherit;
-      height: inherit;
-    }
-
-    figure {
-      overflow-x: auto;
-      margin: 1.2em 0px;
-      max-width: calc(100% + 16px);
-      padding: 0px;
-    }
-
-    figure>table {
-      margin: 0px;
-    }
-
-    thead,
-    tr {
-      break-inside: avoid;
-      break-after: auto;
-    }
-
-    thead {
-      display: table-header-group;
-    }
-
-    table {
-      border-collapse: collapse;
-      border-spacing: 0px;
-      width: 100%;
-      overflow: auto;
-      break-inside: auto;
-      text-align: left;
-    }
-
-    table.md-table td {
-      min-width: 32px;
-    }
-
-    .CodeMirror-gutters {
-      border-right: 0px;
-      background-color: inherit;
-    }
-
-    .CodeMirror-linenumber {
-      user-select: none;
-    }
-
-    .CodeMirror {
-      text-align: left;
-    }
-
-    .CodeMirror-placeholder {
-      opacity: 0.3;
-    }
-
-    .CodeMirror pre {
-      padding: 0px 4px;
-    }
-
-    .CodeMirror-lines {
-      padding: 0px;
-    }
-
-    div.hr:focus {
-      cursor: none;
-    }
-
-    #write pre {
-      white-space: pre-wrap;
-    }
-
-    #write.fences-no-line-wrapping pre {
-      white-space: pre;
-    }
-
-    #write pre.ty-contain-cm {
-      white-space: normal;
-    }
-
-    .CodeMirror-gutters {
-      margin-right: 4px;
-    }
-
-    .md-fences {
-      font-size: 0.9rem;
-      display: block;
-      break-inside: avoid;
-      text-align: left;
-      overflow: visible;
-      white-space: pre;
-      background: inherit;
-      position: relative !important;
-    }
-
-    .md-fences-adv-panel {
-      width: 100%;
-      margin-top: 10px;
-      text-align: center;
-      padding-top: 0px;
-      padding-bottom: 8px;
-      overflow-x: auto;
-    }
-
-    #write .md-fences.mock-cm {
-      white-space: pre-wrap;
-    }
-
-    .md-fences.md-fences-with-lineno {
-      padding-left: 0px;
-    }
-
-    #write.fences-no-line-wrapping .md-fences.mock-cm {
-      white-space: pre;
-      overflow-x: auto;
-    }
-
-    .md-fences.mock-cm.md-fences-with-lineno {
-      padding-left: 8px;
-    }
-
-    .CodeMirror-line,
-    twitterwidget {
-      break-inside: avoid;
-    }
-
-    svg {
-      break-inside: avoid;
-    }
-
-    .footnotes {
-      opacity: 0.8;
-      font-size: 0.9rem;
-      margin-top: 1em;
-      margin-bottom: 1em;
-    }
-
-    .footnotes+.footnotes {
-      margin-top: 0px;
-    }
-
-    .md-reset {
-      margin: 0px;
-      padding: 0px;
-      border: 0px;
-      outline: 0px;
-      vertical-align: top;
-      background: 0px 0px;
-      text-decoration: none;
-      text-shadow: none;
-      float: none;
-      position: static;
-      width: auto;
-      height: auto;
-      white-space: nowrap;
-      cursor: inherit;
-      -webkit-tap-highlight-color: transparent;
-      line-height: normal;
-      font-weight: 400;
-      text-align: left;
-      box-sizing: content-box;
-      direction: ltr;
-    }
-
-    li div {
-      padding-top: 0px;
-    }
-
-    blockquote {
-      margin: 1rem 0px;
-    }
-
-    li .mathjax-block,
-    li p {
-      margin: 0.5rem 0px;
-    }
-
-    li blockquote {
-      margin: 1rem 0px;
-    }
-
-    li {
-      margin: 0px;
-      position: relative;
-    }
-
-    blockquote> :last-child {
-      margin-bottom: 0px;
-    }
-
-    blockquote> :first-child,
-    li> :first-child {
-      margin-top: 0px;
-    }
-
-    .footnotes-area {
-      color: rgb(136, 136, 136);
-      margin-top: 0.714rem;
-      padding-bottom: 0.143rem;
-      white-space: normal;
-    }
-
-    #write .footnote-line {
-      white-space: pre-wrap;
-    }
-
-    @media print {
-
-      body,
-      html {
-        border: 1px solid transparent;
-        height: 99%;
-        break-after: avoid;
-        break-before: avoid;
-        font-variant-ligatures: no-common-ligatures;
-      }
-
-      #write {
-        margin-top: 0px;
-        border-color: transparent !important;
-        padding-top: 0px !important;
-        padding-bottom: 0px !important;
-      }
-
-      .typora-export * {
-        -webkit-print-color-adjust: exact;
-      }
-
-      .typora-export #write {
-        break-after: avoid;
-      }
-
-      .typora-export #write::after {
-        height: 0px;
-      }
-
-      .is-mac table {
-        break-inside: avoid;
-      }
-
-      #write>p:nth-child(1) {
-        margin-top: 0px;
-      }
-
-      .typora-export-show-outline .typora-export-sidebar {
-        display: none;
-      }
-
-      figure {
-        overflow-x: visible;
-      }
-    }
-
-    .footnote-line {
-      margin-top: 0.714em;
-      font-size: 0.7em;
-    }
-
-    a img,
-    img a {
-      cursor: pointer;
-    }
-
-    pre.md-meta-block {
-      font-size: 0.8rem;
-      min-height: 0.8rem;
-      white-space: pre-wrap;
-      background: rgb(204, 204, 204);
-      display: block;
-      overflow-x: hidden;
-    }
-
-    p>.md-image:only-child:not(.md-img-error) img,
-    p>img:only-child {
-      display: block;
-      margin: auto;
-    }
-
-    #write.first-line-indent p>.md-image:only-child:not(.md-img-error) img {
-      left: -2em;
-      position: relative;
-    }
-
-    p>.md-image:only-child {
-      display: inline-block;
-      width: 100%;
-    }
-
-    #write .MathJax_Display {
-      margin: 0.8em 0px 0px;
-    }
-
-    .md-math-block {
-      width: 100%;
-    }
-
-    .md-math-block:not(:empty)::after {
-      display: none;
-    }
-
-    .MathJax_ref {
-      fill: currentcolor;
-    }
-
-    [contenteditable="true"]:active,
-    [contenteditable="true"]:focus,
-    [contenteditable="false"]:active,
-    [contenteditable="false"]:focus {
-      outline: 0px;
-      box-shadow: none;
-    }
-
-    .md-task-list-item {
-      position: relative;
-      list-style-type: none;
-    }
-
-    .task-list-item.md-task-list-item {
-      padding-left: 0px;
-    }
-
-    .md-task-list-item>input {
-      position: absolute;
-      top: 0px;
-      left: 0px;
-      margin-left: -1.2em;
-      margin-top: calc(1em - 10px);
-      border: none;
-    }
-
-    .math {
-      font-size: 1rem;
-    }
-
-    .md-toc {
-      min-height: 3.58rem;
-      position: relative;
-      font-size: 0.9rem;
-      border-radius: 10px;
-    }
-
-    .md-toc-content {
-      position: relative;
-      margin-left: 0px;
-    }
-
-    .md-toc-content::after,
-    .md-toc::after {
-      display: none;
-    }
-
-    .md-toc-item {
-      display: block;
-      color: rgb(65, 131, 196);
-    }
-
-    .md-toc-item a {
-      text-decoration: none;
-    }
-
-    .md-toc-inner:hover {
-      text-decoration: underline;
-    }
-
-    .md-toc-inner {
-      display: inline-block;
-      cursor: pointer;
-    }
-
-    .md-toc-h1 .md-toc-inner {
-      margin-left: 0px;
-      font-weight: 700;
-    }
-
-    .md-toc-h2 .md-toc-inner {
-      margin-left: 2em;
-    }
-
-    .md-toc-h3 .md-toc-inner {
-      margin-left: 4em;
-    }
-
-    .md-toc-h4 .md-toc-inner {
-      margin-left: 6em;
-    }
-
-    .md-toc-h5 .md-toc-inner {
-      margin-left: 8em;
-    }
-
-    .md-toc-h6 .md-toc-inner {
-      margin-left: 10em;
-    }
-
-    @media screen and (max-width: 48em) {
-      .md-toc-h3 .md-toc-inner {
-        margin-left: 3.5em;
-      }
-
-      .md-toc-h4 .md-toc-inner {
-        margin-left: 5em;
-      }
-
-      .md-toc-h5 .md-toc-inner {
-        margin-left: 6.5em;
-      }
-
-      .md-toc-h6 .md-toc-inner {
-        margin-left: 8em;
-      }
-    }
-
-    a.md-toc-inner {
-      font-size: inherit;
-      font-style: inherit;
-      font-weight: inherit;
-      line-height: inherit;
-    }
-
-    .footnote-line a:not(.reversefootnote) {
-      color: inherit;
-    }
-
-    .reversefootnote {
-      font-family: ui-monospace, sans-serif;
-    }
-
-    .md-attr {
-      display: none;
-    }
-
-    .md-fn-count::after {
-      content: ".";
-    }
-
-    code,
-    pre,
-    samp,
-    tt {
-      font-family: var(--monospace);
-    }
-
-    kbd {
-      margin: 0px 0.1em;
-      padding: 0.1em 0.6em;
-      font-size: 0.8em;
-      color: rgb(36, 39, 41);
-      background: rgb(255, 255, 255);
-      border: 1px solid rgb(173, 179, 185);
-      border-radius: 3px;
-      box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset;
-      white-space: nowrap;
-      vertical-align: middle;
-    }
-
-    .md-comment {
-      color: rgb(162, 127, 3);
-      opacity: 0.6;
-      font-family: var(--monospace);
-    }
-
-    code {
-      text-align: left;
-      vertical-align: initial;
-    }
-
-    a.md-print-anchor {
-      white-space: pre !important;
-      border-width: initial !important;
-      border-style: none !important;
-      border-color: initial !important;
-      display: inline-block !important;
-      position: absolute !important;
-      width: 1px !important;
-      right: 0px !important;
-      outline: 0px !important;
-      background: 0px 0px !important;
-      text-decoration: initial !important;
-      text-shadow: initial !important;
-    }
-
-    .os-windows.monocolor-emoji .md-emoji {
-      font-family: "Segoe UI Symbol", sans-serif;
-    }
-
-    .md-diagram-panel>svg {
-      max-width: 100%;
-    }
-
-    [lang="flow"] svg,
-    [lang="mermaid"] svg {
-      max-width: 100%;
-      height: auto;
-    }
-
-    [lang="mermaid"] .node text {
-      font-size: 1rem;
-    }
-
-    table tr th {
-      border-bottom: 0px;
-    }
-
-    video {
-      max-width: 100%;
-      display: block;
-      margin: 0px auto;
-    }
-
-    iframe {
-      max-width: 100%;
-      width: 100%;
-      border: none;
-    }
-
-    .highlight td,
-    .highlight tr {
-      border: 0px;
-    }
-
-    mark {
-      background: rgb(255, 255, 0);
-      color: rgb(0, 0, 0);
-    }
-
-    .md-html-inline .md-plain,
-    .md-html-inline strong,
-    mark .md-inline-math,
-    mark strong {
-      color: inherit;
-    }
-
-    .md-expand mark .md-meta {
-      opacity: 0.3 !important;
-    }
-
-    mark .md-meta {
-      color: rgb(0, 0, 0);
-    }
-
-    @media print {
-
-      .typora-export h1,
-      .typora-export h2,
-      .typora-export h3,
-      .typora-export h4,
-      .typora-export h5,
-      .typora-export h6 {
-        break-inside: avoid;
-      }
-    }
-
-    .md-diagram-panel .messageText {
-      stroke: none !important;
-    }
-
-    .md-diagram-panel .start-state {
-      fill: var(--node-fill);
-    }
-
-    .md-diagram-panel .edgeLabel rect {
-      opacity: 1 !important;
-    }
-
-    .md-fences.md-fences-math {
-      font-size: 1em;
-    }
-
-    .md-fences-advanced:not(.md-focus) {
-      padding: 0px;
-      white-space: nowrap;
-      border: 0px;
-    }
-
-    .md-fences-advanced:not(.md-focus) {
-      background: inherit;
-    }
-
-    .mermaid-svg {
-      margin: auto;
-    }
-
-    .typora-export-show-outline .typora-export-content {
-      max-width: 1440px;
-      margin: auto;
-      display: flex;
-      flex-direction: row;
-    }
-
-    .typora-export-sidebar {
-      width: 300px;
-      font-size: 0.8rem;
-      margin-top: 80px;
-      margin-right: 18px;
-    }
-
-    .typora-export-show-outline #write {
-      --webkit-flex: 2;
-      flex: 2 1 0%;
-    }
-
-    .typora-export-sidebar .outline-content {
-      position: fixed;
-      top: 0px;
-      max-height: 100%;
-      overflow: hidden auto;
-      padding-bottom: 30px;
-      padding-top: 60px;
-      width: 300px;
-    }
-
-    @media screen and (max-width: 1024px) {
-
-      .typora-export-sidebar,
-      .typora-export-sidebar .outline-content {
-        width: 240px;
-      }
-    }
-
-    @media screen and (max-width: 800px) {
-      .typora-export-sidebar {
-        display: none;
-      }
-    }
-
-    .outline-content li,
-    .outline-content ul {
-      margin-left: 0px;
-      margin-right: 0px;
-      padding-left: 0px;
-      padding-right: 0px;
-      list-style: none;
-      overflow-wrap: anywhere;
-    }
-
-    .outline-content ul {
-      margin-top: 0px;
-      margin-bottom: 0px;
-    }
-
-    .outline-content strong {
-      font-weight: 400;
-    }
-
-    .outline-expander {
-      width: 1rem;
-      height: 1.42857rem;
-      position: relative;
-      display: table-cell;
-      vertical-align: middle;
-      cursor: pointer;
-      padding-left: 4px;
-    }
-
-    .outline-expander::before {
-      content: "";
-      position: relative;
-      font-family: Ionicons;
-      display: inline-block;
-      font-size: 8px;
-      vertical-align: middle;
-    }
-
-    .outline-item {
-      padding-top: 3px;
-      padding-bottom: 3px;
-      cursor: pointer;
-    }
-
-    .outline-expander:hover::before {
-      content: "";
-    }
-
-    .outline-h1>.outline-item {
-      padding-left: 0px;
-    }
-
-    .outline-h2>.outline-item {
-      padding-left: 1em;
-    }
-
-    .outline-h3>.outline-item {
-      padding-left: 2em;
-    }
-
-    .outline-h4>.outline-item {
-      padding-left: 3em;
-    }
-
-    .outline-h5>.outline-item {
-      padding-left: 4em;
-    }
-
-    .outline-h6>.outline-item {
-      padding-left: 5em;
-    }
-
-    .outline-label {
-      cursor: pointer;
-      display: table-cell;
-      vertical-align: middle;
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .outline-label:hover {
-      text-decoration: underline;
-    }
-
-    .outline-item:hover {
-      border-color: rgb(245, 245, 245);
-      background-color: var(--item-hover-bg-color);
-    }
-
-    .outline-item:hover {
-      margin-left: -28px;
-      margin-right: -28px;
-      border-left: 28px solid transparent;
-      border-right: 28px solid transparent;
-    }
-
-    .outline-item-single .outline-expander::before,
-    .outline-item-single .outline-expander:hover::before {
-      display: none;
-    }
-
-    .outline-item-open>.outline-item>.outline-expander::before {
-      content: "";
-    }
-
-    .outline-children {
-      display: none;
-    }
-
-    .info-panel-tab-wrapper {
-      display: none;
-    }
-
-    .outline-item-open>.outline-children {
-      display: block;
-    }
-
-    .typora-export .outline-item {
-      padding-top: 1px;
-      padding-bottom: 1px;
-    }
-
-    .typora-export .outline-item:hover {
-      margin-right: -8px;
-      border-right: 8px solid transparent;
-    }
-
-    .typora-export .outline-expander::before {
-      content: "+";
-      font-family: inherit;
-      top: -1px;
-    }
-
-    .typora-export .outline-expander:hover::before,
-    .typora-export .outline-item-open>.outline-item>.outline-expander::before {
-      content: "−";
-    }
-
-    .typora-export-collapse-outline .outline-children {
-      display: none;
-    }
-
-    .typora-export-collapse-outline .outline-item-open>.outline-children,
-    .typora-export-no-collapse-outline .outline-children {
-      display: block;
-    }
-
-    .typora-export-no-collapse-outline .outline-expander::before {
-      content: "" !important;
-    }
-
-    .typora-export-show-outline .outline-item-active>.outline-item .outline-label {
-      font-weight: 700;
-    }
-
-    .md-inline-math-container mjx-container {
-      zoom: 0.95;
-    }
-
-    mjx-container {
-      break-inside: avoid;
-    }
-
-    .md-alert.md-alert-note {
-      border-left-color: rgb(9, 105, 218);
-    }
-
-    .md-alert.md-alert-important {
-      border-left-color: rgb(130, 80, 223);
-    }
-
-    .md-alert.md-alert-warning {
-      border-left-color: rgb(154, 103, 0);
-    }
-
-    .md-alert.md-alert-tip {
-      border-left-color: rgb(31, 136, 61);
-    }
-
-    .md-alert.md-alert-caution {
-      border-left-color: rgb(207, 34, 46);
-    }
-
-    .md-alert {
-      padding: 0px 1em;
-      margin-bottom: 16px;
-      color: inherit;
-      border-left: 0.25em solid rgb(0, 0, 0);
-    }
-
-    .md-alert-text-note {
-      color: rgb(9, 105, 218);
-    }
-
-    .md-alert-text-important {
-      color: rgb(130, 80, 223);
-    }
-
-    .md-alert-text-warning {
-      color: rgb(154, 103, 0);
-    }
-
-    .md-alert-text-tip {
-      color: rgb(31, 136, 61);
-    }
-
-    .md-alert-text-caution {
-      color: rgb(207, 34, 46);
-    }
-
-    .md-alert-text {
-      font-size: 0.9rem;
-      font-weight: 700;
-    }
-
-    .md-alert-text svg {
-      fill: currentcolor;
-      position: relative;
-      top: 0.125em;
-      margin-right: 1ch;
-      overflow: visible;
-    }
-
-    .md-alert-text-container::after {
-      content: attr(data-text);
-      text-transform: capitalize;
-      pointer-events: none;
-      margin-right: 1ch;
-    }
-  </style>
-  <style type='text/css' id="style-codemirror">
-    .CodeMirror {
-      height: auto;
-    }
-
-    .CodeMirror.cm-s-inner {
-      background: inherit;
-    }
-
-    .CodeMirror-scroll {
-      overflow: auto hidden;
-      z-index: 3;
-    }
-
-    .CodeMirror-gutter-filler,
-    .CodeMirror-scrollbar-filler {
-      background-color: rgb(255, 255, 255);
-    }
-
-    .CodeMirror-gutters {
-      border-right: 1px solid rgb(221, 221, 221);
-      background: inherit;
-      white-space: nowrap;
-    }
-
-    .CodeMirror-linenumber {
-      padding: 0px 3px 0px 5px;
-      text-align: right;
-      color: rgb(153, 153, 153);
-    }
-
-    .cm-s-inner .cm-keyword {
-      color: rgb(119, 0, 136);
-    }
-
-    .cm-s-inner .cm-atom,
-    .cm-s-inner.cm-atom {
-      color: rgb(34, 17, 153);
-    }
-
-    .cm-s-inner .cm-number {
-      color: rgb(17, 102, 68);
-    }
-
-    .cm-s-inner .cm-def {
-      color: rgb(0, 0, 255);
-    }
-
-    .cm-s-inner .cm-variable {
-      color: rgb(0, 0, 0);
-    }
-
-    .cm-s-inner .cm-variable-2 {
-      color: rgb(0, 85, 170);
-    }
-
-    .cm-s-inner .cm-variable-3 {
-      color: rgb(0, 136, 85);
-    }
-
-    .cm-s-inner .cm-string {
-      color: rgb(170, 17, 17);
-    }
-
-    .cm-s-inner .cm-property {
-      color: rgb(0, 0, 0);
-    }
-
-    .cm-s-inner .cm-operator {
-      color: rgb(152, 26, 26);
-    }
-
-    .cm-s-inner .cm-comment,
-    .cm-s-inner.cm-comment {
-      color: rgb(170, 85, 0);
-    }
-
-    .cm-s-inner .cm-string-2 {
-      color: rgb(255, 85, 0);
-    }
-
-    .cm-s-inner .cm-meta {
-      color: rgb(85, 85, 85);
-    }
-
-    .cm-s-inner .cm-qualifier {
-      color: rgb(85, 85, 85);
-    }
-
-    .cm-s-inner .cm-builtin {
-      color: rgb(51, 0, 170);
-    }
-
-    .cm-s-inner .cm-bracket {
-      color: rgb(153, 153, 119);
-    }
-
-    .cm-s-inner .cm-tag {
-      color: rgb(17, 119, 0);
-    }
-
-    .cm-s-inner .cm-attribute {
-      color: rgb(0, 0, 204);
-    }
-
-    .cm-s-inner .cm-header,
-    .cm-s-inner.cm-header {
-      color: rgb(0, 0, 255);
-    }
-
-    .cm-s-inner .cm-quote,
-    .cm-s-inner.cm-quote {
-      color: rgb(0, 153, 0);
-    }
-
-    .cm-s-inner .cm-hr,
-    .cm-s-inner.cm-hr {
-      color: rgb(153, 153, 153);
-    }
-
-    .cm-s-inner .cm-link,
-    .cm-s-inner.cm-link {
-      color: rgb(0, 0, 204);
-    }
-
-    .cm-negative {
-      color: rgb(221, 68, 68);
-    }
-
-    .cm-positive {
-      color: rgb(34, 153, 34);
-    }
-
-    .cm-header,
-    .cm-strong {
-      font-weight: 700;
-    }
-
-    .cm-del {
-      text-decoration: line-through;
-    }
-
-    .cm-em {
-      font-style: italic;
-    }
-
-    .cm-link {
-      text-decoration: underline;
-    }
-
-    .cm-error {
-      color: red;
-    }
-
-    .cm-invalidchar {
-      color: red;
-    }
-
-    .cm-constant {
-      color: rgb(38, 139, 210);
-    }
-
-    .cm-defined {
-      color: rgb(181, 137, 0);
-    }
-
-    div.CodeMirror span.CodeMirror-matchingbracket {
-      color: rgb(0, 255, 0);
-    }
-
-    div.CodeMirror span.CodeMirror-nonmatchingbracket {
-      color: rgb(255, 34, 34);
-    }
-
-    .cm-s-inner .CodeMirror-activeline-background {
-      background: inherit;
-    }
-
-    .CodeMirror {
-      position: relative;
-      overflow: hidden;
-    }
-
-    .CodeMirror-scroll {
-      height: 100%;
-      outline: 0px;
-      position: relative;
-      box-sizing: content-box;
-      background: inherit;
-    }
-
-    .CodeMirror-sizer {
-      position: relative;
-    }
-
-    .CodeMirror-gutter-filler,
-    .CodeMirror-hscrollbar,
-    .CodeMirror-scrollbar-filler,
-    .CodeMirror-vscrollbar {
-      position: absolute;
-      z-index: 6;
-      display: none;
-      outline: 0px;
-    }
-
-    .CodeMirror-vscrollbar {
-      right: 0px;
-      top: 0px;
-      overflow: hidden;
-    }
-
-    .CodeMirror-hscrollbar {
-      bottom: 0px;
-      left: 0px;
-      overflow: auto hidden;
-    }
-
-    .CodeMirror-scrollbar-filler {
-      right: 0px;
-      bottom: 0px;
-    }
-
-    .CodeMirror-gutter-filler {
-      left: 0px;
-      bottom: 0px;
-    }
-
-    .CodeMirror-gutters {
-      position: absolute;
-      left: 0px;
-      top: 0px;
-      padding-bottom: 10px;
-      z-index: 3;
-      overflow-y: hidden;
-    }
-
-    .CodeMirror-gutter {
-      white-space: normal;
-      height: 100%;
-      box-sizing: content-box;
-      padding-bottom: 30px;
-      margin-bottom: -32px;
-      display: inline-block;
-    }
-
-    .CodeMirror-gutter-wrapper {
-      position: absolute;
-      z-index: 4;
-      background: 0px 0px !important;
-      border: none !important;
-    }
-
-    .CodeMirror-gutter-background {
-      position: absolute;
-      top: 0px;
-      bottom: 0px;
-      z-index: 4;
-    }
-
-    .CodeMirror-gutter-elt {
-      position: absolute;
-      cursor: default;
-      z-index: 4;
-    }
-
-    .CodeMirror-lines {
-      cursor: text;
-    }
-
-    .CodeMirror pre {
-      border-radius: 0px;
-      border-width: 0px;
-      background: 0px 0px;
-      font-family: inherit;
-      font-size: inherit;
-      margin: 0px;
-      white-space: pre;
-      overflow-wrap: normal;
-      color: inherit;
-      z-index: 2;
-      position: relative;
-      overflow: visible;
-    }
-
-    .CodeMirror-wrap pre {
-      overflow-wrap: break-word;
-      white-space: pre-wrap;
-      word-break: normal;
-    }
-
-    .CodeMirror-code pre {
-      border-right: 30px solid transparent;
-      width: fit-content;
-    }
-
-    .CodeMirror-wrap .CodeMirror-code pre {
-      border-right: none;
-      width: auto;
-    }
-
-    .CodeMirror-linebackground {
-      position: absolute;
-      inset: 0px;
-      z-index: 0;
-    }
-
-    .CodeMirror-linewidget {
-      position: relative;
-      z-index: 2;
-      overflow: auto;
-    }
-
-    .CodeMirror-wrap .CodeMirror-scroll {
-      overflow-x: hidden;
-    }
-
-    .CodeMirror-measure {
-      position: absolute;
-      width: 100%;
-      height: 0px;
-      overflow: hidden;
-      visibility: hidden;
-    }
-
-    .CodeMirror-measure pre {
-      position: static;
-    }
-
-    .CodeMirror div.CodeMirror-cursor {
-      position: absolute;
-      visibility: hidden;
-      border-right: none;
-      width: 0px;
-    }
-
-    .CodeMirror div.CodeMirror-cursor {
-      visibility: hidden;
-    }
-
-    .CodeMirror-focused div.CodeMirror-cursor {
-      visibility: inherit;
-    }
-
-    .cm-searching {
-      background: rgba(255, 255, 0, 0.4);
-    }
-
-    span.cm-underlined {
-      text-decoration: underline;
-    }
-
-    span.cm-strikethrough {
-      text-decoration: line-through;
-    }
-
-    .cm-tw-syntaxerror {
-      color: rgb(255, 255, 255);
-      background-color: rgb(153, 0, 0);
-    }
-
-    .cm-tw-deleted {
-      text-decoration: line-through;
-    }
-
-    .cm-tw-header5 {
-      font-weight: 700;
-    }
-
-    .cm-tw-listitem:first-child {
-      padding-left: 10px;
-    }
-
-    .cm-tw-box {
-      border-style: solid;
-      border-right-width: 1px;
-      border-bottom-width: 1px;
-      border-left-width: 1px;
-      border-color: inherit;
-      border-top-width: 0px !important;
-    }
-
-    .cm-tw-underline {
-      text-decoration: underline;
-    }
-
-    @media print {
-      .CodeMirror div.CodeMirror-cursor {
-        visibility: hidden;
-      }
-    }
-  </style>
-  <style type='text/css' id="style-theme_css">
-    /*
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'><style type='text/css'>html {overflow-x: initial !important;}</style>
+<style type='text/css'  id="style-base">:root { --bg-color: #ffffff; --text-color: #333333; --select-text-bg-color: #B5D6FC; --select-text-font-color: auto; --monospace: "Lucida Console",Consolas,"Courier",monospace; --title-bar-height: 20px; }
+.mac-os-11 { --title-bar-height: 28px; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, "Segoe UI Emoji", "SF Pro", sans-serif; -webkit-font-smoothing: antialiased; }
+h1, h2, h3, h4, h5 { white-space: pre-wrap; }
+body { margin: 0px; padding: 0px; height: auto; inset: 0px; font-size: 1rem; line-height: 1.42857; overflow-x: hidden; background: inherit; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; overflow-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 36px; }
+#write.first-line-indent p { text-indent: 2em; }
+#write.first-line-indent li p, #write.first-line-indent p *, #write.first-line-indent svg * { text-indent: 0px; }
+#write.first-line-indent li { margin-left: 2em; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
+.typora-export .task-list-item input { pointer-events: none; }
+@media screen and (max-width: 500px) {
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  #write { padding-left: 20px; padding-right: 20px; }
+}
+#write li > figure:last-child { margin-bottom: 0.5rem; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; image-orientation: from-image; }
+button, input, select, textarea { color: inherit; font: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; position: relative; }
+#write svg h1, #write svg h2, #write svg h3, #write svg h4, #write svg h5, #write svg h6, #write svg p { position: static; }
+.nodeLabel p { padding-right: 2px; padding-left: 2px; }
+.typora-export .nodeLabel p { padding-right: 0px; padding-left: 0px; }
+foreignobject { overflow: visible; }
+p { line-height: inherit; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 4; }
+p { orphans: 4; }
+li p { orphans: 1; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px; }
+thead, tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 32px; }
+.CodeMirror-gutters { border-right: 0px; background-color: inherit; }
+.CodeMirror-linenumber { user-select: none; }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
+.md-fences-adv-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+svg { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li blockquote { margin: 1rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print {
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; font-variant-ligatures: no-common-ligatures; }
+  #write { margin-top: 0px; border-color: transparent !important; padding-top: 0px !important; padding-bottom: 0px !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  .typora-export #write { break-after: avoid; }
+  .typora-export #write::after { height: 0px; }
+  .is-mac table { break-inside: avoid; }
+  #write > p:nth-child(1) { margin-top: 0px; }
+  .typora-export-show-outline .typora-export-sidebar { display: none; }
+  figure { overflow-x: visible; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
+p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
+#write.first-line-indent p > .md-image:only-child:not(.md-img-error) img { left: -2em; position: relative; }
+p > .md-image:only-child { display: inline-block; width: 100%; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+.MathJax_ref { fill: currentcolor; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus, [contenteditable="false"]:active, [contenteditable="false"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: none; }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { text-decoration: underline; }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) {
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.reversefootnote { font-family: ui-monospace, sans-serif; }
+.md-attr { display: none; }
+.md-fn-count::after { content: "."; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.6; font-family: var(--monospace); }
+code { text-align: left; vertical-align: initial; }
+a.md-print-anchor { white-space: pre !important; border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="flow"] svg, [lang="mermaid"] svg { max-width: 100%; height: auto; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+mark { background: rgb(255, 255, 0); color: rgb(0, 0, 0); }
+.md-html-inline .md-plain, .md-html-inline strong, mark .md-inline-math, mark strong { color: inherit; }
+.md-expand mark .md-meta { opacity: 0.3 !important; }
+mark .md-meta { color: rgb(0, 0, 0); }
+@media print {
+  .typora-export h1, .typora-export h2, .typora-export h3, .typora-export h4, .typora-export h5, .typora-export h6 { break-inside: avoid; }
+}
+.md-diagram-panel .messageText { stroke: none !important; }
+.md-diagram-panel .start-state { fill: var(--node-fill); }
+.md-diagram-panel .edgeLabel rect { opacity: 1 !important; }
+.md-fences.md-fences-math { font-size: 1em; }
+.md-fences-advanced:not(.md-focus) { padding: 0px; white-space: nowrap; border: 0px; }
+.md-fences-advanced:not(.md-focus) { background: inherit; }
+.mermaid-svg { margin: auto; }
+.typora-export-show-outline .typora-export-content { max-width: 1440px; margin: auto; display: flex; flex-direction: row; }
+.typora-export-sidebar { width: 300px; font-size: 0.8rem; margin-top: 80px; margin-right: 18px; }
+.typora-export-show-outline #write { --webkit-flex: 2; flex: 2 1 0%; }
+.typora-export-sidebar .outline-content { position: fixed; top: 0px; max-height: 100%; overflow: hidden auto; padding-bottom: 30px; padding-top: 60px; width: 300px; }
+@media screen and (max-width: 1024px) {
+  .typora-export-sidebar, .typora-export-sidebar .outline-content { width: 240px; }
+}
+@media screen and (max-width: 800px) {
+  .typora-export-sidebar { display: none; }
+}
+.outline-content li, .outline-content ul { margin-left: 0px; margin-right: 0px; padding-left: 0px; padding-right: 0px; list-style: none; overflow-wrap: anywhere; }
+.outline-content ul { margin-top: 0px; margin-bottom: 0px; }
+.outline-content strong { font-weight: 400; }
+.outline-expander { width: 1rem; height: 1.42857rem; position: relative; display: table-cell; vertical-align: middle; cursor: pointer; padding-left: 4px; }
+.outline-expander::before { content: ""; position: relative; font-family: Ionicons; display: inline-block; font-size: 8px; vertical-align: middle; }
+.outline-item { padding-top: 3px; padding-bottom: 3px; cursor: pointer; }
+.outline-expander:hover::before { content: ""; }
+.outline-h1 > .outline-item { padding-left: 0px; }
+.outline-h2 > .outline-item { padding-left: 1em; }
+.outline-h3 > .outline-item { padding-left: 2em; }
+.outline-h4 > .outline-item { padding-left: 3em; }
+.outline-h5 > .outline-item { padding-left: 4em; }
+.outline-h6 > .outline-item { padding-left: 5em; }
+.outline-label { cursor: pointer; display: table-cell; vertical-align: middle; text-decoration: none; color: inherit; }
+.outline-label:hover { text-decoration: underline; }
+.outline-item:hover { border-color: rgb(245, 245, 245); background-color: var(--item-hover-bg-color); }
+.outline-item:hover { margin-left: -28px; margin-right: -28px; border-left: 28px solid transparent; border-right: 28px solid transparent; }
+.outline-item-single .outline-expander::before, .outline-item-single .outline-expander:hover::before { display: none; }
+.outline-item-open > .outline-item > .outline-expander::before { content: ""; }
+.outline-children { display: none; }
+.info-panel-tab-wrapper { display: none; }
+.outline-item-open > .outline-children { display: block; }
+.typora-export .outline-item { padding-top: 1px; padding-bottom: 1px; }
+.typora-export .outline-item:hover { margin-right: -8px; border-right: 8px solid transparent; }
+.typora-export .outline-expander::before { content: "+"; font-family: inherit; top: -1px; }
+.typora-export .outline-expander:hover::before, .typora-export .outline-item-open > .outline-item > .outline-expander::before { content: "−"; }
+.typora-export-collapse-outline .outline-children { display: none; }
+.typora-export-collapse-outline .outline-item-open > .outline-children, .typora-export-no-collapse-outline .outline-children { display: block; }
+.typora-export-no-collapse-outline .outline-expander::before { content: "" !important; }
+.typora-export-show-outline .outline-item-active > .outline-item .outline-label { font-weight: 700; }
+.md-inline-math-container mjx-container { zoom: 0.95; }
+mjx-container { break-inside: avoid; }
+.md-alert.md-alert-note { border-left-color: rgb(9, 105, 218); }
+.md-alert.md-alert-important { border-left-color: rgb(130, 80, 223); }
+.md-alert.md-alert-warning { border-left-color: rgb(154, 103, 0); }
+.md-alert.md-alert-tip { border-left-color: rgb(31, 136, 61); }
+.md-alert.md-alert-caution { border-left-color: rgb(207, 34, 46); }
+.md-alert { padding: 0px 1em; margin-bottom: 16px; color: inherit; border-left: 0.25em solid rgb(0, 0, 0); }
+.md-alert-text-note { color: rgb(9, 105, 218); }
+.md-alert-text-important { color: rgb(130, 80, 223); }
+.md-alert-text-warning { color: rgb(154, 103, 0); }
+.md-alert-text-tip { color: rgb(31, 136, 61); }
+.md-alert-text-caution { color: rgb(207, 34, 46); }
+.md-alert-text { font-size: 0.9rem; font-weight: 700; }
+.md-alert-text svg { fill: currentcolor; position: relative; top: 0.125em; margin-right: 1ch; overflow: visible; }
+.md-alert-text-container::after { content: attr(data-text); text-transform: capitalize; pointer-events: none; margin-right: 1ch; }
+
+</style>
+<style type='text/css'  id="style-codemirror">.CodeMirror { height: auto; }
+.CodeMirror.cm-s-inner { background: inherit; }
+.CodeMirror-scroll { overflow: auto hidden; z-index: 3; }
+.CodeMirror-gutter-filler, .CodeMirror-scrollbar-filler { background-color: rgb(255, 255, 255); }
+.CodeMirror-gutters { border-right: 1px solid rgb(221, 221, 221); background: inherit; white-space: nowrap; }
+.CodeMirror-linenumber { padding: 0px 3px 0px 5px; text-align: right; color: rgb(153, 153, 153); }
+.cm-s-inner .cm-keyword { color: rgb(119, 0, 136); }
+.cm-s-inner .cm-atom, .cm-s-inner.cm-atom { color: rgb(34, 17, 153); }
+.cm-s-inner .cm-number { color: rgb(17, 102, 68); }
+.cm-s-inner .cm-def { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-variable { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-variable-2 { color: rgb(0, 85, 170); }
+.cm-s-inner .cm-variable-3 { color: rgb(0, 136, 85); }
+.cm-s-inner .cm-string { color: rgb(170, 17, 17); }
+.cm-s-inner .cm-property { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-operator { color: rgb(152, 26, 26); }
+.cm-s-inner .cm-comment, .cm-s-inner.cm-comment { color: rgb(170, 85, 0); }
+.cm-s-inner .cm-string-2 { color: rgb(255, 85, 0); }
+.cm-s-inner .cm-meta { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-qualifier { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-builtin { color: rgb(51, 0, 170); }
+.cm-s-inner .cm-bracket { color: rgb(153, 153, 119); }
+.cm-s-inner .cm-tag { color: rgb(17, 119, 0); }
+.cm-s-inner .cm-attribute { color: rgb(0, 0, 204); }
+.cm-s-inner .cm-header, .cm-s-inner.cm-header { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-quote, .cm-s-inner.cm-quote { color: rgb(0, 153, 0); }
+.cm-s-inner .cm-hr, .cm-s-inner.cm-hr { color: rgb(153, 153, 153); }
+.cm-s-inner .cm-link, .cm-s-inner.cm-link { color: rgb(0, 0, 204); }
+.cm-negative { color: rgb(221, 68, 68); }
+.cm-positive { color: rgb(34, 153, 34); }
+.cm-header, .cm-strong { font-weight: 700; }
+.cm-del { text-decoration: line-through; }
+.cm-em { font-style: italic; }
+.cm-link { text-decoration: underline; }
+.cm-error { color: red; }
+.cm-invalidchar { color: red; }
+.cm-constant { color: rgb(38, 139, 210); }
+.cm-defined { color: rgb(181, 137, 0); }
+div.CodeMirror span.CodeMirror-matchingbracket { color: rgb(0, 255, 0); }
+div.CodeMirror span.CodeMirror-nonmatchingbracket { color: rgb(255, 34, 34); }
+.cm-s-inner .CodeMirror-activeline-background { background: inherit; }
+.CodeMirror { position: relative; overflow: hidden; }
+.CodeMirror-scroll { height: 100%; outline: 0px; position: relative; box-sizing: content-box; background: inherit; }
+.CodeMirror-sizer { position: relative; }
+.CodeMirror-gutter-filler, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-vscrollbar { position: absolute; z-index: 6; display: none; outline: 0px; }
+.CodeMirror-vscrollbar { right: 0px; top: 0px; overflow: hidden; }
+.CodeMirror-hscrollbar { bottom: 0px; left: 0px; overflow: auto hidden; }
+.CodeMirror-scrollbar-filler { right: 0px; bottom: 0px; }
+.CodeMirror-gutter-filler { left: 0px; bottom: 0px; }
+.CodeMirror-gutters { position: absolute; left: 0px; top: 0px; padding-bottom: 10px; z-index: 3; overflow-y: hidden; }
+.CodeMirror-gutter { white-space: normal; height: 100%; box-sizing: content-box; padding-bottom: 30px; margin-bottom: -32px; display: inline-block; }
+.CodeMirror-gutter-wrapper { position: absolute; z-index: 4; background: 0px 0px !important; border: none !important; }
+.CodeMirror-gutter-background { position: absolute; top: 0px; bottom: 0px; z-index: 4; }
+.CodeMirror-gutter-elt { position: absolute; cursor: default; z-index: 4; }
+.CodeMirror-lines { cursor: text; }
+.CodeMirror pre { border-radius: 0px; border-width: 0px; background: 0px 0px; font-family: inherit; font-size: inherit; margin: 0px; white-space: pre; overflow-wrap: normal; color: inherit; z-index: 2; position: relative; overflow: visible; }
+.CodeMirror-wrap pre { overflow-wrap: break-word; white-space: pre-wrap; word-break: normal; }
+.CodeMirror-code pre { border-right: 30px solid transparent; width: fit-content; }
+.CodeMirror-wrap .CodeMirror-code pre { border-right: none; width: auto; }
+.CodeMirror-linebackground { position: absolute; inset: 0px; z-index: 0; }
+.CodeMirror-linewidget { position: relative; z-index: 2; overflow: auto; }
+.CodeMirror-wrap .CodeMirror-scroll { overflow-x: hidden; }
+.CodeMirror-measure { position: absolute; width: 100%; height: 0px; overflow: hidden; visibility: hidden; }
+.CodeMirror-measure pre { position: static; }
+.CodeMirror div.CodeMirror-cursor { position: absolute; visibility: hidden; border-right: none; width: 0px; }
+.CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+.CodeMirror-focused div.CodeMirror-cursor { visibility: inherit; }
+.cm-searching { background: rgba(255, 255, 0, 0.4); }
+span.cm-underlined { text-decoration: underline; }
+span.cm-strikethrough { text-decoration: line-through; }
+.cm-tw-syntaxerror { color: rgb(255, 255, 255); background-color: rgb(153, 0, 0); }
+.cm-tw-deleted { text-decoration: line-through; }
+.cm-tw-header5 { font-weight: 700; }
+.cm-tw-listitem:first-child { padding-left: 10px; }
+.cm-tw-box { border-style: solid; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-color: inherit; border-top-width: 0px !important; }
+.cm-tw-underline { text-decoration: underline; }
+@media print {
+  .CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+}
+
+</style>
+<style type='text/css'  id="style-theme_css">/*
  * ------------------------------------------------------------------------
  * everforest-dark.css
  * Author: Ethan Bao
@@ -1544,1616 +312,1161 @@
  * License: Apache-2.0
  * ------------------------------------------------------------------------
 */
-    :root {
-      --ef-fg: #d3c6aa;
-      --ef-fg-muted: #9da9a0;
-      --ef-gray-0: #7a8478;
-      --ef-gray-1: #859289;
-      --ef-gray-2: #9da9a0;
-
-      /* "Medium" backgrounds (lightened a bit) */
-      --ef-bg-dim: #22282b;
-      --ef-bg-0: #2e353a;
-      --ef-bg-1: #363f44;
-      --ef-bg-2: #3f484d;
-      --ef-bg-3: #495156;
-      --ef-bg-4: #52595f;
-      --ef-bg-5: #5a6268;
-
-      --ef-red: #e67e80;
-      --ef-orange: #e69875;
-      --ef-yellow: #dbbc7f;
-      --ef-green: #a7c080;
-      --ef-aqua: #83c092;
-      --ef-blue: #7fbbb3;
-      --ef-purple: #d699b6;
-
-      /* UI */
-      --bg: var(--ef-bg-0);
-      --bg-panel: var(--ef-bg-1);
-      --bg-soft: var(--ef-bg-2);
-      --bg-muted: var(--ef-bg-3);
-      --text: var(--ef-fg);
-      --text-muted: var(--ef-gray-2);
-      --border: #444c50;
-      --accent: var(--ef-green);
-      --accent-2: var(--ef-blue);
-      --selection: #445047;
-
-      /* Typora UI Variables */
-      --bg-color: var(--bg);
-      --text-color: var(--text);
-      --md-char-color: var(--ef-gray-1);
-      --meta-content-color: var(--ef-gray-2);
-
-      --primary-color: var(--ef-green);
-      --primary-btn-border-color: var(--ef-bg-4);
-      --primary-btn-text-color: var(--ef-bg-0);
-
-      --window-border: 1px solid var(--border);
-      --active-file-bg-color: var(--bg-muted);
-      --active-file-text-color: var(--text);
-      --active-file-border-color: var(--accent);
-
-      --side-bar-bg-color: var(--bg-panel);
-      --item-hover-bg-color: var(--bg-soft);
-      --item-hover-text-color: var(--text);
-
-      --monospace: ui-monospace, "JetBrains Mono", "Zed Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
-
-      /* Callout template color mapping (Everforest) */
-      --color-1: var(--ef-blue);
-      --color-1-0-b: rgba(127, 187, 179, 0.12);
-
-      --color-2: var(--ef-red);
-      --color-2-0-b: rgba(230, 126, 128, 0.14);
-
-      --color-3: var(--ef-aqua);
-      --color-3-0-b: rgba(131, 192, 146, 0.12);
-
-      --color-4: var(--ef-purple);
-      --color-4-0-b: rgba(214, 153, 182, 0.14);
-
-      --color-5: var(--ef-yellow);
-      --color-5-0-b: rgba(219, 188, 127, 0.14);
-
-      /* Typography */
-      --font-body: "PingFang SC", "Microsoft YaHei", "LXGW WenKai", ui-serif, "Iowan Old Style", "Times New Roman", serif;
-      --font-code: ui-monospace, "JetBrains Mono", "Zed Plex Mono", "SFMono-Regular",
-        Menlo, Consolas, monospace;
-      --font-size: 16px;
-      --line-height: 1.65;
-
-      --radius: 10px;
-      --radius-sm: 8px;
-      --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.25);
-      --shadow-2: 0 10px 24px rgba(0, 0, 0, 0.35);
-      --gap-1: 0.5rem;
-      --gap-2: 0.75rem;
-      --gap-3: 1rem;
-      --gap-4: 1.5rem;
-    }
-
-
-    body,
-    .typora-export {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-body);
-      font-size: var(--font-size);
-      line-height: var(--line-height);
-    }
-
-
-    #write {
-      max-width: 840px;
-      margin: 2.2rem auto;
-      padding: 0 var(--gap-3);
-    }
-
-
-    ::selection {
-      background: var(--selection);
-    }
-
-
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-      width: 10px;
-      height: 10px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--ef-bg-4);
-      border-radius: 20px;
-      border: 2px solid var(--bg);
-    }
-
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-
-    /* Headings */
-    #write h1,
-    #write h2,
-    #write h3,
-    #write h4,
-    #write h5,
-    #write h6 {
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.25;
-      margin: 2.2rem 0 1rem;
-    }
-
-    #write h1 {
-      font-size: 2.1rem;
-    }
-
-    #write h2 {
-      font-size: 1.8rem;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 0.35rem;
-    }
-
-    #write h3 {
-      font-size: 1.5rem;
-      border-bottom: 1px dashed var(--ef-bg-4);
-      padding-bottom: 0.25rem;
-    }
-
-    #write h4 {
-      font-size: 1.25rem;
-    }
-
-    #write h5 {
-      font-size: 1.1rem;
-    }
-
-    #write h6 {
-      font-size: 1rem;
-      color: var(--text-muted);
-    }
-
-
-    /* Paragraph / Lists */
-    #write p {
-      margin: 0 0 1.05rem;
-    }
-
-    #write strong {
-      color: var(--ef-green);
-      font-weight: 600;
-    }
-
-    #write em {
-      color: var(--ef-purple);
-      font-style: italic;
-    }
-
-    #write del {
-      color: var(--text-muted);
-    }
-
-    #write ul,
-    #write ol {
-      margin: 0 0 1rem 1.5rem;
-    }
-
-    #write li {
-      margin: 0.3rem 0;
-    }
-
-    #write li>p {
-      margin: 0.2rem 0;
-    }
-
-    #write .task-list-item input {
-      transform: scale(1.05);
-    }
-
-
-    /* Links */
-    #write a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    #write a:hover {
-      text-decoration: underline;
-    }
-
-
-    /* Blockquote (standard) */
-    #write blockquote {
-      margin: 1.25rem 0;
-      padding: 0.8rem 1rem;
-      border-left: 4px solid var(--ef-aqua);
-      background: var(--ef-bg-2);
-      color: var(--text);
-      border-radius: var(--radius-sm);
-    }
-
-
-    /* Tables */
-    #write table {
-      border-collapse: separate;
-      border-spacing: 0;
-      width: 100%;
-      margin: 1.2rem 0;
-      background: var(--bg-panel);
-      box-shadow: var(--shadow-1);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-
-    #write th,
-    #write td {
-      padding: 0.6rem 0.75rem;
-      border-bottom: 1px solid var(--ef-bg-3);
-    }
-
-    #write thead th {
-      background: var(--ef-bg-2);
-      color: var(--text);
-      text-align: left;
-    }
-
-    #write tbody tr:hover {
-      background: var(--ef-bg-1);
-    }
-
-
-    /* Inline code */
-    #write code,
-    #write tt {
-      font-family: var(--font-code);
-      font-size: 0.92em;
-      background: var(--ef-bg-1);
-      color: #d8edea;
-      border: 1px solid var(--ef-bg-3);
-      padding: 0.15rem 0.35rem;
-      border-radius: 6px;
-    }
-
-
-    /* Code fences */
-    #write pre.md-fences {
-      background: var(--bg-panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1rem;
-      overflow: auto;
-      box-shadow: var(--shadow-1);
-    }
-
-
-    /* ==================== CodeMirror — Everforest token colors ==================== */
-    .cm-s-inner,
-    .cm-s-typora-default {
-      background: transparent;
-      color: var(--text);
-    }
-
-    .cm-s-inner .cm-comment {
-      color: #d699b6;
-      font-style: italic;
-    }
-
-    .cm-s-inner .cm-keyword {
-      color: #e67e80;
-      font-weight: 600;
-    }
-
-    .cm-s-inner .cm-atom,
-    .cm-s-inner .cm-number {
-      color: #e69875;
-    }
-
-    .cm-s-inner .cm-def,
-    .cm-s-inner .cm-variable {
-      color: var(--text);
-    }
-
-    .cm-s-inner .cm-variable-2 {
-      color: #7fbbb3;
-    }
-
-    .cm-s-inner .cm-variable-3 {
-      color: #83c092;
-    }
-
-    .cm-s-inner .cm-string {
-      color: #a7c080;
-    }
-
-    .cm-s-inner .cm-property {
-      color: #7fbbb3;
-    }
-
-    .cm-s-inner .cm-operator {
-      color: var(--text);
-    }
-
-    .cm-s-inner .cm-tag {
-      color: #e67e80;
-    }
-
-    .cm-s-inner .cm-attribute {
-      color: #dbbc7f;
-    }
-
-    .cm-s-inner .cm-meta {
-      color: #7a8478;
-    }
-
-    .cm-s-inner .cm-builtin {
-      color: #83c092;
-    }
-
-    .cm-s-inner .cm-quote {
-      color: #a7c080;
-    }
-
-    .cm-s-inner .cm-hr {
-      color: #859289;
-    }
-
-    .cm-s-inner .cm-link {
-      color: #7fbbb3;
-      text-decoration: underline;
-    }
-
-    .cm-s-inner .cm-error {
-      color: #1a0d0d;
-      background: #e67e80;
-    }
-
-
-    /* ===================================================================
+:root {
+  --ef-fg: #d3c6aa;
+  --ef-fg-muted: #9da9a0;
+  --ef-gray-0: #7a8478;
+  --ef-gray-1: #859289;
+  --ef-gray-2: #9da9a0;
+
+  /* "Medium" backgrounds (lightened a bit) */
+  --ef-bg-dim: #22282b;
+  --ef-bg-0: #2e353a;
+  --ef-bg-1: #363f44;
+  --ef-bg-2: #3f484d;
+  --ef-bg-3: #495156;
+  --ef-bg-4: #52595f;
+  --ef-bg-5: #5a6268;
+
+  --ef-red: #e67e80;
+  --ef-orange: #e69875;
+  --ef-yellow: #dbbc7f;
+  --ef-green: #a7c080;
+  --ef-aqua: #83c092;
+  --ef-blue: #7fbbb3;
+  --ef-purple: #d699b6;
+
+  /* UI */
+  --bg: var(--ef-bg-0);
+  --bg-panel: var(--ef-bg-1);
+  --bg-soft: var(--ef-bg-2);
+  --bg-muted: var(--ef-bg-3);
+  --text: var(--ef-fg);
+  --text-muted: var(--ef-gray-2);
+  --border: #444c50;
+  --accent: var(--ef-green);
+  --accent-2: var(--ef-blue);
+  --selection: #445047;
+
+  /* Typora UI Variables */
+  --bg-color: var(--bg);
+  --text-color: var(--text);
+  --md-char-color: var(--ef-gray-1);
+  --meta-content-color: var(--ef-gray-2);
+
+  --primary-color: var(--ef-green);
+  --primary-btn-border-color: var(--ef-bg-4);
+  --primary-btn-text-color: var(--ef-bg-0);
+
+  --window-border: 1px solid var(--border);
+  --active-file-bg-color: var(--bg-muted);
+  --active-file-text-color: var(--text);
+  --active-file-border-color: var(--accent);
+
+  --side-bar-bg-color: var(--bg-panel);
+  --item-hover-bg-color: var(--bg-soft);
+  --item-hover-text-color: var(--text);
+
+  --monospace: ui-monospace, "JetBrains Mono", "Zed Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* Callout template color mapping (Everforest) */
+  --color-1: var(--ef-blue);
+  --color-1-0-b: rgba(127, 187, 179, 0.12);
+
+  --color-2: var(--ef-red);
+  --color-2-0-b: rgba(230, 126, 128, 0.14);
+
+  --color-3: var(--ef-aqua);
+  --color-3-0-b: rgba(131, 192, 146, 0.12);
+
+  --color-4: var(--ef-purple);
+  --color-4-0-b: rgba(214, 153, 182, 0.14);
+
+  --color-5: var(--ef-yellow);
+  --color-5-0-b: rgba(219, 188, 127, 0.14);
+
+  /* Typography */
+  --font-body: "PingFang SC", "Microsoft YaHei", "LXGW WenKai", ui-serif, "Iowan Old Style", "Times New Roman", serif;
+  --font-code: ui-monospace, "JetBrains Mono", "Zed Plex Mono", "SFMono-Regular",
+    Menlo, Consolas, monospace;
+  --font-size: 16px;
+  --line-height: 1.65;
+
+  --radius: 10px;
+  --radius-sm: 8px;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-2: 0 10px 24px rgba(0, 0, 0, 0.35);
+  --gap-1: 0.5rem;
+  --gap-2: 0.75rem;
+  --gap-3: 1rem;
+  --gap-4: 1.5rem;
+}
+
+
+body,
+.typora-export {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
+}
+
+
+#write {
+  max-width: 840px;
+  margin: 2.2rem auto;
+  padding: 0 var(--gap-3);
+}
+
+
+::selection {
+  background: var(--selection);
+}
+
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ef-bg-4);
+  border-radius: 20px;
+  border: 2px solid var(--bg);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+
+/* Headings */
+#write h1,
+#write h2,
+#write h3,
+#write h4,
+#write h5,
+#write h6 {
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.25;
+  margin: 2.2rem 0 1rem;
+}
+
+#write h1 {
+  font-size: 2.1rem;
+}
+
+#write h2 {
+  font-size: 1.8rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.35rem;
+}
+
+#write h3 {
+  font-size: 1.5rem;
+  border-bottom: 1px dashed var(--ef-bg-4);
+  padding-bottom: 0.25rem;
+}
+
+#write h4 {
+  font-size: 1.25rem;
+}
+
+#write h5 {
+  font-size: 1.1rem;
+}
+
+#write h6 {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+
+/* Paragraph / Lists */
+#write p {
+  margin: 0 0 1.05rem;
+}
+
+#write strong {
+  color: var(--ef-green);
+  font-weight: 600;
+}
+
+#write em {
+  color: var(--ef-purple);
+  font-style: italic;
+}
+
+#write del {
+  color: var(--text-muted);
+}
+
+#write ul,
+#write ol {
+  margin: 0 0 1rem 1.5rem;
+}
+
+#write li {
+  margin: 0.3rem 0;
+}
+
+#write li>p {
+  margin: 0.2rem 0;
+}
+
+#write .task-list-item input {
+  transform: scale(1.05);
+}
+
+
+/* Links */
+#write a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+#write a:hover {
+  text-decoration: underline;
+}
+
+
+/* Blockquote (standard) */
+#write blockquote {
+  margin: 1.25rem 0;
+  padding: 0.8rem 1rem;
+  border-left: 4px solid var(--ef-aqua);
+  background: var(--ef-bg-2);
+  color: var(--text);
+  border-radius: var(--radius-sm);
+}
+
+
+/* Tables */
+#write table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  margin: 1.2rem 0;
+  background: var(--bg-panel);
+  box-shadow: var(--shadow-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+#write th,
+#write td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--ef-bg-3);
+}
+
+#write thead th {
+  background: var(--ef-bg-2);
+  color: var(--text);
+  text-align: left;
+}
+
+#write tbody tr:hover {
+  background: var(--ef-bg-1);
+}
+
+
+/* Inline code */
+#write code,
+#write tt {
+  font-family: var(--font-code);
+  font-size: 0.92em;
+  background: var(--ef-bg-1);
+  color: #d8edea;
+  border: 1px solid var(--ef-bg-3);
+  padding: 0.15rem 0.35rem;
+  border-radius: 6px;
+}
+
+
+/* Code fences */
+#write pre.md-fences {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  overflow: auto;
+  box-shadow: var(--shadow-1);
+}
+
+
+/* ==================== CodeMirror — Everforest token colors ==================== */
+.cm-s-inner,
+.cm-s-typora-default {
+  background: transparent;
+  color: var(--text);
+}
+
+.cm-s-inner .cm-comment {
+  color: #d699b6;
+  font-style: italic;
+}
+
+.cm-s-inner .cm-keyword {
+  color: #e67e80;
+  font-weight: 600;
+}
+
+.cm-s-inner .cm-atom,
+.cm-s-inner .cm-number {
+  color: #e69875;
+}
+
+.cm-s-inner .cm-def,
+.cm-s-inner .cm-variable {
+  color: var(--text);
+}
+
+.cm-s-inner .cm-variable-2 {
+  color: #7fbbb3;
+}
+
+.cm-s-inner .cm-variable-3 {
+  color: #83c092;
+}
+
+.cm-s-inner .cm-string {
+  color: #a7c080;
+}
+
+.cm-s-inner .cm-property {
+  color: #7fbbb3;
+}
+
+.cm-s-inner .cm-operator {
+  color: var(--text);
+}
+
+.cm-s-inner .cm-tag {
+  color: #e67e80;
+}
+
+.cm-s-inner .cm-attribute {
+  color: #dbbc7f;
+}
+
+.cm-s-inner .cm-meta {
+  color: #7a8478;
+}
+
+.cm-s-inner .cm-builtin {
+  color: #83c092;
+}
+
+.cm-s-inner .cm-quote {
+  color: #a7c080;
+}
+
+.cm-s-inner .cm-hr {
+  color: #859289;
+}
+
+.cm-s-inner .cm-link {
+  color: #7fbbb3;
+  text-decoration: underline;
+}
+
+.cm-s-inner .cm-error {
+  color: #1a0d0d;
+  background: #e67e80;
+}
+
+
+/* ===================================================================
    CALL OUTS — Using provided template & Everforest palette variables
    =================================================================== */
-    /*
+/*
  * ------------------------
  * blockquote / md-alert (template)
  * ------------------------
 */
-    blockquote,
-    .md-alert {
-      margin: 14px 0;
-      padding: 16px;
-      background: var(--color-1-0-b);
-      box-sizing: border-box;
-      border-radius: 8px;
-      border-left: 4px solid var(--color-1);
-      border-right: 0.1px solid transparent;
-      border-bottom: 0.1px solid transparent;
-      border-top: 0.1px solid transparent;
-    }
-
-    blockquote blockquote {
-      background: var(--color-1-0-b);
-    }
-
-    blockquote>blockquote,
-    blockquote>.md-alert,
-    .md-alert>.md-alert,
-    .md-alert>blockquote {
-      margin-bottom: 0;
-    }
-
-    p+blockquote,
-    p+.md-alert {
-      margin-top: -8px;
-    }
-
-    .md-alert.md-alert-note>*:first-child,
-    .md-alert.md-alert-caution>*:first-child,
-    .md-alert.md-alert-tip>*:first-child,
-    .md-alert.md-alert-important>*:first-child,
-    .md-alert.md-alert-warning>*:first-child {
-      margin-top: 0;
-      line-height: 1;
-      margin-bottom: -4px;
-    }
-
-    .md-alert.md-alert-note>*:last-child,
-    .md-alert.md-alert-caution>*:last-child,
-    .md-alert.md-alert-tip>*:last-child,
-    .md-alert.md-alert-important>*:last-child,
-    .md-alert.md-alert-warning>*:last-child {
-      margin-bottom: 0;
-    }
-
-    .md-alert.md-alert-note {
-      border-left-color: var(--color-1);
-      background: var(--color-1-0-b);
-      color: var(--color-1);
-    }
-
-    .md-alert.md-alert-note .md-alert-text-note {
-      color: var(--color-1);
-    }
-
-    .md-alert.md-alert-caution {
-      border-left-color: var(--color-2);
-      background: var(--color-2-0-b);
-      color: var(--color-2);
-    }
-
-    .md-alert.md-alert-caution .md-alert-text-caution {
-      color: var(--color-2);
-    }
-
-    .md-alert.md-alert-tip {
-      border-left-color: var(--color-3);
-      background: var(--color-3-0-b);
-      color: var(--color-3);
-    }
-
-    .md-alert.md-alert-tip .md-alert-text-tip {
-      color: var(--color-3);
-    }
-
-    .md-alert.md-alert-important {
-      border-left-color: var(--color-4);
-      background: var(--color-4-0-b);
-      color: var(--color-4);
-    }
-
-    .md-alert.md-alert-important .md-alert-text-important {
-      color: var(--color-4);
-    }
-
-    .md-alert.md-alert-warning {
-      border-left-color: var(--color-5);
-      background: var(--color-5-0-b);
-      color: var(--color-5);
-    }
-
-    .md-alert.md-alert-warning .md-alert-text-warning {
-      color: var(--color-5);
-    }
-
-
-    /* TOC */
-    .md-toc {
-      background: var(--bg-panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 0.7rem 0.8rem;
-    }
-
-    .md-toc-item:hover {
-      background: var(--ef-bg-2);
-    }
-
-
-    /* Footer */
-    .footnotes,
-    .footnotes-area {
-      font-size: 0.92rem;
-      color: var(--text-muted);
-      border-top: 1px dashed var(--ef-bg-4);
-      margin-top: 2rem;
-    }
-
-
-    /* Images */
-    #write img {
-      border-radius: var(--radius-sm);
-      box-shadow: var(--shadow-2);
-    }
-
-    #write figcaption {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      text-align: center;
-    }
-
-
-    .md-task-list-item>input[type="checkbox"] {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 1.1em;
-      height: 1.1em;
-      margin: 0 0.5em 0 0;
-      border: 2px solid #a7c080;
-      border-radius: 4px;
-      background: transparent;
-      position: relative;
-      cursor: pointer;
-    }
-
-    .md-task-list-item>input[type="checkbox"]:checked {
-      background-color: #a7c080;
-      border-color: #a7c080;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 8.5l3 3 6-6' stroke='%23ffffff' stroke-width='2'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: center;
-    }
-
-
-    /* Prefer native accent-color for crisp OS rendering */
-    .task-list-item input[type="checkbox"],
-    input[type="checkbox"] {
-      accent-color: var(--ef-green);
-    }
-
-
-    /* Fallback polishing when accent-color not applied */
-    .task-list-item input[type="checkbox"] {
-      width: 1.05em;
-      height: 1.05em;
-      vertical-align: middle;
-      margin-right: 0.5rem;
-      border-radius: 4px;
-    }
-
-    .task-list-item input[type="checkbox"]:focus {
-      outline: 2px solid rgba(167, 192, 128, 0.45);
-      outline-offset: 2px;
-    }
-
-
-    /* ==================== Sidebar / Outline / Tabs ==================== */
-    #typora-sidebar,
-    #typora-sidebar *,
-    .sidebar,
-    .sidebar * {
-      -webkit-font-smoothing: antialiased;
-    }
-
-
-    #typora-sidebar,
-    .sidebar {
-      background: var(--bg-panel);
-      color: var(--text);
-      border-right: 1px solid var(--border);
-    }
-
-
-    /* Sidebar tabs */
-    .sidebar-tabs,
-    .sidebar-tabs .tab-bar,
-    .sidebar-footer {
-      background: var(--bg-panel);
-      border-top: 1px solid var(--border);
-    }
-
-    .sidebar-tab,
-    .sidebar-tab:hover {
-      color: var(--text-muted);
-    }
-
-    .sidebar-tab.active,
-    .sidebar-tab-active,
-    .sidebar-tab.active:hover {
-      color: var(--text);
-      border-bottom: 1px solid var(--ef-bg-4);
-    }
-
-
-    /* File tree / file list */
-    .file-list-item,
-    .file-node-content,
-    .file-node-title {
-      color: var(--text-muted);
-    }
-
-    .file-node-content.active,
-    .file-node-content.active .file-node-title,
-    .file-list-item.active {
-      background: var(--bg-muted);
-      color: var(--text);
-    }
-
-
-    /* Search box & inputs in sidebar */
-    .sidebar input[type="text"],
-    #typora-sidebar input[type="text"] {
-      background: var(--bg-soft);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.35rem 0.5rem;
-    }
-
-    .sidebar input[type="text"]::placeholder {
-      color: var(--text-muted);
-    }
-
-
-    #write b {
-      color: var(--ef-green);
-      font-weight: 600;
-    }
-
-
-    /* Bold-italic uses fixed #d3c6aa */
-    #write em strong,
-    #write strong em,
-    #write em b,
-    #write b em {
-      color: #d3c6aa;
-      font-weight: 600;
-      font-style: italic;
-    }
-
-
-
-    /* ===== Task list (inline, no wrap) ===== */
-    #write li.task-list-item,
-    #write li.md-task-list-item {
-      list-style: none;
-      position: relative;
-      padding-left: 1.8rem;
-      margin: .35rem 0;
-    }
-
-    #write li.task-list-item>input[type="checkbox"],
-    #write li.md-task-list-item>input[type="checkbox"] {
-      position: absolute;
-      left: 0;
-      top: .25em;
-      width: 1.1em;
-      height: 1.1em;
-      appearance: none;
-      -webkit-appearance: none;
-      border-radius: 6px;
-      border: 2px solid var(--ef-green);
-      background: transparent;
-      margin: 0;
-      display: inline-block;
-      vertical-align: middle;
-    }
-
-    #write li.task-list-item>p,
-    #write li.md-task-list-item>p {
-      display: inline;
-      margin: 0;
-    }
-
-    /* accent-color path */
-    #write li.task-list-item>input[type="checkbox"],
-    #write li.md-task-list-item>input[type="checkbox"] {
-      accent-color: var(--ef-green);
-    }
-
-    #write li.task-list-item>input[type="checkbox"]:checked,
-    #write li.md-task-list-item>input[type="checkbox"]:checked {
-      background-color: var(--ef-green);
-      border-color: var(--ef-green);
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 8.5l3 3 6-6' stroke='%230f1716' stroke-width='2'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: center;
-    }
-
-
-
-    /* Horizontal rule */
-    #write hr {
-      border: none;
-      border-top: 1px solid #3a4246;
-      margin: 2rem 0;
-    }
-
-
-    /* Sidebar color enforcement */
-    #typora-sidebar,
-    .sidebar {
-      background: var(--bg-panel);
-      color: var(--text);
-    }
-
-
-    /* Reduce any background transitions to avoid flash */
-    #typora-sidebar,
-    .sidebar,
-    .sidebar * {
-      transition: background-color 0s !important;
-    }
-
-
-
-    /* ================= Sidebar (MDMDT-style logic, dark) ================ */
-    /* Base sidebar panel */
-    #typora-sidebar,
-    .sidebar {
-      background: var(--bg) !important;
-      color: var(--text);
-      border-right: 1px solid var(--border);
-      box-shadow: none;
-      overflow: hidden;
-    }
-
-
-    /* Megamenu sidebar (preferences / open) */
-    .unibody-window #megamenu-menu-sidebar {
-      background: var(--bg) !important;
-      border-right: 1px solid var(--border);
-      box-shadow: none;
-      overflow: hidden;
-    }
-
-    #megamenu-menu-sidebar .megamenu-menu-list {
-      border: none;
-    }
-
-
-    /* Sidebar tabs & footer */
-    .sidebar-tabs,
-    .sidebar-tabs .tab-bar,
-    .sidebar-footer {
-      background: var(--bg) !important;
-      border-top: 1px solid var(--border);
-    }
-
-    .sidebar-tab,
-    .sidebar-tab:hover {
-      color: var(--text-muted);
-    }
-
-    .sidebar-tab.active,
-    .sidebar-tab-active,
-    .sidebar-tab.active:hover {
-      color: var(--text);
-      border-bottom: 1px solid var(--ef-bg-4);
-    }
-
-
-    /* Prevent white flash when switching sidebar content */
-    #typora-sidebar,
-    .sidebar,
-    .sidebar * {
-      transition: background-color 0s, color 0s;
-    }
-
-
-
-    /* ===== Sidebar anti-flash & outline title line (DARK) ===== */
-    /* 让 Typora 动画阶段使用我们自定义的侧边栏背景，而不是默认白色 */
-    :root {
-      --side-bar-bg-color: var(--bg);
-    }
-
-
-    /* 统一侧边栏及其子元素背景，避免切换时出现白色闪屏 */
-    #typora-sidebar,
-    .sidebar,
-    .sidebar * {
-      background: var(--side-bar-bg-color) !important;
-    }
-
-
-    /* 边框与阴影保持暗色风格 */
-    #typora-sidebar,
-    .sidebar {
-      border-right: 1px solid var(--border) !important;
-      box-shadow: none !important;
-      overflow: hidden;
-      /* 防止切换时出现背景层外露 */
-    }
-
-
-    /* 避免背景在切换动画中过渡为默认色造成闪屏 */
-    #typora-sidebar,
-    .sidebar,
-    .sidebar * {
-      transition: background-color 0s, color 0s !important;
-    }
-
-
-    /* =========================
+blockquote,
+.md-alert {
+  margin: 14px 0;
+  padding: 16px;
+  background: var(--color-1-0-b);
+  box-sizing: border-box;
+  border-radius: 8px;
+  border-left: 4px solid var(--color-1);
+  border-right: 0.1px solid transparent;
+  border-bottom: 0.1px solid transparent;
+  border-top: 0.1px solid transparent;
+}
+
+blockquote blockquote {
+  background: var(--color-1-0-b);
+}
+
+blockquote>blockquote,
+blockquote>.md-alert,
+.md-alert>.md-alert,
+.md-alert>blockquote {
+  margin-bottom: 0;
+}
+
+p+blockquote,
+p+.md-alert {
+  margin-top: -8px;
+}
+
+.md-alert.md-alert-note>*:first-child,
+.md-alert.md-alert-caution>*:first-child,
+.md-alert.md-alert-tip>*:first-child,
+.md-alert.md-alert-important>*:first-child,
+.md-alert.md-alert-warning>*:first-child {
+  margin-top: 0;
+  line-height: 1;
+  margin-bottom: -4px;
+}
+
+.md-alert.md-alert-note>*:last-child,
+.md-alert.md-alert-caution>*:last-child,
+.md-alert.md-alert-tip>*:last-child,
+.md-alert.md-alert-important>*:last-child,
+.md-alert.md-alert-warning>*:last-child {
+  margin-bottom: 0;
+}
+
+.md-alert.md-alert-note {
+  border-left-color: var(--color-1);
+  background: var(--color-1-0-b);
+  color: var(--color-1);
+}
+
+.md-alert.md-alert-note .md-alert-text-note {
+  color: var(--color-1);
+}
+
+.md-alert.md-alert-caution {
+  border-left-color: var(--color-2);
+  background: var(--color-2-0-b);
+  color: var(--color-2);
+}
+
+.md-alert.md-alert-caution .md-alert-text-caution {
+  color: var(--color-2);
+}
+
+.md-alert.md-alert-tip {
+  border-left-color: var(--color-3);
+  background: var(--color-3-0-b);
+  color: var(--color-3);
+}
+
+.md-alert.md-alert-tip .md-alert-text-tip {
+  color: var(--color-3);
+}
+
+.md-alert.md-alert-important {
+  border-left-color: var(--color-4);
+  background: var(--color-4-0-b);
+  color: var(--color-4);
+}
+
+.md-alert.md-alert-important .md-alert-text-important {
+  color: var(--color-4);
+}
+
+.md-alert.md-alert-warning {
+  border-left-color: var(--color-5);
+  background: var(--color-5-0-b);
+  color: var(--color-5);
+}
+
+.md-alert.md-alert-warning .md-alert-text-warning {
+  color: var(--color-5);
+}
+
+
+/* TOC */
+.md-toc {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.7rem 0.8rem;
+}
+
+.md-toc-item:hover {
+  background: var(--ef-bg-2);
+}
+
+
+/* Footer */
+.footnotes,
+.footnotes-area {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  border-top: 1px dashed var(--ef-bg-4);
+  margin-top: 2rem;
+}
+
+
+/* Images */
+#write img {
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-2);
+}
+
+#write figcaption {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+
+.md-task-list-item>input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.1em;
+  height: 1.1em;
+  margin: 0 0.5em 0 0;
+  border: 2px solid #a7c080;
+  border-radius: 4px;
+  background: transparent;
+  position: relative;
+  cursor: pointer;
+}
+
+.md-task-list-item>input[type="checkbox"]:checked {
+  background-color: #a7c080;
+  border-color: #a7c080;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 8.5l3 3 6-6' stroke='%23ffffff' stroke-width='2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+
+/* Prefer native accent-color for crisp OS rendering */
+.task-list-item input[type="checkbox"],
+input[type="checkbox"] {
+  accent-color: var(--ef-green);
+}
+
+
+/* Fallback polishing when accent-color not applied */
+.task-list-item input[type="checkbox"] {
+  width: 1.05em;
+  height: 1.05em;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+  border-radius: 4px;
+}
+
+.task-list-item input[type="checkbox"]:focus {
+  outline: 2px solid rgba(167, 192, 128, 0.45);
+  outline-offset: 2px;
+}
+
+
+/* ==================== Sidebar / Outline / Tabs ==================== */
+#typora-sidebar,
+#typora-sidebar *,
+.sidebar,
+.sidebar * {
+  -webkit-font-smoothing: antialiased;
+}
+
+
+#typora-sidebar,
+.sidebar {
+  background: var(--bg-panel);
+  color: var(--text);
+  border-right: 1px solid var(--border);
+}
+
+
+/* Sidebar tabs */
+.sidebar-tabs,
+.sidebar-tabs .tab-bar,
+.sidebar-footer {
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+}
+
+.sidebar-tab,
+.sidebar-tab:hover {
+  color: var(--text-muted);
+}
+
+.sidebar-tab.active,
+.sidebar-tab-active,
+.sidebar-tab.active:hover {
+  color: var(--text);
+  border-bottom: 1px solid var(--ef-bg-4);
+}
+
+
+/* File tree / file list */
+.file-list-item,
+.file-node-content,
+.file-node-title {
+  color: var(--text-muted);
+}
+
+.file-node-content.active,
+.file-node-content.active .file-node-title,
+.file-list-item.active {
+  background: var(--bg-muted);
+  color: var(--text);
+}
+
+
+/* Search box & inputs in sidebar */
+.sidebar input[type="text"],
+#typora-sidebar input[type="text"] {
+  background: var(--bg-soft);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.35rem 0.5rem;
+}
+
+.sidebar input[type="text"]::placeholder {
+  color: var(--text-muted);
+}
+
+
+#write b {
+  color: var(--ef-green);
+  font-weight: 600;
+}
+
+
+/* Bold-italic uses fixed #d3c6aa */
+#write em strong,
+#write strong em,
+#write em b,
+#write b em {
+  color: #d3c6aa;
+  font-weight: 600;
+  font-style: italic;
+}
+
+
+
+/* ===== Task list (inline, no wrap) ===== */
+#write li.task-list-item,
+#write li.md-task-list-item {
+  list-style: none;
+  position: relative;
+  padding-left: 1.8rem;
+  margin: .35rem 0;
+}
+
+#write li.task-list-item>input[type="checkbox"],
+#write li.md-task-list-item>input[type="checkbox"] {
+  position: absolute;
+  left: 0;
+  top: .25em;
+  width: 1.1em;
+  height: 1.1em;
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 6px;
+  border: 2px solid var(--ef-green);
+  background: transparent;
+  margin: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+#write li.task-list-item>p,
+#write li.md-task-list-item>p {
+  display: inline;
+  margin: 0;
+}
+
+/* accent-color path */
+#write li.task-list-item>input[type="checkbox"],
+#write li.md-task-list-item>input[type="checkbox"] {
+  accent-color: var(--ef-green);
+}
+
+#write li.task-list-item>input[type="checkbox"]:checked,
+#write li.md-task-list-item>input[type="checkbox"]:checked {
+  background-color: var(--ef-green);
+  border-color: var(--ef-green);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 8.5l3 3 6-6' stroke='%230f1716' stroke-width='2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+
+
+/* Horizontal rule */
+#write hr {
+  border: none;
+  border-top: 1px solid #3a4246;
+  margin: 2rem 0;
+}
+
+
+/* Sidebar color enforcement */
+#typora-sidebar,
+.sidebar {
+  background: var(--bg-panel);
+  color: var(--text);
+}
+
+
+/* Reduce any background transitions to avoid flash */
+#typora-sidebar,
+.sidebar,
+.sidebar * {
+  transition: background-color 0s !important;
+}
+
+
+
+/* ================= Sidebar (MDMDT-style logic, dark) ================ */
+/* Base sidebar panel */
+#typora-sidebar,
+.sidebar {
+  background: var(--bg) !important;
+  color: var(--text);
+  border-right: 1px solid var(--border);
+  box-shadow: none;
+  overflow: hidden;
+}
+
+
+/* Megamenu sidebar (preferences / open) */
+.unibody-window #megamenu-menu-sidebar {
+  background: var(--bg) !important;
+  border-right: 1px solid var(--border);
+  box-shadow: none;
+  overflow: hidden;
+}
+
+#megamenu-menu-sidebar .megamenu-menu-list {
+  border: none;
+}
+
+
+/* Sidebar tabs & footer */
+.sidebar-tabs,
+.sidebar-tabs .tab-bar,
+.sidebar-footer {
+  background: var(--bg) !important;
+  border-top: 1px solid var(--border);
+}
+
+.sidebar-tab,
+.sidebar-tab:hover {
+  color: var(--text-muted);
+}
+
+.sidebar-tab.active,
+.sidebar-tab-active,
+.sidebar-tab.active:hover {
+  color: var(--text);
+  border-bottom: 1px solid var(--ef-bg-4);
+}
+
+
+/* Prevent white flash when switching sidebar content */
+#typora-sidebar,
+.sidebar,
+.sidebar * {
+  transition: background-color 0s, color 0s;
+}
+
+
+
+/* ===== Sidebar anti-flash & outline title line (DARK) ===== */
+/* 让 Typora 动画阶段使用我们自定义的侧边栏背景，而不是默认白色 */
+:root {
+  --side-bar-bg-color: var(--bg);
+}
+
+
+/* 统一侧边栏及其子元素背景，避免切换时出现白色闪屏 */
+#typora-sidebar,
+.sidebar,
+.sidebar * {
+  background: var(--side-bar-bg-color) !important;
+}
+
+
+/* 边框与阴影保持暗色风格 */
+#typora-sidebar,
+.sidebar {
+  border-right: 1px solid var(--border) !important;
+  box-shadow: none !important;
+  overflow: hidden;
+  /* 防止切换时出现背景层外露 */
+}
+
+
+/* 避免背景在切换动画中过渡为默认色造成闪屏 */
+#typora-sidebar,
+.sidebar,
+.sidebar * {
+  transition: background-color 0s, color 0s !important;
+}
+
+
+/* =========================
    GLOBAL BACKGROUND GUARD
    （全局防白闪）
    ========================= */
-    :root {
-      color-scheme: dark;
-      --window-bg: var(--bg);
-    }
+:root {
+  color-scheme: dark;
+  --window-bg: var(--bg);
+}
 
 
-    /* 移除可能导致闪烁的背景过渡 */
-    html,
-    body,
-    #typora-sidebar,
-    .sidebar,
-    .sidebar *,
-    #megamenu-menu,
-    #megamenu-content,
-    #megamenu-menu-sidebar,
-    .megamenu-content,
-    .megamenu-menu,
-    .megamenu-menu-list {
-      transition: background-color 0s !important;
-    }
+/* 移除可能导致闪烁的背景过渡 */
+html,
+body,
+#typora-sidebar,
+.sidebar,
+.sidebar *,
+#megamenu-menu,
+#megamenu-content,
+#megamenu-menu-sidebar,
+.megamenu-content,
+.megamenu-menu,
+.megamenu-menu-list {
+  transition: background-color 0s !important;
+}
 
-    /* === Outline blocks copied from Light, with lighter underline === */
+/* === Outline blocks copied from Light, with lighter underline === */
 
-    .file-node-content:hover,
-    .file-list-item:hover,
-    .outline-item:hover,
-    .outline-item-container:hover {
-      background: var(--bg-soft);
-      color: var(--text);
-    }
-
-
-    /* Outline panel */
-    .outline-panel,
-    .outline-content,
-    .outline-title,
-    .outline-item,
-    .outline-label {
-      background: var(--bg-panel);
-      color: var(--text-muted);
-    }
-
-    .outline-title {
-      color: var(--text);
-      font-weight: 600;
-      border-bottom: none;
-      position: relative;
-      padding-bottom: 0.5rem;
-    }
-
-    /* Create the green-center gray-sides underline */
-    .outline-title::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(to right,
-          var(--border) 0%,
-          var(--border) 35%,
-          var(--ef-green) 50%,
-          var(--border) 65%,
-          var(--border) 100%);
-    }
-
-    .outline-item.active,
-    .outline-item .active {
-      background: transparent;
-      color: var(--text);
-      font-weight: 600;
-      border: none !important;
-      box-shadow: none !important;
-    }
-
-    /* Remove borders from file nodes in sidebar */
-    .file-node-content,
-    .file-node-title,
-    .file-list-item,
-    .file-node-content.active,
-    .file-node-content.active .file-node-title,
-    .file-list-item.active {
-      border: none !important;
-      box-shadow: none !important;
-    }
+.file-node-content:hover,
+.file-list-item:hover,
+.outline-item:hover,
+.outline-item-container:hover {
+  background: var(--bg-soft);
+  color: var(--text);
+}
 
 
-    /* 侧边栏相关容器/区域在切换时也保持同色背景 */
-    .sidebar-tabs,
-    .sidebar-tabs .tab-bar,
-    .sidebar-footer,
-    .sidebar-content,
-    .outline-panel,
-    .outline-content,
-    .outline-item,
-    .outline-item-container,
-    #file-library-list,
-    #file-library-search-result,
-    #file-library-tree,
-    .sidebar-resizer {
-      background: var(--side-bar-bg-color) !important;
-    }
+/* Outline panel */
+.outline-panel,
+.outline-content,
+.outline-title,
+.outline-item,
+.outline-label {
+  background: var(--bg-panel);
+  color: var(--text-muted);
+}
+
+.outline-title {
+  color: var(--text);
+  font-weight: 600;
+  border-bottom: none;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+/* Create the green-center gray-sides underline */
+.outline-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(to right,
+      var(--border) 0%,
+      var(--border) 35%,
+      var(--ef-green) 50%,
+      var(--border) 65%,
+      var(--border) 100%);
+}
+
+.outline-item.active,
+.outline-item .active {
+  background: transparent;
+  color: var(--text);
+  font-weight: 600;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove borders from file nodes in sidebar */
+.file-node-content,
+.file-node-title,
+.file-list-item,
+.file-node-content.active,
+.file-node-content.active .file-node-title,
+.file-list-item.active {
+  border: none !important;
+  box-shadow: none !important;
+}
 
 
-    /* 覆盖所有关键容器，确保在打开/关闭侧边栏、切换面板、Megamenu 动画时不出现白底 */
-    html,
-    body,
-    #app,
-    #typora-app,
-    .typora-export,
-    #write,
-    .content,
-    #main,
-    .window-frame,
-    .titlebar,
-    #typora-sidebar,
-    .sidebar,
-    .sidebar-content,
-    .sidebar-tabs,
-    .sidebar-footer,
-    .sidebar-resizer,
-    #megamenu-menu,
-    #megamenu-content,
-    #megamenu-menu-sidebar,
-    .megamenu-menu,
-    .megamenu-menu-list,
-    .megamenu-content,
-    #file-library-list,
-    #file-library-search-result,
-    #file-library-tree,
-    .outline-panel,
-    .outline-content,
-    .outline-item-container,
-    .outline-item {
-      background: var(--window-bg) !important;
-    }
-
-    .outline-title,
-    .outline-header,
-    .outline,
-    .outline-panel {
-      border-bottom: none !important;
-    }
+/* 侧边栏相关容器/区域在切换时也保持同色背景 */
+.sidebar-tabs,
+.sidebar-tabs .tab-bar,
+.sidebar-footer,
+.sidebar-content,
+.outline-panel,
+.outline-content,
+.outline-item,
+.outline-item-container,
+#file-library-list,
+#file-library-search-result,
+#file-library-tree,
+.sidebar-resizer {
+  background: var(--side-bar-bg-color) !important;
+}
 
 
-    /* ==== Final custom adjustments ==== */
+/* 覆盖所有关键容器，确保在打开/关闭侧边栏、切换面板、Megamenu 动画时不出现白底 */
+html,
+body,
+#app,
+#typora-app,
+.typora-export,
+#write,
+.content,
+#main,
+.window-frame,
+.titlebar,
+#typora-sidebar,
+.sidebar,
+.sidebar-content,
+.sidebar-tabs,
+.sidebar-footer,
+.sidebar-resizer,
+#megamenu-menu,
+#megamenu-content,
+#megamenu-menu-sidebar,
+.megamenu-menu,
+.megamenu-menu-list,
+.megamenu-content,
+#file-library-list,
+#file-library-search-result,
+#file-library-tree,
+.outline-panel,
+.outline-content,
+.outline-item-container,
+.outline-item {
+  background: var(--window-bg) !important;
+}
 
-    /* 1. Remove unwanted extra border line in outline */
-    .outline-header,
-    .outline,
-    .outline-panel {
-      border-bottom: none !important;
-    }
-
-    /* 2. Callouts icon spacing: increase space between icon/title and content */
-    .md-alert>*:first-child {
-      margin-bottom: 0.5rem !important;
-      line-height: 1.2 !important;
-    }
-
-    /* 3. Code block font size bigger */
-    #write pre.md-fences {
-      font-size: 1.05rem !important;
-    }
-
-    #write code,
-    #write tt {
-      font-size: 1rem !important;
-    }
-
-
-    /* ==== Final custom adjustments ==== */
-
-    /* 1. Remove unwanted extra border line in outline */
-    .outline-header,
-    .outline,
-    .outline-panel {
-      border-bottom: none !important;
-    }
-
-    /* 2. Callouts icon spacing */
-    .md-alert>*:first-child {
-      margin-bottom: 0.5rem !important;
-      line-height: 1.2 !important;
-    }
-
-    /* 3. Code block font size bigger */
-    #write pre.md-fences {
-      font-size: 1.05rem !important;
-    }
-
-    #write code,
-    #write tt {
-      font-size: 1rem !important;
-    }
-
-    /* Blockquote — vertical center alignment fix */
-    #write blockquote {
-      display: flex;
-      align-items: center;
-      min-height: 3.0em;
-      line-height: 1.6;
-      box-sizing: border-box;
-    }
-
-    #write blockquote>p,
-    #write blockquote> :not(blockquote) {
-      margin: 0;
-    }
-
-    /* ==== Export View & Print Background ==== */
-    .typora-export,
-    .typora-export body {
-      background: var(--bg) !important;
-      color: var(--text) !important;
-    }
-
-    @media print {
-
-      body,
-      html,
-      .typora-export {
-        background: var(--bg) !important;
-        color: var(--text) !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-    }
+.outline-title,
+.outline-header,
+.outline,
+.outline-panel {
+  border-bottom: none !important;
+}
 
 
-    /* ==== Override: remove sidebar outline label/item background badges ==== */
-    .outline-item,
-    .outline-label {
-      background: transparent !important;
-      box-shadow: none !important;
-    }
+/* ==== Final custom adjustments ==== */
 
-    /* Also remove hover highlight boxes for outline items */
-    .outline-item:hover,
-    .outline-item-container:hover {
-      background: transparent !important;
-    }
+/* 1. Remove unwanted extra border line in outline */
+.outline-header,
+.outline,
+.outline-panel {
+  border-bottom: none !important;
+}
 
-    /* ==== Fix CodeMirror line highlighting ==== */
-    #write .CodeMirror-activeline-background,
-    #write .CodeMirror-selected,
-    #write .CodeMirror-linebackground,
-    #write pre.CodeMirror-line .CodeMirror-linebackground,
-    #write .CodeMirror-code .CodeMirror-activeline,
-    #write .CodeMirror-activeline .CodeMirror-linebackground {
-      background: var(--bg-soft) !important;
-    }
+/* 2. Callouts icon spacing: increase space between icon/title and content */
+.md-alert>*:first-child {
+  margin-bottom: 0.5rem !important;
+  line-height: 1.2 !important;
+}
 
-    /* Fix any white background in code elements */
-    #write .CodeMirror,
-    #write .CodeMirror-gutters,
-    #write .CodeMirror-lines,
-    #write .CodeMirror-code,
-    #write .CodeMirror-line,
-    #write pre.CodeMirror-line,
-    #write .CodeMirror-linebackground {
-      background: transparent !important;
-    }
+/* 3. Code block font size bigger */
+#write pre.md-fences {
+  font-size: 1.05rem !important;
+}
 
-    /* ==== UI Elements Outside Writing Area ==== */
-    /* Fix for settings dialog and other UI components */
-    :not(#write *) {
-      background-color: var(--bg-color) !important;
-      color: var(--text-color) !important;
-    }
+#write code,
+#write tt {
+  font-size: 1rem !important;
+}
 
-    /* Specific fixes for common UI elements */
-    .dialog,
-    .modal,
-    .popup,
-    .ty-tooltip,
-    #megamenu-content,
-    #file-library-search-result,
-    .preference-panel,
-    .settings-panel,
-    input:not(#write *),
-    select:not(#write *),
-    button:not(#write *),
-    label:not(#write *),
-    span:not(#write *) {
-      background-color: var(--bg-color) !important;
-      color: var(--text-color) !important;
-    }
 
-    /* Only add border to elements that need it */
-    .dialog,
-    .modal,
-    .popup,
-    .preference-panel,
-    .settings-panel,
-    input:not(#write *),
-    select:not(#write *),
-    button:not(#write *) {
-      border-color: var(--border) !important;
-    }
+/* ==== Final custom adjustments ==== */
 
-    /* Fix for input fields and text areas */
-    input[type="text"]:not(#write *),
-    input[type="password"]:not(#write *),
-    input[type="email"]:not(#write *),
-    input[type="number"]:not(#write *),
-    textarea:not(#write *),
-    select:not(#write *) {
-      background-color: var(--bg-soft) !important;
-      color: var(--text-color) !important;
-      border: 1px solid var(--border) !important;
-    }
+/* 1. Remove unwanted extra border line in outline */
+.outline-header,
+.outline,
+.outline-panel {
+  border-bottom: none !important;
+}
 
-    /* Fix for buttons */
-    button:not(#write *),
-    .btn:not(#write *) {
-      background-color: var(--primary-color) !important;
-      color: var(--primary-btn-text-color) !important;
-      border: 1px solid var(--primary-btn-border-color) !important;
-    }
+/* 2. Callouts icon spacing */
+.md-alert>*:first-child {
+  margin-bottom: 0.5rem !important;
+  line-height: 1.2 !important;
+}
 
-    /* Fix for file search dialog (Cmd+Shift+O) */
-    #file-library-search,
-    .search-input,
-    .search-result,
-    .file-list-item {
-      background-color: var(--bg-color) !important;
-      color: var(--text-color) !important;
-    }
+/* 3. Code block font size bigger */
+#write pre.md-fences {
+  font-size: 1.05rem !important;
+}
 
-    /* Fix for status bar */
-    .status-bar,
-    .footer-bar {
-      background-color: var(--bg-panel) !important;
-      color: var(--text-color) !important;
-      border-top: 1px solid var(--border) !important;
-    }
-  </style>
-  <style type='text/css' id="style-lp">
-    ol,
-    ul {
-      padding-left: 40px
-    }
-  </style>
+#write code,
+#write tt {
+  font-size: 1rem !important;
+}
 
-  <title>start</title>
+/* Blockquote — vertical center alignment fix */
+#write blockquote {
+  display: flex;
+  align-items: center;
+  min-height: 3.0em;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+#write blockquote>p,
+#write blockquote> :not(blockquote) {
+  margin: 0;
+}
+
+/* ==== Export View & Print Background ==== */
+.typora-export,
+.typora-export body {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+}
+
+@media print {
+
+  body,
+  html,
+  .typora-export {
+    background: var(--bg) !important;
+    color: var(--text) !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+
+/* ==== Override: remove sidebar outline label/item background badges ==== */
+.outline-item,
+.outline-label {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Also remove hover highlight boxes for outline items */
+.outline-item:hover,
+.outline-item-container:hover {
+  background: transparent !important;
+}
+
+/* ==== Fix CodeMirror line highlighting ==== */
+#write .CodeMirror-activeline-background,
+#write .CodeMirror-selected,
+#write .CodeMirror-linebackground,
+#write pre.CodeMirror-line .CodeMirror-linebackground,
+#write .CodeMirror-code .CodeMirror-activeline,
+#write .CodeMirror-activeline .CodeMirror-linebackground {
+  background: var(--bg-soft) !important;
+}
+
+/* Fix any white background in code elements */
+#write .CodeMirror,
+#write .CodeMirror-gutters,
+#write .CodeMirror-lines,
+#write .CodeMirror-code,
+#write .CodeMirror-line,
+#write pre.CodeMirror-line,
+#write .CodeMirror-linebackground {
+  background: transparent !important;
+}
+
+/* ==== UI Elements Outside Writing Area ==== */
+/* Fix for settings dialog and other UI components */
+:not(#write *) {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+/* Specific fixes for common UI elements */
+.dialog,
+.modal,
+.popup,
+.ty-tooltip,
+#megamenu-content,
+#file-library-search-result,
+.preference-panel,
+.settings-panel,
+input:not(#write *),
+select:not(#write *),
+button:not(#write *),
+label:not(#write *),
+span:not(#write *) {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+/* Only add border to elements that need it */
+.dialog,
+.modal,
+.popup,
+.preference-panel,
+.settings-panel,
+input:not(#write *),
+select:not(#write *),
+button:not(#write *) {
+  border-color: var(--border) !important;
+}
+
+/* Fix for input fields and text areas */
+input[type="text"]:not(#write *),
+input[type="password"]:not(#write *),
+input[type="email"]:not(#write *),
+input[type="number"]:not(#write *),
+textarea:not(#write *),
+select:not(#write *) {
+  background-color: var(--bg-soft) !important;
+  color: var(--text-color) !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* Fix for buttons */
+button:not(#write *),
+.btn:not(#write *) {
+  background-color: var(--primary-color) !important;
+  color: var(--primary-btn-text-color) !important;
+  border: 1px solid var(--primary-btn-border-color) !important;
+}
+
+/* Fix for file search dialog (Cmd+Shift+O) */
+#file-library-search,
+.search-input,
+.search-result,
+.file-list-item {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+/* Fix for status bar */
+.status-bar,
+.footer-bar {
+  background-color: var(--bg-panel) !important;
+  color: var(--text-color) !important;
+  border-top: 1px solid var(--border) !important;
+}</style>
+<style type='text/css'  id="style-lp">ol, ul {padding-left: 40px}</style>
+
+<title>start</title>
 </head>
-
-<body class='typora-export'>
-  <div class='typora-export-content'>
-    <div id='write' class=''>
-      <h1 id='开始'><span>开始</span></h1>
-      <p>&nbsp;</p>
-      <p><span>让我们通过使用 LighterBase 来创建一个简易项目来学习如何使用它的Web版本。</span></p>
-      <h2 id='step-1'><span>Step 1</span></h2>
-      <p><span>LighterBase 致力于通过更简易更轻便的方式来帮助你进行后端的搭建</span></p>
-      <p><img src="./imgs/mainpage.jpeg" alt="mainpage"></p>
-      <p><span>在主页界面，我们需要创建一个用户，点击右上角或 get started 来开始</span></p>
-      <p><img src="./imgs/register.jpeg" alt="mainpage"></p>
-      <p><span>我们需要你提供你的邮箱地址，这并不意味着我们会通过邮箱向你发送任何性质的广告邮件，正相反，你需要主动联系我们向我们需求帮助后我们才会按照你的地址向你回信</span></p>
-      <p><span>同时邮箱地址也是你除去用户id外唯一的辨识标志，这意味着一个邮箱仅能创建一个账户</span></p>
-      <p><span>现在进行登录</span></p>
-      <p><img src="./imgs/loginpage.jpeg" alt="mainpage"></p>
-      <h2 id='step-2'><span>Step 2</span></h2>
-      <p><span>让我们进入项目管理页面，你可以在这里预览并管理你的所有项目，包括删除，分享，SQLite数据库下载，不过现在，我们先创建一个新的项目</span></p>
-      <p><img src="./imgs/projectc.jpeg" alt="mainpage"></p>
-      <p><span>在这个页面，你需要设置项目的图标（你也可以使用我们的默认图标），项目的名称和简介，它们也可以在创建后被随时修改</span></p>
-      <p><span>我们先创建一个示例项目，项目的名称为arcData，项目描述可以为空值（不过没道理不写一点对吧）</span></p>
-      <p><img src="./imgs/arcData.jpeg" alt="mainpage"></p>
-      <p><span>然后打开项目，我们需要你为项目设置一个管理员账号，这是为了项目的安全性和本地化考虑，这个账号的密钥可以在项目设置里随时进行修改</span></p>
-      <p><img src="./imgs/projectlogin.jpeg" alt="mainpage"></p>
-      <h2 id='step-3'><span>Step 3</span></h2>
-      <p><img src="./imgs/projectD.jpeg" alt="mainpage"></p>
-      <p><span>进入项目后，我们需要你书写SQL，LighterBase 致力于通过简单的SQLite代码来构建你的后端设计 ，我们已为你提供完整的users表单，如果你需要修改它，请使用</span></p>
-      <pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sqlite">
-        <div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sqlite">
-          <div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 10.124px; left: 3.99414px;">
-            <textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0"
-              style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea>
-          </div>
-          <div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div>
-          <div class="CodeMirror-gutter-filler" cm-not-content="true"></div>
-          <div class="CodeMirror-scroll" tabindex="-1">
-            <div class="CodeMirror-sizer"
-              style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;">
-              <div style="position: relative; top: 0px;">
-                <div class="CodeMirror-lines" role="presentation">
-                  <div role="presentation" style="position: relative; outline: none;">
-                    <div class="CodeMirror-measure">
-                      <pre><span>xxxxxxxxxx</span></pre>
-                    </div>
-                    <div class="CodeMirror-measure"></div>
-                    <div style="position: relative; z-index: 1;"></div>
-                    <div class="CodeMirror-code" role="presentation">
-                      <div class="CodeMirror-activeline" style="position: relative;">
-                        <div class="CodeMirror-activeline-background CodeMirror-linebackground"></div>
-                        <div class="CodeMirror-gutter-background CodeMirror-activeline-gutter"
-                          style="left: 0px; width: 0px;"></div>
-                        <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                            style="padding-right: 0.1px;"><span class="cm-keyword">ALTER</span> <span
-                              class="cm-keyword">TABLE</span> users ADD COLLUMN</span></pre>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 24px;">
-            </div>
-            <div class="CodeMirror-gutters" style="display: none; height: 24px;"></div>
-          </div>
-        </div>
-      </pre>
-      <p><span>来进行修改</span></p>
-      <p><span>我们不建议你对现有表属性进行修改，仅建议增加新的列元素</span></p>
-      <p><span>现在让我们创建两个新的表</span></p>
-      <pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sqlite"
-        style="break-inside: unset;">
-        <div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sqlite">
-          <div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 10.124px; left: 3.99414px;">
-            <textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0"
-              style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea>
-          </div>
-          <div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div>
-          <div class="CodeMirror-gutter-filler" cm-not-content="true"></div>
-          <div class="CodeMirror-scroll" tabindex="-1">
-            <div class="CodeMirror-sizer"
-              style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;">
-              <div style="position: relative; top: 0px;">
-                <div class="CodeMirror-lines" role="presentation">
-                  <div role="presentation" style="position: relative; outline: none;">
-                    <div class="CodeMirror-measure">
-                      <pre><span>xxxxxxxxxx</span></pre>
-                    </div>
-                    <div class="CodeMirror-measure"></div>
-                    <div style="position: relative; z-index: 1;"></div>
-                    <div class="CodeMirror-code" role="presentation" style="">
-                      <div class="CodeMirror-activeline" style="position: relative;">
-                        <div class="CodeMirror-activeline-background CodeMirror-linebackground"></div>
-                        <div class="CodeMirror-gutter-background CodeMirror-activeline-gutter"
-                          style="left: 0px; width: 0px;"></div>
-                        <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                            style="padding-right: 0.1px;"><span class="cm-comment">-- 1. 创建 characters 表</span></span>
-                        </pre>
-                      </div>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span class="cm-keyword">CREATE</span> <span
-                            class="cm-keyword">TABLE</span> IF <span class="cm-keyword">NOT</span> EXISTS characters
-                          <span class="cm-bracket">(</span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; id &nbsp; &nbsp; &nbsp; <span
-                            class="cm-type">INTEGER</span> PRIMARY KEY AUTOINCREMENT<span
-                            class="cm-punctuation">,</span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; userid &nbsp; <span class="cm-type">INTEGER</span> <span
-                            class="cm-keyword">NOT</span> <span class="cm-atom">NULL</span><span
-                            class="cm-punctuation">,</span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; name &nbsp; &nbsp; <span class="cm-type">TEXT</span>
-                          &nbsp; &nbsp;<span class="cm-keyword">NOT</span> <span class="cm-atom">NULL</span><span
-                            class="cm-punctuation">,</span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; atk &nbsp; &nbsp; &nbsp;<span
-                            class="cm-type">INTEGER</span> <span class="cm-keyword">NOT</span> <span
-                            class="cm-atom">NULL</span> CHECK <span class="cm-bracket">(</span>atk <span
-                            class="cm-operator">&gt;=</span> <span class="cm-number">0</span><span
-                            class="cm-bracket">)</span><span class="cm-punctuation">,</span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; hp &nbsp; &nbsp; &nbsp; <span
-                            class="cm-type">INTEGER</span> <span class="cm-keyword">NOT</span> <span
-                            class="cm-atom">NULL</span> CHECK <span class="cm-bracket">(</span>hp <span
-                            class="cm-operator">&gt;=</span> <span class="cm-number">0</span><span
-                            class="cm-bracket">)</span><span class="cm-punctuation">,</span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; FOREIGN KEY <span class="cm-bracket">(</span>userid<span
-                            class="cm-bracket">)</span> REFERENCES users<span class="cm-bracket">(</span>id<span
-                            class="cm-bracket">)</span> <span class="cm-keyword">ON</span> <span
-                            class="cm-keyword">UPDATE</span> CASCADE <span class="cm-keyword">ON</span> <span
-                            class="cm-keyword">DELETE</span> CASCADE</span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span class="cm-bracket">)</span><span
-                            class="cm-punctuation">;</span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
-                          </span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span class="cm-comment">-- 2. 创建 monsters 表</span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span class="cm-keyword">CREATE</span> <span
-                            class="cm-keyword">TABLE</span> IF <span class="cm-keyword">NOT</span> EXISTS monsters <span
-                            class="cm-bracket">(</span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; id &nbsp; &nbsp; &nbsp; <span
-                            class="cm-type">INTEGER</span> PRIMARY KEY AUTOINCREMENT<span
-                            class="cm-punctuation">,</span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; userid &nbsp; <span class="cm-type">INTEGER</span> <span
-                            class="cm-keyword">NOT</span> <span class="cm-atom">NULL</span><span
-                            class="cm-punctuation">,</span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; name &nbsp; &nbsp; <span class="cm-type">TEXT</span>
-                          &nbsp; &nbsp;<span class="cm-keyword">NOT</span> <span class="cm-atom">NULL</span><span
-                            class="cm-punctuation">,</span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; atk &nbsp; &nbsp; &nbsp;<span
-                            class="cm-type">INTEGER</span> <span class="cm-keyword">NOT</span> <span
-                            class="cm-atom">NULL</span> CHECK <span class="cm-bracket">(</span>atk <span
-                            class="cm-operator">&gt;=</span> <span class="cm-number">0</span><span
-                            class="cm-bracket">)</span><span class="cm-punctuation">,</span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; hp &nbsp; &nbsp; &nbsp; <span
-                            class="cm-type">INTEGER</span> <span class="cm-keyword">NOT</span> <span
-                            class="cm-atom">NULL</span> CHECK <span class="cm-bracket">(</span>hp <span
-                            class="cm-operator">&gt;=</span> <span class="cm-number">0</span><span
-                            class="cm-bracket">)</span><span class="cm-punctuation">,</span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; FOREIGN KEY <span class="cm-bracket">(</span>userid<span
-                            class="cm-bracket">)</span> REFERENCES users<span class="cm-bracket">(</span>id<span
-                            class="cm-bracket">)</span> <span class="cm-keyword">ON</span> <span
-                            class="cm-keyword">UPDATE</span> CASCADE <span class="cm-keyword">ON</span> <span
-                            class="cm-keyword">DELETE</span> CASCADE</span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span class="cm-bracket">)</span><span
-                            class="cm-punctuation">;</span></span></pre>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 461px;">
-            </div>
-            <div class="CodeMirror-gutters" style="display: none; height: 461px;"></div>
-          </div>
-        </div>
-      </pre>
-      <p><img src="./imgs/projectER.jpeg" alt="mainpage"></p>
-      <p><span>可以看到ER图自动刷新反映了这个简单的数据库结构，</span></p>
-      <p><span>现在点击提交按钮，如果你在SQLite书写中遇到了困难，你可以通过对话按钮向大模型寻求帮助（我们默认接入了GLM-4.5flash，你也可以在设置中接入自己的api来调用你的大模型）</span></p>
-      <p><span>!!!</span></p>
-      <p><span>注意如果你需要修改提交后的表结构，你依然需要使用</span><code>ALTER TABLE 表名</code><span>来再次提交进行修改，你需要完全考虑你的数据库设计后再做出提交</span></p>
-      <p><span>!!!</span></p>
-      <p><span>然后让我们来到查询（Query）部分，在这里你可以使用一些不会影响表结构的SQLite语句如</span><code>SELECT INSERT
-          DELETE</code><span>来帮助自己理解你的数据库设计、添加或删除初始数据</span></p>
-      <p><img src="./imgs/query.jpeg" alt="mainpage"></p>
-      <p><span>你可以保存你的查询以便于在下一次来使用它</span></p>
-      <h2 id='step4'><span>Step4</span></h2>
-      <p><span> </span><img src="./imgs/permission.jpeg" alt="mainpage"></p>
-      <p><span>现在我们需要对表进行权限设置，你需要明确可供用户CRUD操作的权限明细，你可以通过</span><code>where</code><span>来对权限进行设置</span></p>
-      <figure class='table-figure'>
-        <table>
-          <thead>
-            <tr>
-              <th><span>内容</span></th>
-              <th><span>含义</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><span>@uid</span></td>
-              <td><span>仅已登录用户可使用此权限（你的项目的用户而非LighterBase用户）</span></td>
-            </tr>
-            <tr>
-              <td>&nbsp;</td>
-              <td><span>空值表示全部放行</span></td>
-            </tr>
-            <tr>
-              <td><span>1=0</span></td>
-              <td><span>表示全部用户都不放行</span></td>
-            </tr>
-            <tr>
-              <td><span>@uid =1</span></td>
-              <td><span>仅管理员用户（第一位注册登录的用户即你自己）放行</span></td>
-            </tr>
-            <tr>
-              <td><span>条件判断（值为true或false）</span></td>
-              <td><span>真值即放行，假值即不放行</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </figure>
-      <p><span>我们的测试项目可以全为空值，允许任何人修改、</span></p>
-      <h2 id='step5'><span>Step5</span></h2>
-      <p><span>现在让我们回到Design DB板块，通过API按钮来查看文档的SDK内容</span></p>
-      <p><img src="./imgs/SDK.jpeg" alt="mainpage"></p>
-      <p>&nbsp;</p>
-      <p><span>如最简化，你仅仅需要一个前端html文件和js文件，这需要你提前准备，现在让我们假设你的前端已经写好，且有一个js与之关联，我们首先需要引入LighterBase库</span></p>
-      <p>&nbsp;</p>
-      <pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="js">
-        <div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="js">
-          <div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 10.124px; left: 3.99414px;">
-            <textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0"
-              style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea>
-          </div>
-          <div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div>
-          <div class="CodeMirror-gutter-filler" cm-not-content="true"></div>
-          <div class="CodeMirror-scroll" tabindex="-1">
-            <div class="CodeMirror-sizer"
-              style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;">
-              <div style="position: relative; top: 0px;">
-                <div class="CodeMirror-lines" role="presentation">
-                  <div role="presentation" style="position: relative; outline: none;">
-                    <div class="CodeMirror-measure">
-                      <pre><span>xxxxxxxxxx</span></pre>
-                    </div>
-                    <div class="CodeMirror-measure"></div>
-                    <div style="position: relative; z-index: 1;"></div>
-                    <div class="CodeMirror-code" role="presentation">
-                      <div class="CodeMirror-activeline" style="position: relative;">
-                        <div class="CodeMirror-activeline-background CodeMirror-linebackground"></div>
-                        <div class="CodeMirror-gutter-background CodeMirror-activeline-gutter"
-                          style="left: 0px; width: 0px;"></div>
-                        <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                            style="padding-right: 0.1px;"><span class="cm-keyword">import</span> <span
-                              class="cm-def">LighterBase</span> <span class="cm-keyword">from</span> <span
-                              class="cm-string">'lighter-base'</span>;</span></pre>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 24px;">
-            </div>
-            <div class="CodeMirror-gutters" style="display: none; height: 24px;"></div>
-          </div>
-        </div>
-      </pre>
-      <p><img src="./imgs/SDKp.jpg" alt="image"></p>
-      <p>
-        <span>在这里可以看到增的示例，你可能已经注意到URL的构成，我们自动显示给你了id与项目id，同时，如果你是本地APP用户，这里的URL应该是localhost:8080:或者127.0.0.1:8080</span>
-      </p>
-      <p><span>让我们将增删改查的所有内容都放入其中</span></p>
-      <pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="js"
-        style="break-inside: unset;">
-        <div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="js">
-          <div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 10.124px; left: 3.99414px;">
-            <textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0"
-              style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea>
-          </div>
-          <div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div>
-          <div class="CodeMirror-gutter-filler" cm-not-content="true"></div>
-          <div class="CodeMirror-scroll" tabindex="-1">
-            <div class="CodeMirror-sizer"
-              style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;">
-              <div style="position: relative; top: 0px;">
-                <div class="CodeMirror-lines" role="presentation">
-                  <div role="presentation" style="position: relative; outline: none;">
-                    <div class="CodeMirror-measure">
-                      <pre><span>xxxxxxxxxx</span></pre>
-                    </div>
-                    <div class="CodeMirror-measure"></div>
-                    <div style="position: relative; z-index: 1;"></div>
-                    <div class="CodeMirror-code" role="presentation" style="">
-                      <div class="CodeMirror-activeline" style="position: relative;">
-                        <div class="CodeMirror-activeline-background CodeMirror-linebackground"></div>
-                        <div class="CodeMirror-gutter-background CodeMirror-activeline-gutter"
-                          style="left: 0px; width: 0px;"></div>
-                        <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                            style="padding-right: 0.1px;"><span class="cm-comment">//XXX.js</span></span></pre>
-                      </div>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span class="cm-keyword">const</span> <span
-                            class="cm-def">lb</span> <span class="cm-operator">=</span> <span
-                            class="cm-keyword">new</span> <span class="cm-variable">LighterBase</span>(<span
-                            class="cm-string">"http://www.smallwoodice.cn:8080/..."</span>);</span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
-                          </span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span class="cm-comment">//...</span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
-                          </span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span class="cm-keyword">const</span> <span
-                            class="cm-def">payload</span> <span class="cm-operator">=</span> {</span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span
-                            class="cm-string cm-property">"Field1"</span>: <span
-                            class="cm-string">"value1"</span>,</span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span
-                            class="cm-string cm-property">"Field2"</span>: <span
-                            class="cm-string">"value2"</span>,</span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span
-                            class="cm-string cm-property">"Field3"</span>: <span
-                            class="cm-string">"value3"</span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> }</span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
-                          </span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
-                          </span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span class="cm-keyword">const</span> <span
-                            class="cm-def">lb</span> <span class="cm-operator">=</span> <span
-                            class="cm-keyword">new</span> <span class="cm-variable">LighterBase</span>(<span
-                            class="cm-string">"http://www.smallwoodice.cn:8080/..."</span>);</span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
-                          </span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span class="cm-comment">//...</span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
-                          </span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span class="cm-keyword">const</span> <span
-                            class="cm-def">payload</span> <span class="cm-operator">=</span> {</span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span
-                            class="cm-string cm-property">"WHERE"</span>: <span class="cm-string">"id =
-                            ..."</span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> }</span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span class="cm-comment">// 删除满足条件的记录（禁止删除 users 表 id=1
-                            的记录）</span></span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span class="cm-keyword">const</span> <span
-                            class="cm-def">deleteData</span> <span class="cm-operator">=</span> <span
-                            class="cm-keyword">await</span> <span class="cm-variable">lb</span>.<span
-                            class="cm-property">deleteTable</span>(<span class="cm-variable">payload</span>, <span
-                            class="cm-string">"users"</span>);</span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"><span class="cm-meta">......</span></span></pre>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 533px;">
-            </div>
-            <div class="CodeMirror-gutters" style="display: none; height: 533px;"></div>
-          </div>
-        </div>
-      </pre>
-      <p><span>可以看到，上面的Field1等内容需要你填写你的表内容，在这个项目中我们需要改为</span></p>
-      <pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="js">
-        <div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="js">
-          <div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 10.124px; left: 3.99414px;">
-            <textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0"
-              style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea>
-          </div>
-          <div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div>
-          <div class="CodeMirror-gutter-filler" cm-not-content="true"></div>
-          <div class="CodeMirror-scroll" tabindex="-1">
-            <div class="CodeMirror-sizer"
-              style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;">
-              <div style="position: relative; top: 0px;">
-                <div class="CodeMirror-lines" role="presentation">
-                  <div role="presentation" style="position: relative; outline: none;">
-                    <div class="CodeMirror-measure">
-                      <pre><span>xxxxxxxxxx</span></pre>
-                    </div>
-                    <div class="CodeMirror-measure"></div>
-                    <div style="position: relative; z-index: 1;"></div>
-                    <div class="CodeMirror-code" role="presentation" style="">
-                      <div class="CodeMirror-activeline" style="position: relative;">
-                        <div class="CodeMirror-activeline-background CodeMirror-linebackground"></div>
-                        <div class="CodeMirror-gutter-background CodeMirror-activeline-gutter"
-                          style="left: 0px; width: 0px;"></div>
-                        <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                            style="padding-right: 0.1px;"><span class="cm-keyword">const</span> <span
-                              class="cm-def">payload</span> <span class="cm-operator">=</span> {</span></pre>
-                      </div>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span
-                            class="cm-string cm-property">"id"</span>: <span class="cm-string">"1"</span>,</span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span
-                            class="cm-string cm-property">"userid"</span>: <span class="cm-string">"2"</span>,</span>
-                      </pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span
-                            class="cm-string cm-property">"name"</span>: <span
-                            class="cm-string">"Mon3ter"</span>,</span></pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span
-                            class="cm-string cm-property">"atk"</span>: <span class="cm-string">"3300"</span>,</span>
-                      </pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span
-                            class="cm-string cm-property">"hp"</span>: <span class="cm-string">"3000"</span></span>
-                      </pre>
-                      <pre class=" CodeMirror-line " role="presentation"><span role="presentation"
-                          style="padding-right: 0.1px;"> }</span></pre>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 170px;">
-            </div>
-            <div class="CodeMirror-gutters" style="display: none; height: 170px;"></div>
-          </div>
-        </div>
-      </pre>
-      <p><span>这样我们就相当于人为新增了一个character Mon3ter，如果你需要在前端进行增删改查操作，请设置为变量，其他的操作也类似上述示例。</span></p>
-    </div>
-  </div>
+<body class='typora-export'><div class='typora-export-content'>
+<div id='write'  class=''><h1 id='开始'><span>开始</span></h1><p>&nbsp;</p><p><span>让我们通过使用 LighterBase 来创建一个简易项目来学习如何使用它的Web版本。</span></p><h2 id='step-1'><span>Step 1</span></h2><p><span>LighterBase 致力于通过更简易更轻便的方式来帮助你进行后端的搭建</span></p><p><img src="./imgs/mainpage.jpeg" alt="mainpage"></p><p><span>在主页界面，我们需要创建一个用户，点击右上角或 get started 来开始</span></p><p><img src="./imgs/register.jpeg" alt="mainpage"></p><p><span>我们需要你提供你的邮箱地址，这并不意味着我们会通过邮箱向你发送任何性质的广告邮件，正相反，你需要主动联系我们向我们需求帮助后我们才会按照你的地址向你回信</span></p><p><span>同时邮箱地址也是你除去用户id外唯一的辨识标志，这意味着一个邮箱仅能创建一个账户</span></p><p><span>现在进行登录</span></p><p><img src="./imgs/loginpage.jpeg" alt="mainpage"></p><h2 id='step-2'><span>Step 2</span></h2><p><span>让我们进入项目管理页面，你可以在这里预览并管理你的所有项目，包括删除，分享，SQLite数据库下载，不过现在，我们先创建一个新的项目</span></p><p><img src="./imgs/projectc.jpeg" alt="mainpage"></p><p><span>在这个页面，你需要设置项目的图标（你也可以使用我们的默认图标），项目的名称和简介，它们也可以在创建后被随时修改</span></p><p><span>我们先创建一个示例项目，项目的名称为arcData，项目描述可以为空值（不过没道理不写一点对吧）</span></p><p><img src="./imgs/arcData.jpeg" alt="mainpage"></p><p><span>然后打开项目，我们需要你为项目设置一个管理员账号，这是为了项目的安全性和本地化考虑，这个账号的密钥可以在项目设置里随时进行修改</span></p><p><img src="./imgs/projectlogin.jpeg" alt="mainpage"></p><h2 id='step-3'><span>Step 3</span></h2><p><img src="./imgs/projectD.jpeg" alt="mainpage"></p><p><span>进入项目后，我们需要你书写SQL，LighterBase 致力于通过简单的SQLite代码来构建你的后端设计 ，我们已为你提供完整的users表单，如果你需要修改它，请使用</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sqlite"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sqlite"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 10.1216px; left: 3.99577px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">ALTER</span> <span class="cm-keyword">TABLE</span> users ADD COLLUMN</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 24px;"></div><div class="CodeMirror-gutters" style="display: none; height: 24px;"></div></div></div></pre><p><span>来进行修改</span></p><p><span>我们不建议你对现有表属性进行修改，仅建议增加新的列元素</span></p><p><span>现在让我们创建两个新的表</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sqlite" style="break-inside: unset;"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sqlite"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 10.1216px; left: 3.99577px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">-- 1. 创建 characters 表</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">CREATE</span> <span class="cm-keyword">TABLE</span> IF <span class="cm-keyword">NOT</span> EXISTS characters <span class="cm-bracket">(</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  id &nbsp; &nbsp; &nbsp; <span class="cm-type">INTEGER</span> PRIMARY KEY AUTOINCREMENT<span class="cm-punctuation">,</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  userid &nbsp; <span class="cm-type">INTEGER</span> <span class="cm-keyword">NOT</span> <span class="cm-atom">NULL</span><span class="cm-punctuation">,</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  name &nbsp; &nbsp; <span class="cm-type">TEXT</span> &nbsp; &nbsp;<span class="cm-keyword">NOT</span> <span class="cm-atom">NULL</span><span class="cm-punctuation">,</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  atk &nbsp; &nbsp; &nbsp;<span class="cm-type">INTEGER</span> <span class="cm-keyword">NOT</span> <span class="cm-atom">NULL</span> CHECK <span class="cm-bracket">(</span>atk <span class="cm-operator">&gt;=</span> <span class="cm-number">0</span><span class="cm-bracket">)</span><span class="cm-punctuation">,</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  hp &nbsp; &nbsp; &nbsp; <span class="cm-type">INTEGER</span> <span class="cm-keyword">NOT</span> <span class="cm-atom">NULL</span> CHECK <span class="cm-bracket">(</span>hp <span class="cm-operator">&gt;=</span> <span class="cm-number">0</span><span class="cm-bracket">)</span><span class="cm-punctuation">,</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  FOREIGN KEY <span class="cm-bracket">(</span>userid<span class="cm-bracket">)</span> REFERENCES users<span class="cm-bracket">(</span>id<span class="cm-bracket">)</span> <span class="cm-keyword">ON</span> <span class="cm-keyword">UPDATE</span> CASCADE <span class="cm-keyword">ON</span> <span class="cm-keyword">DELETE</span> CASCADE</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-bracket">)</span><span class="cm-punctuation">;</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">-- 2. 创建 monsters 表</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">CREATE</span> <span class="cm-keyword">TABLE</span> IF <span class="cm-keyword">NOT</span> EXISTS monsters <span class="cm-bracket">(</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  id &nbsp; &nbsp; &nbsp; <span class="cm-type">INTEGER</span> PRIMARY KEY AUTOINCREMENT<span class="cm-punctuation">,</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  userid &nbsp; <span class="cm-type">INTEGER</span> <span class="cm-keyword">NOT</span> <span class="cm-atom">NULL</span><span class="cm-punctuation">,</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  name &nbsp; &nbsp; <span class="cm-type">TEXT</span> &nbsp; &nbsp;<span class="cm-keyword">NOT</span> <span class="cm-atom">NULL</span><span class="cm-punctuation">,</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  atk &nbsp; &nbsp; &nbsp;<span class="cm-type">INTEGER</span> <span class="cm-keyword">NOT</span> <span class="cm-atom">NULL</span> CHECK <span class="cm-bracket">(</span>atk <span class="cm-operator">&gt;=</span> <span class="cm-number">0</span><span class="cm-bracket">)</span><span class="cm-punctuation">,</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  hp &nbsp; &nbsp; &nbsp; <span class="cm-type">INTEGER</span> <span class="cm-keyword">NOT</span> <span class="cm-atom">NULL</span> CHECK <span class="cm-bracket">(</span>hp <span class="cm-operator">&gt;=</span> <span class="cm-number">0</span><span class="cm-bracket">)</span><span class="cm-punctuation">,</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  FOREIGN KEY <span class="cm-bracket">(</span>userid<span class="cm-bracket">)</span> REFERENCES users<span class="cm-bracket">(</span>id<span class="cm-bracket">)</span> <span class="cm-keyword">ON</span> <span class="cm-keyword">UPDATE</span> CASCADE <span class="cm-keyword">ON</span> <span class="cm-keyword">DELETE</span> CASCADE</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-bracket">)</span><span class="cm-punctuation">;</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 509px;"></div><div class="CodeMirror-gutters" style="display: none; height: 509px;"></div></div></div></pre><p><img src="./imgs/projectER.jpeg" alt="mainpage"></p><p><span>可以看到ER图自动刷新反映了这个简单的数据库结构，</span></p><p><span>现在点击提交按钮，如果你在SQLite书写中遇到了困难，你可以通过对话按钮向大模型寻求帮助（我们默认接入了GLM-4.5flash，你也可以在设置中接入自己的api来调用你的大模型）</span></p><p>&nbsp;</p><div class="md-alert md-alert-warning warning"><p><span class='md-alert-text md-alert-text-warning'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</span><br></p><p><span>注意如果你需要修改提交后的表结构，你依然需要使用</span><code>ALTER TABLE 表名</code><span>来再次提交进行修改，你需要完全考虑你的数据库设计后再做出提交</span></p></div><p>&nbsp;</p><p><span>然后让我们来到查询（Query）部分，在这里你可以使用一些不会影响表结构的SQLite语句如</span><code>SELECT INSERT DELETE</code><span>来帮助自己理解你的数据库设计、添加或删除初始数据</span></p><p><img src="./imgs/query.jpeg" alt="mainpage"></p><p><span>你可以保存你的查询以便于在下一次来使用它</span></p><h2 id='step4'><span>Step4</span></h2><p><span>	</span><img src="./imgs/permission.jpeg" alt="mainpage"></p><p><span>现在我们需要对表进行权限设置，你需要明确可供用户CRUD操作的权限明细，你可以通过</span><code>where</code><span>来对权限进行设置</span></p><figure class='table-figure'><table><thead><tr><th><span>内容</span></th><th><span>含义</span></th></tr></thead><tbody><tr><td><span>@uid</span></td><td><span>仅已登录用户可使用此权限（你的项目的用户而非LighterBase用户）</span></td></tr><tr><td>&nbsp;</td><td><span>空值表示全部放行</span></td></tr><tr><td><span>1=0</span></td><td><span>表示全部用户都不放行</span></td></tr><tr><td><span>@uid =1</span></td><td><span>仅管理员用户（第一位注册登录的用户即你自己）放行</span></td></tr><tr><td><span>条件判断（值为true或false）</span></td><td><span>真值即放行，假值即不放行</span></td></tr></tbody></table></figure><p><span>我们的测试项目可以全为空值，允许任何人修改、</span></p><h2 id='step5'><span>Step5</span></h2><p><span>现在让我们回到Design DB板块，通过API按钮来查看文档的SDK内容</span></p><p><img src="./imgs/SDK.jpeg" alt="mainpage"></p><p>&nbsp;</p><p><span>如最简化，你仅仅需要一个前端html文件和js文件，这需要你提前准备，现在让我们假设你的前端已经写好，且有一个js与之关联，我们首先需要引入LighterBase库</span></p><p>&nbsp;</p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="js"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="js"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 10.1216px; left: 3.99577px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">import</span> <span class="cm-def">LighterBase</span> <span class="cm-keyword">from</span> <span class="cm-string">'lighter-base'</span>;</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 24px;"></div><div class="CodeMirror-gutters" style="display: none; height: 24px;"></div></div></div></pre><p><img src="./imgs/SDKp.jpg" alt="image"></p><p><span>在这里可以看到增的示例，你可能已经注意到URL的构成，我们自动显示给你了id与项目id，同时，如果你是本地APP用户，这里的URL应该是localhost:8080:或者127.0.0.1:8080</span></p><p><span>让我们将增删改查的所有内容都放入其中</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="js" style="break-inside: unset;"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="js"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 10.1216px; left: 3.99577px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">//XXX.js</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">const</span> <span class="cm-def">lb</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">LighterBase</span>(<span class="cm-string">"http://www.smallwoodice.cn:8080/..."</span>);</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">//...</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">const</span> <span class="cm-def">payload</span> <span class="cm-operator">=</span> {</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span class="cm-string cm-property">"Field1"</span>: <span class="cm-string">"value1"</span>,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span class="cm-string cm-property">"Field2"</span>: <span class="cm-string">"value2"</span>,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span class="cm-string cm-property">"Field3"</span>: <span class="cm-string">"value3"</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">  }</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">const</span> <span class="cm-def">lb</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">LighterBase</span>(<span class="cm-string">"http://www.smallwoodice.cn:8080/..."</span>);</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">//...</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">const</span> <span class="cm-def">payload</span> <span class="cm-operator">=</span> {</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span class="cm-string cm-property">"WHERE"</span>: <span class="cm-string">"id = ..."</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">  }</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">// 删除满足条件的记录（禁止删除 users 表 id=1 的记录）</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">const</span> <span class="cm-def">deleteData</span> <span class="cm-operator">=</span> <span class="cm-keyword">await</span> <span class="cm-variable">lb</span>.<span class="cm-property">deleteTable</span>(<span class="cm-variable">payload</span>, <span class="cm-string">"users"</span>);</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-meta">......</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 533px;"></div><div class="CodeMirror-gutters" style="display: none; height: 533px;"></div></div></div></pre><p><span>可以看到，上面的Field1等内容需要你填写你的表内容，在这个项目中我们需要改为</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="js"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="js"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 10.1216px; left: 3.99577px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">const</span> <span class="cm-def">payload</span> <span class="cm-operator">=</span> {</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span class="cm-string cm-property">"id"</span>: <span class="cm-string">"1"</span>,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span class="cm-string cm-property">"userid"</span>: <span class="cm-string">"2"</span>,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span class="cm-string cm-property">"name"</span>: <span class="cm-string">"Mon3ter"</span>,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span class="cm-string cm-property">"atk"</span>: <span class="cm-string">"3300"</span>,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp;<span class="cm-string cm-property">"hp"</span>: <span class="cm-string">"3000"</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">  }</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 170px;"></div><div class="CodeMirror-gutters" style="display: none; height: 170px;"></div></div></div></pre><p><span>这样我们就相当于人为新增了一个character Mon3ter，如果你需要在前端进行增删改查操作，请设置为变量，其他的操作也类似上述示例。</span></p></div></div>
 </body>
-
 </html>

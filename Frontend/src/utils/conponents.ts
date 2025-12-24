@@ -464,29 +464,84 @@ const tbody = document.getElementById('logs-tbody') as HTMLElement;
         } else {
           this.selectedIds = this.selectedIds.filter(i => i !== id);
         }
-        updateBottom();
       });
     });
 
-     const pag = document.getElementById('logs-pagination') as HTMLElement;
-    pag.innerHTML='';
-    const range=(s:number,e:number)=>Array.from({length:e-s+1},(_,i)=>s+i);
+     const pagContainer = document.getElementById('logs-pagination') as HTMLElement;
+    pagContainer.innerHTML='';
+    
+     const range=(s:number,e:number)=>Array.from({length:e-s+1},(_,i)=>s+i);
     const make=(n:number| string,active=false)=>{
       const btn=document.createElement('button');
       btn.textContent=String(n);
       btn.className=`px-2 py-1 rounded border text-sm ${active?'bg-gray-600 border-gray-600':'bg-[#2B2F31] border-gray-600'}`;
-      if(typeof n==='number') btn.addEventListener('click',()=>{ this._showLogsPage=n; render(); });
+      if(typeof n==='number') btn.addEventListener('click',()=>{
+        this._showLogsPage=n;
+        this.selectedIds = [];
+        (document.getElementById('logs-select-all') as HTMLInputElement).checked = false;
+        render();
+      });
       return btn;
     };
     const dots=()=>{const d=document.createElement('span'); d.textContent='…'; return d; };
     const total=totalPages, cur=page, delta=2;
     const left =Math.max(2, cur-delta);
     const right=Math.min(total-1,cur+delta);
+    const pag = document.createElement('div');
+    pag.className = 'flex gap-2 items-center mx-auto';
     pag.appendChild(make(1,cur===1));
     if(left>2) pag.appendChild(dots());
     range(left,right).forEach(i=>pag.appendChild(make(i,i===cur)));
     if(right<total-1) pag.appendChild(dots());
     if(total>1) pag.appendChild(make(total,cur===total));
+
+    const downloadBtn = document.createElement('button');
+    downloadBtn.textContent = '下载';
+    downloadBtn.className = 'px-2 py-1 rounded border text-sm bg-[#2B2F31] border-gray-600';
+    downloadBtn.addEventListener('click', async () => {
+      if (this.selectedIds.length === 0) {
+        blocks.popupConfirm('请先选择要下载的日志');
+        return;
+      }
+      let allLogs: any[] = [];
+      const perPage = Number((document.getElementById('logs-perpage') as HTMLSelectElement)?.value || 30);
+      if (this.currentSearch) {
+        const result = await sql.searchLogs(1, perPage, this.currentSearch);
+        const totalPages = result.totalPages;
+        for (let p = 1; p <= totalPages; p++) {
+          const res = await sql.searchLogs(p, perPage, this.currentSearch);
+          allLogs = allLogs.concat(res.logs);
+        }
+      } else {
+        const result = await sql.getLogs(1, perPage);
+        const totalPages = result.totalPages;
+        for (let p = 1; p <= totalPages; p++) {
+          const res = await sql.getLogs(p, perPage);
+          allLogs = allLogs.concat(res.logs);
+        }
+      }
+      const selectedLogs = allLogs.filter((l: any) => this.selectedIds.includes(l.id));
+      const csvHeader = 'ID,Level,Log Text,Created At\n';
+      const csvRows = selectedLogs.map((l: any) => {
+        const statusCode = extractStatusCode(l.log_text || '');
+        const logDisplay = getLogLevelDisplay(statusCode ?? 0);
+        return `${l.id},${logDisplay.level},${l.log_text.replace(/"/g, '""')},${l.created_at.replace(/\n/g, ' ').replace(/\r/g, '')}`;
+      }).join('\n');
+      const csvContent = csvHeader + csvRows;
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = globalThis.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'logs.csv';
+      a.click();
+      globalThis.URL.revokeObjectURL(url);
+    });
+
+    const pagWrapper = document.createElement('div');
+    pagWrapper.className = 'flex items-center gap-2 w-full justify-center';
+    pagWrapper.appendChild(downloadBtn);
+    pagWrapper.appendChild(pag);
+    pagContainer.appendChild(pagWrapper);
 
     tbody.querySelectorAll('tr').forEach((tr) => {
       tr.addEventListener('click', (e) => {
@@ -515,97 +570,35 @@ const tbody = document.getElementById('logs-tbody') as HTMLElement;
     });
 
 
-
-// 修改 showLogs 方法中的 updateBottom 函数部分
-const updateBottom = () => {
-  const checked = this.selectedIds;
-
-  logDeletePopup.checkedIds = checked;
-
-  if (checked.length > 0) {
-    if (!logDeletePopup.isOpen) {
-       blocks.popupConfirm(`确定下载选中的 ${checked.length} 条日志为CSV文件吗？`)
-        .then(async (confirmed) => {
-          logDeletePopup.isOpen = false;
-          if (confirmed) {
-            let allLogs: any[] = [];
-            if (this.currentSearch) {
-              const result = await sql.searchLogs(1, perPage, this.currentSearch);
-              const total = result.totalPages;
-              for (let p = 1; p <= total; p++) {
-                const res = await sql.searchLogs(p, perPage, this.currentSearch);
-                allLogs = allLogs.concat(res.logs);
-              }
-            } else {
-              const result = await sql.getLogs(1, perPage);
-              const total = result.totalPages;
-              for (let p = 1; p <= total; p++) {
-                const res = await sql.getLogs(p, perPage);
-                allLogs = allLogs.concat(res.logs);
-              }
-            }
-            const selectedLogs = allLogs.filter((l: any) => checked.includes(l.id));
-            const csvHeader = 'ID,Level,Log Text,Created At\n';
-            const csvRows = selectedLogs.map((l: any) => {
-              const statusCode = extractStatusCode(l.log_text || '');
-              const logDisplay = getLogLevelDisplay(statusCode ?? 0);
-              return `${l.id},${logDisplay.level},${l.log_text.replace(/"/g, '""')},${l.created_at.replace(/\n/g, ' ').replace(/\r/g, '')}`;
-            }).join('\n');
-            const csvContent = csvHeader + csvRows;
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = globalThis.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'logs.csv';
-            a.click();
-            globalThis.URL.revokeObjectURL(url);
-          } else {
-            // 如果取消，取消勾选内容，回复勾选框为初始状态
-            this.selectedIds = [];
-            tbody.querySelectorAll('.log-row-checkbox').forEach((checkbox: any) => {
-              checkbox.checked = false;
-            });
-            (document.getElementById('logs-select-all') as HTMLInputElement).checked = false;
-            updateBottom();
-          }
-        });
-
-      logDeletePopup.isOpen = true;
-
-      // 等待 DOM 更新后获取弹窗元素
-      setTimeout(() => {
-        logDeletePopup.element = document.querySelector('.fixed.bottom-4') as HTMLElement;
-      }, 100);
-    } else if (logDeletePopup.element) {
-      // 如果弹窗已打开，只更新文本内容
-      const messageElement = logDeletePopup.element.querySelector('#modal-message');
-      if (messageElement) {
-        messageElement.textContent = `确定下载选中的 ${checked.length} 条日志为CSV文件吗？`;
-      }
-    }
-  } else {
-    // 如果没有选中项且弹窗打开，则关闭弹窗
-    if (logDeletePopup.isOpen && logDeletePopup.element) {
-      const cancelBtn = logDeletePopup.element.querySelector('#modal-cancel') as HTMLButtonElement;
-      if (cancelBtn) {
-        cancelBtn.click();
-      }
-    }
-  }
-};
-
-    /* 全选 */
-    (document.getElementById('logs-select-all') as HTMLInputElement).onchange = (e) => {
+     /* 全选 - 选中所有页 */
+    (document.getElementById('logs-select-all') as HTMLInputElement).onchange = async (e) => {
       const checked = (e.target as HTMLInputElement).checked;
-      logsResult.forEach((l: any) => {
-        if (checked) {
-          if (!this.selectedIds.includes(l.id)) this.selectedIds.push(l.id);
+      if (checked) {
+        let allLogs: any[] = [];
+        const perPage = Number((document.getElementById('logs-perpage') as HTMLSelectElement)?.value || 30);
+        if (this.currentSearch) {
+          const result = await sql.searchLogs(1, perPage, this.currentSearch);
+          const totalPages = result.totalPages;
+          for (let p = 1; p <= totalPages; p++) {
+            const res = await sql.searchLogs(p, perPage, this.currentSearch);
+            allLogs = allLogs.concat(res.logs);
+          }
         } else {
-          this.selectedIds = this.selectedIds.filter(i => i !== l.id);
+          const result = await sql.getLogs(1, perPage);
+          const totalPages = result.totalPages;
+          for (let p = 1; p <= totalPages; p++) {
+            const res = await sql.getLogs(p, perPage);
+            allLogs = allLogs.concat(res.logs);
+          }
         }
-      });
-      tbody.querySelectorAll('.log-row-checkbox').forEach((i: any) => (i.checked = checked));
-      updateBottom();
+        allLogs.forEach((l: any) => {
+          if (!this.selectedIds.includes(l.id)) this.selectedIds.push(l.id);
+        });
+        tbody.querySelectorAll('.log-row-checkbox').forEach((i: any) => (i.checked = true));
+      } else {
+        this.selectedIds = [];
+        tbody.querySelectorAll('.log-row-checkbox').forEach((i: any) => (i.checked = false));
+      }
     };
   };
 

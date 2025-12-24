@@ -12,6 +12,7 @@ import save from "../icons/save.svg"
 import execute from "../icons/execute.svg"
 import permission from "../icons/permissionWhite.svg"
 import account from "../icons/userWhite.svg"
+import github from "../icons/git.svg"
 const sidebarContent = {
   logo: `
                 <div class="space-y-3">
@@ -399,10 +400,16 @@ ai_generated: `
 
 const apiMarked = {
   create: `
-<div class ="mb-3"> 
-  <span class="text-white mr-4 text-xl">向<span>
-  <span class=" text-orange-400 text-xl">table_name</span>
-  <span class="text-white text-xl">表中插入数据<span>
+<div class="mb-3 flex items-center justify-between"> 
+  <div>
+    <span class="text-white mr-4 text-xl">向<span>
+    <span class=" text-orange-400 text-xl">table_name</span>
+    <span class="text-white text-xl">表中插入数据<span>
+  </div>
+  <a href="https://github.com/merwinM0/lighterbase-sdk" target="_blank" class="flex items-center gap-2 px-3 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg transition-colors">
+    <img src="${github}" class="w-5 h-5 object-contain" alt="GitHub">
+    <span class="text-sm text-gray-300">查看 lighterBase-sdk</span>
+  </a>
 </div>
 
 \`\`\`javascript
