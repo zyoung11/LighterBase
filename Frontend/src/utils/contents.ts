@@ -81,7 +81,7 @@ const workspaceContent = {
                     <!-- 下部分：SQL输入区域 (40% 高度) -->
                     <!-- 在 sql-input 区域的右上角添加按钮 -->
 <div class="h-[40%] p-6 relative flex flex-col items-center space-x-4 justify-center">
-   <div class = "w-full h-full flex justify-center items-center">
+   <div class = "w-full h-full flex justify-center items-center gap-x-4">
     <div class="relative w-[80%] h-full">
       <div id="sql-input-wrapper" class="w-full h-full rounded-lg border border-[#2B2F31]"></div>
         <!-- 查看完整SQL按钮 -->
