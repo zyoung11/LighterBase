@@ -333,8 +333,7 @@ async downloadProject(projectId: number, hubAuthToken: string){
 //可选 admin 或 readonly
 async sendInvitation(payload:any){
   await checkAuthentication(hubAuthToken,'hubAuthToken','login')
-  const tempUrl = "http://localhost:8080"
-  // const tempUrl = "http://www.smallwoodice.cn:8080"
+  const tempUrl = "http://www.smallwoodice.cn:8080"
   try{
     const res = await fetch(`${tempUrl}/api/team`,{
       method:"POST",
@@ -346,10 +345,13 @@ async sendInvitation(payload:any){
     });
     console.log(payload)
     if(res.ok){
+      const data = await res.json()
+      console.log(data)
       blocks.popupConfirm("邀请成功")
       return true
     }else{
       const data = await res.json()
+      console.log(data)
       blocks.popupConfirm("邀请失败")
       return false
     }

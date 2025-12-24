@@ -204,7 +204,7 @@ async function loadReceivedInvitations(status: string) {
     list.innerHTML = '';
 
     data?.forEach(async (msg: any) => {
-        const permission = msg.content.includes('admin') ? 'admin' : 'readonly';
+        const permission = msg.content.includes('高权限') ? 'admin' : 'readonly';
 
         const item = document.createElement('div');
         item.className = "bg-white/5 p-4 rounded-lg border border-white/10 flex justify-between items-center hover:border-white/20 transition";
