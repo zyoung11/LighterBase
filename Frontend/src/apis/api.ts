@@ -1,8 +1,7 @@
-import config from "../config.json"
-
-
-let theURL = config.localUrl
-let URL = config.localUrl
+const apiUrl = "http://localhost:8080"
+// const apiUrl = "http://www.smallwoodice.cn:8080"
+let theURL = apiUrl
+let URL = apiUrl
 const cookies = document.cookie;
 let authToken = "";
 const authTokenMatch = cookies.match(/authToken=([^;]*)/);
@@ -25,7 +24,7 @@ function setBaseUrl(url?: string): void {
   if (url && typeof url === 'string' && url.trim()) {
     URL = url.trim();
   } else {
-    URL = config.localUrl
+    URL = apiUrl
   }
 }
 

@@ -21,13 +21,14 @@
 <body class="bg-[#121414] text-gray-200 h-screen overflow-hidden flex flex-col"
   style="background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 20px 20px;">
   <!-- 中间内容 -->
-  <div class="w-full h-full flex overflow-hidden justify-center">
+  <div class="flex-1 flex overflow-hidden justify-center">
     <!-- 中间显示区域 -->
-    <main class="w-full overflow-y-auto p-8 relative">
+    <main class="w-full h-full overflow-y-auto relative">
       <div id="content">
-        <section id="start" class="content-section">
-          <div id="start-cont"></div>
+        <section id="start" class="content-section h-full">
+          <div id="start-cont" class="w-full h-full"></div>
         </section>
+
       </div>
     </main>
 

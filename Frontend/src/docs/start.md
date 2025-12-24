@@ -1,5 +1,7 @@
 # 开始
 
+
+
 让我们通过使用 LighterBase 来创建一个简易项目来学习如何使用它的Web版本。
 
 ## Step 1
@@ -80,15 +82,11 @@ CREATE TABLE IF NOT EXISTS monsters (
 
 现在点击提交按钮，如果你在SQLite书写中遇到了困难，你可以通过对话按钮向大模型寻求帮助（我们默认接入了GLM-4.5flash，你也可以在设置中接入自己的api来调用你的大模型）
 
-```'https://your-api-endpoint.com'javascript
-'https://your-api-endpoint.com'
-```
+!!!
 
-> [!WARNING]
->
-> 注意如果你需要修改提交后的表结构，你依然需要使用`ALTER TABLE 表名`来再次提交进行修改，你需要完全考虑你的数据库设计后再做出提交
+注意如果你需要修改提交后的表结构，你依然需要使用`ALTER TABLE 表名`来再次提交进行修改，你需要完全考虑你的数据库设计后再做出提交
 
-
+!!!
 
 然后让我们来到查询（Query）部分，在这里你可以使用一些不会影响表结构的SQLite语句如`SELECT INSERT DELETE`来帮助自己理解你的数据库设计、添加或删除初始数据
 
@@ -120,3 +118,55 @@ CREATE TABLE IF NOT EXISTS monsters (
 
 
 
+如最简化，你仅仅需要一个前端html文件和js文件，这需要你提前准备，现在让我们假设你的前端已经写好，且有一个js与之关联，我们首先需要引入LighterBase库
+
+
+
+```js
+import LighterBase from 'lighter-base';
+```
+
+![image](./imgs/SDKp.jpg)
+
+在这里可以看到增的示例，你可能已经注意到URL的构成，我们自动显示给你了id与项目id，同时，如果你是本地APP用户，这里的URL应该是localhost:8080:或者127.0.0.1:8080
+
+让我们将增删改查的所有内容都放入其中
+
+```js
+//XXX.js
+const lb = new LighterBase("http://www.smallwoodice.cn:8080/...");
+
+//...
+
+const payload = {
+      "Field1": "value1",
+      "Field2": "value2",
+      "Field3": "value3"
+  }
+
+
+const lb = new LighterBase("http://www.smallwoodice.cn:8080/...");
+
+//...
+
+const payload = {
+      "WHERE": "id = ..."
+  }
+// 删除满足条件的记录（禁止删除 users 表 id=1 的记录）
+const deleteData = await lb.deleteTable(payload, "users");
+......
+```
+
+可以看到，上面的Field1等内容需要你填写你的表内容，在这个项目中我们需要改为
+
+```js
+const payload = {
+      "id": "1",
+      "userid": "2",
+      "name": "Mon3ter",
+      "atk": "3300",
+      "hp": "3000"
+  }
+```
+
+这样我们就相当于人为新增了一个character Mon3ter，如果你需要在前端进行增删改查操作，请设置为变量，其他的操作也类似上述示例。
