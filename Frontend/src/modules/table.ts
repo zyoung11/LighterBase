@@ -42,11 +42,12 @@ export function renderUserTable(response: ApiResponse, elementId: string) {
   }
 
   // 检查查询是否成功，如果失败仍显示表头但数据为空
+  const data = response.success && Array.isArray(response.data) ? response.data : [];
   const columns = createColumns(response.columns || []);
-  const data = response.success ? response.data : [];
+
 
   const table = createTable({
-    data: response.data,
+    data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     state: {},
