@@ -107,8 +107,31 @@ export function renderUserTable(response: ApiResponse, elementId: string) {
       // 2. truncate 强制截断
       tdElement.className = "px-4 py-3 text-sm text-gray-300 min-w-[8rem] max-w-[8rem] truncate";
       
-      // Tooltip
-      tdElement.title = String(cellValue ?? '');
+      // Custom Tooltip Logic
+      tdElement.addEventListener('mouseover', (e) => {
+        // Only show tooltip if text is truncated
+        if (tdElement.scrollWidth > tdElement.clientWidth) {
+          let tooltip = document.getElementById('custom-table-tooltip');
+          if (!tooltip) {
+            tooltip = document.createElement('div');
+            tooltip.id = 'custom-table-tooltip';
+            tooltip.className = 'absolute hidden bg-gray-800 text-white text-sm rounded-md px-2 py-1 shadow-lg z-50 pointer-events-none';
+            document.body.appendChild(tooltip);
+          }
+          tooltip.textContent = String(cellValue ?? '');
+          tooltip.style.top = (e.pageY + 10) + 'px';
+          tooltip.style.left = (e.pageX + 10) + 'px';
+          tooltip.style.display = 'block';
+        }
+      });
+
+      tdElement.addEventListener('mouseout', () => {
+        let tooltip = document.getElementById('custom-table-tooltip');
+        if (tooltip) {
+          tooltip.style.display = 'none';
+        }
+      });
+
 
       trElement.appendChild(tdElement);
     });
