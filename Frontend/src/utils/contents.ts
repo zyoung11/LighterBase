@@ -83,11 +83,7 @@ const workspaceContent = {
 <div class="h-[40%] p-6 relative flex flex-col items-center space-x-4 justify-center">
    <div class = "w-full h-full flex justify-center items-center">
     <div class="relative w-[80%] h-full">
-        <textarea
-            id="sql-input"
-            class="**scrollbar-hide** overflow-y-auto w-full h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg p-4 text-gray-200 placeholder-gray-500 resize-none focus:outline-none focus:border-[#4a4f52]"
-            placeholder="在这里输入SQL查询..."
-        ></textarea>
+      <div id="sql-input-wrapper" class="w-full h-full rounded-lg border border-[#2B2F31]"></div>
         <!-- 查看完整SQL按钮 -->
         <button
             id="view-full-sql-btn"

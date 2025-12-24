@@ -1,16 +1,14 @@
 import { sidebarContent, workspaceContent ,slideBarContent} from "./utils/contents";
 import conponents from "./utils/conponents";
 import gojsER from "./utils/gojsER";
-// import sql from "./apis/sql";
 import sqliteParser from "sqlite-parser";
 import {authToken,URL} from "./apis/api";
 import blocks from "./modules/blocks";
-// import admin from "./apis/admin";
 import sql from "./apis/sql";
 import aichat from "./modules/aiChat";
 import lighterBase from "./apis/auto";
-// import { checkAuthentication } from "./modules/tools";
 import { renderUserTable } from "./modules/table";
+import { initSqlEditor, getSqlValue, setSqlValue } from "./modules/tools";
 // Import images
 import logoImg from './icons/logoWhite.png';
 import databaseImg from './icons/databaseWhite.svg';
@@ -153,9 +151,7 @@ let currentQueryId: number | null = null;
 
 
 async function initializeDatabaseView() {
-  const textarea = document.getElementById('sql-input') as HTMLTextAreaElement | null;
-  if (textarea) {
-    let initialSQL = `CREATE TABLE users (
+  let initialSQL = `CREATE TABLE users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
   password_hash TEXT NOT NULL,
@@ -166,62 +162,106 @@ async function initializeDatabaseView() {
 );
 
 `;
-    
-     let hasExistingContent = false;
-     try {
-       const tableStatements = await sql.lastestSql();
-       const sqlSendBtn = document.getElementById('sql-send') as HTMLButtonElement;
-       if (tableStatements) {
-         // 如果有内容，使用返回的SQL语句
-         initialSQL += tableStatements + '\n';
-         hasExistingContent = true;
-         // 禁用 sql-send 按钮
-         if (sqlSendBtn) {
-           sqlSendBtn.disabled = true;
-           sqlSendBtn.style.opacity = '0.5';
-         }
-       } else {
-         // 如果没有内容，启用 sql-send 按钮
-         if (sqlSendBtn) {
-           sqlSendBtn.disabled = false;
-           sqlSendBtn.style.opacity = '1';
-         }
-       }
-     } catch (error) {
-       console.warn("获取表数据失败，使用默认SQL:", error);
-       // 出错时启用按钮
-       const sqlSendBtn = document.getElementById('sql-send') as HTMLButtonElement;
-       if (sqlSendBtn) {
-         sqlSendBtn.disabled = false;
-         sqlSendBtn.style.opacity = '1';
-       }
-     }
-     textarea.value = initialSQL;
-     textarea.readOnly = hasExistingContent;
-    
-    const initialLength = initialSQL.length;
-    
-    textarea.addEventListener('input', () => {
-      if (textarea.value.length < initialLength || 
-          !textarea.value.startsWith(initialSQL)) {
-        textarea.value = initialSQL;
+
+  let hasExistingContent = false;
+  try {
+    const tableStatements = await sql.lastestSql();
+    const sqlSendBtn = document.getElementById('sql-send') as HTMLButtonElement;
+    if (tableStatements) {
+      // 如果有内容，使用返回的SQL语句
+      initialSQL += tableStatements + '\n';
+      hasExistingContent = true;
+      // 禁用 sql-send 按钮
+      if (sqlSendBtn) {
+        sqlSendBtn.disabled = true;
+        sqlSendBtn.style.opacity = '0.5';
       }
-    });
-    
-    textarea.focus();
-    textarea.setSelectionRange(initialLength, initialLength);
-
-
-    try {
-      const ast = sqliteParser(initialSQL);
-      const tables = gojsER.extract(ast);
-      // console.log("提取的表结构:", tables);
-      requestAnimationFrame(() => { 
-        gojsER.drawER(tables, 'mount');
-      });
-    } catch (e) {
-      console.error("初始SQL解析错误:", e);
+    } else {
+      // 如果没有内容，启用 sql-send 按钮
+      if (sqlSendBtn) {
+        sqlSendBtn.disabled = false;
+        sqlSendBtn.style.opacity = '1';
+      }
     }
+  } catch (error) {
+    console.warn("获取表数据失败，使用默认SQL:", error);
+    // 出错时启用按钮
+    const sqlSendBtn = document.getElementById('sql-send') as HTMLButtonElement;
+    if (sqlSendBtn) {
+      sqlSendBtn.disabled = false;
+      sqlSendBtn.style.opacity = '1';
+    }
+  }
+
+  // 初始化SQL编辑器
+  initSqlEditor(hasExistingContent, initialSQL.length, initialSQL);
+
+
+mainWorkspace.addEventListener('manual-render-trigger', async (e: any) => {
+  const sqlValue = e.detail.sql;
+  const sqlNotice = document.getElementById('sql-notice') as HTMLElement;
+
+  try {
+    const ast = sqliteParser(sqlValue);
+    const tables = gojsER.extract(ast);
+    requestAnimationFrame(() => {
+      gojsER.drawER(tables, 'mount');
+    });
+  } catch (err) {
+    console.error("SQL解析错误:", err);
+    sqlNotice.style.color = "red";
+    sqlNotice.textContent = "SQL语法错误";
+    setTimeout(() => {
+      sqlNotice.style.color = "";
+      sqlNotice.textContent = "请输入大写SQLite语句, Enter 渲染E-R图";
+    }, 2000);
+  }
+});
+// mainWorkspace.addEventListener('keydown', async (e) => {
+//   const target = e.target as HTMLElement;
+
+//   // 只有点击在 sql-input-wrapper 内部才触发
+//   if (target.closest('#sql-input-wrapper')) {
+//     // 修改这里：Ctrl + Enter (或 Cmd + Enter) 才渲染，单独 Enter 允许换行
+//     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+//       e.preventDefault(); // 阻止默认行为
+
+//       const sqlNotice = document.getElementById('sql-notice') as HTMLElement;
+//       try {
+//         const sqlValue = getSqlValue();
+//         const ast = sqliteParser(sqlValue);
+//         const tables = gojsER.extract(ast);
+//         requestAnimationFrame(() => {
+//           gojsER.drawER(tables, 'mount');
+//         });
+//       } catch (err) {
+//         console.error("SQL解析错误:", err);
+//         sqlNotice.style.color = "red";
+//         sqlNotice.textContent = "SQL语法错误";
+//         setTimeout(() => {
+//           sqlNotice.style.color = "";
+//           sqlNotice.textContent = "请输入大写SQLite语句, Ctrl+Enter 渲染E-R图";
+//         }, 2000);
+//       }
+//     }
+//   }
+// });
+
+
+
+
+  // 如果有现有内容，设置为只读（但CodeMirror没有简单只读，需要扩展）
+  // 暂时不设置只读
+
+  try {
+    const ast = sqliteParser(initialSQL);
+    const tables = gojsER.extract(ast);
+    // console.log("提取的表结构:", tables);
+    requestAnimationFrame(() => {
+      gojsER.drawER(tables, 'mount');
+    });
+  } catch (e) {
+    console.error("初始SQL解析错误:", e);
   }
 }
 
@@ -242,8 +282,8 @@ async function initializeQueryView() {
       try {
         const result = await sql.runQuery({"queries": firstQuery.queries});
         renderUserTable(result,'query-results');
-      } catch (error) {
-        console.error('执行查询失败:', error);
+      } catch (e) {
+        console.error('执行查询失败:', e);
         displayQueryResult({ error: '执行查询失败' });
       }
       // 重新加载历史以更新选中状态样式
@@ -315,8 +355,8 @@ async function selectQuery(query: any) {
     try {
       const result = await sql.runQuery({"queries": query.queries});
       renderUserTable(result,'query-results');
-    } catch (error) {
-      console.error('执行查询失败:', error);
+    } catch (e) {
+      console.error('执行查询失败:', e);
       displayQueryResult({ error: '执行查询失败' });
     }
   }
@@ -419,40 +459,41 @@ function displayQueryResult(result: any) {
   resultsDiv.innerHTML = html;
 }
 
-mainWorkspace.addEventListener('keydown', async (e) => {
- const sqlNotice = document.getElementById('sql-notice') as HTMLElement;
-   const target = e.target as HTMLElement;
+// mainWorkspace.addEventListener('keydown', async (e) => {
+//   const sqlNotice = document.getElementById('sql-notice') as HTMLElement;
+//     const target = e.target as HTMLElement;
 
-   if (target.id === 'sql-input' && target.tagName === 'TEXTAREA') {
-     const textarea = target as HTMLTextAreaElement;
-     if (e.key === 'Enter' && !e.shiftKey) {
-       e.preventDefault();
+//     if (target.closest('#sql-input-wrapper')) {
+//       if (e.key === 'Enter' && !e.shiftKey) {
+//         e.preventDefault();
 
-       try {
-         const ast = sqliteParser(textarea.value);
-         const tables = gojsER.extract(ast);
-         requestAnimationFrame(() => {
-           gojsER.drawER(tables, 'mount');
-         });
-       } catch (e) {
-         console.error("SQL解析错误:", e);
-         sqlNotice.style.color = "red"
-         sqlNotice.textContent = "请输入正确的SQL语句"
-         setTimeout(() => {
-           sqlNotice.style.color = "";
-           sqlNotice.textContent = "请输入大写SQLite语句,\"enter\"渲染E-R图,点击右侧确认按钮提交";
-         }, 500);
-       }
-    } else if (e.key === 'Enter' && e.shiftKey) {
-      e.preventDefault();
-      
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      textarea.value = textarea.value.substring(0, start) + '\n' + textarea.value.substring(end);
-      textarea.selectionStart = textarea.selectionEnd = start + 1;
-    }
-  }
-});
+//         try {
+//           const sqlValue = getSqlValue();
+//           const ast = sqliteParser(sqlValue);
+//           const tables = gojsER.extract(ast);
+//           requestAnimationFrame(() => {
+//             gojsER.drawER(tables, 'mount');
+//           });
+//         } catch (e) {
+//           console.error("SQL解析错误:", e);
+//           sqlNotice.style.color = "red"
+//           sqlNotice.textContent = "请输入正确的SQL语句"
+//           setTimeout(() => {
+//             sqlNotice.style.color = "";
+//             sqlNotice.textContent = "请输入大写SQLite语句,\"enter\"渲染E-R图,点击右侧确认按钮提交";
+//           }, 500);
+//         }
+//      }
+//    }
+//  });
+
+
+
+
+
+
+
+
 
 showDefaultWorkspace();
 function showDefaultWorkspace() {
@@ -540,38 +581,35 @@ document.addEventListener('DOMContentLoaded', () => {
        return;
      }
 
-     if(target.closest('#sql-send')){
-        const sqlSendBtn = document.getElementById('sql-send') as HTMLButtonElement;
-       const textarea = document.getElementById('sql-input') as HTMLTextAreaElement | null;
-       if (textarea) {
-         let sqlValue = textarea.value;
+      if(target.closest('#sql-send')){
+         const sqlSendBtn = document.getElementById('sql-send') as HTMLButtonElement;
+         let sqlValue = getSqlValue();
 
-         const usersTablePattern = /CREATE TABLE users \([\s\S]*?;\n*/i;
-         sqlValue = sqlValue.replace(usersTablePattern, '');
+          const usersTablePattern = /CREATE TABLE users \([\s\S]*?;\n*/i;
+          sqlValue = sqlValue.replace(usersTablePattern, '');
 
-         sqlValue = sqlValue.replace(/^\s*[\r\n]/gm, '').trim();
+          sqlValue = sqlValue.replace(/^\s*[\r\n]/gm, '').trim();
 
-         try {
-           sqliteParser(sqlValue);
-         } catch (e) {
-           await blocks.popupConfirm("请输入正确的sql");
-           return;
-         }
+          try {
+            sqliteParser(sqlValue);
+          } catch (e) {
+            await blocks.popupConfirm("请输入正确的sql");
+            return;
+          }
 
-         const success = await blocks.popupConfirm("提交后将不能修改")
-         if(success){
-           const payload = {
-             "SQL": sqlValue,
-           };
-           console.log('payload:', payload);
-           await sql.createSql(payload);
-            if (sqlSendBtn) {
-              sqlSendBtn.disabled = true;
-              sqlSendBtn.style.opacity = '0.5';
-            }
-         }
+          const success = await blocks.popupConfirm("提交后将不能修改")
+          if(success){
+            const payload = {
+              "SQL": sqlValue,
+            };
+            console.log('payload:', payload);
+            await sql.createSql(payload);
+             if (sqlSendBtn) {
+               sqlSendBtn.disabled = true;
+               sqlSendBtn.style.opacity = '0.5';
+             }
+          }
        }
-      }
 
      if (target.closest('#query-save-btn')) {
        const textarea = document.getElementById('query-sql-input') as HTMLTextAreaElement;
@@ -600,33 +638,32 @@ document.addEventListener('DOMContentLoaded', () => {
             currentQueryId = null;
             // updateSaveButton();
             loadQueryHistory(); // 更新历史样式
-          } catch (error) {
-            console.error('执行查询失败:', error);
+          } catch (e) {
+            console.error('执行查询失败:', e);
             displayQueryResult({ error: '执行查询失败' });
           }
         }
         return;
       }
 
-         if (target.closest( '#view-full-sql-btn')) {
-        const textarea = document.getElementById('sql-input') as HTMLTextAreaElement;
-        const fullSQL = textarea.value;
+          if (target.closest( '#view-full-sql-btn')) {
+         const fullSQL = getSqlValue();
 
-        if (fullSQL.trim()) {
-            // 显示模态框
-            const modal = document.getElementById('full-sql-modal') as HTMLElement;
-            const content = document.getElementById('full-sql-content') as HTMLTextAreaElement;
+         if (fullSQL.trim()) {
+             // 显示模态框
+             const modal = document.getElementById('full-sql-modal') as HTMLElement;
+             const content = document.getElementById('full-sql-content') as HTMLTextAreaElement;
 
-            content.value = fullSQL;
-            content.readOnly = true; // 放大窗口总是只读，不能修改内容
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+             content.value = fullSQL;
+             content.readOnly = true; // 放大窗口总是只读，不能修改内容
+             modal.classList.remove('hidden');
+             modal.classList.add('flex');
 
-            // 移除同步输入，因为总是只读
-        } else {
-            alert('SQL语句为空！');
-        }
-    }
+             // 移除同步输入，因为总是只读
+         } else {
+             alert('SQL语句为空！');
+         }
+     }
   });
 }
 

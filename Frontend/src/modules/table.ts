@@ -41,7 +41,9 @@ export function renderUserTable(response: ApiResponse, elementId: string) {
     return;
   }
 
-  const columns = createColumns(response.columns);
+  // 检查查询是否成功，如果失败仍显示表头但数据为空
+  const columns = createColumns(response.columns || []);
+  const data = response.success ? response.data : [];
 
   const table = createTable({
     data: response.data,

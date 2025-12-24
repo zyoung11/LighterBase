@@ -80,7 +80,9 @@ CREATE TABLE IF NOT EXISTS monsters (
 
 现在点击提交按钮，如果你在SQLite书写中遇到了困难，你可以通过对话按钮向大模型寻求帮助（我们默认接入了GLM-4.5flash，你也可以在设置中接入自己的api来调用你的大模型）
 
-
+```'https://your-api-endpoint.com'javascript
+'https://your-api-endpoint.com'
+```
 
 > [!WARNING]
 >
