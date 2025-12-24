@@ -203,8 +203,8 @@ async function initializeDatabaseView() {
       requestAnimationFrame(() => {
         gojsER.drawER(tables, 'mount');
       });
-    } catch (err) {
-      console.error("SQL解析错误:", err);
+    } catch (e) {
+      console.error("SQL解析错误:", e);
       sqlNotice.style.color = "red";
       if (err instanceof Error && err.message) {
         sqlNotice.textContent = err.message;

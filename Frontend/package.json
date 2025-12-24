@@ -3,7 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "app": "bun run ./app/*.html",
+    "app": "bun run appServer.ts",
     "d": "bun run localServer.ts",
     "s": "scp ./GoBuild/web root@8.145.38.212:/root/lb",
     "b": "bun build ./server.ts --compile --outfile lighterBaseWeb",
