@@ -30,28 +30,35 @@ const imageMap: { [key: string]: string } = {
   './imgs/SDKp.jpg': SDKpImg,
 };
 
-// 在 hubDoc.ts 的 loadExternalHtml 函数中加强样式处理
+
 function loadExternalHtml(fileName: string): { html: string; styles: string; bodyClass: string } {
   try {
     const htmlContent = fileName === 'start.html' ? String(startHtmlRaw) : '';
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, 'text/html');
 
+    // 1. 提取并“重定向”所有样式
     let styles = '';
     doc.querySelectorAll('style').forEach(style => {
       let css = style.textContent || '';
       
-      // 1. 将 html/body 替换为容器类，捕获 start.html 定义的背景颜色和字体
+      // 将 html 和 body 选择器替换为我们的 Shadow 容器类名
       css = css.replace(/(?<![a-zA-Z0-9_-])html(?![a-zA-Z0-9_-])/g, '.shadow-root-container');
       css = css.replace(/(?<![a-zA-Z0-9_-])body(?![a-zA-Z0-9_-])/g, '.shadow-root-container');
       
-      // 2. 将 :root 变量也绑定到容器上，确保变量在隔离环境下生效
+      // 将 :root 变量也作用于容器
       css = css.replace(/:root/g, '.shadow-root-container');
+
+      // 【关键修改】：去除背景颜色
+      // 匹配 --bg-color 并强制设为透明
+      css = css.replace(/--bg-color\s*:\s*[^;]+;/g, '--bg-color: transparent !important;');
+      // 匹配直接写在样式里的 background-color: #fff 等
+      css = css.replace(/background-color\s*:\s*#[a-fA-F0-9]+;?/g, 'background-color: transparent !important;');
       
       styles += css;
     });
 
-    // 提取正文内容（通常是 #write 区域或整个 body）
+    // 2. 提取 Body 内容和 Class
     const bodyEl = doc.querySelector('body');
     const bodyClass = bodyEl?.className || '';
     const innerHtml = bodyEl?.innerHTML || '';
@@ -63,94 +70,78 @@ function loadExternalHtml(fileName: string): { html: string; styles: string; bod
   }
 }
 
-// 修改 Shadow DOM 挂载逻辑
+
+
+
+
+
+
+
 (() => {
   const startCont = document.getElementById('start-cont');
   if (startCont) {
     const { html, styles, bodyClass } = loadExternalHtml('start.html');
+    
+    // 1. 创建隔离的 Shadow DOM
     const shadow = startCont.attachShadow({ mode: 'open' });
 
+    // 2. 注入样式
     const styleEl = document.createElement('style');
     styleEl.textContent = `
       :host { 
-        display: flex !important;
-        flex-direction: column !important;
-        width: 100% !important;
-        height: 100% !important;
-        overflow: auto;
+        display: block; 
+        width: 100%; 
+        height: 100%; 
+        background: transparent !important;
       }
       
       .shadow-root-container {
-        all: initial; /* 彻底重置外部 docs.html 的 CSS 继承 */
-        display: flex !important;
-        flex-direction: column !important;
-        width: 100% !important;
-        height: 100% !important;
-        min-height: 100% !important;
-        position: relative;
-        box-sizing: border-box;
-        
-        /* 强制应用 start.html 的默认字体和颜色，防止 all: initial 抹除一切 */
-        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-        line-height: 1.42857;
-      }
-      
-      /* 覆盖 start.html 中 #write 的 padding-top: 36px */
-      .shadow-root-container #write {
-        padding-top: 0 !important;
-        flex: 1 !important;
-      }
-
-      /* 允许内部元素恢复正常显示 */
-      .shadow-root-container * {
-        box-sizing: border-box;
-      }
-      
-      .shadow-root-container {
-        all: initial; /* 彻底重置外部 docs.html 的 CSS 继承 */
+        /* all: unset 让文字颜色、字体等能继承 docs.html 的深色模式设定 */
+        all: unset; 
         display: block;
         width: 100%;
         min-height: 100%;
         position: relative;
         box-sizing: border-box;
+        padding: 40px;
+        background: transparent !important;
         
-        /* 强制应用 start.html 的默认字体和颜色，防止 all: initial 抹除一切 */
-        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-        line-height: 1.42857;
-      }
-      
-      /* 覆盖 start.html 中 #write 的 padding-top: 36px */
-      .shadow-root-container #write {
-        padding-top: 0 !important;
-      }
-        
-        /* 强制应用 start.html 的默认字体和颜色，防止 all: initial 抹除一切 */
-        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-        line-height: 1.42857;
+        /* 确保基础字体与外部一致 */
+        font-family: inherit; 
+        color: inherit;
       }
 
-      /* 允许内部元素恢复正常显示 */
+      /* 恢复内部元素的标准行为，防止 unset 影响过深 */
       .shadow-root-container * {
         box-sizing: border-box;
       }
       
-      /* 注入 start.html 提取出来的原始样式 */
+      /* 注入 start.html 的原始样式（已处理为透明背景） */
       ${styles}
+
+      /* 针对 Typora 等生成的文档，确保图片和表格在深色背景下有良好的表现 */
+      .shadow-root-container img {
+        max-width: 100%;
+      }
+      .shadow-root-container table {
+        border-color: rgba(255,255,255,0.1);
+      }
     `;
 
+    // 3. 构造内容容器
     const container = document.createElement('div');
-    // 合并 start.html 的 body class 和我们的容器 class
     container.className = `shadow-root-container ${bodyClass}`;
     container.innerHTML = html;
 
-    // 处理图片路径映射
-    container.querySelectorAll('img').forEach((img: HTMLImageElement) => {
+    // 4. 图片路径映射
+    container.querySelectorAll('img').forEach((img: any) => {
       const src = img.getAttribute('src');
       if (src && imageMap[src]) {
         img.src = imageMap[src];
       }
     });
 
+    // 5. 挂载
     shadow.appendChild(styleEl);
     shadow.appendChild(container);
   }
