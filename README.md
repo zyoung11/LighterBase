@@ -26,6 +26,7 @@
   * [2. 查询用户发送的日志](#2-查询用户发送的日志)
   * [3. 查询用户接收的日志](#3-查询用户接收的日志)
   * [4. 确认邀请](#4-确认邀请)
+  * [5. 确认成员是否注册](#5-确认成员是否注册)
 * [五、Baas API](#五baas-api)
   * [1. 自动生成模块](#1-自动生成模块)
     * [1.1 增](#11-增)
@@ -836,6 +837,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 - 请求头：
 
   ```
+  Content-Type: application/json
   Authorization: Bearer <jwt_token>
   ```
 
@@ -889,6 +891,7 @@ cd LighterBase/Backend/web/LighterBaseHub
 - 请求头：
 
   ```
+  Content-Type: application/json
   Authorization: Bearer <jwt_token>
   ```
 
@@ -942,9 +945,10 @@ cd LighterBase/Backend/web/LighterBaseHub
 - 请求头：
 
   ```
+  Content-Type: application/json
   Authorization: Bearer <jwt_token>
   ```
-
+  
   | **/:status** 选项 | 功能       |
   | ----------------- | ---------- |
   | `/agree`          | 同意邀请   |
@@ -982,7 +986,35 @@ cd LighterBase/Backend/web/LighterBaseHub
   }
   ```
 
-  
+
+### 5. 确认成员是否注册
+
+> [!IMPORTANT]
+>
+> 成员只能使用**与 Hub 相同的邮箱**注册共享项目
+
+- http方法：**GET**
+
+- URL：`/team/init/:projectId`
+
+- 请求头：
+
+  ```
+  Content-Type: application/json
+  Authorization: Bearer <jwt_token>
+  ```
+
+- 预期返回：
+
+  http状态码：200
+
+  返回体：
+
+  ```json
+  {    
+      "init": true
+  }
+  ```
 
 ## 五、Baas API
 

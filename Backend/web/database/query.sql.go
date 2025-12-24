@@ -46,6 +46,34 @@ func (q *Queries) CheckNotificationPermission(ctx context.Context, arg CheckNoti
 	return count, err
 }
 
+const checkUserEmailInProject = `-- name: CheckUserEmailInProject :one
+SELECT COUNT(*) FROM users WHERE email = ?
+`
+
+func (q *Queries) CheckUserEmailInProject(ctx context.Context, email string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, checkUserEmailInProject, email)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const checkUserProjectInit = `-- name: CheckUserProjectInit :one
+SELECT COUNT(*) FROM notifications 
+WHERE receiver_id = ? AND project_id = ? AND notification_status = 'agree'
+`
+
+type CheckUserProjectInitParams struct {
+	ReceiverID int64
+	ProjectID  int64
+}
+
+func (q *Queries) CheckUserProjectInit(ctx context.Context, arg CheckUserProjectInitParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, checkUserProjectInit, arg.ReceiverID, arg.ProjectID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countLogs = `-- name: CountLogs :one
 SELECT COUNT(*) FROM _log_
 `

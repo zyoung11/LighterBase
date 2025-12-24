@@ -248,3 +248,10 @@ WHERE id = ?;
 
 -- name: DeleteQuery :exec
 DELETE FROM _query_ WHERE id = ?;
+
+-- name: CheckUserProjectInit :one
+SELECT COUNT(*) FROM notifications 
+WHERE receiver_id = ? AND project_id = ? AND notification_status = 'agree';
+
+-- name: CheckUserEmailInProject :one
+SELECT COUNT(*) FROM users WHERE email = ?;

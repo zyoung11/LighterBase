@@ -18,7 +18,7 @@ run_test(
          body={
              "user_name": "yzm",
              "password": "yzm666",
-             "email": "yzm@notgay.com"
+             "email": "yzm@yzm.com"
          })
 )
 
@@ -83,7 +83,7 @@ run_test(
           body={
               	"projectId": zy_proj_id1,
                 "permissions": "admin",
-                "email": "yzm@notgay.com"
+                "email": "yzm@yzm.com"
           },
       should_fail=True)
 )
@@ -118,7 +118,7 @@ run_test(
           body={
               	"projectId": zy_proj_id1,
                 "permissions": "admin",
-                "email": "yzm@notgay.com"
+                "email": "yzm@yzm.com"
           })
 )
 
@@ -136,6 +136,12 @@ run_test(
 )
 
 run_test(
+    "检查 yzm 是否已经注册过",
+    get(f"{baseUrl}/api/team/init/{zy_proj_id1}",
+         headers={"Authorization": f"Bearer {yzm_token}",
+                  "Content-Type": "application/json"},))
+
+run_test(
     "yzm 在 zy 项目里注册",
     post(f"{baseUrl}/{zy_uid}/{zy_proj_id1}/api/auto/create/users",
          headers={"Content-Type": "application/json"},
@@ -145,6 +151,12 @@ run_test(
              "email": "yzm@yzm.com"
          })
 )
+
+run_test(
+    "检查 yzm 是否已经注册过",
+    get(f"{baseUrl}/api/team/init/{zy_proj_id1}",
+         headers={"Authorization": f"Bearer {yzm_token}",
+                  "Content-Type": "application/json"},))
 
 yzm_app_token = run_test(
     "yzm 在 zy 项目里登录",

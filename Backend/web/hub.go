@@ -942,3 +942,110 @@ func confirmNotification(c *fiber.Ctx) error {
 		"update_at": notification.UpdateAt.String,
 	})
 }
+
+// checkTeamInitByProjectId 检查用户是否被项目邀请且同意，以及邮箱是否在项目users表中存在
+func checkTeamInitByProjectId(c *fiber.Ctx) error {
+	// 获取当前用户ID（从JWT中间件设置的locals）
+	currentUserID, ok := c.Locals("userID").(int64)
+	if !ok {
+		return sendError(c, 401, "Unauthorized", nil)
+	}
+
+	// 获取路径参数
+	projectIdStr := c.Params("projectId")
+
+	// 转换为整数
+	projectID, err := strconv.ParseInt(projectIdStr, 10, 64)
+	if err != nil {
+		return sendError(c, 400, "Invalid project ID", nil)
+	}
+
+	// 1. 检查用户是否被项目邀请且同意
+	isInvitedAndAgreed, err := queries.CheckUserProjectInit(c.Context(), database.CheckUserProjectInitParams{
+		ReceiverID: currentUserID,
+		ProjectID:  projectID,
+	})
+	if err != nil {
+		return sendError(c, 500, "Failed to check notification status", nil)
+	}
+
+	// 如果没有被邀请或没有同意，直接返回false
+	if isInvitedAndAgreed == 0 {
+		return c.JSON(fiber.Map{
+			"is_invited_and_agreed":   false,
+			"email_exists_in_project": false,
+			"init_complete":           false,
+		})
+	}
+
+	// 2. 获取项目信息以确定项目所有者
+	project, err := queries.GetProjectByID(c.Context(), projectID)
+	if err != nil {
+		return sendError(c, 500, "Failed to fetch project information", nil)
+	}
+
+	// 3. 检查项目数据库是否已初始化
+	key := fmt.Sprintf("%d/%d", project.UserID, projectID)
+	dbSet, ok := dbMap[key]
+	if !ok {
+		// 如果项目数据库未初始化，尝试从连接管理器获取
+		if connManager != nil {
+			dbSet, _, err = connManager.GetConnection(key)
+			if err != nil {
+				return sendError(c, 400, "Project database not initialized", nil)
+			}
+		} else {
+			return sendError(c, 400, "Project database not initialized", nil)
+		}
+	}
+
+	// 4. 获取当前用户的邮箱（从主数据库）
+	user, err := queries.GetUserByID(c.Context(), currentUserID)
+	if err != nil {
+		return sendError(c, 500, "Failed to fetch user information", nil)
+	}
+
+	// 5. 检查项目内的users表是否有该邮箱
+	var emailExists bool
+	// 首先检查项目数据库中是否有users表
+	checkTableQuery := "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='users'"
+	var tableCount int
+	err = dbSet.DataDB.QueryRow(checkTableQuery).Scan(&tableCount)
+	if err != nil {
+		return sendError(c, 500, "Failed to check if users table exists in project database", nil)
+	}
+
+	if tableCount == 0 {
+		// 项目数据库中没有users表
+		emailExists = false
+	} else {
+		// 先列出项目数据库中的所有邮箱，用于调试
+		debugQuery := "SELECT email FROM users LIMIT 10"
+		rows, err := dbSet.DataDB.Query(debugQuery)
+		if err == nil {
+			defer rows.Close()
+			var debugEmails []string
+			for rows.Next() {
+				var debugEmail string
+				if err := rows.Scan(&debugEmail); err == nil {
+					debugEmails = append(debugEmails, debugEmail)
+				}
+			}
+			// 这里可以记录日志，但为了简单起见，我们先继续
+		}
+
+		// 检查邮箱是否存在
+		query := "SELECT COUNT(*) FROM users WHERE email = ?"
+		var count int
+		err = dbSet.DataDB.QueryRow(query, user.Email).Scan(&count)
+		if err != nil {
+			return sendError(c, 500, "Failed to check email in project users table", nil)
+		}
+		emailExists = count > 0
+	}
+
+	// 6. 返回结果
+	return c.JSON(fiber.Map{
+		"init": isInvitedAndAgreed == 1 && emailExists,
+	})
+}

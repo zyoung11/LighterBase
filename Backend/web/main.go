@@ -55,6 +55,7 @@ var routes = []Route{
 	{Method: "GET", Path: "/api/team/send/:status", Handler: checkMyNotifications, AuthRequired: true},
 	{Method: "GET", Path: "/api/team/receive/:status", Handler: checkNotificationsSentToMe, AuthRequired: true},
 	{Method: "PUT", Path: "/api/team/confirm/:notificationId/:status", Handler: confirmNotification, AuthRequired: true},
+	{Method: "GET", Path: "/api/team/init/:projectId", Handler: checkTeamInitByProjectId, AuthRequired: true},
 
 	// --- JWT 认证 API ---
 	{Method: "POST", Path: "/:userId/:projectId/api/auth/login", Handler: login_app, AuthRequired: false},
