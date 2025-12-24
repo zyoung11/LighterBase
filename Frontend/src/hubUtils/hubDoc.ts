@@ -1,40 +1,30 @@
 // Import HTML files as text
-import introHtmlRaw from '../docs/intro.html' assert { type: 'text' };
-import libraryHtmlRaw from '../docs/library.html' assert { type: 'text' };
-import tutorialHtmlRaw from '../docs/tutorial.html' assert { type: 'text' };
+import startHtmlRaw from '../docs/start.html' assert { type: 'text' };
 
 // Import images
-import databaseApimdImg from '../docs/imgs/Database_apimd.webp';
-import databaseCreateImg from '../docs/imgs/Database_create.webp';
-import databaseGojsImg from '../docs/imgs/Database_gojs.webp';
-import databasePermissionImg from '../docs/imgs/Database_permission.webp';
-import folderImg from '../docs/imgs/folder.webp';
-import logDownloadImg from '../docs/imgs/log_download.webp';
-import logInfoImg from '../docs/imgs/log_info.webp';
-import settingAccountImg from '../docs/imgs/setting_account.webp';
-import settingAiImg from '../docs/imgs/setting_ai.webp';
+import mainpageImg from '../docs/imgs/mainpage.jpeg';
+import registerImg from '../docs/imgs/register.jpeg';
+import loginpageImg from '../docs/imgs/loginpage.jpeg';
+import projectcImg from '../docs/imgs/projectc.jpeg';
+import arcDataImg from '../docs/imgs/arcData.jpeg';
+import projectloginImg from '../docs/imgs/projectlogin.jpeg';
+import projectDImg from '../docs/imgs/projectD.jpeg';
 
 const imageMap: { [key: string]: string } = {
-  '/docs/imgs/Database_apimd.webp': databaseApimdImg,
-  '/docs/imgs/Database_create.webp': databaseCreateImg,
-  '/docs/imgs/Database_gojs.webp': databaseGojsImg,
-  '/docs/imgs/Database_permission.webp': databasePermissionImg,
-  '/docs/imgs/folder.webp': folderImg,
-  '/docs/imgs/log_download.webp': logDownloadImg,
-  '/docs/imgs/log_info.webp': logInfoImg,
-  '/docs/imgs/setting_account.webp': settingAccountImg,
-  '/docs/imgs/setting_ai.webp': settingAiImg,
+  './imgs/mainpage.jpeg': mainpageImg,
+  './imgs/register.jpeg': registerImg,
+  './imgs/loginpage.jpeg': loginpageImg,
+  './imgs/projectc.jpeg': projectcImg,
+  './imgs/arcData.jpeg': arcDataImg,
+  './imgs/projectlogin.jpeg': projectloginImg,
+  './imgs/projectD.jpeg': projectDImg,
 };
 
 function loadExternalHtml(fileName: string): { html: string; styles: string } {
   try {
     let htmlContent: string;
-    if (fileName === 'intro.html') {
-      htmlContent = introHtmlRaw;
-    } else if (fileName === 'library.html') {
-      htmlContent = libraryHtmlRaw;
-    } else if (fileName === 'tutorial.html') {
-      htmlContent = tutorialHtmlRaw;
+    if (fileName === 'start.html') {
+      htmlContent = startHtmlRaw;
     } else {
       throw new Error(`Unknown file: ${fileName}`);
     }
@@ -91,39 +81,15 @@ const applyLazyLoading = (html: string): string => {
   const foucFix = document.getElementById('fouc-fix');
   if (foucFix) foucFix.remove();
 
-  // 渲染 Intro 内容
-  const introCont = document.getElementById('intro-cont');
-  if (introCont) {
-    const { html: rawHtml, styles } = loadExternalHtml('intro.html');
+  // 渲染 Start 内容
+  const startCont = document.getElementById('start-cont');
+  if (startCont) {
+    const { html: rawHtml, styles } = loadExternalHtml('start.html');
     if (styles) {
       const styleEl = document.createElement('style');
       styleEl.textContent = styles;
       document.head.appendChild(styleEl);
     }
-    introCont.innerHTML = applyLazyLoading(rawHtml);
-  }
-
-  // 渲染 Install 内容
-  const installIntro = document.getElementById('install-intro');
-  if (installIntro) {
-    const { html: rawHtml, styles } = loadExternalHtml('library.html');
-    if (styles) {
-      const styleEl = document.createElement('style');
-      styleEl.textContent = styles;
-      document.head.appendChild(styleEl);
-    }
-    installIntro.innerHTML = applyLazyLoading(rawHtml);
-  }
-
-  // 渲染 Tutorials 内容
-  const tutorialsCont = document.getElementById('tutorials-cont');
-  if (tutorialsCont) {
-    const { html: rawHtml, styles } = loadExternalHtml('tutorial.html');
-    if (styles) {
-      const styleEl = document.createElement('style');
-      styleEl.textContent = styles;
-      document.head.appendChild(styleEl);
-    }
-    tutorialsCont.innerHTML = applyLazyLoading(rawHtml);
+    startCont.innerHTML = applyLazyLoading(rawHtml);
   }
 })();

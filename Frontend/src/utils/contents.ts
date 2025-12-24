@@ -1,3 +1,4 @@
+import {URL} from "../apis/api.ts"
 import apiIcon from "../icons/apiWhite.svg";
 import messageLight from "../icons/messageLight.svg";
 import check from "../icons/checkWhite.svg";
@@ -407,7 +408,7 @@ const apiMarked = {
 \`\`\`javascript
 import LighterBase from 'lighterbase';
 
-const lb = new LighterBase('https://your-api-endpoint.com');
+const lb = new LighterBase("${URL}");
 
 //...
 
@@ -502,7 +503,7 @@ const insertData = await lb.insertTable(payload, "table_name");
 \`\`\`javascript
 import LighterBase from 'lighterbase';
 
-const lb = new LighterBase('https://your-api-endpoint.com');
+const lb = new LighterBase("${URL}");
 
 //...
 
@@ -597,7 +598,7 @@ null
 \`\`\`javascript
 import LighterBase from 'lighterbase';
 
-const lb = new LighterBase('https://your-api-endpoint.com');
+const lb = new LighterBase("${URL}");
 
 //...
 
@@ -705,7 +706,7 @@ null
 \`\`\`javascript
 import LighterBase from 'lighterbase';
 
-const lb = new LighterBase('https://your-api-endpoint.com');
+const lb = new LighterBase("${URL}");
 
 //...
 
