@@ -31,7 +31,7 @@ app.appendChild(gridContainer);
 const projectDetails = document.createElement('div');
 projectDetails.id = 'projectDetails';
 //oldColor:bg-[#1B1E1F]
-projectDetails.className = 'absolute right-[5%] top-[12%] w-3/5 h-4/5 bg-white/5 shadow-md shadow-white/30 border border-white/10 bg-opacity-90 p-4 rounded-lg hidden z-5';
+projectDetails.className = 'absolute right-[2%] top-[12%] w-3/5 h-4/5 bg-white/5 shadow-md shadow-white/30 border border-white/10 bg-opacity-90 p-4 rounded-lg hidden z-5';
 projectDetails.innerHTML = `
     <div class=" flex space-x-4 justify-end mb-4">
         <div id="project-size" class="w-14 h-6 border border-white/50 rounded-full flex items-center justify-center text-white text-sm font-bold"></div>
@@ -123,11 +123,13 @@ document.addEventListener('click', handleOutsideClick);
 // 将网格坐标转换为像素坐标
 function gridToPixel(position:any) {
   const [row, col] = position;
-  const containerWidth = window.innerWidth;
+  const containerWidth = gridContainer.clientWidth;
   const blockWidth = containerWidth * 0.28;
   const blockHeight = window.innerHeight * 0.25;
+  const gridTotalWidth = (GRID_SIZE * blockWidth) + ((GRID_SIZE - 1) * GAP);
+  const offsetX = Math.max(0, (containerWidth - gridTotalWidth) / 2 * 0.7);
   return {
-    x: col * (blockWidth + GAP),
+    x: offsetX + col * (blockWidth + GAP),
     y: row * (blockHeight + GAP),
   };
 }
@@ -210,7 +212,7 @@ async function initializeBlocks() {
   // if (!projectsData) return;
 
   if (projectsData) {
-    projectsData.sort((a, b) => b.project_id - a.project_id);
+    projectsData.sort((a: any, b: any) => b.project_id - a.project_id);
   }
 
   if (!projectsData) {
