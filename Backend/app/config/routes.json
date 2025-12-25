@@ -2,8 +2,20 @@
   "port": 8080,
   "routes": [
     {
+      "path": "/index",
+      "file": "./index.html"
+    },
+    {
+      "path": "/admin",
+      "file": "./hub/admin.html"
+    },
+    {
+      "path": "/login",
+      "file": "./hub/login.html"
+    },
+    {
       "path": "/",
-      "file": "index.html"
+      "file": "./hub/projects.html"
     }
   ]
 }
