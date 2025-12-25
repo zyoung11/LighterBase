@@ -630,8 +630,8 @@ const tbody = document.getElementById('logs-tbody') as HTMLElement;
   tables.forEach((t: string) => {
     const btn = document.createElement('button');
     btn.className =
-      'w-full text-left text-[1.2rem] flex px-2 py-2 rounded hover:bg-[#2B2F31] transition-colors items-center text-base font-medium truncate';
-    btn.innerHTML = `<img src="${manageIcon}" alt="管理" class="w-[14%] mr-2">${t}`;
+      'w-full text-left text-[1.2rem] flex px-2 py-2 rounded hover:scale-105 transition-transform duration-300 items-center text-base font-medium truncate';
+    btn.innerHTML = `<span class="triangle-icon w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[8px] border-l-white mr-2 opacity-0 transition-opacity duration-300"></span><img src="${manageIcon}" alt="管理" class="w-[14%] mr-2">${t}`;
     btn.dataset.table = t;
     sidebarBox.appendChild(btn);
   });
@@ -643,10 +643,15 @@ const tbody = document.getElementById('logs-tbody') as HTMLElement;
 
     // 切换选中状态
     if (selectedTableBtn) {
+      selectedTableBtn.classList.remove('selected');
       selectedTableBtn.style.backgroundColor = '';
+      const triangle = selectedTableBtn.querySelector('.triangle-icon') as HTMLElement;
+      if (triangle) triangle.style.opacity = '0';
     }
     selectedTableBtn = tgt;
-    tgt.style.backgroundColor = '#2B2F31';
+    tgt.classList.add('selected');
+    const triangle = tgt.querySelector('.triangle-icon') as HTMLElement;
+    if (triangle) triangle.style.opacity = '1';
 
     const payload = { SELECT: [],WHERE:'' };
     try {

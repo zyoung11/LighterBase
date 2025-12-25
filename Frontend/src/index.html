@@ -32,8 +32,15 @@
       /* 增加渐变效果，更平滑 */
     }
 
-    #right-sidebar button.selected .triangle-icon {
-      opacity: 1;
+    #right-sidebar button.selected .triangle-icon,
+    #folder-table-list button.selected .triangle-icon {
+      opacity: 1 !important;
+    }
+
+    #right-sidebar button .triangle-icon,
+    #folder-table-list button .triangle-icon {
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
     }
   </style>
   <style>

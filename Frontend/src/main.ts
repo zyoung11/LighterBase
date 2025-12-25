@@ -82,6 +82,8 @@ let currentQueryId: number | null = null;
     const aiBtn = document.getElementById('ai-settings') as HTMLElement;
     if (aiBtn) {
       aiBtn.classList.add('selected');
+      const triangle = aiBtn.querySelector('.triangle-icon') as HTMLElement;
+      if (triangle) triangle.style.opacity = '1';
     }
     rightSidebar.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
@@ -91,8 +93,13 @@ let currentQueryId: number | null = null;
          setupAccountSettings();
          document.querySelectorAll('#right-sidebar button').forEach(btn => {
            btn.classList.remove('selected');
+           const triangle = btn.querySelector('.triangle-icon') as HTMLElement;
+           if (triangle) triangle.style.opacity = '0';
          });
-          (target.closest('#account-settings') as HTMLElement).classList.add('selected');
+         const clickedBtn = target.closest('#account-settings') as HTMLElement;
+         clickedBtn.classList.add('selected');
+         const triangle = clickedBtn.querySelector('.triangle-icon') as HTMLElement;
+         if (triangle) triangle.style.opacity = '1';
            return;
        }
       if (target.closest('#ai-settings')) {
@@ -100,8 +107,13 @@ let currentQueryId: number | null = null;
           aichat.setupAISettings(); // 重新设置 AI 设置
           document.querySelectorAll('#right-sidebar button').forEach(btn => {
             btn.classList.remove('selected');
+            const triangle = btn.querySelector('.triangle-icon') as HTMLElement;
+            if (triangle) triangle.style.opacity = '0';
           });
-          (target.closest('#ai-settings') as HTMLElement).classList.add('selected');
+          const clickedBtn = target.closest('#ai-settings') as HTMLElement;
+          clickedBtn.classList.add('selected');
+          const triangle = clickedBtn.querySelector('.triangle-icon') as HTMLElement;
+          if (triangle) triangle.style.opacity = '1';
           return;
       }
     });
@@ -206,8 +218,8 @@ async function initializeDatabaseView() {
     } catch (e) {
       console.error("SQL解析错误:", e);
       sqlNotice.style.color = "red";
-      if (err instanceof Error && err.message) {
-        sqlNotice.textContent = err.message;
+      if (e instanceof Error && e.message) {
+        sqlNotice.textContent = e.message;
       } else {
         sqlNotice.textContent = "SQL语法错误";
       }
@@ -550,6 +562,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const createDbBtn = document.getElementById('create-db') as HTMLElement;
   if (createDbBtn) {
     createDbBtn.classList.add('selected');
+    const triangle = createDbBtn.querySelector('.triangle-icon') as HTMLElement;
+    if (triangle) triangle.style.opacity = '1';
   }
 
   rightSidebar.addEventListener('click', async(e) => {
@@ -562,8 +576,13 @@ document.addEventListener('DOMContentLoaded', () => {
       // 切换选中状态
       document.querySelectorAll('#right-sidebar button').forEach(btn => {
         btn.classList.remove('selected');
+        const triangle = btn.querySelector('.triangle-icon') as HTMLElement;
+        if (triangle) triangle.style.opacity = '0';
       });
-      (target.closest('#permissions') as HTMLElement).classList.add('selected');
+      const clickedBtn = target.closest('#permissions') as HTMLElement;
+      clickedBtn.classList.add('selected');
+      const triangle = clickedBtn.querySelector('.triangle-icon') as HTMLElement;
+      if (triangle) triangle.style.opacity = '1';
       return;
     }
 
@@ -573,8 +592,13 @@ document.addEventListener('DOMContentLoaded', () => {
       // 切换选中状态
       document.querySelectorAll('#right-sidebar button').forEach(btn => {
         btn.classList.remove('selected');
+        const triangle = btn.querySelector('.triangle-icon') as HTMLElement;
+        if (triangle) triangle.style.opacity = '0';
       });
-      (target.closest('#create-db') as HTMLElement).classList.add('selected');
+      const clickedBtn = target.closest('#create-db') as HTMLElement;
+      clickedBtn.classList.add('selected');
+      const triangle = clickedBtn.querySelector('.triangle-icon') as HTMLElement;
+      if (triangle) triangle.style.opacity = '1';
       return;
     }
 
@@ -584,8 +608,13 @@ document.addEventListener('DOMContentLoaded', () => {
       // 切换选中状态
       document.querySelectorAll('#right-sidebar button').forEach(btn => {
         btn.classList.remove('selected');
+        const triangle = btn.querySelector('.triangle-icon') as HTMLElement;
+        if (triangle) triangle.style.opacity = '0';
       });
-      (target.closest('#Query-db') as HTMLElement).classList.add('selected');
+      const clickedBtn = target.closest('#Query-db') as HTMLElement;
+      clickedBtn.classList.add('selected');
+      const triangle = clickedBtn.querySelector('.triangle-icon') as HTMLElement;
+      if (triangle) triangle.style.opacity = '1';
       return;
     }
   });

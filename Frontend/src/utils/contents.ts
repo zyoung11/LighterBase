@@ -25,12 +25,12 @@ const sidebarContent = {
             `,
   settings: `
                 <div class="space-y-3">
-                    <button id="ai-settings" class="w-full flex px-4 py-3 bg-[#1B1E1F] hover:scale-105 rounded-lg text-left transition-transform duration-300 items-center">
+                    <button id="ai-settings" class="w-full flex px-4 py-3 hover:scale-105 rounded-lg text-left transition-transform duration-300 items-center">
                         <span class="triangle-icon w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[8px] border-l-white mr-2 opacity-0 transition-opacity duration-300"></span>
                         <img src ="${messageLight}" class ="w-[15%] object-contain mr-2" alt="表的创建">
                        <p>AI</p>
                     </button>
-                    <button id="account-settings" class="w-full flex px-4 py-3 bg-[#1B1E1F] hover:scale-105 rounded-lg text-left transition-transform duration-300 items-center">
+                    <button id="account-settings" class="w-full flex px-4 py-3 hover:scale-105 rounded-lg text-left transition-transform duration-300 items-center">
                        <span class="triangle-icon w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[8px] border-l-white mr-2 opacity-0 transition-opacity duration-300"></span>
                        <img src ="${account}" class ="w-[15%] object-contain mr-2" alt="表的创建">
                        <p>Account</p>
@@ -46,17 +46,17 @@ const sidebarContent = {
   `,
    database: `
                 <div class="space-y-3">
-                    <button id="create-db" class="w-full flex mb-3 px-4 py-3 hover:scale-105 rounded-lg items-center text-left transition-transform duration-300">
+                    <button id="create-db" class="w-full flex mb-3 px-4 py-3 bg-transparent hover:scale-105 rounded-lg items-center text-left transition-transform duration-300">
                        <span class="triangle-icon w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[8px] border-l-white mr-2 opacity-0 transition-opacity duration-300"></span>
                        <img src ="${create}" class ="w-[15%] object-contain" alt="表的设计">
                        <p class = "text-[1.1rem]  ml-[10%]">Design DB</p>
                     </button>
-                    <button id="Query-db" class="w-full flex mb-3 px-4 py-3 hover:scale-105 rounded-lg items-center text-left transition-transform duration-300">
+                    <button id="Query-db" class="w-full flex mb-3 px-4 py-3 bg-transparent hover:scale-105 rounded-lg items-center text-left transition-transform duration-300">
                        <span class="triangle-icon w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[8px] border-l-white mr-2 opacity-0 transition-opacity duration-300"></span>
                        <img src ="${query}" class ="w-[15%] object-contain" alt="表的查询">
                        <p class = "text-[1.1rem] ml-[10%]">Query</p>
                     </button>
-                    <button id="permissions" class="w-full flex px-4 py-3 hover:scale-105 rounded-lg items-center text-left transition-transform duration-300">
+                    <button id="permissions" class="w-full flex px-4 py-3 bg-transparent hover:scale-105 rounded-lg items-center text-left transition-transform duration-300">
                        <span class="triangle-icon w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[8px] border-l-white mr-2 opacity-0 transition-opacity duration-300"></span>
                        <img src ="${permission}" class ="w-[15%] object-contain" alt="权限">
                        <p class = "text-[1.1rem] ml-[10%]">Permission</p>
