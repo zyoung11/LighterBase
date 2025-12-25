@@ -81,7 +81,7 @@ let currentQueryId: number | null = null;
     aichat.setupAISettings(); // 调用 aichat 中的设置逻辑
     const aiBtn = document.getElementById('ai-settings') as HTMLElement;
     if (aiBtn) {
-      aiBtn.style.backgroundColor = '#2B2F31';
+      aiBtn.classList.add('selected');
     }
     rightSidebar.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
@@ -90,18 +90,18 @@ let currentQueryId: number | null = null;
          mainWorkspace.innerHTML = workspaceContent.accountSettings;
          setupAccountSettings();
          document.querySelectorAll('#right-sidebar button').forEach(btn => {
-           (btn as HTMLElement).style.backgroundColor = '';
+           btn.classList.remove('selected');
          });
-          (target.closest('#account-settings') as HTMLElement).style.backgroundColor = '#2B2F31';
+          (target.closest('#account-settings') as HTMLElement).classList.add('selected');
            return;
        }
       if (target.closest('#ai-settings')) {
           mainWorkspace.innerHTML = workspaceContent.aiSettings; //
           aichat.setupAISettings(); // 重新设置 AI 设置
           document.querySelectorAll('#right-sidebar button').forEach(btn => {
-            (btn as HTMLElement).style.backgroundColor = '';
+            btn.classList.remove('selected');
           });
-          (target.closest('#ai-settings') as HTMLElement).style.backgroundColor = '#2B2F31';
+          (target.closest('#ai-settings') as HTMLElement).classList.add('selected');
           return;
       }
     });
@@ -549,7 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 设置默认选中Create DB
   const createDbBtn = document.getElementById('create-db') as HTMLElement;
   if (createDbBtn) {
-    createDbBtn.style.backgroundColor = '#2B2F31';
+    createDbBtn.classList.add('selected');
   }
 
   rightSidebar.addEventListener('click', async(e) => {
@@ -561,9 +561,9 @@ document.addEventListener('DOMContentLoaded', () => {
       await conponents.showPermissions();
       // 切换选中状态
       document.querySelectorAll('#right-sidebar button').forEach(btn => {
-        (btn as HTMLElement).style.backgroundColor = '';
+        btn.classList.remove('selected');
       });
-      (target.closest('#permissions') as HTMLElement).style.backgroundColor = '#2B2F31';
+      (target.closest('#permissions') as HTMLElement).classList.add('selected');
       return;
     }
 
@@ -572,9 +572,9 @@ document.addEventListener('DOMContentLoaded', () => {
       initializeDatabaseView();
       // 切换选中状态
       document.querySelectorAll('#right-sidebar button').forEach(btn => {
-        (btn as HTMLElement).style.backgroundColor = '';
+        btn.classList.remove('selected');
       });
-      (target.closest('#create-db') as HTMLElement).style.backgroundColor = '#2B2F31';
+      (target.closest('#create-db') as HTMLElement).classList.add('selected');
       return;
     }
 
@@ -583,9 +583,9 @@ document.addEventListener('DOMContentLoaded', () => {
       initializeQueryView();
       // 切换选中状态
       document.querySelectorAll('#right-sidebar button').forEach(btn => {
-        (btn as HTMLElement).style.backgroundColor = '';
+        btn.classList.remove('selected');
       });
-      (target.closest('#Query-db') as HTMLElement).style.backgroundColor = '#2B2F31';
+      (target.closest('#Query-db') as HTMLElement).classList.add('selected');
       return;
     }
   });

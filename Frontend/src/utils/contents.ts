@@ -18,18 +18,20 @@ const sidebarContent = {
                 <div class="space-y-3">
                     <p class="text-sm text-gray-400">数据库管理系统 v1.0</p>
                     <p class="text-sm text-gray-400">已连接用户: admin</p>
-                    <button class="w-full px-4 py-3 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-left transition-colors">
+                    <button class="w-full px-4 py-3 bg-[#2B2F31] hover:scale-105 rounded-lg text-left transition-transform duration-300">
                         系统设置
                     </button>
                 </div>
             `,
   settings: `
                 <div class="space-y-3">
-                    <button id="ai-settings" class="w-full flex px-4 py-3 bg-[#1B1E1F] hover:bg-[#3a3f41] rounded-lg text-left transition-colors">
+                    <button id="ai-settings" class="w-full flex px-4 py-3 bg-[#1B1E1F] hover:scale-105 rounded-lg text-left transition-transform duration-300 items-center">
+                        <span class="triangle-icon w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[8px] border-l-white mr-2 opacity-0 transition-opacity duration-300"></span>
                         <img src ="${messageLight}" class ="w-[15%] object-contain mr-2" alt="表的创建">
                        <p>AI</p>
                     </button>
-                    <button id="account-settings" class="w-full flex px-4 py-3 bg-[#1B1E1F] hover:bg-[#2B2F31] rounded-lg text-left transition-colors">
+                    <button id="account-settings" class="w-full flex px-4 py-3 bg-[#1B1E1F] hover:scale-105 rounded-lg text-left transition-transform duration-300 items-center">
+                       <span class="triangle-icon w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[8px] border-l-white mr-2 opacity-0 transition-opacity duration-300"></span>
                        <img src ="${account}" class ="w-[15%] object-contain mr-2" alt="表的创建">
                        <p>Account</p>
                     </button>
@@ -42,17 +44,20 @@ const sidebarContent = {
       </div>
     </div>
   `,
-  database: `
+   database: `
                 <div class="space-y-3">
-                    <button id="create-db" class="w-full flex mb-3 px-4 py-3 hover:scale-105 rounded-lg items-center text-left transition-colors">
+                    <button id="create-db" class="w-full flex mb-3 px-4 py-3 hover:scale-105 rounded-lg items-center text-left transition-transform duration-300">
+                       <span class="triangle-icon w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[8px] border-l-white mr-2 opacity-0 transition-opacity duration-300"></span>
                        <img src ="${create}" class ="w-[15%] object-contain" alt="表的设计">
                        <p class = "text-[1.1rem]  ml-[10%]">Design DB</p>
                     </button>
-                    <button id="Query-db" class="w-full flex mb-3 px-4 py-3 hover:scale-105 rounded-lg items-center text-left transition-colors">
+                    <button id="Query-db" class="w-full flex mb-3 px-4 py-3 hover:scale-105 rounded-lg items-center text-left transition-transform duration-300">
+                       <span class="triangle-icon w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[8px] border-l-white mr-2 opacity-0 transition-opacity duration-300"></span>
                        <img src ="${query}" class ="w-[15%] object-contain" alt="表的查询">
                        <p class = "text-[1.1rem] ml-[10%]">Query</p>
                     </button>
-                    <button id="permissions" class="w-full flex px-4 py-3 hover:scale-105 rounded-lg items-center text-left transition-colors">
+                    <button id="permissions" class="w-full flex px-4 py-3 hover:scale-105 rounded-lg items-center text-left transition-transform duration-300">
+                       <span class="triangle-icon w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[8px] border-l-white mr-2 opacity-0 transition-opacity duration-300"></span>
                        <img src ="${permission}" class ="w-[15%] object-contain" alt="权限">
                        <p class = "text-[1.1rem] ml-[10%]">Permission</p>
                     </button>
@@ -65,15 +70,15 @@ const workspaceContent = {
                 <div class="flex-1 flex flex-col">
                     <!-- 上部分：显示区域 (60% 高度) -->
                     <div class="h-[60%]  p-6 relative">
-                        <div id="mount" class="h-full bg-[#15151D] border-2 border-dashed border-[#2B2F31] rounded-lg flex items-center justify-center">
+                         <div id="mount" class="h-full bg-[#15151D] border-2 border-dashed border-[#2B2F31] rounded-lg flex items-center justify-center">
 
                         </div>
                         <!-- API文档按钮 -->
                         <div class="absolute right-10 top-1/2 z-10 transform -translate-y-1/2 flex flex-col">
-                          <button id="api-docs-btn" class="w-12 h-12 px-3 py-2 rounded transition-colors">
+                          <button id="api-docs-btn" class="w-12 h-12 px-3 py-2 rounded hover:scale-105 transition-transform duration-300">
                               <img src ="${apiIcon}" class ="object-contain" alt="API文档">
                           </button>
-                          <button id="ai-generated" class="w-12 h-12 px-2 py-2 hover:bg-[#3a3f41] rounded-full text-sm transition-colors mb-4">
+                          <button id="ai-generated" class="w-12 h-12 px-2 py-2 rounded-full text-sm hover:scale-105 transition-transform duration-300 mb-4">
                                <img src="${messageLight}" class=" object-contain" alt="AI-generated">
                           </button>
 
@@ -89,14 +94,14 @@ const workspaceContent = {
         <!-- 查看完整SQL按钮 -->
         <button
             id="view-full-sql-btn"
-            class="absolute top-2 right-2 px-3 py-1 bg-[#3a3f41] hover:bg-[#4a4f52] rounded text-xs text-gray-300 transition-colors"
+            class="absolute top-2 right-2 px-3 py-1 bg-[#3a3f41] hover:scale-105 rounded text-xs text-gray-300 transition-transform duration-300"
             title="查看完整SQL"
         >
              <img src="${expand}" class="w-6 h-6 object-contain" alt="放大修改">
         </button>
     </div>
     <div class="flex relative">
-        <button id="sql-send" class="w-12 h-12 px-1 py-1 rounded-full text-sm transition-colors">
+        <button id="sql-send" class="w-12 h-12 px-1 py-1 rounded-full text-sm hover:scale-105 transition-transform duration-300">
              <img src="${check}" class=" object-contain" alt="确认">
         </button>
 
@@ -110,7 +115,7 @@ const workspaceContent = {
     <div class="bg-[#2B2F31] rounded-lg p-6 w-[90%] max-w-6xl h-[85%] overflow-hidden">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold text-gray-200">完整SQL语句</h3>
-            <button id="close-full-sql-modal" class="text-gray-400 hover:text-gray-200 text-2xl">
+            <button id="close-full-sql-modal" class="text-gray-400 hover:text-gray-200 text-2xl hover:scale-105 transition-transform duration-300">
                 ×
             </button>
         </div>
@@ -118,7 +123,7 @@ const workspaceContent = {
             <textarea id="full-sql-content" class="**scrollbar-hide** overflow-y-auto w-full h-full bg-[#1B1E1F] p-4 rounded text-gray-300 text-sm whitespace-pre-wrap overflow-x-auto resize-none focus:outline-none focus:border-[#4a4f52] border border-[#2B2F31]"></textarea>
         </div>
         <div class="mt-4 flex justify-end">
-            <button id="copy-full-sql" class="px-4 py-2 bg-[#4a4f52] hover:bg-[#5a5f62] rounded text-sm text-gray-200 transition-colors mr-2">
+            <button id="copy-full-sql" class="px-4 py-2 bg-[#4a4f52] hover:scale-105 rounded text-sm text-gray-200 transition-transform duration-300 mr-2">
                 复制
             </button>
         </div>
@@ -149,14 +154,14 @@ query: `
                               class="w-full h-full bg-[#2B2F31] border border-[#2B2F31] rounded-lg overflow-hidden"
                           ></div>
                       </div>
-                     <div class="ml-4 flex flex-col space-y-2">
-                         <button id="query-save-btn" class="w-12 h-12 px-2 py-2 hover:bg-[#3a3f41] rounded-full text-sm transition-colors mb-4 flex items-center justify-center">
-                              <img src="${save}" class="object-contain" alt="save">
-                         </button>
-                         <button id="query-execute-btn" class="w-12 h-12 px-1 py-1 rounded-full text-sm transition-colors flex items-center justify-center hover:bg-[#3a3f41]">
-                              <img src="${execute}" class="object-contain" alt="execute">
-                         </button>
-                     </div>
+                      <div class="ml-4 flex flex-col space-y-2">
+                          <button id="query-save-btn" class="w-12 h-12 px-2 py-2 rounded-full text-sm hover:scale-105 transition-transform duration-300 mb-4 flex items-center justify-center">
+                               <img src="${save}" class="object-contain" alt="save">
+                          </button>
+                          <button id="query-execute-btn" class="w-12 h-12 px-1 py-1 rounded-full text-sm hover:scale-105 transition-transform duration-300 flex items-center justify-center">
+                               <img src="${execute}" class="object-contain" alt="execute">
+                          </button>
+                      </div>
                  </div>
             </div>
         </div>
@@ -347,12 +352,12 @@ query: `
 const slideBarContent = {
    api_md: `
       <div id="tables-api" class="flex h-full w-full bg-[#2B2F31]">
-        <div class="w-16 bg-[#1B1E1F] flex flex-col items-end py-4 space-y-4 sticky top-0 h-full">
-           <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] active:bg-[#5a5f61] rounded-l-lg flex items-center justify-center transition-colors text-white text-sm" data-nav="create">增</button>
-           <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] active:bg-[#5a5f61] rounded-l-lg flex items-center justify-center transition-colors text-white text-sm" data-nav="delete">删</button>
-           <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] active:bg-[#5a5f61] rounded-l-lg flex items-center justify-center transition-colors text-white text-sm" data-nav="update">改</button>
-           <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:bg-[#3a3f41] active:bg-[#5a5f61] rounded-l-lg flex items-center justify-center transition-colors text-white text-sm" data-nav="search">查</button>
-        </div>
+       <div class="w-16 bg-[#1B1E1F] flex flex-col items-end py-4 space-y-4 sticky top-0 h-full">
+           <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:scale-105 active:bg-[#5a5f61] rounded-l-lg flex items-center justify-center transition-transform duration-300 text-white text-sm" data-nav="create">增</button>
+           <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:scale-105 active:bg-[#5a5f61] rounded-l-lg flex items-center justify-center transition-transform duration-300 text-white text-sm" data-nav="delete">删</button>
+           <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:scale-105 active:bg-[#5a5f61] rounded-l-lg flex items-center justify-center transition-transform duration-300 text-white text-sm" data-nav="update">改</button>
+           <button class="nav-btn w-10 h-10 bg-[#2B2F31] hover:scale-105 active:bg-[#5a5f61] rounded-l-lg flex items-center justify-center transition-transform duration-300 text-white text-sm" data-nav="search">查</button>
+       </div>
          <div id="api-content" class="flex-1 flex flex-col items-center overflow-y-auto scrollbar-hide">
         </div>
       </div>
@@ -361,7 +366,7 @@ ai_generated: `
     <div id="ai-chat-box" class="flex flex-col flex-1 h-full p-4">
        <div class="pb-3 border-b border-gray-700 mb-3">
            <label class="text-sm text-gray-400">当前模型:</label>
-           <button id="chat-model-switch-btn" class="px-3 py-1 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg text-sm transition-colors ml-2">
+           <button id="chat-model-switch-btn" class="px-3 py-1 bg-[#2B2F31] hover:scale-105 rounded-lg text-sm transition-transform duration-300 ml-2">
                <span id="current-ai-model">GLM (Zhipu)</span> (点击查看信息)
            </button>
        </div>
@@ -375,7 +380,7 @@ ai_generated: `
               <textarea id="ai-chat-input" rows="1" placeholder="输入你的问题..." 
                         class="flex-1 p-3 rounded-lg bg-[#2B2F31] border border-[#3a3f41] focus:border-[#4a4f52] focus:outline-none resize-none"
                         style="max-height: 150px;" disabled></textarea>
-              <button id="send-ai-message" class="w-12 h-12 flex items-center justify-center bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors" disabled>
+               <button id="send-ai-message" class="w-12 h-12 flex items-center justify-center bg-blue-600 hover:scale-105 rounded-lg transition-transform duration-300" disabled>
                   <svg id="ai-send-icon" class="w-6 h-6 transform rotate-90 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                   </svg>
@@ -406,7 +411,7 @@ const apiMarked = {
     <span class=" text-orange-400 text-xl">table_name</span>
     <span class="text-white text-xl">表中插入数据<span>
   </div>
-  <a href="https://github.com/merwinM0/lighterbase-sdk" target="_blank" class="flex items-center gap-2 px-3 py-2 bg-[#2B2F31] hover:bg-[#3a3f41] rounded-lg transition-colors">
+  <a href="https://github.com/merwinM0/lighterbase-sdk" target="_blank" class="flex items-center gap-2 px-3 py-2 bg-[#2B2F31] hover:scale-105 rounded-lg transition-transform duration-300">
     <img src="${github}" class="w-5 h-5 object-contain" alt="GitHub">
     <span class="text-sm text-gray-300">查看 lighterBase-sdk</span>
   </a>
@@ -455,9 +460,9 @@ const insertData = await lb.insertTable(payload, "table_name");
 
 <span class ="text-xl">响应:</span>
 <div  class="response-btn-bar flex gap-2 mb-2">
-  <button data-status="insert-201" class="px-3 py-1 text-sm text-black rounded response-btn active bg-[#DCEEF3]">201 Created</button>
-  <button data-status="insert-400" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">400 Bad Request</button>
-  <button data-status="insert-403" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">403 Forbidden</button>
+  <button data-status="insert-201" class="px-3 py-1 text-sm text-black rounded response-btn active bg-[#DCEEF3] hover:scale-105 transition-transform duration-300">201 Created</button>
+  <button data-status="insert-400" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:scale-105 transition-transform duration-300">400 Bad Request</button>
+  <button data-status="insert-403" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:scale-105 transition-transform duration-300">403 Forbidden</button>
 </div>
 
 <div class="response-content-box">
@@ -545,10 +550,10 @@ const deleteData = await lb.deleteTable(payload, "table_name");
 
 <span class ="text-xl">响应:</span>
 <div  class="response-btn-bar flex gap-2 mb-2">
-  <button data-status="delete-204" class="px-3 py-1 text-sm text-black rounded response-btn active bg-[#DCEEF3]">204 No Content</button>
-  <button data-status="delete-400" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">400 Bad Request</button>
-  <button data-status="delete-403" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">403 Forbidden</button>
-  <button data-status="delete-404" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">404 Not Found</button>
+  <button data-status="delete-204" class="px-3 py-1 text-sm text-black rounded response-btn active bg-[#DCEEF3] hover:scale-105 transition-transform duration-300">204 No Content</button>
+  <button data-status="delete-400" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:scale-105 transition-transform duration-300">400 Bad Request</button>
+  <button data-status="delete-403" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:scale-105 transition-transform duration-300">403 Forbidden</button>
+  <button data-status="delete-404" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:scale-105 transition-transform duration-300">404 Not Found</button>
 </div>
 
 <div class="response-content-box">
@@ -648,10 +653,10 @@ const updateData = await lb.updateTable(payload, "table_name");
 
 <span class ="text-xl">响应:</span>
 <div  class="response-btn-bar flex gap-2 mb-2">
-  <button data-status="update-204" class="px-3 py-1 text-sm text-black rounded response-btn active bg-[#DCEEF3]">204 No Content</button>
-  <button data-status="update-400" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">400 Bad Request</button>
-  <button data-status="update-403" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">403 Forbidden</button>
-  <button data-status="update-404" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">404 Not Found</button>
+  <button data-status="update-204" class="px-3 py-1 text-sm text-black rounded response-btn active bg-[#DCEEF3] hover:scale-105 transition-transform duration-300">204 No Content</button>
+  <button data-status="update-400" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:scale-105 transition-transform duration-300">400 Bad Request</button>
+  <button data-status="update-403" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:scale-105 transition-transform duration-300">403 Forbidden</button>
+  <button data-status="update-404" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:scale-105 transition-transform duration-300">404 Not Found</button>
 </div>
 
 <div class="response-content-box">
@@ -750,10 +755,10 @@ const searchData = await lb.searchTable(payload, "table_name", 1, 30);
 
 <span class ="text-xl">响应:</span>
 <div  class="response-btn-bar flex gap-2 mb-2">
-  <button data-status="search-200" class="px-3 py-1 text-sm text-black rounded response-btn active bg-[#DCEEF3]">200 OK</button>
-  <button data-status="search-400" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">400 Bad Request</button>
-  <button data-status="search-403" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">403 Forbidden</button>
-  <button data-status="search-404" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:bg-gray-400">404 Not Found</button>
+  <button data-status="search-200" class="px-3 py-1 text-sm text-black rounded response-btn active bg-[#DCEEF3] hover:scale-105 transition-transform duration-300">200 OK</button>
+  <button data-status="search-400" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:scale-105 transition-transform duration-300">400 Bad Request</button>
+  <button data-status="search-403" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:scale-105 transition-transform duration-300">403 Forbidden</button>
+  <button data-status="search-404" class="px-3 py-1 text-sm text-black rounded response-btn bg-gray-300 hover:scale-105 transition-transform duration-300">404 Not Found</button>
 </div>
 
 <div class="response-content-box">

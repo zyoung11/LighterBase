@@ -107,9 +107,10 @@ function handleOutsideClick(event: MouseEvent) {
   });
   // 更新容器高度
   const rows = Math.ceil(blocks.length / GRID_SIZE);
-  gridContainer.style.height = '90vh';
-  // 禁用y轴滚动
-  gridContainer.style.overflowY = 'hidden';
+  const needsScroll = rows * (window.innerHeight * 0.25) > window.innerHeight * 0.9;
+  gridContainer.style.height = needsScroll ? `${rows * (window.innerHeight * 0.25)}px` : '90vh';
+  // 根据需要启用/禁用y轴滚动
+  gridContainer.style.overflowY = needsScroll ? 'auto' : 'hidden';
   // 隐藏详情
   projectDetails.classList.add('hidden');
   // 重新render

@@ -31,6 +31,10 @@
       transition: opacity 0.2s ease-in-out;
       /* 增加渐变效果，更平滑 */
     }
+
+    #right-sidebar button.selected .triangle-icon {
+      opacity: 1;
+    }
   </style>
   <style>
     ::-webkit-scrollbar {
@@ -69,7 +73,7 @@
       <!-- Logo -->
       <div class="mb-8">
         <button id="logo-btn"
-          class="w-15 h-15 mb-2 rounded-lg flex items-center justify-center text-white font-bold bg-transparent hover:scale-110 transition-transform duration-300">
+          class="w-15 h-15 mb-2 rounded-lg flex items-center justify-center text-white font-bold bg-transparent hover:scale-105 transition-transform duration-300">
           <img id="logo-img" alt="Logo" class="rounded-sm">
         </button>
       </div>
@@ -77,22 +81,22 @@
       <!-- 导航按钮 -->
       <div class="flex flex-col space-y-4 w-full justify-center items-center">
         <button id="database-btn"
-          class="nav-btn w-[60%] p-2 mb-1 bg-transparent hover:scale-110 rounded-lg flex items-center justify-center transition-transform duration-300"
+          class="nav-btn w-[60%] p-2 mb-1 bg-transparent hover:scale-105 rounded-lg flex items-center justify-center transition-transform duration-300"
           style="aspect-ratio:1/1">
           <img id="database-img" alt="数据库">
         </button>
         <button id="folder-btn"
-          class="nav-btn w-[60%] p-2 mb-1 bg-transparent hover:scale-110 rounded-lg flex items-center justify-center transition-transform duration-300"
+          class="nav-btn w-[60%] p-2 mb-1 bg-transparent hover:scale-105 rounded-lg flex items-center justify-center transition-transform duration-300"
           style="aspect-ratio:1/1">
           <img id="folder-img" alt="文件">
         </button>
         <button id="records-btn"
-          class="nav-btn w-[60%] p-2 mb-1 bg-transparent hover:scale-110 rounded-lg flex items-center justify-center transition-transform duration-300"
+          class="nav-btn w-[60%] p-2 mb-1 bg-transparent hover:scale-105 rounded-lg flex items-center justify-center transition-transform duration-300"
           style="aspect-ratio:1/1">
           <img id="records-img" alt="分析">
         </button>
         <button id="settings-btn"
-          class="nav-btn w-[60%] p-2 bg-transparent hover:scale-110 rounded-lg flex items-center justify-center transition-transform duration-300"
+          class="nav-btn w-[60%] p-2 bg-transparent hover:scale-105 rounded-lg flex items-center justify-center transition-transform duration-300"
           style="aspect-ratio:1/1">
           <img id="settings-img" alt="设置">
         </button>
@@ -116,7 +120,7 @@
         class="w-[55%] bg-transparent  flex flex-col sidebar-transition transform translate-x-[110%] absolute right-0 top-0 h-full z-20">
 
         <button id="close-slidebar"
-          class="absolute -left-6 top-4 text-gray-200 hover:text-white bg-[#F5F5F5]/60 backdrop-blur-md rounded-l-lg w-12 h-12 flex items-center justify-center transition-all duration-300">
+          class="absolute -left-6 top-4 text-gray-200 hover:text-white bg-[#F5F5F5]/60 backdrop-blur-md rounded-l-lg w-12 h-12 flex items-center justify-center transition-all duration-300 hover:scale-105">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
