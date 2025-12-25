@@ -36,7 +36,7 @@ function translatePage() {
 
 // 创建导航栏函数
 function createNavBar() {
-  const payload = parseJwt(token);
+  const payload = token ? parseJwt(token) : null;
   const currentUserId = payload ? payload.user_id || payload.id : null;
 
   const nav = document.createElement('nav');
@@ -314,11 +314,11 @@ createForm.addEventListener('submit', async (e) => {
      if(originalBase64)
      avatarBase64 = await compressImage(originalBase64, 400, 0.8);
    }
-   const data = {
-     project_name: previewName.value,
-     project_avatar: avatarBase64,
-     project_description: previewDesc.value,
-   };
+    const data = {
+      project_name: previewName.value || 'My Project',
+      project_avatar: avatarBase64 || defaultImg,
+      project_description: previewDesc.value || 'This is my project description',
+    };
    const result = await projects.createProject(data, token);
    if (result) {
      // 重新加载项目，刷新网格

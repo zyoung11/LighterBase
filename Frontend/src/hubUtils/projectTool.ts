@@ -410,22 +410,34 @@ function selectBlock(selectedId:number) {
         };
         setTimeout(() => document.addEventListener('click', closeHandler), 0);
 
-        // 发送邀请
-        const sendBtn = inviteModal.querySelector('#send-invite-btn') as HTMLButtonElement;
-        sendBtn.onclick = async () => {
+        const emailInput = inviteModal.querySelector('#invite-email') as HTMLInputElement;
+
+        const sendInvite = async () => {
           const permissions = (inviteModal.querySelector('#invite-permissions') as HTMLSelectElement).value;
-          const email = (inviteModal.querySelector('#invite-email') as HTMLInputElement).value;
+          const email = emailInput.value;
           if (!email) {
             alert('请输入邮箱');
             return;
           }
           const payload = {
-            "email":email,
+            "projectId": projectId,
             "permissions":permissions,
-            "projectId": projectId
+            "email":email
           };
           await projects.sendInvitation(payload);
           closeInviteModal();
+        };
+
+        // 发送邀请
+        const sendBtn = inviteModal.querySelector('#send-invite-btn') as HTMLButtonElement;
+        sendBtn.onclick = sendInvite;
+
+        // 回车键触发发送
+        emailInput.onkeydown = (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            sendInvite();
+          }
         };
       };
     }
@@ -553,8 +565,28 @@ async function initializeStartModal(userId: string, projectId: number) {
     setBaseUrl(projectUrl);
 
   // 检查是否为空数据库
+  // 检查用户是否被邀请
+  const inviteData = await projects.checkInvited(projectId);
+  const isInvited = inviteData && inviteData.init;
+  
+  // 检查是否为空数据库
   const isEmpty = await auth.isLogin();
-  if (!isEmpty) {
+
+  // 如果是被邀请的，不需要验证isLogin，直接允许注册
+  if (isInvited) {
+    startEmailField.style.display = 'block';
+    startEmailInput.required = true;
+    
+    // 获取被邀请用户的信息并自动填入邮箱
+    if (inviteData.user_id) {
+      const userData = await projects.getSingleUser(inviteData.user_id);
+      if (userData && userData.email) {
+        startEmailInput.value = userData.email;
+        startEmailInput.readOnly = true;
+        startEmailInput.style.cursor = 'not-allowed';
+      }
+    }
+  } else if (!isEmpty) {
     startEmailField.style.display = 'block';
     startEmailInput.required = true;
   } else {
@@ -642,8 +674,8 @@ async function showUpdateModal(block: any) {
   // 表单提交
   form.onsubmit = async (e) => {
     e.preventDefault();
-    const name = previewName.value;
-    const description = previewDescription.value;
+    const name = previewName.value || block.project.project_name || 'My Project';
+    const description = previewDescription.value || block.project.project_description || 'This is my project description';
     const file = avatarInput.files?.[0];
     let avatar = block.project.project_avatar;
     if (file) {

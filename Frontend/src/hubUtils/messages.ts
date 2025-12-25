@@ -83,7 +83,6 @@ function initProjectInviteWorkflow() {
     const addBtn = document.getElementById('add-invite-btn');
     const selectorMenu = document.getElementById('project-selector-menu');
     const overlay = document.getElementById('modal-overlay');
-    const closeBtn = document.getElementById('close-modal-btn');
 
     // 1. 点击 + 号显示/隐藏项目选择器
     addBtn?.addEventListener('click', async (e) => {
@@ -142,11 +141,21 @@ function initProjectInviteWorkflow() {
         if (!selectorMenu?.contains(e.target as Node)) selectorMenu?.classList.add('hidden');
     });
 
-    // 4. 关闭弹窗
+    // 4. 关闭弹窗 (点击外部或按 ESC 键)
     const closeModal = () => overlay?.classList.add('hidden');
-    closeBtn?.addEventListener('click', closeModal);
     overlay?.addEventListener('click', (e) => {
         if (e.target === overlay) closeModal();
+    });
+
+    // ESC 键关闭弹窗或选择器
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (!overlay?.classList.contains('hidden')) {
+                closeModal();
+            } else {
+                selectorMenu?.classList.add('hidden');
+            }
+        }
     });
 }
 
@@ -171,25 +180,35 @@ async function openInviteModal(project: Project) {
 
     overlay.classList.remove('hidden');
 
+    const sendInvite = async () => {
+        const email = emailInput.value.trim();
+        if (!email) return alert("Please enter an email");
+
+        const success = await projects.sendInvitation({
+            email: email,
+            permissions: permSelect.value,
+            projectId: project.project_id
+        });
+
+        if (success) {
+            overlay.classList.add('hidden');
+            loadSentInvitations('all'); // 刷新列表
+        }
+    };
+
     // 绑定发送按钮
     const sendBtn = document.getElementById('modal-send-btn');
     if (sendBtn) {
-        sendBtn.onclick = async () => {
-            const email = emailInput.value.trim();
-            if (!email) return alert("Please enter an email");
-
-            const success = await projects.sendInvitation({
-                email: email,
-                permissions: permSelect.value,
-                projectId: project.project_id
-            });
-
-            if (success) {
-                overlay.classList.add('hidden');
-                loadSentInvitations('all'); // 刷新列表
-            }
-        };
+        sendBtn.onclick = sendInvite;
     }
+
+    // 回车键触发发送
+    emailInput.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            sendInvite();
+        }
+    };
 }
 
 /**

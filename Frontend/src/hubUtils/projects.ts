@@ -111,6 +111,25 @@ async checkInit(){
   }
 },
 
+
+async checkInvited(projectId:number){
+  try{
+    const res = await fetch(`${URL}/api/team/init/${projectId}`,{
+      method:"GET"
+    });
+
+    if(res.ok){
+      const data =await res.json()
+      return data
+    }
+
+  
+  }catch(e){
+    console.log("检查初始化失败：",e)
+  }
+},
+
+
 async refreshHubToken(URL:string,theToken:string){
   await checkAuthentication(theToken,'hubAuthToken','login')
   try{
