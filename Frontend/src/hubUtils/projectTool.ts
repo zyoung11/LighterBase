@@ -1,7 +1,9 @@
-const GRID_SIZE = 3; // 3列
+const GRID_SIZE = 3; // 3列 (桌面端)
+const GRID_SIZE_MOBILE = 1; // 1列 (手机端)
 const CELL_SIZE = 100; // 每个格子的大小 (px)
 const ANIMATION_DURATION = 500; // 动画持续时间 (ms)
 const GAP = 20; // 项目间隔 (px)
+const GAP_MOBILE = 30; // 手机端项目间隔
 import projects from "./projects";
 import {theURL,URL, setBaseUrl } from "../apis/api";
 import { compressImage,getCookie,parseJwt } from "../modules/tools";
@@ -69,13 +71,78 @@ projectDetails.innerHTML = `
 if(app)
   app.appendChild(projectDetails);
 
+ // 手机端详情窗口（全屏）
+const mobileProjectDetails = document.createElement('div');
+mobileProjectDetails.id = 'mobileProjectDetails';
+mobileProjectDetails.className = 'fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center md:hidden p-4';
+mobileProjectDetails.innerHTML = `
+  <div class="max-w-md w-full bg-[#181A1B] rounded-lg p-4 max-h-[90vh] overflow-y-auto my-8">
+    <button id="mobile-close-details" class="absolute top-4 right-4 text-white text-2xl p-2">&times;</button>
+    <div class="flex justify-between items-center mb-6">
+      <div id="mobile-project-size" class="px-3 py-1 border border-white/50 rounded-full text-white text-sm font-bold"></div>
+    </div>
+    <img id="mobile-detail-avatar" class="w-full aspect-square object-cover rounded-lg mb-4" src="${defaultImg}" onerror="this.src='${defaultImg}'">
+    <h2 id="mobile-detail-name" class="text-2xl font-bold mb-2"></h2>
+    <textarea id="mobile-detail-description" class="w-full min-h-[100px] bg-[#1B1E1F] border border-white/10 bg-opacity-50 text-white p-3 rounded resize-none mb-4" readonly></textarea>
+
+    <div class="flex justify-around mb-6">
+      <button id="mobile-start-btn" class="w-14 h-14 border border-white/50 rounded-lg flex items-center justify-center">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </button>
+      <button id="mobile-download-btn" class="w-14 h-14 border border-white/50 rounded-lg flex items-center justify-center">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+      </button>
+      <button id="mobile-invite-btn" class="w-14 h-14 border border-white/50 rounded-lg flex items-center justify-center">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+        </svg>
+      </button>
+      <button id="mobile-delete-btn" class="w-14 h-14 border border-white/50 rounded-lg flex items-center justify-center">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        </svg>
+      </button>
+    </div>
+    <div id="mobile-mount" class="w-full min-h-[200px] rounded-sm bg-transparent"></div>
+  </div>
+`;
+if(app)
+  app.appendChild(mobileProjectDetails);
+
 // 创建点击外部返回的功能
 function handleOutsideClick(event: MouseEvent) {
   const target = event.target as HTMLElement;
-  
+  const mobile = isMobile();
+
+  // 手机端：点击详情窗口外部关闭
+  if (mobile) {
+    const mobileDetails = document.getElementById('mobileProjectDetails');
+    if (mobileDetails && !mobileDetails.classList.contains('hidden')) {
+      const isClickOnDetails = target.closest('#mobileProjectDetails') ||
+                                target.closest('#mobile-detail-avatar') ||
+                                target.closest('#mobile-detail-name') ||
+                                target.closest('#mobile-detail-description') ||
+                                target.closest('#mobile-start-btn') ||
+                                target.closest('#mobile-download-btn') ||
+                                target.closest('#mobile-invite-btn') ||
+                                target.closest('#mobile-delete-btn') ||
+                                target.closest('#mobile-close-details');
+      if (!isClickOnDetails) {
+        mobileDetails.classList.add('hidden');
+        gridContainer.classList.remove('hidden');
+      }
+      return;
+    }
+  }
+
   // 检查是否点击在项目区块上
   const isClickOnBlock = target.closest('.absolute.flex.bg-gray-700');
-  
+
   // 检查是否点击在详情区域内
     const isClickOnDetails = target.closest('#projectDetails') ||
                               target.closest('#detail-avatar') ||
@@ -94,19 +161,21 @@ function handleOutsideClick(event: MouseEvent) {
                             target.closest('#cancel-update')
      const isClickOnInvite = target.closest('#invite-modal')
      const isClickOnPopup = target.closest('.fixed.inset-0.z-\\[9999\\]')
-     // 如果点击在项目区块或详情区域内，不执行返回操作
-     if (isClickOnBlock || isClickOnDetails ||isClickOnLogin|| isClickOnUpdate || isClickOnInvite || isClickOnPopup || projectDetails.classList.contains('hidden')) {
-     return;
-   }
-  
-  // 执行返回操作
+       // 如果点击在项目区块或详情区域内，不执行返回操作
+      if (isClickOnBlock || isClickOnDetails ||isClickOnLogin|| isClickOnUpdate || isClickOnInvite || isClickOnPopup || projectDetails.classList.contains('hidden')) {
+      return;
+    }
+
+  // 执行返回操作（仅桌面端）
   blocks.forEach((block, index) => {
-    const row = Math.floor(index / GRID_SIZE);
-    const col = index % GRID_SIZE;
+    const blockSize = isMobile() ? GRID_SIZE_MOBILE : GRID_SIZE;
+    const row = Math.floor(index / blockSize);
+    const col = index % blockSize;
     block.position = [row, col];
   });
   // 更新容器高度
-  const rows = Math.ceil(blocks.length / GRID_SIZE);
+  const blockSize = isMobile() ? GRID_SIZE_MOBILE : GRID_SIZE;
+  const rows = Math.ceil(blocks.length / blockSize);
   const needsScroll = rows * (window.innerHeight * 0.25) > window.innerHeight * 0.9;
   gridContainer.style.height = needsScroll ? `${rows * (window.innerHeight * 0.25)}px` : '90vh';
   // 根据需要启用/禁用y轴滚动
@@ -121,17 +190,27 @@ function handleOutsideClick(event: MouseEvent) {
 document.addEventListener('click', handleOutsideClick);
 
 // --- 辅助函数 ---
+// 检测是否为手机端
+function isMobile() {
+  return window.innerWidth < 768;
+}
+
 // 将网格坐标转换为像素坐标
 function gridToPixel(position:any) {
   const [row, col] = position;
   const containerWidth = gridContainer.clientWidth;
-  const blockWidth = containerWidth * 0.28;
-  const blockHeight = window.innerHeight * 0.25;
-  const gridTotalWidth = (GRID_SIZE * blockWidth) + ((GRID_SIZE - 1) * GAP);
-  const offsetX = Math.max(0, (containerWidth - gridTotalWidth) / 2 * 0.7);
+  const mobile = isMobile();
+  const blockSize = mobile ? GRID_SIZE_MOBILE : GRID_SIZE;
+  const gap = mobile ? GAP_MOBILE : GAP;
+  
+  const blockWidth = mobile ? containerWidth * 0.92 : containerWidth * 0.28;
+  const blockHeight = mobile ? window.innerHeight * 0.2 : window.innerHeight * 0.25;
+  const gridTotalWidth = mobile ? blockWidth : (blockSize * blockWidth) + ((blockSize - 1) * gap);
+  const offsetX = mobile ? (containerWidth - blockWidth) / 2 : Math.max(0, (containerWidth - gridTotalWidth) / 2 * 0.7);
+  
   return {
-    x: offsetX + col * (blockWidth + GAP),
-    y: row * (blockHeight + GAP),
+    x: offsetX + col * (blockWidth + gap),
+    y: row * (blockHeight + gap),
   };
 }
 
@@ -139,43 +218,78 @@ function gridToPixel(position:any) {
 async function renderBlock(block:any) {
   const payload = parseJwt(token);
   const currentUserId = payload ? payload.user_id || payload.id : null;
+  const mobile = isMobile();
+  
   if (!block.element) {
     // 首次创建元素
     const originAvatar = block.project.project_avatar
     const compressedAvatar = await compressImage(block.project.project_avatar || '', 120, 0.4);
     block.element = document.createElement('div');
     //oldColor:bg-[#1B1E1F]
-    block.element.className = `absolute flex bg-white/5 shadow-sm shadow-white/40 border border-white/10 rounded-md shadow-lg p-2 transition-all ease-in-out cursor-pointer pointer-events-auto grid grid-cols-2`;
-    block.element.style.width = '28%';
-    block.element.style.height = '22vh';
+    block.element.className = `absolute flex ${mobile ? 'flex-col items-center' : 'bg-white/5 shadow-sm shadow-white/40 border border-white/10 rounded-md shadow-lg p-2'} grid grid-cols-2 transition-all ease-in-out cursor-pointer pointer-events-auto`;
+    block.element.style.width = mobile ? '92%' : '28%';
+    block.element.style.height = mobile ? '22vh' : '22vh';
     // block.element.style.aspectRatio = "3/1"
     block.element.style.transitionDuration = `${ANIMATION_DURATION}ms`;
-    block.element.innerHTML = `
-        <img src="${originAvatar}" class="w-3/4 p-1 rounded-lg object-cover rounded" 
-             onerror="this.src='${defaultImg}'; this.style.display='block'; this.style.objectFit='cover';" style="aspect-ratio:1/1;">
-        <div class = "flex flex-col mt-2 h-full">
-          <div>
-            <h3 class="text-white text-sm font-bold break-words line-clamp-1">${block.project.project_name}</h3>
-            <p class="text-gray-300 text-xs break-words line-clamp-3 mt-1">${block.project.project_description}</p>
-          </div>
-          <div class="flex-grow"></div> <!-- Spacer to push dates and button to bottom -->
-          <div class="flex flex-col justify-end pb-2"> <!-- Container for dates and button -->
-            <div class="mb-2"> <!-- Dates container -->
-              <p class="text-gray-400 text-xs">${i18n.t('common.created')}${block.project.create_at}</p>
-              <p class="text-gray-400 text-xs">${i18n.t('common.updated')}${block.project.update_at}</p>
+    
+    if (mobile) {
+      // 手机端布局（与桌面端相同）
+      block.element.className = `absolute flex bg-white/5 shadow-sm shadow-white/40 border border-white/10 rounded-md shadow-lg p-2 transition-all ease-in-out cursor-pointer pointer-events-auto`;
+      block.element.innerHTML = `
+          <img src="${originAvatar}" class="w-3/4 p-1 rounded-lg object-cover rounded"
+               onerror="this.src='${defaultImg}'; this.style.display='block'; this.style.objectFit='cover';" style="aspect-ratio:1/1;">
+          <div class = "flex flex-col mt-2 h-full">
+            <div>
+              <h3 class="text-white text-sm font-bold break-words line-clamp-1">${block.project.project_name}</h3>
+              <p class="text-gray-300 text-xs break-words line-clamp-3 mt-1">${block.project.project_description}</p>
             </div>
-            <div class="flex justify-end items-center"> <!-- Button container -->
-               ${block.project.user_id !== currentUserId ? '<div class="w-2 h-2 bg-[#46A3FF] rounded-full mr-2"></div>' : ''}
-               <button id="update-btn-${block.id}" class="w-6 h-6 border border-white/50 rounded flex items-center justify-center transition-colors">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                </svg>
-              </button>
+            <div class="flex-grow"></div>
+            <div class="flex flex-col justify-end pb-2">
+              <div class="mb-2">
+                <p class="text-gray-400 text-xs">${i18n.t('common.created')}${block.project.create_at}</p>
+                <p class="text-gray-400 text-xs">${i18n.t('common.updated')}${block.project.update_at}</p>
+              </div>
+              <div class="flex justify-end items-center">
+                 ${block.project.user_id !== currentUserId ? '<div class="w-2 h-2 bg-[#46A3FF] rounded-full mr-2"></div>' : ''}
+                 <button id="update-btn-${block.id}" class="w-6 h-6 border border-white/50 rounded flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </button>
+              </div>
             </div>
-          </div>
-      </div>
-    `;
+        </div>
+      `;
+    } else {
+      // 桌面端布局
+      block.element.innerHTML = `
+          <img src="${originAvatar}" class="w-3/4 p-1 rounded-lg object-cover rounded" 
+               onerror="this.src='${defaultImg}'; this.style.display='block'; this.style.objectFit='cover';" style="aspect-ratio:1/1;">
+          <div class = "flex flex-col mt-2 h-full">
+            <div>
+              <h3 class="text-white text-sm font-bold break-words line-clamp-1">${block.project.project_name}</h3>
+              <p class="text-gray-300 text-xs break-words line-clamp-3 mt-1">${block.project.project_description}</p>
+            </div>
+            <div class="flex-grow"></div> <!-- Spacer to push dates and button to bottom -->
+            <div class="flex flex-col justify-end pb-2"> <!-- Container for dates and button -->
+              <div class="mb-2"> <!-- Dates container -->
+                <p class="text-gray-400 text-xs">${i18n.t('common.created')}${block.project.create_at}</p>
+                <p class="text-gray-400 text-xs">${i18n.t('common.updated')}${block.project.update_at}</p>
+              </div>
+              <div class="flex justify-end items-center"> <!-- Button container -->
+                 ${block.project.user_id !== currentUserId ? '<div class="w-2 h-2 bg-[#46A3FF] rounded-full mr-2"></div>' : ''}
+                 <button id="update-btn-${block.id}" class="w-6 h-6 border border-white/50 rounded flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+        </div>
+      `;
+    }
     block.element.addEventListener('click', (event: MouseEvent) => {
   event.stopPropagation();
   console.log('点击区块:', block.id);
@@ -184,12 +298,14 @@ async function renderBlock(block:any) {
   selectBlock(block.id);
 });
 
-    // 添加更新按钮事件
+    // 添加更新按钮事件（桌面端和手机端）
     const updateBtn = block.element.querySelector(`#update-btn-${block.id}`) as HTMLButtonElement;
-    updateBtn.addEventListener('click', (event: MouseEvent) => {
-      event.stopPropagation();
-      showUpdateModal(block);
-    });
+    if (updateBtn) {
+      updateBtn.addEventListener('click', (event: MouseEvent) => {
+        event.stopPropagation();
+        showUpdateModal(block);
+      });
+    }
 
 // 确保元素可以接收点击事件
 block.element.style.pointerEvents = 'auto';
@@ -230,10 +346,13 @@ async function initializeBlocks() {
     return;
   }
 
+  const mobile = isMobile();
+  const blockSize = mobile ? GRID_SIZE_MOBILE : GRID_SIZE;
+
   // 创建blocks
   for (let i = 0; i < projectsData.length; i++) {
-    const row = Math.floor(i / GRID_SIZE);
-    const col = i % GRID_SIZE;
+    const row = Math.floor(i / blockSize);
+    const col = i % blockSize;
     const block = {
       id: projectsData[i].project_id,
       position: [row, col],
@@ -245,7 +364,7 @@ async function initializeBlocks() {
   }
 
   // 设置容器高度
-  const rows = Math.ceil(projectsData.length / GRID_SIZE);
+  const rows = Math.ceil(projectsData.length / blockSize);
   // gridContainer.style.height = `${rows * (window.innerHeight * 0.25)}px`;
     gridContainer.style.height = '90vh';
 }
@@ -254,6 +373,7 @@ async function initializeBlocks() {
 function selectBlock(selectedId:number) {
   const selected = blocks.find(b => b.id === selectedId);
   if (!selected) return;
+  const mobile = isMobile();
   const userId = selected.project.user_id
   if (!userId) {
     return;
@@ -266,7 +386,14 @@ function selectBlock(selectedId:number) {
   const projectId = selected.project.project_id;
   const payload = parseJwt(token);
   const currentUserId = payload ? payload.user_id || payload.id : null;
-  // const sqlUrl = `http://localhost:8080/${userId}/${projectId}`;
+  
+  // 手机端：隐藏项目列表，显示全屏详情窗口
+  if (mobile) {
+    showMobileDetails(selected, userId, projectId, currentUserId);
+    return;
+  }
+  
+  // 桌面端：原来的逻辑（3列布局变成1列布局）
   // 移除所有项目的边框
   blocks.forEach(block => {
     if (block.element) {
@@ -274,9 +401,6 @@ function selectBlock(selectedId:number) {
     }
   });
 
-  // 移除选中项目的边框
-  // selected.element.style.border = '2px solid white';
-// selected.element.
   // 重新排列：selected to [0,0], others in order to [1,0], [2,0], etc.
   const others = blocks.filter(b => b.id !== selectedId);
   selected.position = [0, 0];
@@ -286,11 +410,9 @@ function selectBlock(selectedId:number) {
 
   // 更新容器高度
   const maxRow = Math.max(...blocks.map(b => b.position[0]));
-  // gridContainer.style.height = `${(maxRow + 1) * (window.innerHeight * 0.25)}px`;
   gridContainer.style.height = '90vh';
   // 启用y轴滚动
   gridContainer.style.overflowY = 'auto';
-  // gridContainer.style.border = '2px solid white'---------------------------这个容器是id='app'下的容器
 
   // 显示详情
   const detailAvatar = projectDetails.querySelector('#detail-avatar') as HTMLImageElement;
@@ -302,9 +424,6 @@ function selectBlock(selectedId:number) {
     detailAvatar.onerror = function() {
       this.src =defaultImg;
     };
-    // compressImage(selected.project.project_avatar || '', 300, 0.6).then(compressedSrc => {
-    //   detailAvatar.src = compressedSrc;
-    // });
     detailName.textContent = selected.project.project_name;
     detailDescription.textContent = selected.project.project_description;
     const projectSizeElement = projectDetails.querySelector('#project-size') as HTMLElement;
@@ -321,9 +440,9 @@ function selectBlock(selectedId:number) {
     initializeDatabaseView(URL,projectId)
      }
    // 添加开始事件
-   const startBtn = projectDetails.querySelector('#start-btn') as HTMLButtonElement;
-   if (startBtn) {
-     startBtn.onclick = () => {
+   const desktopStartBtn = projectDetails.querySelector('#start-btn') as HTMLButtonElement;
+   if (desktopStartBtn) {
+     desktopStartBtn.onclick = () => {
        // 显示开始模态窗口
        const startModal = document.getElementById('start-modal') as HTMLDivElement;
        if (startModal) {
@@ -336,25 +455,25 @@ function selectBlock(selectedId:number) {
     }
 
     // 添加下载事件
-    const downloadBtn = projectDetails.querySelector('#download-btn') as HTMLButtonElement;
-    if (downloadBtn) {
-      downloadBtn.onclick = async () => {
+    const desktopDownloadBtn = projectDetails.querySelector('#download-btn') as HTMLButtonElement;
+    if (desktopDownloadBtn) {
+      desktopDownloadBtn.onclick = async () => {
         if (!token) return;
         await projects.downloadProject(selectedId, token);
       };
     }
 
      // 添加邀请事件
-     const inviteBtn = projectDetails.querySelector('#invite-btn') as HTMLButtonElement;
-     if (inviteBtn) {
-       inviteBtn.onclick = async () => {
+     const desktopInviteBtn = projectDetails.querySelector('#invite-btn') as HTMLButtonElement;
+     if (desktopInviteBtn) {
+       desktopInviteBtn.onclick = async () => {
          if (selected.project.user_id !== currentUserId) {
            await popBlocks.popupConfirm("你不是当前项目的创建者");
            return;
          }
 
          setBaseUrl();
-         const projectUrl = `${theURL}/${userId}/${projectId}`;
+const projectUrl = theURL + '/' + userId + '/' + projectId;
          // console.log(projectUrl)
          setBaseUrl(projectUrl);
 
@@ -392,7 +511,7 @@ function selectBlock(selectedId:number) {
         if(app) app.appendChild(inviteModal);
 
         // 定位到按钮正下方
-        const rect = inviteBtn.getBoundingClientRect();
+        const rect = desktopInviteBtn.getBoundingClientRect();
         inviteModal.style.top = `${rect.bottom + 10}px`;
         inviteModal.style.left = `${rect.left -200 }px`;
 
@@ -497,45 +616,110 @@ function selectBlock(selectedId:number) {
   blocks.forEach(renderBlock);
 }
 
-async function initializeDatabaseView(hubUrl:string,projectId:number) {
-  // const textarea = document.getElementById('hub-ER') as HTMLTextAreaElement | null;
-  // if (textarea) {
-    let initialSQL = `CREATE TABLE users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  password_hash TEXT NOT NULL,
-  email TEXT NOT NULL UNIQUE,
-  avatar TEXT,
-  create_at TEXT NOT NULL,
-  update_at TEXT NOT NULL
-);
+// 显示手机端详情窗口
+function showMobileDetails(selected: any, userId: string, projectId: number, currentUserId: any) {
+  const mobileDetails = document.getElementById('mobileProjectDetails');
+  if (!mobileDetails) return;
 
-`;
-    
-    try {
-      if(token){
-      const tableStatements = await sql.hubLastestSql(hubUrl,projectId);
-      if (tableStatements) {
-        initialSQL += tableStatements + '\n';
-      }
-      }
-    } catch (error) {
-       console.warn("Failed to get table data, using default SQL:", error);
-    }
-    
-    // textarea.value = initialSQL;
+  // 隐藏项目列表，显示详情窗口
+  gridContainer.classList.add('hidden');
+  mobileDetails.classList.remove('hidden');
+  mobileDetails.classList.add('flex');
 
-    try {
-      const ast = sqliteParser(initialSQL);
-      const tables = gojsER.extract(ast);
-      console.log("提取的表结构:", tables);
-      requestAnimationFrame(() => { 
-        gojsER.drawER(tables, 'mount');
-      });
-    } catch (error) {
-       console.error("Initial SQL parsing error:", error);
-    }
-  // }
+  // 填充数据
+  const mobileDetailAvatar = mobileDetails.querySelector('#mobile-detail-avatar') as HTMLImageElement;
+  const mobileDetailName = mobileDetails.querySelector('#mobile-detail-name') as HTMLElement;
+  const mobileDetailDescription = mobileDetails.querySelector('#mobile-detail-description') as HTMLElement;
+  const mobileProjectSize = mobileDetails.querySelector('#mobile-project-size') as HTMLElement;
+
+  if (mobileDetailAvatar) {
+    mobileDetailAvatar.src = selected.project.project_avatar || defaultImg;
+    mobileDetailAvatar.onerror = function() {
+      this.src = defaultImg;
+    };
+  }
+  if (mobileDetailName) {
+    mobileDetailName.textContent = selected.project.project_name;
+  }
+  if (mobileDetailDescription) {
+    mobileDetailDescription.textContent = selected.project.project_description;
+  }
+  if (mobileProjectSize) {
+    const size = selected.project.project_size;
+    mobileProjectSize.textContent = `${size} Mb`;
+    let bgColor = '';
+    if (size < 50) bgColor = 'bg-green-500';
+    else if (size < 80) bgColor = 'bg-yellow-500';
+    else if (size < 100) bgColor = 'bg-orange-500';
+    else bgColor = 'bg-red-500';
+    mobileProjectSize.className = `px-3 py-1 border border-white/50 rounded-full text-white text-sm font-bold ${bgColor}`;
+  }
+
+  // 初始化数据库视图
+  initializeDatabaseView(URL, projectId);
+
+  // 绑定关闭按钮（返回项目列表）
+  const closeBtn = mobileDetails.querySelector('#mobile-close-details') as HTMLButtonElement;
+  if (closeBtn) {
+    closeBtn.onclick = () => {
+      mobileDetails.classList.add('hidden');
+      mobileDetails.classList.remove('flex');
+      gridContainer.classList.remove('hidden');
+    };
+  }
+
+  // 绑定其他按钮
+  const mobileStartBtn = mobileDetails.querySelector('#mobile-start-btn') as HTMLButtonElement;
+  if (mobileStartBtn) {
+    mobileStartBtn.onclick = () => {
+      const startModal = document.getElementById('start-modal') as HTMLDivElement;
+      if (startModal) {
+        startModal.classList.remove('hidden');
+        startModal.classList.add('flex');
+        initializeStartModal(userId, projectId);
+      }
+    };
+  }
+
+  const mobileDownloadBtn = mobileDetails.querySelector('#mobile-download-btn') as HTMLButtonElement;
+  if (mobileDownloadBtn) {
+    mobileDownloadBtn.onclick = async () => {
+      if (!token) return;
+      await projects.downloadProject(selected.id, token);
+    };
+  }
+
+  const mobileInviteBtn = mobileDetails.querySelector('#mobile-invite-btn') as HTMLButtonElement;
+  if (mobileInviteBtn) {
+    mobileInviteBtn.onclick = async () => {
+      await popBlocks.popupConfirm("手机端暂不支持邀请功能");
+    };
+  }
+
+  const mobileDeleteBtn = mobileDetails.querySelector('#mobile-delete-btn') as HTMLButtonElement;
+  if (mobileDeleteBtn) {
+    mobileDeleteBtn.onclick = async () => {
+      if (!token) return;
+      if (selected.project.user_id !== currentUserId) {
+        await popBlocks.popupConfirm("你不是当前项目的创建者");
+        return;
+      }
+
+      const confirm = await popBlocks.popupConfirm("Are you sure to delete the project?")
+      if(confirm){
+        await projects.deleteProject(selected.id, token);
+      }
+      else{
+        return;
+      }
+
+      blocks = blocks.filter(b => b.id !== selected.id);
+      mobileDetails.classList.add('hidden');
+      mobileDetails.classList.remove('flex');
+      gridContainer.classList.remove('hidden');
+      await initializeBlocks();
+    };
+  }
 }
 
 // 更新项目详情文本的函数
@@ -562,7 +746,7 @@ async function initializeStartModal(userId: string, projectId: number) {
     return;
   }
 
-    const projectUrl = `${theURL}/${userId}/${projectId}`;
+const projectUrl = theURL + '/' + userId + '/' + projectId;
     setBaseUrl(projectUrl);
 
   // 检查是否为空数据库
@@ -630,6 +814,77 @@ async function initializeStartModal(userId: string, projectId: number) {
   };
 }
 
+// --- 数据库视图初始化 ---
+async function initializeDatabaseView(baseUrl: string, projectId: number) {
+  let initialSQL = `CREATE TABLE users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  password_hash TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  avatar TEXT,
+  create_at TEXT NOT NULL,
+  update_at TEXT NOT NULL
+);
+
+`;
+
+  let hasExistingContent = false;
+  try {
+    const tableStatements = await sql.lastestSql();
+    const sqlSendBtn = document.getElementById('sql-send') as HTMLButtonElement;
+    if (tableStatements) {
+      initialSQL += tableStatements + '\n';
+      hasExistingContent = true;
+      if (sqlSendBtn) {
+        sqlSendBtn.disabled = true;
+        sqlSendBtn.style.opacity = '0.5';
+      }
+    } else {
+      if (sqlSendBtn) {
+        sqlSendBtn.disabled = false;
+        sqlSendBtn.style.opacity = '1';
+      }
+    }
+  } catch (error) {
+    console.warn("获取表数据失败，使用默认SQL:", error);
+    const sqlSendBtn = document.getElementById('sql-send') as HTMLButtonElement;
+    if (sqlSendBtn) {
+      sqlSendBtn.disabled = false;
+      sqlSendBtn.style.opacity = '1';
+    }
+  }
+
+  const { initSqlEditor, setSqlValue } = await import('../modules/sqlEditor');
+
+  const mountId = isMobile() ? 'mobile-mount' : 'mount';
+  
+  initSqlEditor(hasExistingContent, initialSQL.length, initialSQL, "sql-input-wrapper", async (sqlValue) => {
+    const sqlNotice = document.getElementById('sql-notice') as HTMLElement;
+    try {
+      const ast = sqliteParser(sqlValue);
+      const tables = gojsER.extract(ast);
+      requestAnimationFrame(() => {
+        gojsER.drawER(tables, mountId);
+      });
+    } catch (e) {
+      console.error("SQL解析错误:", e);
+      if (e instanceof Error && e.message) {
+        console.error(e.message);
+      }
+    }
+  });
+
+  try {
+    const ast = sqliteParser(initialSQL);
+    const tables = gojsER.extract(ast);
+    requestAnimationFrame(() => {
+      gojsER.drawER(tables, mountId);
+    });
+  } catch (e) {
+    console.error("初始SQL解析错误:", e);
+  }
+}
+
 // --- 更新项目模态窗口逻辑 ---
 async function showUpdateModal(block: any) {
   const updateModal = document.getElementById('update-modal') as HTMLDivElement;
@@ -640,16 +895,13 @@ async function showUpdateModal(block: any) {
   const form = updateModal.querySelector('#update-project-form') as HTMLFormElement;
   const cancelBtn = updateModal.querySelector('#cancel-update') as HTMLButtonElement;
 
-  // 填充数据
   previewName.value = block.project.project_name;
   previewDescription.value = block.project.project_description;
   previewAvatar.src = block.project.project_avatar || defaultImg;
 
-  // 显示modal
   updateModal.classList.remove('hidden');
   updateModal.classList.add('flex');
 
-  // 点击外部关闭
   updateModal.onclick = (e) => {
     if (e.target === updateModal) {
       updateModal.classList.add('hidden');
@@ -657,7 +909,6 @@ async function showUpdateModal(block: any) {
     }
   };
 
-  // 图片上传
   previewAvatar.onclick = () => avatarInput.click();
   avatarInput.onchange = (e) => {
     const file = (e.target as HTMLInputElement).files?.[0];
@@ -666,13 +917,11 @@ async function showUpdateModal(block: any) {
     }
   };
 
-  // 取消
   cancelBtn.onclick = () => {
     updateModal.classList.add('hidden');
     updateModal.classList.remove('flex');
   };
 
-  // 表单提交
   form.onsubmit = async (e) => {
     e.preventDefault();
     const name = previewName.value || block.project.project_name || 'My Project';
@@ -686,7 +935,6 @@ async function showUpdateModal(block: any) {
     await projects.updateProject(block.id, data, token);
     updateModal.classList.add('hidden');
     updateModal.classList.remove('flex');
-    // 重新加载页面以更新
     location.reload();
   };
 }

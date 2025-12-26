@@ -76,24 +76,23 @@
 
   <!-- 创建项目模态窗口 -->
   <div id="create-modal"
-    class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 transition-opacity duration-300">
-    <div class="bg-[#1B1E1F] p-3 rounded-lg shadow-lg w-[35%] transform transition-transform duration-300 scale-95"
-      style="aspect-ratio:3/2">
-      <h2 class="text-2xl font-bold mb-4" data-i18n="projects.create.title">Create New Project</h2>
+    class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 transition-opacity duration-300 p-4">
+    <div class="bg-[#1B1E1F] p-3 rounded-lg shadow-lg w-full max-w-md sm:w-[35%] transform transition-transform duration-300 scale-95">
+      <h2 class="text-xl sm:text-2xl font-bold mb-4" data-i18n="projects.create.title">Create New Project</h2>
       <!-- 预览区域 -->
-      <div id="preview" class="w-full h-[70%] mb-4 p-3 bg-[#2B2F31] rounded-lg">
-        <div class="flex items-start h-full">
-          <div class="flex w-2/5 flex-col items-center mr-6">
-            <img id="preview-avatar" class="w-[100%] bg-white object-cover cursor-pointer rounded"
-              style="aspect-ratio:1/1" onerror="this.src='../icons/projectsDefault.jpg'">
+      <div id="preview" class="w-full h-[60%] sm:h-[70%] mb-4 p-3 bg-[#2B2F31] rounded-lg">
+        <div class="flex flex-col sm:flex-row items-start h-full gap-3 sm:gap-0">
+          <div class="flex w-full sm:w-2/5 flex-col items-center sm:mr-6">
+            <img id="preview-avatar" class="w-24 h-24 sm:w-[100%] bg-white object-cover cursor-pointer rounded"
+              onerror="this.src='../icons/projectsDefault.jpg'">
             <p class="text-gray-400 text-xs mt-2">点击上传图片</p>
           </div>
-          <div class="flex w-3/5 flex-col h-full">
+          <div class="flex w-full sm:w-3/5 flex-col h-full">
             <input id="preview-name"
-              class="text-[1rem] font-bold break-words bg-transparent border-none outline-none text-white mb-2"
+              class="text-lg sm:text-[1rem] font-bold break-words bg-transparent border-none outline-none text-white mb-2"
               placeholder="项目名称" maxlength="20">
             <textarea id="preview-description"
-              class="flex-1 bg-transparent border-none outline-none text-white resize-none" placeholder="项目描述"
+              class="flex-1 bg-transparent border-none outline-none text-white resize-none text-sm sm:text-base" placeholder="项目描述"
               maxlength="200"></textarea>
           </div>
         </div>
@@ -101,10 +100,10 @@
       <form id="create-project-form">
         <input type="file" id="project-avatar" accept="image/*" class="hidden">
         <div class="flex space-x-4">
-          <button type="submit" class="flex-1 border border-white/50 text-white font-bold py-2 px-4 rounded"
+          <button type="submit" class="flex-1 border border-white/50 text-white font-bold py-2 px-4 rounded text-sm sm:text-base"
             data-i18n="projects.create.button">Create</button>
           <button type="button" id="cancel-create"
-            class="flex-1 border border-white/50 text-white font-bold py-2 px-4 rounded"
+            class="flex-1 border border-white/50 text-white font-bold py-2 px-4 rounded text-sm sm:text-base"
             data-i18n="projects.create.cancel">Cancel</button>
         </div>
       </form>
@@ -113,10 +112,10 @@
 
   <!-- 开始项目模态窗口 -->
   <div id="start-modal"
-    class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 transition-opacity duration-300">
+    class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 transition-opacity duration-300 p-4">
     <div
-      class="bg-[#181A1B] p-8 rounded-lg shadow-lg w-full max-w-md transform transition-transform duration-300 scale-95">
-      <h2 class="text-2xl font-bold mb-6 text-center" data-i18n="projects.start.title">Start Project</h2>
+      class="bg-[#181A1B] p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-md transform transition-transform duration-300 scale-95">
+      <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center" data-i18n="projects.start.title">Start Project</h2>
 
       <!-- 登录/注册表单 -->
       <form id="start-form" class="space-y-4">
@@ -124,24 +123,24 @@
           <label class="block mb-1 text-sm" data-i18n="projects.start.username.label">Username</label>
           <input required id="start-username" type="text" placeholder="Enter username"
             data-i18n="projects.start.username.placeholder"
-            class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
+            class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none text-sm" />
         </div>
         <div>
           <label class="block mb-1 text-sm" data-i18n="projects.start.password.label">Password</label>
           <input required id="start-password" type="password" placeholder="Enter password"
             data-i18n="projects.start.password.placeholder"
-            class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
+            class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none text-sm" />
         </div>
         <div id="start-email-field">
           <label class="block mb-1 text-sm" data-i18n="projects.start.email.label">Email</label>
           <input required id="start-email" type="email" placeholder="Enter email"
             data-i18n="projects.start.email.placeholder"
-            class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none" />
+            class="w-full px-3 py-2 rounded bg-[#2B2F31] border border-[#2B2F31] focus:border-[#4a4f52] focus:outline-none text-sm" />
         </div>
         <!-- 隐藏的注册输入 -->
         <input type="hidden" id="start-hidden-username">
         <input type="hidden" id="start-hidden-password">
-        <button type="submit" class="w-full py-2 mt-2 rounded bg-[#2B2F31] hover:bg-[#3a3f41] transition-colors"
+        <button type="submit" class="w-full py-2 mt-2 rounded bg-[#2B2F31] hover:bg-[#3a3f41] transition-colors text-sm sm:text-base"
           data-i18n="projects.start.login.button">
           Login
         </button>
@@ -151,25 +150,24 @@
 
   <!-- 更新项目模态窗口 -->
   <div id="update-modal"
-    class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 transition-opacity duration-300">
-    <div class="bg-[#1B1E1F] p-3 rounded-lg shadow-lg w-[35%] transform transition-transform duration-300 scale-95"
-      style="aspect-ratio:3/2">
+    class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 transition-opacity duration-300 p-4">
+    <div class="bg-[#1B1E1F] p-3 rounded-lg shadow-lg w-full max-w-md sm:w-[35%] transform transition-transform duration-300 scale-95">
 
-      <h2 class="text-2xl font-bold mb-4" data-i18n="projects.update.title">Update Project</h2>
+      <h2 class="text-xl sm:text-2xl font-bold mb-4" data-i18n="projects.update.title">Update Project</h2>
       <!-- 预览区域 -->
-      <div id="update-preview" class="w-full h-[70%] mb-4 p-3 bg-[#2B2F31] rounded-lg">
-        <div class="flex items-start h-full">
-          <div class="flex w-2/5 flex-col items-center mr-6">
-            <img id="update-preview-avatar" class="w-[100%] bg-white object-cover  cursor-pointer rounded"
-              style="aspect-ratio:1/1">
+      <div id="update-preview" class="w-full h-[60%] sm:h-[70%] mb-4 p-3 bg-[#2B2F31] rounded-lg">
+        <div class="flex flex-col sm:flex-row items-start h-full gap-3 sm:gap-0">
+          <div class="flex w-full sm:w-2/5 flex-col items-center sm:mr-6">
+            <img id="update-preview-avatar" class="w-24 h-24 sm:w-[100%] bg-white object-cover cursor-pointer rounded"
+              onerror="this.src='../icons/projectsDefault.jpg'">
             <p class="text-gray-400 text-xs mt-2">点击上传图片</p>
           </div>
-          <div class="flex w-3/5 flex-col h-full">
+          <div class="flex w-full sm:w-3/5 flex-col h-full">
             <input id="update-preview-name"
-              class="text-xl font-bold break-words bg-transparent border-none outline-none text-white mb-2"
+              class="text-lg sm:text-xl font-bold break-words bg-transparent border-none outline-none text-white mb-2"
               placeholder="项目名称" maxlength="20">
             <textarea id="update-preview-description"
-              class="flex-1 bg-transparent border-none outline-none text-white resize-none" placeholder="项目描述"
+              class="flex-1 bg-transparent border-none outline-none text-white resize-none text-sm sm:text-base" placeholder="项目描述"
               maxlength="200"></textarea>
           </div>
         </div>
@@ -177,10 +175,10 @@
       <form id="update-project-form">
         <input type="file" id="update-project-avatar" accept="image/*" class="hidden">
         <div class="flex space-x-4">
-          <button type="submit" class="flex-1 border border-white/50 text-white font-bold py-2 px-4 rounded"
+          <button type="submit" class="flex-1 border border-white/50 text-white font-bold py-2 px-4 rounded text-sm sm:text-base"
             data-i18n="projects.update.button">Update</button>
           <button type="button" id="cancel-update"
-            class="flex-1 border border-white/50 text-white font-bold py-2 px-4 rounded"
+            class="flex-1 border border-white/50 text-white font-bold py-2 px-4 rounded text-sm sm:text-base"
             data-i18n="projects.update.cancel">Cancel</button>
         </div>
       </form>

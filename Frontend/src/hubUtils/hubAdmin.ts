@@ -20,27 +20,28 @@ let maxRam = 0;
  */
 function initCpuChart() {
     const container = document.getElementById('cpuChart')!;
+    const isMobile = window.innerWidth < 768;
     const opts: uPlot.Options = {
         width: container.clientWidth,
-        height: 160,
+        height: isMobile ? 120 : 160,
         series: [
             {}, // 时间轴
             {
                 label: "PID CPU (%)",
                 stroke: "#46A3FF",
-                width: 2,
+                width: isMobile ? 1 : 2,
                 fill: "rgba(70, 163, 255, 0.1)",
             },
             {
                 label: "OS CPU (%)",
                 stroke: "#10B981",
-                width: 2,
+                width: isMobile ? 1 : 2,
                 fill: "rgba(16, 185, 129, 0.1)",
             }
         ],
         axes: [
             { show: false },
-            { grid: { stroke: "#2D2D2D" }, font: "10px Arial", stroke: "#A0A0A0" }
+            { grid: { stroke: "#2D2D2D" }, font: isMobile ? "8px Arial" : "10px Arial", stroke: "#A0A0A0" }
         ],
         scales: {
             cpu: {
@@ -48,7 +49,7 @@ function initCpuChart() {
             }
         },
         cursor: { show: true, drag: { setScale: false } },
-        legend: { show: true }
+        legend: { show: !isMobile }
     };
 
     cpuChart = new uPlot(opts, dataStackCpu, container);
@@ -59,27 +60,28 @@ function initCpuChart() {
  */
 function initRamChart() {
     const container = document.getElementById('ramChart')!;
+    const isMobile = window.innerWidth < 768;
     const opts: uPlot.Options = {
         width: container.clientWidth,
-        height: 160,
+        height: isMobile ? 120 : 160,
         series: [
             {}, // 时间轴
             {
                 label: "RAM (MB)",
                 stroke: "#10B981",
-                width: 2,
+                width: isMobile ? 1 : 2,
                 fill: "rgba(16, 185, 129, 0.1)",
             },
             {
                 label: "OS Memory (MB)",
                 stroke: "#F59E0B",
-                width: 2,
+                width: isMobile ? 1 : 2,
                 fill: "rgba(245, 158, 11, 0.1)",
             }
         ],
         axes: [
             { show: false },
-            { grid: { stroke: "#2D2D2D" }, font: "10px Arial", stroke: "#A0A0A0", scale: 'ram' }
+            { grid: { stroke: "#2D2D2D" }, font: isMobile ? "8px Arial" : "10px Arial", stroke: "#A0A0A0", scale: 'ram' }
         ],
         scales: {
             ram: {
@@ -87,7 +89,7 @@ function initRamChart() {
             }
         },
         cursor: { show: true, drag: { setScale: false } },
-        legend: { show: true }
+        legend: { show: !isMobile }
     };
 
     ramChart = new uPlot(opts, dataStackRam, container);
@@ -200,7 +202,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     refreshBtn.addEventListener('click', loadUsers);
     window.addEventListener("resize", () => {
-        cpuChart.setSize({ width: document.getElementById('cpuChart')!.clientWidth, height: 160 });
-        ramChart.setSize({ width: document.getElementById('ramChart')!.clientWidth, height: 160 });
+        const isMobile = window.innerWidth < 768;
+        const chartHeight = isMobile ? 120 : 160;
+        cpuChart.setSize({ width: document.getElementById('cpuChart')!.clientWidth, height: chartHeight });
+        ramChart.setSize({ width: document.getElementById('ramChart')!.clientWidth, height: chartHeight });
     });
 });

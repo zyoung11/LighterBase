@@ -38,47 +38,53 @@
 
 <body class="fouc-fix bg-[#121414] text-gray-200 h-screen overflow-hidden flex flex-col"
   style="background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 20px 20px;">
-  <main class="flex-1 p-8 max-w-6xl mx-auto w-full">
-    <div class=" grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      <div class="bg-[#1B1E1F] border border-white/10 rounded-xl p-4 shadow-2xl">
+  <main class="flex-1 p-4 sm:p-8 max-w-6xl mx-auto w-full overflow-y-auto">
+    <!-- Desktop: CPU and RAM side by side, Mobile: stacked vertically -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+      <!-- CPU Usage Block -->
+      <div class="bg-[#1B1E1F] border border-white/10 rounded-xl p-3 sm:p-4 shadow-2xl">
         <div class="flex justify-between items-center mb-2">
-          <h3 class="text-sm font-medium text-gray-400">CPU Usage</h3>
+          <h3 class="text-xs sm:text-sm font-medium text-gray-400">CPU Usage</h3>
           <span id="rtDisplay" class="text-xs text-[#46A3FF]">RT: --ms</span>
         </div>
         <div id="cpuChart" class="chart-container"></div>
       </div>
 
-      <div class="bg-[#1B1E1F] border border-white/10 rounded-xl p-4 shadow-2xl">
-        <div class="flex justify-between items-center mb-2">
-          <h3 class="text-sm font-medium text-gray-400">RAM Usage</h3>
-          <div class="text-center text-xs text-gray-400" id="osRamText">
-            OS Memory: -- / --
-          </div>
-          <div class="flex space-x-4 text-xs text-gray-400">
-            <span>Connections: <span id="connCount" class="text-white">--</span></span>
-            <span>Load Avg: <span id="loadAvg" class="text-green-400">--</span></span>
+      <!-- RAM Usage Block -->
+      <div class="bg-[#1B1E1F] border border-white/10 rounded-xl p-3 sm:p-4 shadow-2xl">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-1 sm:gap-0">
+          <h3 class="text-xs sm:text-sm font-medium text-gray-400">RAM Usage</h3>
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-4 text-xs text-gray-400">
+            <div class="text-center sm:text-left" id="osRamText">
+              OS Memory: -- / --
+            </div>
+            <div class="flex space-x-3 sm:space-x-4">
+              <span>Connections: <span id="connCount" class="text-white">--</span></span>
+              <span>Load Avg: <span id="loadAvg" class="text-green-400">--</span></span>
+            </div>
           </div>
         </div>
         <div id="ramChart" class="chart-container"></div>
       </div>
     </div>
 
+    <!-- User Management Block -->
     <div class="bg-[#1B1E1F] border border-white/10 rounded-xl overflow-hidden shadow-2xl">
-      <div class="p-6 border-b border-white/10 flex justify-between items-center">
-        <h2 class="text-xl font-semibold">User Management</h2>
+      <div class="p-3 sm:p-6 border-b border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+        <h2 class="text-lg sm:text-xl font-semibold">User Management</h2>
         <button id="refreshBtn"
-          class="px-4 py-2 bg-[#46A3FF] hover:bg-[#2E96FF] rounded-lg text-sm transition-colors">Refresh List</button>
+          class="px-3 py-1 sm:px-4 sm:py-2 bg-[#46A3FF] hover:bg-[#2E96FF] rounded-lg text-xs sm:text-sm transition-colors">Refresh List</button>
       </div>
 
       <div class="overflow-x-auto">
         <table class="w-full text-left">
-          <thead class="bg-white/5 text-gray-400 uppercase text-xs">
+          <thead class="bg-white/5 text-gray-400 uppercase text-[10px] sm:text-xs">
             <tr>
-              <th class="px-6 py-4">ID</th>
-              <th class="px-6 py-4">User</th>
-              <th class="px-6 py-4">Email</th>
-              <th class="px-6 py-4">Created At</th>
-              <th class="px-6 py-4 text-right">Actions</th>
+              <th class="px-3 py-3 sm:px-6 sm:py-4">ID</th>
+              <th class="px-3 py-3 sm:px-6 sm:py-4">User</th>
+              <th class="px-3 py-3 sm:px-6 sm:py-4">Email</th>
+              <th class="px-3 py-3 sm:px-6 sm:py-4">Created At</th>
+              <th class="px-3 py-3 sm:px-6 sm:py-4 text-right">Actions</th>
             </tr>
           </thead>
           <tbody id="userTableBody" class="divide-y divide-white/5"></tbody>

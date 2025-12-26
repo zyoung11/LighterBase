@@ -40,88 +40,148 @@ function createNavBar() {
   const currentUserId = payload ? payload.user_id || payload.id : null;
 
   const nav = document.createElement('nav');
-  nav.className = 'flex justify-between items-center px-6 py-[1vh] rounded-lg bg-[#181A1B]';
+  nav.className = 'relative flex justify-between items-center px-4 sm:px-6 py-[1vh] rounded-lg bg-[#181A1B]';
 
   // 左侧：Logo、Pricing、Docs
   const leftDiv = document.createElement('div');
-  leftDiv.className = 'flex items-center space-x-4';
+  leftDiv.className = 'flex items-center space-x-2 sm:space-x-4';
 
    const logoBtn = document.createElement('button');
    logoBtn.className = 'flex items-center space-x-2';
    logoBtn.onclick = () => window.location.href = '/';
   const logoImg = document.createElement('img');
   logoImg.src = logoIcon;
-  logoImg.className = 'w-[5vh] h-[5vh]';
+  logoImg.className = 'w-[4vh] h-[4vh] sm:w-[5vh] sm:h-[5vh]';
   logoImg.alt = 'Logo';
   const logoSpan = document.createElement('span');
-  logoSpan.className = 'text-[1.5rem] font-bold';
+  logoSpan.className = 'text-lg sm:text-[1.5rem] font-bold';
   logoSpan.textContent = 'LighterBase';
   logoBtn.appendChild(logoImg);
   logoBtn.appendChild(logoSpan);
   leftDiv.appendChild(logoBtn);
 
+  // 桌面端导航链接容器
+  const desktopNavDiv = document.createElement('div');
+  desktopNavDiv.className = 'hidden sm:flex items-center space-x-4';
+
  const pricingBtn = document.createElement('button');
     pricingBtn.id='pricing-link';
     pricingBtn.textContent = i18n.t('hub.navbar.pricing');
-    pricingBtn.className = 'bg-transparent text-white text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+    pricingBtn.className = 'bg-transparent text-white text-[1rem] sm:text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
     pricingBtn.onclick = () => window.location.href = '/pricing';
-   leftDiv.appendChild(pricingBtn);
+   desktopNavDiv.appendChild(pricingBtn);
 
     const docsBtn = document.createElement('button');
     docsBtn.id='docs-link';
     docsBtn.textContent = i18n.t('hub.navbar.docs');
-    docsBtn.className = 'bg-transparent text-white text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+    docsBtn.className = 'bg-transparent text-white text-[1rem] sm:text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
     docsBtn.onclick = () => window.location.href = '/docs';
-   leftDiv.appendChild(docsBtn);
+   desktopNavDiv.appendChild(docsBtn);
 
      const downloadBtn = document.createElement('button');
      downloadBtn.id='download-link';
      downloadBtn.textContent = i18n.t('hub.navbar.download');
-     downloadBtn.className = 'bg-transparent text-white text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+     downloadBtn.className = 'bg-transparent text-white text-[1rem] sm:text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
      downloadBtn.onclick = () => window.location.href = '/download';
-    leftDiv.appendChild(downloadBtn);
+    desktopNavDiv.appendChild(downloadBtn);
 
      const projectsBtn = document.createElement('button');
      projectsBtn.id='projects-link';
      projectsBtn.textContent = i18n.t('hub.navbar.projects');
-     projectsBtn.className = 'bg-transparent text-white text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+     projectsBtn.className = 'bg-transparent text-white text-[1rem] sm:text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
      projectsBtn.onclick = () => window.location.href = '/projects';
-    leftDiv.appendChild(projectsBtn);
+    desktopNavDiv.appendChild(projectsBtn);
 
       if (currentUserId === 1) {
         const adminBtn = document.createElement('button');
         adminBtn.id='admin-link';
         adminBtn.textContent = i18n.t('hub.navbar.admin');
-        adminBtn.className = 'bg-transparent text-white text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
+        adminBtn.className = 'bg-transparent text-white text-[1rem] sm:text-[1.2rem] border-none p-2 rounded-lg cursor-pointer font-semibold transition-transform duration-200 ease-in-out hover:scale-110';
         adminBtn.onclick = () => window.location.href = '/admin';
-        leftDiv.appendChild(adminBtn);
+        desktopNavDiv.appendChild(adminBtn);
       }
 
+  leftDiv.appendChild(desktopNavDiv);
+
+  // 手机端汉堡菜单按钮
+  const hamburgerBtn = document.createElement('button');
+  hamburgerBtn.id = 'hamburger-btn';
+  hamburgerBtn.className = 'sm:hidden flex flex-col justify-center items-center w-8 h-8 border border-white/30 rounded-lg cursor-pointer hover:bg-white/10';
+  hamburgerBtn.innerHTML = `
+    <span class="w-5 h-0.5 bg-white mb-1.5"></span>
+    <span class="w-5 h-0.5 bg-white mb-1.5"></span>
+    <span class="w-5 h-0.5 bg-white"></span>
+  `;
+  leftDiv.appendChild(hamburgerBtn);
+
+  // 手机端下拉菜单
+  const mobileMenu = document.createElement('div');
+  mobileMenu.id = 'mobile-menu';
+  mobileMenu.className = 'hidden sm:hidden absolute top-full left-0 right-0 bg-[#181A1B] border-t border-white/10 z-50';
+  mobileMenu.innerHTML = `
+    <div class="flex flex-col space-y-2 p-4">
+      <button id="mobile-pricing-link" class="text-white text-lg p-2 rounded-lg hover:bg-white/10 text-left">${i18n.t('hub.navbar.pricing')}</button>
+      <button id="mobile-docs-link" class="text-white text-lg p-2 rounded-lg hover:bg-white/10 text-left">${i18n.t('hub.navbar.docs')}</button>
+      <button id="mobile-download-link" class="text-white text-lg p-2 rounded-lg hover:bg-white/10 text-left">${i18n.t('hub.navbar.download')}</button>
+      <button id="mobile-projects-link" class="text-white text-lg p-2 rounded-lg hover:bg-white/10 text-left">${i18n.t('hub.navbar.projects')}</button>
+      ${currentUserId === 1 ? `<button id="mobile-admin-link" class="text-white text-lg p-2 rounded-lg hover:bg-white/10 text-left">${i18n.t('hub.navbar.admin')}</button>` : ''}
+    </div>
+  `;
 
   nav.appendChild(leftDiv);
+  nav.appendChild(mobileMenu);
 
-  // 右侧：login in 或 用户名
+  // 汉堡菜单切换事件（在元素插入DOM后添加）
+  hamburgerBtn.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+  });
+
+  // 点击菜单项跳转并关闭菜单
+  mobileMenu.querySelector('#mobile-pricing-link')?.addEventListener('click', () => {
+    window.location.href = '/pricing';
+  });
+  mobileMenu.querySelector('#mobile-docs-link')?.addEventListener('click', () => {
+    window.location.href = '/docs';
+  });
+  mobileMenu.querySelector('#mobile-download-link')?.addEventListener('click', () => {
+    window.location.href = '/download';
+  });
+  mobileMenu.querySelector('#mobile-projects-link')?.addEventListener('click', () => {
+    window.location.href = '/projects';
+  });
+  mobileMenu.querySelector('#mobile-admin-link')?.addEventListener('click', () => {
+    window.location.href = '/admin';
+  });
+
+  // 点击页面其他地方关闭菜单
+  document.addEventListener('click', (e) => {
+    if (!hamburgerBtn.contains(e.target as Node) && !mobileMenu.contains(e.target as Node)) {
+      mobileMenu.classList.add('hidden');
+    }
+  });
+
+   // 右侧：login in 或 用户名
    const rightDiv = document.createElement('div');
-   rightDiv.className = 'relative flex items-center';
+   rightDiv.className = 'relative flex items-center space-x-2';
   const userBtn = document.createElement('button');
      userBtn.id = 'user-link';
-     userBtn.className = ' bg-[#46A3FF] text-white text-[1.5rem] border border-white w-[4vh] h-[4vh] rounded-full cursor-pointer hover:bg-[#2E96FF] flex items-center justify-center';
+     userBtn.className = ' bg-[#46A3FF] text-white text-[1.2rem] sm:text-[1.5rem] border border-white w-[3.5vh] h-[3.5vh] sm:w-[4vh] sm:h-[4vh] rounded-full cursor-pointer hover:bg-[#2E96FF] flex items-center justify-center';
      userBtn.onclick = () => window.location.href = '/login';
 
      const iconImg = document.createElement('img');
      iconImg.src = userIcon;
-     iconImg.className = 'w-6 h-6';
+     iconImg.className = 'w-5 h-5 sm:w-6 sm:h-6';
      userBtn.appendChild(iconImg);
 
     // 添加消息按钮（放在语言切换按钮左边）
     const navMessageBtn = document.createElement('button');
     navMessageBtn.id = 'nav-message-btn';
-    navMessageBtn.className = 'bg-transparent text-white border-none w-10 h-10 rounded-full cursor-pointer hover:scale-110 flex items-center justify-center';
+    navMessageBtn.className = 'bg-transparent text-white border-none w-8 h-8 sm:w-10 sm:h-10 rounded-full cursor-pointer hover:scale-110 flex items-center justify-center';
     navMessageBtn.onclick = () => window.location.href = '/messages'; // 假设跳转到消息页面
 
     const messageIcon = document.createElement('img');
     messageIcon.src = messagesIcon;
-    messageIcon.className = 'w-[3vh] h-[3vh]';
+    messageIcon.className = 'w-[2.5vh] h-[2.5vh] sm:w-[3vh] sm:h-[3vh]';
     navMessageBtn.appendChild(messageIcon);
     rightDiv.appendChild(navMessageBtn);
 
