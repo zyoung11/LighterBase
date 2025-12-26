@@ -353,6 +353,7 @@ async downloadProject(projectId: number, hubAuthToken: string){
 async sendInvitation(payload:any){
   await checkAuthentication(hubAuthToken,'hubAuthToken','login')
   const tempUrl = "http://www.smallwoodice.cn:8080"
+    // const tempUrl = "http://localhost:8080"
   try{
     const res = await fetch(`${tempUrl}/api/team`,{
       method:"POST",
