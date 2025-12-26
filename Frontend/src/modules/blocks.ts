@@ -1,9 +1,20 @@
 import { i18n } from "./i18n";
 
+let isPopupOpen = false;
+let pendingResolve: ((value: boolean) => void) | null = null;
 
 const blocks={
 popupConfirm(text: string): Promise<boolean> {
   return new Promise((resolve) => {
+    if (isPopupOpen && pendingResolve) {
+      pendingResolve(false);
+      isPopupOpen = false;
+      pendingResolve = null;
+    }
+
+    isPopupOpen = true;
+    pendingResolve = resolve;
+
     const backdrop = document.createElement('div');
     backdrop.className =
       'fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm';
@@ -31,6 +42,8 @@ popupConfirm(text: string): Promise<boolean> {
 
     const clean = (result: boolean) => {
       backdrop.remove();
+      isPopupOpen = false;
+      pendingResolve = null;
       resolve(result);
     };
 
@@ -274,7 +287,6 @@ createButton(text: string): HTMLButtonElement {
 
 //   return nav;
 // }
-
 
 
 
