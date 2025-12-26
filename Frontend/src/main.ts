@@ -355,12 +355,12 @@ async function loadQueryHistory() {
       historyContainer.innerHTML = '';
       response.queries.forEach((query: any) => {
         const queryItem = document.createElement('div');
-        queryItem.className = `flex items-center p-2 rounded cursor-pointer ${currentQueryId === query.id ? 'bg-[#4a4f52]' : 'bg-[#2B2F31] hover:bg-[#3a3f41]'}`;
+        queryItem.className = `flex items-center p-2 rounded cursor-pointer hover:scale-105 transition-transform duration-300`;
         queryItem.setAttribute('data-query-id', query.id.toString()); queryItem.innerHTML = `
-          <div class="w-[80%] text-sm text-gray-300" title="${query.queries}">
-            ${query.queries.substring(0, 30)}${query.queries.length > 30 ? '...' : ''}
+          <div class="w-[80%] text-md text-gray-300" title="${query.queries}">
+            ${query.queries.substring(0, 12)}${query.queries.length > 12 ? '...' : ''}
           </div>
-          <button class="w-[10%] bg-teansparent " data-query-id="${query.id}"><img src="${deleteImg}">  </button>
+          <button class="w-[10%] bg-transparent hover:scale-105 transition-transform duration-300" data-query-id="${query.id}"><img src="${deleteImg}">  </button>
         `;
         queryItem.addEventListener('click', async (e) => {
            const target = e.target as HTMLElement;

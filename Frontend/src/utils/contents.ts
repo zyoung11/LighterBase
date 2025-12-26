@@ -167,7 +167,7 @@ query: `
         </div>
 
         <!-- 侧边栏 -->
-        <div class="w-64 bg-[#1B1E1F] border-l border-[#2B2F31] p-4 flex flex-col">
+        <div class="w-64 bg-transparent border-l border-[#2B2F31] p-4 flex flex-col">
             <h3 class="text-lg font-semibold text-gray-200 mb-4">查询历史</h3>
             <div id="query-history" class="space-y-2 flex-1 overflow-y-auto scrollbar-hide">
                 <!-- 动态历史 -->
