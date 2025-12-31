@@ -1,5 +1,5 @@
 import { playAudio } from "openai/helpers/audio.mjs";
-import { URL,hubAuthToken } from "../apis/api";
+import { URL,hubAuthToken, theURL } from "../apis/api";
 import blocks from "../modules/blocks";
 import { checkAuthentication } from "../modules/tools.ts";
 const projects = {
@@ -30,7 +30,7 @@ async getAllUsers(x:number,y:number){
   }
 },
 
-async getSingleUser(id: number){
+async getSingleUser(id: number,URL?:string){
   await checkAuthentication(hubAuthToken,'hubAuthToken','login')
   try{
     const res = await fetch(`${URL}/api/users/${id}`,{
@@ -114,15 +114,15 @@ async checkInit(){
 
 async checkInvited(projectId:number){
   try{
-    const res = await fetch(`${URL}/api/team/init/${projectId}`,{
-      method:"GET"
+    const res = await fetch(`${theURL}/api/team/init/${projectId}`,{
+      method:"GET",
+      headers:{
+        "Content-Type": "application/json",
+        "Authorization":`Bearer ${hubAuthToken}`
+      }
     });
-
-    if(res.ok){
       const data =await res.json()
-      return data
-    }
-
+      return data.init
   
   }catch(e){
     console.log("检查初始化失败：",e)
@@ -131,7 +131,6 @@ async checkInvited(projectId:number){
 
 
 async refreshHubToken(URL:string,theToken:string){
-  await checkAuthentication(theToken,'hubAuthToken','login')
   try{
     const res = await fetch(`${URL}/api/users/refresh`,{
       method:"POST",
@@ -191,10 +190,10 @@ async getAllProjects(){
         "Authorization":`Bearer ${hubAuthToken}`
       }
     });
-    console.log(hubAuthToken)
+    // console.log(hubAuthToken)
     if(res.ok){
       const data =await res.json()
-      console.log(data)
+      // console.log(data)
       return data
     }
 
@@ -352,10 +351,8 @@ async downloadProject(projectId: number, hubAuthToken: string){
 //可选 admin 或 readonly
 async sendInvitation(payload:any){
   await checkAuthentication(hubAuthToken,'hubAuthToken','login')
-  const tempUrl = "http://www.smallwoodice.cn:8080"
-    // const tempUrl = "http://localhost:8080"
   try{
-    const res = await fetch(`${tempUrl}/api/team`,{
+    const res = await fetch(`${theURL}/api/team`,{
       method:"POST",
       headers:{
         "Content-Type":"application/json",

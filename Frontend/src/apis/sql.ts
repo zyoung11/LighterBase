@@ -37,7 +37,7 @@ const sql = {
     },
 
     async lastestSql(): Promise<any> {
-        await checkAuthentication(authToken,'authToken','projects')
+        // await checkAuthentication(authToken,'authToken','projects')
         try {
             const response = await fetch(`${URL}/api/sqls/latest`, {
                 method: "GET",

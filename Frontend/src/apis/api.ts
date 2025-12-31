@@ -1,5 +1,5 @@
-const apiUrl = "http://localhost:8080"
-// const apiUrl = "http://www.smallwoodice.cn:8080"
+// const apiUrl = "http://localhost:8080"
+const apiUrl = "http://www.smallwoodice.cn:8080"
 let theURL = apiUrl
 let URL = apiUrl
 const cookies = document.cookie;

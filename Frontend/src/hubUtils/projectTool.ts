@@ -17,6 +17,19 @@ import auth from "../apis/auth";
 
 let token = getCookie("hubAuthToken")!
 
+function convertToBeijingTime(utcTimeString: string): string {
+  if (!utcTimeString) return '';
+  const date = new Date(utcTimeString);
+  const beijingDate = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+  const year = beijingDate.getFullYear();
+  const month = String(beijingDate.getMonth() + 1).padStart(2, '0');
+  const day = String(beijingDate.getDate()).padStart(2, '0');
+  const hours = String(beijingDate.getHours()).padStart(2, '0');
+  const minutes = String(beijingDate.getMinutes()).padStart(2, '0');
+  const seconds = String(beijingDate.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
 let blocks:any[] = [];
 const app = document.getElementById('app');
 const gridContainer = document.createElement('div');
@@ -114,8 +127,12 @@ mobileProjectDetails.innerHTML = `
 if(app)
   app.appendChild(mobileProjectDetails);
 
-// 创建点击外部返回的功能
-function handleOutsideClick(event: MouseEvent) {
+ // 创建点击外部返回的功能
+ function handleOutsideClick(event: MouseEvent) {
+   if (isDetailsOpening) {
+     isDetailsOpening = false;
+     return;
+   }
   const target = event.target as HTMLElement;
   const mobile = isMobile();
 
@@ -186,12 +203,11 @@ function handleOutsideClick(event: MouseEvent) {
   blocks.forEach(renderBlock);
 }
 
-// 添加全局点击事件监听
-document.addEventListener('click', handleOutsideClick);
+ // 添加全局点击事件监听
+ let isDetailsOpening = false;
+ document.addEventListener('click', handleOutsideClick);
 
-// --- 辅助函数 ---
-// 检测是否为手机端
-function isMobile() {
+ function isMobile() {
   return window.innerWidth < 768;
 }
 
@@ -246,8 +262,8 @@ async function renderBlock(block:any) {
             <div class="flex-grow"></div>
             <div class="flex flex-col justify-end pb-2">
               <div class="mb-2">
-                <p class="text-gray-400 text-xs">${i18n.t('common.created')}${block.project.create_at}</p>
-                <p class="text-gray-400 text-xs">${i18n.t('common.updated')}${block.project.update_at}</p>
+                <p class="text-gray-400 text-xs">${i18n.t('common.created')}${convertToBeijingTime(block.project.create_at)}</p>
+                <p class="text-gray-400 text-xs">${i18n.t('common.updated')}${convertToBeijingTime(block.project.update_at)}</p>
               </div>
               <div class="flex justify-end items-center">
                  ${block.project.user_id !== currentUserId ? '<div class="w-2 h-2 bg-[#46A3FF] rounded-full mr-2"></div>' : ''}
@@ -274,8 +290,8 @@ async function renderBlock(block:any) {
             <div class="flex-grow"></div> <!-- Spacer to push dates and button to bottom -->
             <div class="flex flex-col justify-end pb-2"> <!-- Container for dates and button -->
               <div class="mb-2"> <!-- Dates container -->
-                <p class="text-gray-400 text-xs">${i18n.t('common.created')}${block.project.create_at}</p>
-                <p class="text-gray-400 text-xs">${i18n.t('common.updated')}${block.project.update_at}</p>
+                <p class="text-gray-400 text-xs">${i18n.t('common.created')}${convertToBeijingTime(block.project.create_at)}</p>
+                <p class="text-gray-400 text-xs">${i18n.t('common.updated')}${convertToBeijingTime(block.project.update_at)}</p>
               </div>
               <div class="flex justify-end items-center"> <!-- Button container -->
                  ${block.project.user_id !== currentUserId ? '<div class="w-2 h-2 bg-[#46A3FF] rounded-full mr-2"></div>' : ''}
@@ -292,7 +308,7 @@ async function renderBlock(block:any) {
     }
     block.element.addEventListener('click', (event: MouseEvent) => {
   event.stopPropagation();
-  console.log('点击区块:', block.id);
+  // console.log('点击区块:', block.id);
   // 确保元素可以接收点击事件
   block.element.style.pointerEvents = 'auto';
   selectBlock(block.id);
@@ -609,6 +625,8 @@ const projectUrl = theURL + '/' + userId + '/' + projectId;
   }
   projectDetails.classList.remove('hidden');
 
+  isDetailsOpening = true;
+
   // 滚动到顶部
   gridContainer.scrollTop = 0;
 
@@ -625,6 +643,8 @@ function showMobileDetails(selected: any, userId: string, projectId: number, cur
   gridContainer.classList.add('hidden');
   mobileDetails.classList.remove('hidden');
   mobileDetails.classList.add('flex');
+
+  isDetailsOpening = true;
 
   // 填充数据
   const mobileDetailAvatar = mobileDetails.querySelector('#mobile-detail-avatar') as HTMLImageElement;
@@ -676,7 +696,7 @@ function showMobileDetails(selected: any, userId: string, projectId: number, cur
       if (startModal) {
         startModal.classList.remove('hidden');
         startModal.classList.add('flex');
-        initializeStartModal(userId, projectId);
+        initializeStartModal(Number(userId), projectId);
       }
     };
   }
@@ -732,7 +752,7 @@ function showMobileDetails(selected: any, userId: string, projectId: number, cur
 // }
 
 // --- 开始项目模态窗口逻辑 ---
-async function initializeStartModal(userId: string, projectId: number) {
+async function initializeStartModal(userId: number, projectId: number) {
   const startModal = document.getElementById('start-modal') as HTMLDivElement;
   const startForm = document.getElementById('start-form') as HTMLFormElement;
   const startUsernameInput = document.getElementById('start-username') as HTMLInputElement;
@@ -746,39 +766,39 @@ async function initializeStartModal(userId: string, projectId: number) {
     return;
   }
 
-const projectUrl = theURL + '/' + userId + '/' + projectId;
+  const projectUrl = theURL + '/' + userId + '/' + projectId;
     setBaseUrl(projectUrl);
 
-  // 检查是否为空数据库
-  // 检查用户是否被邀请
-  const inviteData = await projects.checkInvited(projectId);
-  const isInvited = inviteData && inviteData.init;
-  
-  // 检查是否为空数据库
-  const isEmpty = await auth.isLogin();
+  const payload = parseJwt(token);
+  const currentUserId = payload ? payload.user_id || payload.id : null;
 
-  // 如果是被邀请的，不需要验证isLogin，直接允许注册
-  if (isInvited) {
+  const isOwner = currentUserId == userId;
+  const isEmpty = await auth.isLogin();
+  const isInvited = await projects.checkInvited(projectId);
+
+  if (!isOwner) {
+    if(!isInvited){
     startEmailField.style.display = 'block';
     startEmailInput.required = true;
-    
-    // 获取被邀请用户的信息并自动填入邮箱
-    if (inviteData.user_id) {
-      const userData = await projects.getSingleUser(inviteData.user_id);
-      if (userData && userData.email) {
-        startEmailInput.value = userData.email;
-        startEmailInput.readOnly = true;
-        startEmailInput.style.cursor = 'not-allowed';
-      }
+    // const userData = await projects.getSingleUser(userId, "http://localhost:8080");
+    // if (userData && userData.email) {
+    //   startEmailInput.value = userData.email;
+    //   startEmailInput.readOnly = true;
+    //   startEmailInput.style.cursor = 'not-allowed';
+    // }
+    }else{
+    startEmailField.style.display = 'none';
+    startEmailInput.required = false;
     }
-  } else if (!isEmpty) {
+  }else{
+  if (!isEmpty) {
     startEmailField.style.display = 'block';
     startEmailInput.required = true;
   } else {
     startEmailField.style.display = 'none';
     startEmailInput.required = false;
   }
-
+}
   startModal.onclick = (e) => {
     if (e.target === startModal) {
       startModal.classList.add('hidden');
@@ -788,7 +808,6 @@ const projectUrl = theURL + '/' + userId + '/' + projectId;
     }
   };
 
-  // 表单提交
   startForm.onsubmit = async (e) => {
     e.preventDefault();
 
@@ -799,16 +818,30 @@ const projectUrl = theURL + '/' + userId + '/' + projectId;
       return;
     }
 
-    if (!isEmpty) {
-      // 设置注册输入
+    if (!isOwner ) {
+      if(!isInvited){
+      hiddenUsername.value = startUsernameInput.value;
+      hiddenPassword.value = startPasswordInput.value;
+      const success = await auth.userRegister(startUsernameInput.value, startPasswordInput.value, startEmailInput.value);
+      if (success) {
+        await auth.userLogin(startUsernameInput.value, startPasswordInput.value);
+        }
+      }else {
+      await auth.userLogin(startUsernameInput.value, startPasswordInput.value);
+    }
+
+    } else{
+      if(!isEmpty){
       hiddenUsername.value = startUsernameInput.value;
       hiddenPassword.value = startPasswordInput.value;
       const success = await auth.userRegister(startUsernameInput.value, startPasswordInput.value, startEmailInput.value);
       if (success) {
         await auth.userLogin(startUsernameInput.value, startPasswordInput.value);
       }
-    } else {
+    }else {
       await auth.userLogin(startUsernameInput.value, startPasswordInput.value);
+
+      }
     }
 
   };
