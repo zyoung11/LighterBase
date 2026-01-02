@@ -780,12 +780,12 @@ async function initializeStartModal(userId: number, projectId: number) {
     if(!isInvited){
     startEmailField.style.display = 'block';
     startEmailInput.required = true;
-    // const userData = await projects.getSingleUser(userId, "http://localhost:8080");
-    // if (userData && userData.email) {
-    //   startEmailInput.value = userData.email;
-    //   startEmailInput.readOnly = true;
-    //   startEmailInput.style.cursor = 'not-allowed';
-    // }
+    const userData = await projects.getSingleUser(currentUserId);
+    if (userData && userData.email) {
+      startEmailInput.value = userData.email;
+      startEmailInput.readOnly = true;
+      startEmailInput.style.cursor = 'not-allowed';
+    }
     }else{
     startEmailField.style.display = 'none';
     startEmailInput.required = false;

@@ -30,10 +30,10 @@ async getAllUsers(x:number,y:number){
   }
 },
 
-async getSingleUser(id: number,URL?:string){
+async getSingleUser(id: number){
   await checkAuthentication(hubAuthToken,'hubAuthToken','login')
   try{
-    const res = await fetch(`${URL}/api/users/${id}`,{
+    const res = await fetch(`${theURL}/api/users/${id}`,{
       method:"GET",
       headers:{
         "Authorization":`Bearer ${hubAuthToken}`
